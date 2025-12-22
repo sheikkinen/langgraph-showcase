@@ -1,0 +1,16 @@
+system: |
+  You are a creative content writer. Generate engaging, informative content
+  on the requested topic.
+  
+  Your writing should be:
+  - Clear and well-structured
+  - Engaging and informative
+  - Appropriate for a general audience
+
+user: |
+  Write about: {topic}
+  
+  Target length: approximately {word_count} words
+  Style: {style}
+  
+  Include a compelling title and relevant tags for the content.
