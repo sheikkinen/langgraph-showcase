@@ -1,6 +1,6 @@
 # LangGraph Showcase App
 
-A minimal, self-contained demonstration of a production-ready LLM pipeline using:
+A minimal, self-contained demonstration / template of a LLM pipeline using:
 
 - **YAML Prompts** - Declarative prompt templates
 - **Pydantic Models** - Structured LLM outputs
@@ -390,6 +390,31 @@ class MyOutput(BaseModel):
 ```python
 result = execute_prompt("prompt", output_model=MyOutput)
 ```
+
+## Known Issues & Future Improvements
+
+This project demonstrates solid production patterns but underutilizes some LangGraph capabilities:
+
+### Missing LangGraph Features
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Branching/Parallel Nodes | ❌ | Current graph is linear; doesn't show conditional routing or parallel execution |
+| Human-in-the-Loop | ❌ | No `interrupt_before` / `interrupt_after` demonstration |
+| Streaming | ❌ | No streaming output support |
+| Native Checkpointing | ❌ | Uses custom SQLite instead of LangGraph's `SqliteSaver` / `MemorySaver` |
+| Tool/Agent Patterns | ❌ | No ReAct agent or tool calling examples |
+| Sub-graphs | ❌ | No nested graph composition |
+| Multiple LLM Providers | ❌ | Hardcoded to Anthropic only |
+| Async Nodes | ❌ | Everything is synchronous |
+
+### Potential Enhancements
+
+1. **Add parallel nodes** - Run `sentiment_analysis` and `topic_extraction` concurrently
+2. **Add a cycle** - Content → review → revise loop with max iterations
+3. **Use LangGraph's checkpointer** - Replace custom DB with native persistence
+4. **Add streaming** - `--stream` CLI flag for real-time output
+5. **Add agent example** - Demonstrate tool calling patterns
 
 ## License
 
