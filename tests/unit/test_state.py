@@ -32,7 +32,7 @@ class TestCreateInitialState:
         """Thread ID should be auto-generated if not provided."""
         state = create_initial_state(topic="test")
         assert state["thread_id"] is not None
-        assert len(state["thread_id"]) == 8
+        assert len(state["thread_id"]) == 16  # 16 hex chars for better uniqueness
 
     def test_initial_values_are_none(self):
         """Pipeline outputs should be None initially."""

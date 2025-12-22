@@ -4,9 +4,10 @@ Defines the TypedDict state used by the showcase pipeline,
 following LangGraph's state management pattern.
 """
 
+from datetime import datetime
 from typing import TypedDict
 
-from showcase.models.schemas import Analysis, GeneratedContent
+from showcase.models.schemas import Analysis, GeneratedContent, PipelineError
 
 
 class ShowcaseState(TypedDict, total=False):
@@ -25,7 +26,11 @@ class ShowcaseState(TypedDict, total=False):
         final_summary: Output from the summarize node
         
         current_step: Name of the current pipeline step
-        error: Any error message from the pipeline
+        error: Structured error information (if any)
+        errors: List of all errors encountered
+        
+        started_at: Pipeline start timestamp
+        completed_at: Pipeline completion timestamp
     """
     # Input fields
     thread_id: str
@@ -40,7 +45,12 @@ class ShowcaseState(TypedDict, total=False):
     
     # Metadata
     current_step: str
-    error: str | None
+    error: PipelineError | None  # Current/last error
+    errors: list[PipelineError]  # All errors encountered
+    
+    # Timestamps
+    started_at: datetime | None
+    completed_at: datetime | None
 
 
 def create_initial_state(
@@ -63,7 +73,7 @@ def create_initial_state(
     import uuid
     
     return ShowcaseState(
-        thread_id=thread_id or str(uuid.uuid4())[:8],
+        thread_id=thread_id or uuid.uuid4().hex[:16],  # 16 chars for better uniqueness
         topic=topic,
         style=style,
         word_count=word_count,
@@ -72,4 +82,7 @@ def create_initial_state(
         final_summary=None,
         current_step="init",
         error=None,
+        errors=[],
+        started_at=datetime.now(),
+        completed_at=None,
     )

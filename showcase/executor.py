@@ -4,6 +4,8 @@ This module provides a simple, reusable executor for YAML-defined prompts
 with support for structured outputs via Pydantic models.
 """
 
+import logging
+import time
 from typing import Type, TypeVar
 
 import yaml
@@ -15,10 +17,38 @@ from showcase.config import (
     DEFAULT_MAX_TOKENS,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
+    MAX_RETRIES,
     PROMPTS_DIR,
+    RETRY_BASE_DELAY,
+    RETRY_MAX_DELAY,
 )
 
+logger = logging.getLogger(__name__)
+
 T = TypeVar("T", bound=BaseModel)
+
+
+# Exceptions that are retryable
+RETRYABLE_EXCEPTIONS = (
+    "RateLimitError",
+    "APIConnectionError", 
+    "APITimeoutError",
+    "InternalServerError",
+    "ServiceUnavailableError",
+)
+
+
+def is_retryable(exception: Exception) -> bool:
+    """Check if an exception is retryable.
+    
+    Args:
+        exception: The exception to check
+        
+    Returns:
+        True if the exception should be retried
+    """
+    exc_name = type(exception).__name__
+    return exc_name in RETRYABLE_EXCEPTIONS or "rate" in exc_name.lower()
 
 
 def load_prompt(prompt_name: str) -> dict:
@@ -75,6 +105,8 @@ def execute_prompt(
 ) -> T | str:
     """Execute a YAML prompt with optional structured output.
     
+    Uses the singleton PromptExecutor for LLM caching.
+    
     Args:
         prompt_name: Name of the prompt file (without .yaml)
         variables: Variables to substitute in the template
@@ -92,46 +124,36 @@ def execute_prompt(
         ... )
         >>> print(result.message)
     """
-    variables = variables or {}
-    
-    # Load and format prompt
-    prompt_config = load_prompt(prompt_name)
-    system_text = format_prompt(prompt_config.get("system", ""), variables)
-    user_text = format_prompt(prompt_config["user"], variables)
-    
-    # Create messages
-    messages = []
-    if system_text:
-        messages.append(SystemMessage(content=system_text))
-    messages.append(HumanMessage(content=user_text))
-    
-    # Create LLM
-    llm = create_llm(temperature=temperature)
-    
-    # Execute with or without structured output
-    if output_model:
-        structured_llm = llm.with_structured_output(output_model)
-        return structured_llm.invoke(messages)
-    else:
-        response = llm.invoke(messages)
-        return response.content
+    return get_executor().execute(
+        prompt_name=prompt_name,
+        variables=variables,
+        output_model=output_model,
+        temperature=temperature,
+    )
 
 
-# Convenience function for the main executor pattern
-def get_executor():
-    """Get a reusable executor instance.
+# Singleton executor instance for LLM caching
+_executor: "PromptExecutor | None" = None
+
+
+def get_executor() -> "PromptExecutor":
+    """Get the singleton executor instance.
     
     Returns:
-        PromptExecutor instance
+        Shared PromptExecutor instance with LLM caching
     """
-    return PromptExecutor()
+    global _executor
+    if _executor is None:
+        _executor = PromptExecutor()
+    return _executor
 
 
 class PromptExecutor:
-    """Reusable executor with LLM caching."""
+    """Reusable executor with LLM caching and retry logic."""
     
-    def __init__(self):
+    def __init__(self, max_retries: int = MAX_RETRIES):
         self._llm_cache: dict[str, ChatAnthropic] = {}
+        self._max_retries = max_retries
     
     def _get_llm(self, temperature: float = DEFAULT_TEMPERATURE) -> ChatAnthropic:
         """Get or create cached LLM instance."""
@@ -140,6 +162,47 @@ class PromptExecutor:
             self._llm_cache[cache_key] = create_llm(temperature=temperature)
         return self._llm_cache[cache_key]
     
+    def _invoke_with_retry(self, llm, messages, output_model: Type[T] | None = None) -> T | str:
+        """Invoke LLM with exponential backoff retry.
+        
+        Args:
+            llm: The LLM instance to use
+            messages: Messages to send
+            output_model: Optional Pydantic model for structured output
+            
+        Returns:
+            LLM response (parsed model or string)
+            
+        Raises:
+            Last exception if all retries fail
+        """
+        last_exception = None
+        
+        for attempt in range(self._max_retries):
+            try:
+                if output_model:
+                    structured_llm = llm.with_structured_output(output_model)
+                    return structured_llm.invoke(messages)
+                else:
+                    response = llm.invoke(messages)
+                    return response.content
+                    
+            except Exception as e:
+                last_exception = e
+                
+                if not is_retryable(e) or attempt == self._max_retries - 1:
+                    raise
+                
+                # Exponential backoff with jitter
+                delay = min(RETRY_BASE_DELAY * (2 ** attempt), RETRY_MAX_DELAY)
+                logger.warning(
+                    f"LLM call failed (attempt {attempt + 1}/{self._max_retries}): {e}. "
+                    f"Retrying in {delay:.1f}s..."
+                )
+                time.sleep(delay)
+        
+        raise last_exception
+    
     def execute(
         self,
         prompt_name: str,
@@ -147,9 +210,10 @@ class PromptExecutor:
         output_model: Type[T] | None = None,
         temperature: float = DEFAULT_TEMPERATURE,
     ) -> T | str:
-        """Execute a prompt using cached LLM.
+        """Execute a prompt using cached LLM with retry logic.
         
-        Same interface as execute_prompt() but with LLM caching.
+        Same interface as execute_prompt() but with LLM caching and
+        automatic retry for transient failures.
         """
         variables = variables or {}
         
@@ -164,9 +228,4 @@ class PromptExecutor:
         
         llm = self._get_llm(temperature=temperature)
         
-        if output_model:
-            structured_llm = llm.with_structured_output(output_model)
-            return structured_llm.invoke(messages)
-        else:
-            response = llm.invoke(messages)
-            return response.content
+        return self._invoke_with_retry(llm, messages, output_model)

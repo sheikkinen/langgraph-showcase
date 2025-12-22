@@ -55,7 +55,7 @@ class TestGenerateNode:
         result = generate_node(empty_state)
         
         assert "error" in result
-        assert "API Error" in result["error"]
+        assert "API Error" in result["error"].message
         assert result["current_step"] == "generate"
 
 
@@ -78,7 +78,8 @@ class TestAnalyzeNode:
         result = analyze_node(empty_state)
         
         assert "error" in result
-        assert result["error"] == "No content to analyze"
+        assert result["error"].message == "No content to analyze"
+        assert result["error"].node == "analyze"
 
     @patch("showcase.nodes.content.execute_prompt")
     def test_analyze_error_handling(self, mock_execute, sample_state):
@@ -88,7 +89,7 @@ class TestAnalyzeNode:
         result = analyze_node(sample_state)
         
         assert "error" in result
-        assert "API Error" in result["error"]
+        assert "API Error" in result["error"].message
 
 
 class TestSummarizeNode:
@@ -110,7 +111,7 @@ class TestSummarizeNode:
         result = summarize_node(empty_state)
         
         assert "error" in result
-        assert "Missing data" in result["error"]
+        assert "Missing data" in result["error"].message
 
     def test_summarize_without_analysis(self, sample_state):
         """Summarize node should error without analysis."""
@@ -119,7 +120,7 @@ class TestSummarizeNode:
         result = summarize_node(sample_state)
         
         assert "error" in result
-        assert "Missing data" in result["error"]
+        assert "Missing data" in result["error"].message
 
     @patch("showcase.nodes.content.execute_prompt")
     def test_summarize_error_handling(self, mock_execute, sample_state):
@@ -129,4 +130,4 @@ class TestSummarizeNode:
         result = summarize_node(sample_state)
         
         assert "error" in result
-        assert "API Error" in result["error"]
+        assert "API Error" in result["error"].message

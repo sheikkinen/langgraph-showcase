@@ -3,8 +3,36 @@
 Each node is a function that takes state and returns a partial update.
 """
 
+import logging
+
 from showcase.executor import execute_prompt
-from showcase.models import Analysis, GeneratedContent, ShowcaseState
+from showcase.models import (
+    Analysis,
+    ErrorType,
+    GeneratedContent,
+    PipelineError,
+    ShowcaseState,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def _add_error(state: ShowcaseState, error: PipelineError) -> dict:
+    """Helper to add an error to the state.
+    
+    Args:
+        state: Current pipeline state
+        error: The error to add
+        
+    Returns:
+        State update dict with error info
+    """
+    errors = list(state.get("errors", []))
+    errors.append(error)
+    return {
+        "error": error,
+        "errors": errors,
+    }
 
 
 def generate_node(state: ShowcaseState) -> dict:
@@ -14,6 +42,7 @@ def generate_node(state: ShowcaseState) -> dict:
     with structured output.
     """
     print(f"📝 Generating content about: {state['topic']}")
+    logger.info("Starting content generation", extra={"topic": state["topic"]})
     
     try:
         result = execute_prompt(
@@ -28,6 +57,7 @@ def generate_node(state: ShowcaseState) -> dict:
         )
         
         print(f"   ✓ Generated: {result.title} ({result.word_count} words)")
+        logger.info("Content generated", extra={"title": result.title, "words": result.word_count})
         
         return {
             "generated": result,
@@ -35,8 +65,11 @@ def generate_node(state: ShowcaseState) -> dict:
         }
     except Exception as e:
         print(f"   ✗ Error: {e}")
+        logger.error("Generation failed", exc_info=True)
+        
+        error = PipelineError.from_exception(e, node="generate")
         return {
-            "error": f"Generation failed: {e}",
+            **_add_error(state, error),
             "current_step": "generate",
         }
 
@@ -49,9 +82,16 @@ def analyze_node(state: ShowcaseState) -> dict:
     """
     generated = state.get("generated")
     if not generated:
-        return {"error": "No content to analyze", "current_step": "analyze"}
+        error = PipelineError(
+            type=ErrorType.STATE_ERROR,
+            message="No content to analyze",
+            node="analyze",
+            retryable=False,
+        )
+        return {**_add_error(state, error), "current_step": "analyze"}
     
     print(f"🔍 Analyzing: {generated.title}")
+    logger.info("Starting analysis", extra={"title": generated.title})
     
     try:
         result = execute_prompt(
@@ -62,6 +102,7 @@ def analyze_node(state: ShowcaseState) -> dict:
         )
         
         print(f"   ✓ Sentiment: {result.sentiment} (confidence: {result.confidence:.2f})")
+        logger.info("Analysis complete", extra={"sentiment": result.sentiment})
         
         return {
             "analysis": result,
@@ -69,8 +110,11 @@ def analyze_node(state: ShowcaseState) -> dict:
         }
     except Exception as e:
         print(f"   ✗ Error: {e}")
+        logger.error("Analysis failed", exc_info=True)
+        
+        error = PipelineError.from_exception(e, node="analyze")
         return {
-            "error": f"Analysis failed: {e}",
+            **_add_error(state, error),
             "current_step": "analyze",
         }
 
@@ -85,9 +129,16 @@ def summarize_node(state: ShowcaseState) -> dict:
     analysis = state.get("analysis")
     
     if not generated or not analysis:
-        return {"error": "Missing data for summary", "current_step": "summarize"}
+        error = PipelineError(
+            type=ErrorType.STATE_ERROR,
+            message="Missing data for summary",
+            node="summarize",
+            retryable=False,
+        )
+        return {**_add_error(state, error), "current_step": "summarize"}
     
     print("📊 Creating final summary...")
+    logger.info("Starting summary")
     
     try:
         result = execute_prompt(
@@ -103,6 +154,7 @@ def summarize_node(state: ShowcaseState) -> dict:
         )
         
         print("   ✓ Summary complete")
+        logger.info("Summary complete")
         
         return {
             "final_summary": result,
@@ -110,8 +162,11 @@ def summarize_node(state: ShowcaseState) -> dict:
         }
     except Exception as e:
         print(f"   ✗ Error: {e}")
+        logger.error("Summary failed", exc_info=True)
+        
+        error = PipelineError.from_exception(e, node="summarize")
         return {
-            "error": f"Summary failed: {e}",
+            **_add_error(state, error),
             "current_step": "summarize",
         }
 

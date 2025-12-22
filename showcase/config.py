@@ -28,8 +28,26 @@ DEFAULT_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_TOKENS = 4096
 
+# Retry Configuration
+MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
+RETRY_BASE_DELAY = float(os.getenv("LLM_RETRY_DELAY", "1.0"))  # seconds
+RETRY_MAX_DELAY = float(os.getenv("LLM_RETRY_MAX_DELAY", "30.0"))  # seconds
+
 # CLI Constraints
 MAX_TOPIC_LENGTH = 500
 MAX_WORD_COUNT = 5000
 MIN_WORD_COUNT = 50
 VALID_STYLES = ("informative", "casual", "technical")
+
+# Input Sanitization Patterns
+# Characters that could be used for prompt injection
+DANGEROUS_PATTERNS = [
+    "ignore previous",
+    "ignore above",
+    "disregard",
+    "forget everything",
+    "new instructions",
+    "system:",
+    "<|",  # Token delimiters
+    "|>",
+]

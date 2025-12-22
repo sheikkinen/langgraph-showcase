@@ -13,10 +13,11 @@ import argparse
 import sys
 
 from showcase.config import MAX_TOPIC_LENGTH, MAX_WORD_COUNT, MIN_WORD_COUNT, VALID_STYLES
+from showcase.utils.sanitize import sanitize_topic
 
 
 def validate_run_args(args) -> bool:
-    """Validate run command arguments.
+    """Validate and sanitize run command arguments.
     
     Args:
         args: Parsed arguments namespace
@@ -24,13 +25,19 @@ def validate_run_args(args) -> bool:
     Returns:
         True if valid, False otherwise (prints error message)
     """
-    if len(args.topic) > MAX_TOPIC_LENGTH:
-        print(f"❌ Topic too long: max {MAX_TOPIC_LENGTH} characters")
+    # Sanitize topic
+    result = sanitize_topic(args.topic)
+    if not result.is_safe:
+        for warning in result.warnings:
+            print(f"❌ {warning}")
         return False
     
-    if len(args.topic.strip()) == 0:
-        print("❌ Topic cannot be empty")
-        return False
+    # Update args with sanitized value
+    args.topic = result.value
+    
+    # Print any warnings (e.g., truncation)
+    for warning in result.warnings:
+        print(f"⚠️  {warning}")
     
     if args.word_count < MIN_WORD_COUNT or args.word_count > MAX_WORD_COUNT:
         print(f"❌ Word count must be between {MIN_WORD_COUNT} and {MAX_WORD_COUNT}")

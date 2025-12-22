@@ -37,10 +37,12 @@ class TestValidateRunArgs:
         assert validate_run_args(args) is False
 
     def test_topic_too_long(self):
-        """Topic exceeding max length should fail validation."""
-        long_topic = "x" * (MAX_TOPIC_LENGTH + 1)
+        """Topic exceeding max length should be truncated with warning."""
+        long_topic = "x" * (MAX_TOPIC_LENGTH + 100)
         args = self._create_args(topic=long_topic)
-        assert validate_run_args(args) is False
+        # Should pass but truncate the topic
+        assert validate_run_args(args) is True
+        assert len(args.topic) == MAX_TOPIC_LENGTH
 
     def test_topic_at_max_length(self):
         """Topic at max length should pass validation."""

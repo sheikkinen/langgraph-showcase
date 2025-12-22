@@ -82,7 +82,7 @@ class TestRunPipeline:
         result = run_pipeline(topic="test")
         
         assert result.get("error") is not None
-        assert "API Error" in result["error"]
+        assert "API Error" in result["error"].message
         assert result.get("analysis") is None
         assert result.get("final_summary") is None
 

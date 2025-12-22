@@ -9,8 +9,10 @@ from showcase.utils.langsmith import (
     log_execution,
     print_run_tree,
 )
+from showcase.utils.logging import get_logger, setup_logging
 
 __all__ = [
+    # LangSmith
     "get_client",
     "get_project_name",
     "is_tracing_enabled",
@@ -18,4 +20,7 @@ __all__ = [
     "print_run_tree",
     "log_execution",
     "get_run_url",
+    # Logging
+    "get_logger",
+    "setup_logging",
 ]
