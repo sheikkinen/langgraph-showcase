@@ -6,7 +6,7 @@ from showcase.executor import load_prompt, format_prompt
 def test_jinja2_analyze_list_prompt():
     """Test the analyze_list prompt with Jinja2 features."""
     prompt = load_prompt("analyze_list")
-    
+
     # Test data
     variables = {
         "items": [
@@ -15,22 +15,22 @@ def test_jinja2_analyze_list_prompt():
                 "topic": "Artificial Intelligence",
                 "word_count": 500,
                 "tags": ["AI", "machine learning", "technology"],
-                "content": "Artificial intelligence is transforming how we interact with technology..."
+                "content": "Artificial intelligence is transforming how we interact with technology...",
             },
             {
                 "title": "Machine Learning Basics",
                 "topic": "ML Fundamentals",
                 "word_count": 750,
                 "tags": ["ML", "algorithms", "data"],
-                "content": "Machine learning involves training models on data to make predictions..."
+                "content": "Machine learning involves training models on data to make predictions...",
             },
         ],
-        "min_confidence": 0.8
+        "min_confidence": 0.8,
     }
-    
+
     # Format the template field
     result = format_prompt(prompt["template"], variables)
-    
+
     # Verify Jinja2 features are working
     assert "2 items" in result  # {{ items|length }} filter
     assert "1. Introduction to AI" in result  # {{ loop.index }}
@@ -39,7 +39,7 @@ def test_jinja2_analyze_list_prompt():
     assert "**Tags**: ML, algorithms, data" in result
     assert "confidence >= 0.8" in result  # conditional rendering
     assert "**Content**:" in result  # if/else conditional
-    
+
     # Verify loop counter
     assert "### 1." in result
     assert "### 2." in result
@@ -48,14 +48,11 @@ def test_jinja2_analyze_list_prompt():
 def test_jinja2_prompt_with_empty_list():
     """Test analyze_list prompt with empty items."""
     prompt = load_prompt("analyze_list")
-    
-    variables = {
-        "items": [],
-        "min_confidence": None
-    }
-    
+
+    variables = {"items": [], "min_confidence": None}
+
     result = format_prompt(prompt["template"], variables)
-    
+
     # Should handle empty list gracefully
     assert "0 items" in result
     assert "### 1." not in result  # No items to iterate
@@ -64,7 +61,7 @@ def test_jinja2_prompt_with_empty_list():
 def test_jinja2_prompt_without_optional_fields():
     """Test analyze_list prompt without optional fields."""
     prompt = load_prompt("analyze_list")
-    
+
     variables = {
         "items": [
             {
@@ -72,13 +69,13 @@ def test_jinja2_prompt_without_optional_fields():
                 "topic": "Brief",
                 "word_count": 100,
                 "tags": [],  # Empty tags
-                "content": "Short content without tags"
+                "content": "Short content without tags",
             },
         ],
     }
-    
+
     result = format_prompt(prompt["template"], variables)
-    
+
     # Should handle missing/empty optional fields
     assert "1 items" in result
     assert "Short Content" in result

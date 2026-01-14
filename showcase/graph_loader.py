@@ -23,34 +23,36 @@ logger = logging.getLogger(__name__)
 
 def _validate_config(config: dict) -> None:
     """Validate YAML configuration structure.
-    
+
     Args:
         config: Parsed YAML dictionary
-        
+
     Raises:
         ValueError: If required fields are missing or invalid
     """
     # Check required top-level keys
     if not config.get("nodes"):
         raise ValueError("Graph config missing required 'nodes' section")
-    
+
     if not config.get("edges"):
         raise ValueError("Graph config missing required 'edges' section")
-    
+
     nodes = config["nodes"]
-    
+
     # Validate each node
     for node_name, node_config in nodes.items():
         node_type = node_config.get("type", "llm")
         # Only LLM and router nodes require prompt
         if node_type in ("llm", "router") and not node_config.get("prompt"):
             raise ValueError(f"Node '{node_name}' missing required 'prompt' field")
-        
+
         # Validate router nodes
         if node_config.get("type") == "router":
             if not node_config.get("routes"):
-                raise ValueError(f"Router node '{node_name}' missing required 'routes' field")
-            
+                raise ValueError(
+                    f"Router node '{node_name}' missing required 'routes' field"
+                )
+
             # Validate route targets exist
             for route_key, target_node in node_config["routes"].items():
                 if target_node not in nodes:
@@ -58,7 +60,7 @@ def _validate_config(config: dict) -> None:
                         f"Router node '{node_name}' route '{route_key}' points to "
                         f"nonexistent node '{target_node}'"
                     )
-    
+
     # Validate each edge
     for i, edge in enumerate(config["edges"]):
         if "from" not in edge:
@@ -82,16 +84,16 @@ class GraphConfig:
 
     def __init__(self, config: dict):
         """Initialize from parsed YAML dict.
-        
+
         Args:
             config: Parsed YAML configuration dictionary
-            
+
         Raises:
             ValueError: If config is invalid
         """
         # Validate before storing
         _validate_config(config)
-        
+
         self.version = config.get("version", "1.0")
         self.name = config.get("name", "unnamed")
         self.description = config.get("description", "")
@@ -105,13 +107,13 @@ class GraphConfig:
 
 def load_graph_config(path: str | Path) -> GraphConfig:
     """Load and parse a YAML graph definition.
-    
+
     Args:
         path: Path to the YAML file
-        
+
     Returns:
         GraphConfig instance
-        
+
     Raises:
         FileNotFoundError: If the file doesn't exist
         ValueError: If the YAML is invalid or missing required fields
@@ -128,10 +130,10 @@ def load_graph_config(path: str | Path) -> GraphConfig:
 
 def _should_continue(state: ShowcaseState) -> str:
     """Default routing condition: continue or end.
-    
+
     Args:
         state: Current pipeline state
-        
+
     Returns:
         'continue' if should proceed, 'end' if should stop
     """
@@ -144,17 +146,17 @@ def _should_continue(state: ShowcaseState) -> str:
 
 def compile_graph(config: GraphConfig) -> StateGraph:
     """Compile a GraphConfig to a LangGraph StateGraph.
-    
+
     Args:
         config: Parsed graph configuration
-        
+
     Returns:
         StateGraph ready for compilation
     """
     # Get state class
     state_class = resolve_class(config.state_class)
     graph = StateGraph(state_class)
-    
+
     # Parse tools if present
     tools = parse_tools(config.tools)
     if tools:
@@ -166,9 +168,9 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         enriched_config = dict(node_config)
         if node_name in config.loop_limits:
             enriched_config["loop_limit"] = config.loop_limits[node_name]
-        
+
         node_type = node_config.get("type", "llm")
-        
+
         if node_type == "tool":
             node_fn = create_tool_node(node_name, enriched_config, tools)
         elif node_type == "agent":
@@ -176,7 +178,7 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         else:
             # LLM and router nodes
             node_fn = create_node_function(node_name, enriched_config, config.defaults)
-        
+
         graph.add_node(node_name, node_fn)
         logger.info(f"Added node: {node_name} (type={node_type})")
 
@@ -223,7 +225,7 @@ def compile_graph(config: GraphConfig) -> StateGraph:
             _should_continue,
             conditional_targets,
         )
-    
+
     # Add router conditional edges
     for source_node, target_nodes in router_edges.items():
         # Create routing function that reads _route from state
@@ -234,43 +236,53 @@ def compile_graph(config: GraphConfig) -> StateGraph:
                     return route
                 # Default to first target
                 return targets[0]
+
             return router_fn
-        
+
         # Create mapping: target_name -> target_name (identity mapping)
         route_mapping = {target: target for target in target_nodes}
-        
+
         graph.add_conditional_edges(
             source_node,
             make_router_fn(target_nodes),
             route_mapping,
         )
-    
+
     # Add expression-based conditional edges
     for source_node, expr_edges in expression_edges.items():
+
         def make_expr_router_fn(edges: list[tuple[str, str]]) -> Callable:
             """Create router that evaluates expression conditions."""
+
             def expr_router_fn(state: ShowcaseState) -> str:
                 # Check loop limit first
                 if state.get("_loop_limit_reached"):
                     return END
-                    
+
                 for condition, target in edges:
                     try:
                         if evaluate_condition(condition, state):
-                            logger.debug(f"Condition '{condition}' matched, routing to {target}")
+                            logger.debug(
+                                f"Condition '{condition}' matched, routing to {target}"
+                            )
                             return target
                     except ValueError as e:
-                        logger.warning(f"Failed to evaluate condition '{condition}': {e}")
+                        logger.warning(
+                            f"Failed to evaluate condition '{condition}': {e}"
+                        )
                 # No condition matched - this shouldn't happen with well-formed graphs
-                logger.warning(f"No condition matched for {source_node}, defaulting to END")
+                logger.warning(
+                    f"No condition matched for {source_node}, defaulting to END"
+                )
                 return END
+
             return expr_router_fn
-        
+
         # Build mapping: all possible targets
         targets = {target for _, target in expr_edges}
         targets.add(END)  # Always include END as fallback
         route_mapping = {t: (END if t == END else t) for t in targets}
-        
+
         graph.add_conditional_edges(
             source_node,
             make_expr_router_fn(expr_edges),
@@ -282,12 +294,12 @@ def compile_graph(config: GraphConfig) -> StateGraph:
 
 def load_and_compile(path: str | Path) -> StateGraph:
     """Load YAML and compile to StateGraph.
-    
+
     Convenience function combining load_graph_config and compile_graph.
-    
+
     Args:
         path: Path to YAML graph definition
-        
+
     Returns:
         StateGraph ready for compilation
     """

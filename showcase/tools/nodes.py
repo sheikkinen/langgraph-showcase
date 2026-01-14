@@ -21,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 def resolve_state_variable(template: str, state: dict[str, Any]) -> str:
     """Resolve {state.path.to.value} to actual state value.
-    
+
     Args:
         template: String with {state.key} or {state.nested.key} placeholders
         state: Current graph state
-        
+
     Returns:
         Resolved string value
     """
@@ -55,11 +55,11 @@ def resolve_variables(
     state: dict[str, Any],
 ) -> dict[str, Any]:
     """Resolve all variable templates against state.
-    
+
     Args:
         variables_config: Dict of {var_name: template_string}
         state: Current graph state
-        
+
     Returns:
         Dict of {var_name: resolved_value}
     """
@@ -75,15 +75,15 @@ def create_tool_node(
     tools: dict[str, ShellToolConfig],
 ) -> Callable[[ShowcaseState], dict]:
     """Create a node that executes a shell tool.
-    
+
     Args:
         node_name: Name of the node in the graph
         node_config: Node configuration from YAML
         tools: Registry of available tools
-        
+
     Returns:
         Node function that executes the tool
-        
+
     Raises:
         KeyError: If tool name not in registry
     """

@@ -22,7 +22,7 @@ class TestResumeFromAnalyze:
             tags=[],
         )
         state["current_step"] = "generate"
-        
+
         # Mock returns: analyze, summarize (generate is skipped)
         mock_analysis = Analysis(
             summary="Resume summary",
@@ -31,10 +31,10 @@ class TestResumeFromAnalyze:
             confidence=0.7,
         )
         mock_execute.side_effect = [mock_analysis, "Final summary"]
-        
+
         graph = build_resume_graph().compile()
         result = graph.invoke(state)
-        
+
         assert mock_execute.call_count == 2  # analyze + summarize only
         assert result["analysis"] == mock_analysis
         assert result["final_summary"] == "Final summary"
@@ -62,13 +62,13 @@ class TestResumeFromSummarize:
             confidence=0.8,
         )
         state["current_step"] = "analyze"
-        
+
         # Mock returns: only summarize (generate and analyze skipped)
         mock_execute.return_value = "Resumed final summary"
-        
+
         graph = build_resume_graph().compile()
         result = graph.invoke(state)
-        
+
         assert mock_execute.call_count == 1  # summarize only
         assert result["final_summary"] == "Resumed final summary"
         assert result["generated"].title == "Title"  # Preserved

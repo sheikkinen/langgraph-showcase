@@ -8,7 +8,6 @@ Tests the memory features from Section 6 working together:
 """
 
 import json
-import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -26,14 +25,14 @@ class TestMemoryDemoGraphConfig:
     def test_graph_config_loads(self):
         """Graph config loads without errors."""
         from showcase.graph_loader import load_graph_config
-        
+
         config = load_graph_config("graphs/memory-demo.yaml")
         assert config.name == "memory_demo"
 
     def test_graph_has_agent_node(self):
         """Graph includes an agent node."""
         from showcase.graph_loader import load_graph_config
-        
+
         config = load_graph_config("graphs/memory-demo.yaml")
         assert "review" in config.nodes
         assert config.nodes["review"]["type"] == "agent"
@@ -41,7 +40,7 @@ class TestMemoryDemoGraphConfig:
     def test_graph_has_tools(self):
         """Graph defines git tools."""
         from showcase.graph_loader import load_graph_config
-        
+
         config = load_graph_config("graphs/memory-demo.yaml")
         tools = config.tools or {}
         assert "git_log" in tools
@@ -59,7 +58,7 @@ class TestCodeReviewPrompt:
     def test_prompt_loads(self):
         """Prompt loads with system and user templates."""
         from showcase.executor import load_prompt
-        
+
         prompt = load_prompt("code_review")
         assert "system" in prompt
         assert "user" in prompt
@@ -73,7 +72,7 @@ class TestCheckpointerIntegration:
         from showcase.builder import build_graph
         from showcase.storage.checkpointer import get_checkpointer
         import tempfile
-        
+
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
             # Should not raise
@@ -85,11 +84,11 @@ class TestCheckpointerIntegration:
         from showcase.builder import build_graph
         from showcase.storage.checkpointer import get_checkpointer
         import tempfile
-        
+
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
-            graph = build_graph(checkpointer=checkpointer)
-            
+            _graph = build_graph(checkpointer=checkpointer)  # noqa: F841
+
             # Should accept configurable with thread_id
             config = {"configurable": {"thread_id": "test-123"}}
             # Just verify config structure is valid
@@ -102,7 +101,7 @@ class TestCLIThreadFlag:
     def test_cli_has_thread_argument(self):
         """CLI accepts --thread argument."""
         from showcase.cli import create_parser
-        
+
         parser = create_parser()
         # Parse with thread flag
         args = parser.parse_args(["run", "--topic", "test", "--thread", "abc123"])
@@ -111,7 +110,7 @@ class TestCLIThreadFlag:
     def test_thread_defaults_to_none(self):
         """Thread defaults to None when not specified."""
         from showcase.cli import create_parser
-        
+
         parser = create_parser()
         args = parser.parse_args(["run", "--topic", "test"])
         assert args.thread is None
@@ -123,7 +122,7 @@ class TestCLIExportFlag:
     def test_cli_has_export_argument(self):
         """CLI accepts --export flag."""
         from showcase.cli import create_parser
-        
+
         parser = create_parser()
         args = parser.parse_args(["run", "--topic", "test", "--export"])
         assert args.export is True
@@ -131,7 +130,7 @@ class TestCLIExportFlag:
     def test_export_defaults_to_false(self):
         """Export defaults to False when not specified."""
         from showcase.cli import create_parser
-        
+
         parser = create_parser()
         args = parser.parse_args(["run", "--topic", "test"])
         assert args.export is False
@@ -174,7 +173,6 @@ class TestMemoryDemoEndToEnd:
     def test_multi_turn_preserves_history(self):
         """Multi-turn conversation preserves message history."""
         from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
 
         mock_response = AIMessage(content="Based on our previous discussion...")
 
@@ -195,10 +193,12 @@ class TestMemoryDemoEndToEnd:
                 {"tools": [], "state_key": "response"},
                 {},
             )
-            result = node_fn({
-                "input": "What about tests?",
-                "messages": existing_messages,
-            })
+            result = node_fn(
+                {
+                    "input": "What about tests?",
+                    "messages": existing_messages,
+                }
+            )
 
         # New messages should be returned
         assert len(result["messages"]) >= 2  # At least human + AI
@@ -210,7 +210,7 @@ class TestMemoryDemoEndToEnd:
 
         tool_response = AIMessage(
             content="",
-            tool_calls=[{"name": "git_log", "args": {"count": "5"}, "id": "call_1"}]
+            tool_calls=[{"name": "git_log", "args": {"count": "5"}, "id": "call_1"}],
         )
         final_response = AIMessage(content="Found 5 commits")
 
@@ -226,10 +226,9 @@ class TestMemoryDemoEndToEnd:
         with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
             with patch("showcase.tools.agent.execute_shell_tool") as mock_exec:
                 mock_exec.return_value = MagicMock(
-                    success=True,
-                    output="abc123 First commit\ndef456 Second commit"
+                    success=True, output="abc123 First commit\ndef456 Second commit"
                 )
-                
+
                 node_fn = create_agent_node(
                     "review",
                     {
@@ -256,7 +255,7 @@ class TestMemoryDemoEndToEnd:
                 {"tool": "git_log", "args": {"count": "5"}, "output": "..."}
             ],
         }
-        
+
         config = {
             "response": {"format": "markdown", "filename": "review.md"},
             "_tool_results": {"format": "json", "filename": "tool_outputs.json"},
@@ -265,12 +264,12 @@ class TestMemoryDemoEndToEnd:
         paths = export_result(state, config, base_path=tmp_path)
 
         assert len(paths) == 2
-        
+
         # Check markdown file
         md_path = tmp_path / "demo-123" / "review.md"
         assert md_path.exists()
         assert "Code Review Summary" in md_path.read_text()
-        
+
         # Check JSON file
         json_path = tmp_path / "demo-123" / "tool_outputs.json"
         assert json_path.exists()

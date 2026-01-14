@@ -112,7 +112,7 @@ class TestLoadGraphConfig:
     def test_load_valid_yaml(self, sample_yaml_file):
         """Load a valid graph YAML file."""
         config = load_graph_config(sample_yaml_file)
-        
+
         assert isinstance(config, GraphConfig)
         assert config.name == "test_graph"
         assert config.version == "1.0"
@@ -120,14 +120,14 @@ class TestLoadGraphConfig:
     def test_load_missing_file_raises(self, tmp_path):
         """FileNotFoundError for missing file."""
         missing = tmp_path / "nonexistent.yaml"
-        
+
         with pytest.raises(FileNotFoundError):
             load_graph_config(missing)
 
     def test_parse_nodes(self, sample_config):
         """Nodes parsed with correct attributes."""
         assert "generate" in sample_config.nodes
-        
+
         node = sample_config.nodes["generate"]
         assert node["type"] == "llm"
         assert node["prompt"] == "generate"
@@ -236,24 +236,28 @@ class TestCreateNodeFunction:
             "variables": {"topic": "{state.topic}"},
             "state_key": "generated",
         }
-        
+
         mock_result = GeneratedContent(
             title="Test",
             content="Content",
             word_count=100,
             tags=[],
         )
-        
-        with patch("showcase.node_factory.execute_prompt", return_value=mock_result) as mock:
-            node_fn = create_node_function("generate", node_config, {"provider": "mistral"})
+
+        with patch(
+            "showcase.node_factory.execute_prompt", return_value=mock_result
+        ) as mock:
+            node_fn = create_node_function(
+                "generate", node_config, {"provider": "mistral"}
+            )
             result = node_fn(sample_state)
-            
+
             mock.assert_called_once()
             call_kwargs = mock.call_args
             assert call_kwargs[1]["prompt_name"] == "generate"
             assert call_kwargs[1]["temperature"] == 0.8
             assert call_kwargs[1]["variables"]["topic"] == "machine learning"
-        
+
         assert result["generated"] == mock_result
         assert result["current_step"] == "generate"
 
@@ -266,10 +270,10 @@ class TestCreateNodeFunction:
             "state_key": "analysis",
             "requires": ["generated"],  # generated is None in sample_state
         }
-        
+
         node_fn = create_node_function("analyze", node_config, {})
         result = node_fn(sample_state)
-        
+
         assert result.get("error") is not None
         assert "generated" in result["error"].message
 
@@ -281,11 +285,13 @@ class TestCreateNodeFunction:
             "variables": {"topic": "{state.topic}"},
             "state_key": "generated",
         }
-        
-        with patch("showcase.node_factory.execute_prompt", side_effect=ValueError("API Error")):
+
+        with patch(
+            "showcase.node_factory.execute_prompt", side_effect=ValueError("API Error")
+        ):
             node_fn = create_node_function("generate", node_config, {})
             result = node_fn(sample_state)
-        
+
         assert result.get("error") is not None
         assert "API Error" in result["error"].message
 
@@ -299,13 +305,15 @@ class TestCreateNodeFunction:
             # No temperature specified - should use default
         }
         defaults = {"provider": "anthropic", "temperature": 0.5}
-        
+
         mock_result = GeneratedContent(title="T", content="C", word_count=1, tags=[])
-        
-        with patch("showcase.node_factory.execute_prompt", return_value=mock_result) as mock:
+
+        with patch(
+            "showcase.node_factory.execute_prompt", return_value=mock_result
+        ) as mock:
             node_fn = create_node_function("generate", node_config, defaults)
             node_fn(sample_state)
-            
+
             assert mock.call_args[1]["temperature"] == 0.5
             assert mock.call_args[1]["provider"] == "anthropic"
 
@@ -321,26 +329,26 @@ class TestCompileGraph:
     def test_graph_has_all_nodes(self, sample_config):
         """Compiled graph contains all defined nodes."""
         graph = compile_graph(sample_config)
-        
+
         # Check node was added (nodes are stored in graph.nodes)
         assert "generate" in graph.nodes
 
     def test_entry_point_set(self, sample_config):
         """START edge sets entry point correctly."""
         graph = compile_graph(sample_config)
-        
+
         # Verify entry point by checking the graph compiles and
         # the first node is reachable from START
         compiled = graph.compile()
         assert compiled is not None
-        
+
         # The 'generate' node should be in the graph
         assert "generate" in graph.nodes
 
     def test_edges_connected(self, sample_config):
         """Edges create correct topology."""
         graph = compile_graph(sample_config)
-        
+
         # Compile to check it works
         compiled = graph.compile()
         assert compiled is not None
@@ -357,14 +365,14 @@ class TestLoadAndCompile:
     def test_load_and_compile_showcase(self):
         """Load the actual showcase.yaml and compile it."""
         from showcase.config import PROJECT_ROOT
-        
+
         showcase_path = PROJECT_ROOT / "graphs" / "showcase.yaml"
         if not showcase_path.exists():
             pytest.skip("showcase.yaml not created yet")
-        
+
         graph = load_and_compile(showcase_path)
         compiled = graph.compile()
-        
+
         assert compiled is not None
 
     def test_compiled_graph_invocable(self, sample_yaml_file):
@@ -375,20 +383,20 @@ class TestLoadAndCompile:
             word_count=100,
             tags=[],
         )
-        
+
         with patch("showcase.node_factory.execute_prompt", return_value=mock_result):
             graph = load_and_compile(sample_yaml_file)
             compiled = graph.compile()
-            
+
             initial_state = {
                 "thread_id": "test",
                 "topic": "AI",
                 "style": "casual",
                 "word_count": 100,
             }
-            
+
             result = compiled.invoke(initial_state)
-            
+
             assert result.get("generated") is not None
             assert result["generated"].title == "Test"
 
@@ -412,7 +420,7 @@ edges:
 """
         yaml_file = tmp_path / "no_nodes.yaml"
         yaml_file.write_text(yaml_content)
-        
+
         with pytest.raises(ValueError, match="nodes"):
             load_graph_config(yaml_file)
 
@@ -428,7 +436,7 @@ nodes:
 """
         yaml_file = tmp_path / "no_edges.yaml"
         yaml_file.write_text(yaml_content)
-        
+
         with pytest.raises(ValueError, match="edges"):
             load_graph_config(yaml_file)
 
@@ -447,7 +455,7 @@ edges:
 """
         yaml_file = tmp_path / "no_prompt.yaml"
         yaml_file.write_text(yaml_content)
-        
+
         with pytest.raises(ValueError, match="prompt"):
             load_graph_config(yaml_file)
 
@@ -465,7 +473,7 @@ edges:
 """
         yaml_file = tmp_path / "no_from.yaml"
         yaml_file.write_text(yaml_content)
-        
+
         with pytest.raises(ValueError, match="from"):
             load_graph_config(yaml_file)
 
@@ -483,7 +491,7 @@ edges:
 """
         yaml_file = tmp_path / "no_to.yaml"
         yaml_file.write_text(yaml_content)
-        
+
         with pytest.raises(ValueError, match="to"):
             load_graph_config(yaml_file)
 

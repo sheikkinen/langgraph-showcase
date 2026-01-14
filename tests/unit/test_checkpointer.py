@@ -1,10 +1,6 @@
 """Tests for native LangGraph checkpointer integration."""
 
-import sqlite3
-import tempfile
 from pathlib import Path
-
-import pytest
 
 
 class TestGetCheckpointer:
@@ -41,9 +37,7 @@ class TestGetCheckpointer:
 
         # Monkeypatch the default path
         default_db = tmp_path / "default.db"
-        monkeypatch.setattr(
-            "showcase.storage.checkpointer.DATABASE_PATH", default_db
-        )
+        monkeypatch.setattr("showcase.storage.checkpointer.DATABASE_PATH", default_db)
 
         checkpointer = get_checkpointer(None)
         assert checkpointer is not None

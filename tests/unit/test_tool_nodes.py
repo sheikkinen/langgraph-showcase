@@ -1,6 +1,5 @@
 """Tests for tool nodes (type: tool)."""
 
-
 import pytest
 
 from showcase.tools.shell import ShellToolConfig

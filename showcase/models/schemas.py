@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 class ErrorType(str, Enum):
     """Types of errors that can occur in the pipeline."""
-    
+
     LLM_ERROR = "llm_error"  # LLM API errors (rate limit, timeout, etc.)
     VALIDATION_ERROR = "validation_error"  # Pydantic validation failures
     PROMPT_ERROR = "prompt_error"  # Missing prompt, template errors
@@ -28,28 +28,29 @@ class ErrorType(str, Enum):
 
 class PipelineError(BaseModel):
     """Structured error information for pipeline failures."""
-    
+
     type: ErrorType = Field(description="Category of error")
     message: str = Field(description="Human-readable error message")
     node: str = Field(description="Node where error occurred")
     timestamp: datetime = Field(default_factory=datetime.now)
-    retryable: bool = Field(default=False, description="Whether this error can be retried")
-    details: dict[str, Any] = Field(default_factory=dict, description="Additional error context")
-    
+    retryable: bool = Field(
+        default=False, description="Whether this error can be retried"
+    )
+    details: dict[str, Any] = Field(
+        default_factory=dict, description="Additional error context"
+    )
+
     @classmethod
     def from_exception(
-        cls, 
-        e: Exception, 
-        node: str, 
-        error_type: ErrorType | None = None
+        cls, e: Exception, node: str, error_type: ErrorType | None = None
     ) -> "PipelineError":
         """Create a PipelineError from an exception.
-        
+
         Args:
             e: The exception that occurred
             node: Name of the node where error occurred
             error_type: Optional explicit error type
-            
+
         Returns:
             PipelineError instance
         """
@@ -70,7 +71,7 @@ class PipelineError(BaseModel):
                 retryable = False
         else:
             retryable = error_type == ErrorType.LLM_ERROR
-        
+
         return cls(
             type=error_type,
             message=str(e),
@@ -87,7 +88,7 @@ class PipelineError(BaseModel):
 
 class Greeting(BaseModel):
     """Structured greeting response."""
-    
+
     message: str = Field(description="The greeting message")
     tone: str = Field(description="The tone used (formal, casual, enthusiastic)")
     language: str = Field(default="en", description="Language code")
@@ -95,16 +96,18 @@ class Greeting(BaseModel):
 
 class Analysis(BaseModel):
     """Structured content analysis."""
-    
+
     summary: str = Field(description="Brief summary of the content")
     key_points: list[str] = Field(description="Main points extracted")
-    sentiment: str = Field(description="Overall sentiment: positive, neutral, or negative")
+    sentiment: str = Field(
+        description="Overall sentiment: positive, neutral, or negative"
+    )
     confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
 
 
 class GeneratedContent(BaseModel):
     """Creative content generation output."""
-    
+
     title: str = Field(description="Title of the generated content")
     content: str = Field(description="The main generated text")
     word_count: int = Field(description="Approximate word count")
@@ -113,7 +116,7 @@ class GeneratedContent(BaseModel):
 
 class PipelineResult(BaseModel):
     """Combined result from multi-step pipeline."""
-    
+
     topic: str = Field(description="Original topic")
     generated: GeneratedContent = Field(description="Generated content")
     analysis: Analysis = Field(description="Analysis of generated content")
@@ -127,7 +130,7 @@ class PipelineResult(BaseModel):
 
 class ToneClassification(BaseModel):
     """Classification result for tone-based routing."""
-    
+
     tone: str = Field(description="Detected tone: positive, negative, or neutral")
     confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
     reasoning: str = Field(description="Explanation for the classification")
@@ -140,29 +143,32 @@ class ToneClassification(BaseModel):
 
 class DraftContent(BaseModel):
     """Draft output that can be refined through critique cycles."""
-    
+
     content: str = Field(description="The draft content")
     version: int = Field(default=1, description="Draft version number")
 
 
 class Critique(BaseModel):
     """Self-critique output for refinement decisions."""
-    
+
     score: float = Field(ge=0.0, le=1.0, description="Quality score 0-1")
     feedback: str = Field(description="Specific improvement suggestions")
-    issues: list[str] = Field(default_factory=list, description="List of identified issues")
-    should_refine: bool = Field(default=True, description="Whether refinement is needed")
+    issues: list[str] = Field(
+        default_factory=list, description="List of identified issues"
+    )
+    should_refine: bool = Field(
+        default=True, description="Whether refinement is needed"
+    )
 
 
 class GitReport(BaseModel):
     """Structured git repository report."""
-    
+
     title: str = Field(description="Report title")
     summary: str = Field(description="Executive summary of findings")
     key_findings: list[str] = Field(description="Main findings from analysis")
     recommendations: list[str] = Field(
-        default_factory=list, 
-        description="Suggested actions or areas to focus on"
+        default_factory=list, description="Suggested actions or areas to focus on"
     )
 
 
@@ -173,40 +179,38 @@ class GitReport(BaseModel):
 
 class GenericReport(BaseModel):
     """Flexible report structure for any use case.
-    
+
     Use this when you don't need a custom schema - works for most
     analysis and summary tasks. The LLM can populate any combination
     of the optional fields as needed.
-    
+
     Example usage in graph YAML:
         nodes:
           analyze:
             type: llm
             prompt: my_analysis
             output_model: showcase.models.GenericReport
-    
+
     Example prompts can request specific sections:
         "Analyze the repository and provide:
          - A summary of findings
          - Key findings as bullet points
          - Recommendations for improvement"
     """
-    
+
     title: str = Field(description="Report title")
     summary: str = Field(description="Executive summary")
     sections: dict[str, Any] = Field(
         default_factory=dict,
-        description="Named sections with any content (strings, dicts, lists)"
+        description="Named sections with any content (strings, dicts, lists)",
     )
     findings: list[str] = Field(
-        default_factory=list,
-        description="Key findings or bullet points"
+        default_factory=list, description="Key findings or bullet points"
     )
     recommendations: list[str] = Field(
-        default_factory=list,
-        description="Suggested actions or areas to focus on"
+        default_factory=list, description="Suggested actions or areas to focus on"
     )
     metadata: dict[str, Any] = Field(
         default_factory=dict,
-        description="Additional key-value data (author, version, tags, etc.)"
+        description="Additional key-value data (author, version, tags, etc.)",
     )

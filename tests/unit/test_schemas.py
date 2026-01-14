@@ -120,9 +120,7 @@ class TestPipelineResult:
 
     def test_valid_result(self):
         """Valid pipeline result should be created."""
-        generated = GeneratedContent(
-            title="Test", content="Content", word_count=1
-        )
+        generated = GeneratedContent(title="Test", content="Content", word_count=1)
         analysis = Analysis(
             summary="Summary",
             key_points=["Point"],

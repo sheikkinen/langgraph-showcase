@@ -79,19 +79,19 @@ class TestCreateAgentNode:
         """LLM tool call executes shell command."""
         # Mock LLM that first calls a tool, then returns answer
         mock_llm = MagicMock()
-        
+
         # First response: call a tool
         first_response = MagicMock()
         first_response.tool_calls = [
             {"id": "call1", "name": "echo", "args": {"message": "test"}}
         ]
         first_response.content = ""
-        
+
         # Second response: final answer
         second_response = MagicMock()
         second_response.tool_calls = []
         second_response.content = "I echoed: test"
-        
+
         mock_llm.bind_tools.return_value = mock_llm
         mock_llm.invoke.side_effect = [first_response, second_response]
         mock_create_llm.return_value = mock_llm
@@ -147,19 +147,19 @@ class TestCreateAgentNode:
     def test_tool_result_returned_to_llm(self, mock_create_llm):
         """LLM sees tool output in next turn."""
         mock_llm = MagicMock()
-        
+
         # First: call tool
         first_response = MagicMock()
         first_response.tool_calls = [
             {"id": "call1", "name": "calc", "args": {"expr": "2+2"}}
         ]
         first_response.content = ""
-        
+
         # Second: answer based on tool result
         second_response = MagicMock()
         second_response.tool_calls = []
         second_response.content = "The result is 4"
-        
+
         mock_llm.bind_tools.return_value = mock_llm
         mock_llm.invoke.side_effect = [first_response, second_response]
         mock_create_llm.return_value = mock_llm

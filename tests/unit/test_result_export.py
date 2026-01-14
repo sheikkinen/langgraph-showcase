@@ -4,13 +4,13 @@ Tests field-based result export with multiple formats.
 """
 
 import json
-import pytest
 from pathlib import Path
 from pydantic import BaseModel, Field
 
 
 class SampleModel(BaseModel):
     """Sample model for testing."""
+
     title: str
     content: str
     tags: list[str] = Field(default_factory=list)

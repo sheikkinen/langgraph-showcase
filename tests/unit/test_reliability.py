@@ -109,16 +109,16 @@ class TestOnErrorSkip:
     def test_skip_returns_empty_on_failure(self, mock_execute):
         """Node with on_error: skip returns empty dict on failure."""
         mock_execute.side_effect = Exception("LLM failed")
-        
+
         node_config = {
             "prompt": "generate",
             "on_error": "skip",
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         # Should NOT have error, should continue pipeline
         assert "error" not in result
         assert result.get("current_step") == "generate"
@@ -127,14 +127,14 @@ class TestOnErrorSkip:
     def test_skip_logs_warning(self, mock_execute):
         """Node with on_error: skip logs a warning."""
         mock_execute.side_effect = Exception("LLM failed")
-        
+
         node_config = {
             "prompt": "generate",
             "on_error": "skip",
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         with patch("showcase.node_factory.logger") as mock_logger:
             node_fn({"topic": "test"})
             mock_logger.warning.assert_called()
@@ -157,7 +157,7 @@ class TestOnErrorRetry:
             Exception("Retry 2"),
             MagicMock(content="Success"),
         ]
-        
+
         node_config = {
             "prompt": "generate",
             "on_error": "retry",
@@ -165,9 +165,9 @@ class TestOnErrorRetry:
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         assert mock_execute.call_count == 3
         assert "generated" in result
 
@@ -175,7 +175,7 @@ class TestOnErrorRetry:
     def test_retry_exhausted_returns_error(self, mock_execute):
         """After max_retries exhausted, returns error."""
         mock_execute.side_effect = Exception("Always fails")
-        
+
         node_config = {
             "prompt": "generate",
             "on_error": "retry",
@@ -183,9 +183,9 @@ class TestOnErrorRetry:
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         assert mock_execute.call_count == 2
         assert "error" in result
         assert isinstance(result["error"], PipelineError)
@@ -203,14 +203,14 @@ class TestOnErrorFail:
     def test_fail_raises_exception(self, mock_execute):
         """Node with on_error: fail raises exception."""
         mock_execute.side_effect = Exception("LLM failed")
-        
+
         node_config = {
             "prompt": "generate",
             "on_error": "fail",
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         with pytest.raises(Exception, match="LLM failed"):
             node_fn({"topic": "test"})
 
@@ -231,7 +231,7 @@ class TestOnErrorFallback:
             Exception("Mistral failed"),
             MagicMock(content="Anthropic success"),
         ]
-        
+
         node_config = {
             "prompt": "generate",
             "provider": "mistral",
@@ -240,9 +240,9 @@ class TestOnErrorFallback:
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         assert mock_execute.call_count == 2
         # Second call should use anthropic
         second_call = mock_execute.call_args_list[1]
@@ -253,7 +253,7 @@ class TestOnErrorFallback:
     def test_all_providers_fail_returns_error(self, mock_execute):
         """When all providers fail, returns error with all attempts."""
         mock_execute.side_effect = Exception("All fail")
-        
+
         node_config = {
             "prompt": "generate",
             "provider": "mistral",
@@ -262,9 +262,9 @@ class TestOnErrorFallback:
             "state_key": "generated",
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         assert mock_execute.call_count == 2
         assert "error" in result
         assert isinstance(result["error"], PipelineError)
@@ -282,16 +282,16 @@ class TestDefaultOnError:
     def test_default_behavior_returns_error(self, mock_execute):
         """Without on_error config, current behavior returns error in state."""
         mock_execute.side_effect = Exception("LLM failed")
-        
+
         node_config = {
             "prompt": "generate",
             "state_key": "generated",
             # No on_error specified
         }
         node_fn = create_node_function("generate", node_config, {})
-        
+
         result = node_fn({"topic": "test"})
-        
+
         # Current default behavior: return error in state
         assert "error" in result
         assert isinstance(result["error"], PipelineError)

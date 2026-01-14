@@ -1,6 +1,5 @@
 """Tests for showcase.utils.sanitize module."""
 
-
 from showcase.utils.sanitize import sanitize_topic, sanitize_variables
 from showcase.config import MAX_TOPIC_LENGTH
 
@@ -83,11 +82,13 @@ class TestSanitizeVariables:
 
     def test_non_string_values_preserved(self):
         """Non-string values should be preserved."""
-        result = sanitize_variables({
-            "count": 42,
-            "items": ["a", "b"],
-            "flag": True,
-        })
+        result = sanitize_variables(
+            {
+                "count": 42,
+                "items": ["a", "b"],
+                "flag": True,
+            }
+        )
         assert result["count"] == 42
         assert result["items"] == ["a", "b"]
         assert result["flag"] is True

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ShellToolConfig:
     """Configuration for a shell tool.
-    
+
     Attributes:
         command: Shell command with {variable} placeholders
         description: Human-readable description for LLM tool selection
@@ -42,7 +42,7 @@ class ShellToolConfig:
 @dataclass
 class ToolResult:
     """Result from executing a shell tool.
-    
+
     Attributes:
         success: Whether the command succeeded
         output: Parsed output (str, dict, or None based on parse mode)
@@ -59,11 +59,11 @@ def execute_shell_tool(
     variables: dict[str, Any],
 ) -> ToolResult:
     """Execute shell command with variable substitution.
-    
+
     Args:
         config: Tool configuration with command template
         variables: Values to substitute into command placeholders
-        
+
     Returns:
         ToolResult with success status and parsed output or error
     """
@@ -129,10 +129,10 @@ def execute_shell_tool(
 
 def parse_tools(tools_config: dict[str, Any]) -> dict[str, ShellToolConfig]:
     """Parse tools: section from YAML into ShellToolConfig registry.
-    
+
     Args:
         tools_config: Dict from YAML tools: section
-        
+
     Returns:
         Registry mapping tool names to ShellToolConfig objects
     """

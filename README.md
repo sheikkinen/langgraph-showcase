@@ -597,6 +597,7 @@ This project demonstrates solid production patterns with declarative YAML-based 
 | Conversation Memory | ✅ | Message accumulation via `AgentState.messages` |
 | Native Checkpointing | ✅ | `SqliteSaver` from `langgraph-checkpoint-sqlite` |
 | State Export | ✅ | JSON/Markdown export with `export_result()` |
+| LangSmith Share Links | ✅ | Auto-generate public trace URLs after runs |
 
 ### Missing LangGraph Features
 

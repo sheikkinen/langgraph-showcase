@@ -6,7 +6,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from showcase.models import Analysis, GeneratedContent, ShowcaseState, create_initial_state
+from showcase.models import (
+    Analysis,
+    GeneratedContent,
+    ShowcaseState,
+    create_initial_state,
+)
 from showcase.storage import ShowcaseDB
 
 
@@ -77,18 +82,21 @@ def temp_output_dir(tmp_path: Path) -> Path:
 @pytest.fixture
 def mock_llm_response():
     """Mock LLM that returns predictable responses."""
+
     def _create_mock(response_content: str | dict = "Mocked response"):
         mock = MagicMock()
         mock_response = MagicMock()
         mock_response.content = response_content
         mock.invoke.return_value = mock_response
         return mock
+
     return _create_mock
 
 
 @pytest.fixture
 def mock_structured_llm(sample_generated_content, sample_analysis):
     """Mock LLM with structured output support."""
+
     def _create_mock(model_type: str):
         mock = MagicMock()
         if model_type == "generate":
@@ -98,4 +106,5 @@ def mock_structured_llm(sample_generated_content, sample_analysis):
         else:
             mock.invoke.return_value = "Mocked summary"
         return mock
+
     return _create_mock

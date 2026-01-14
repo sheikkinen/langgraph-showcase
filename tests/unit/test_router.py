@@ -25,12 +25,13 @@ class TestToneClassificationModel:
     def test_tone_classification_model_exists(self):
         """ToneClassification model can be imported."""
         from showcase.models import ToneClassification
+
         assert ToneClassification is not None
 
     def test_tone_classification_has_required_fields(self):
         """ToneClassification has tone, confidence, reasoning fields."""
         from showcase.models import ToneClassification
-        
+
         classification = ToneClassification(
             tone="positive",
             confidence=0.95,
@@ -70,7 +71,11 @@ class TestRouterNodeParsing:
             },
             "edges": [
                 {"from": "START", "to": "classify"},
-                {"from": "classify", "to": ["handle_positive", "handle_negative", "handle_neutral"], "type": "conditional"},
+                {
+                    "from": "classify",
+                    "to": ["handle_positive", "handle_negative", "handle_neutral"],
+                    "type": "conditional",
+                },
                 {"from": "handle_positive", "to": "END"},
                 {"from": "handle_negative", "to": "END"},
                 {"from": "handle_neutral", "to": "END"},
@@ -137,7 +142,7 @@ class TestRouterNodeFunction:
         mock_classification = MagicMock()
         mock_classification.tone = "positive"
         mock_execute.return_value = mock_classification
-        
+
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
@@ -150,9 +155,9 @@ class TestRouterNodeFunction:
             "state_key": "classification",
         }
         node_fn = create_node_function("classify", node_config, {})
-        
+
         result = node_fn({"message": "I love this!"})
-        
+
         # _route should be the TARGET NODE NAME, not the route key
         assert result.get("_route") == "respond_positive"
         assert "classification" in result
@@ -163,7 +168,7 @@ class TestRouterNodeFunction:
         mock_classification = MagicMock()
         mock_classification.tone = "confused"  # Not in routes
         mock_execute.return_value = mock_classification
-        
+
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
@@ -176,9 +181,9 @@ class TestRouterNodeFunction:
             "state_key": "classification",
         }
         node_fn = create_node_function("classify", node_config, {})
-        
+
         result = node_fn({"message": "Huh?"})
-        
+
         assert result.get("_route") == "respond_neutral"
 
 
@@ -196,7 +201,12 @@ class TestConditionalEdges:
             "version": "1.0",
             "name": "test",
             "nodes": {
-                "classify": {"type": "router", "prompt": "classify", "routes": {"a": "node_a", "b": "node_b"}, "default_route": "node_a"},
+                "classify": {
+                    "type": "router",
+                    "prompt": "classify",
+                    "routes": {"a": "node_a", "b": "node_b"},
+                    "default_route": "node_a",
+                },
                 "node_a": {"prompt": "a"},
                 "node_b": {"prompt": "b"},
             },
@@ -219,7 +229,7 @@ class TestConditionalEdges:
         mock_classification = MagicMock()
         mock_classification.tone = "positive"
         mock_execute.return_value = mock_classification
-        
+
         config_dict = {
             "version": "1.0",
             "name": "test",
@@ -228,7 +238,10 @@ class TestConditionalEdges:
                     "type": "router",
                     "prompt": "classify",
                     "output_model": "showcase.models.ToneClassification",
-                    "routes": {"positive": "respond_positive", "negative": "respond_negative"},
+                    "routes": {
+                        "positive": "respond_positive",
+                        "negative": "respond_negative",
+                    },
                     "default_route": "respond_neutral",
                     "state_key": "classification",
                 },
@@ -238,7 +251,11 @@ class TestConditionalEdges:
             },
             "edges": [
                 {"from": "START", "to": "classify"},
-                {"from": "classify", "to": ["respond_positive", "respond_negative", "respond_neutral"], "type": "conditional"},
+                {
+                    "from": "classify",
+                    "to": ["respond_positive", "respond_negative", "respond_neutral"],
+                    "type": "conditional",
+                },
                 {"from": "respond_positive", "to": "END"},
                 {"from": "respond_negative", "to": "END"},
                 {"from": "respond_neutral", "to": "END"},
@@ -246,7 +263,7 @@ class TestConditionalEdges:
         }
         config = GraphConfig(config_dict)
         graph = compile_graph(config)
-        
+
         # Graph should compile without error
         assert graph is not None
 

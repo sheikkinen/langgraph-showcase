@@ -1,10 +1,5 @@
 """Tests for state schema variants and Jinja2 template improvements."""
 
-from typing import Annotated, Any
-from operator import add
-
-import pytest
-
 
 class TestStateSchemas:
     """Tests for typed state schemas."""
@@ -24,7 +19,7 @@ class TestStateSchemas:
 
     def test_content_state_inherits_base_state(self):
         """ContentState should inherit from BaseState."""
-        from showcase.models.state import BaseState, ContentState
+        from showcase.models.state import ContentState
 
         # ContentState has its own fields
         annotations = ContentState.__annotations__

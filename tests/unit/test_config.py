@@ -1,6 +1,5 @@
 """Tests for showcase.config module."""
 
-
 from showcase.config import (
     DATABASE_PATH,
     DEFAULT_MAX_TOKENS,

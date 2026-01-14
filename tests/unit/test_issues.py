@@ -22,7 +22,7 @@ class TestResumeStartFromParameter:
     @patch("showcase.node_factory.execute_prompt")
     def test_resume_from_analyze_skips_generate(self, mock_execute):
         """When state has 'generated', generate node should be skipped.
-        
+
         Resume works via skip_if_exists: if output already in state, skip LLM call.
         """
         # State with generated content already present
@@ -33,7 +33,7 @@ class TestResumeStartFromParameter:
             word_count=10,
             tags=[],
         )
-        
+
         # Only mock analyze and summarize - generate should be skipped
         mock_analysis = Analysis(
             summary="Analysis",
@@ -42,10 +42,10 @@ class TestResumeStartFromParameter:
             confidence=0.8,
         )
         mock_execute.side_effect = [mock_analysis, "Final summary"]
-        
+
         graph = build_resume_graph().compile()
         result = graph.invoke(state)
-        
+
         # Expected: 2 calls (analyze, summarize) - generate skipped
         assert mock_execute.call_count == 2, (
             f"Expected 2 LLM calls (analyze, summarize), "
@@ -57,8 +57,7 @@ class TestResumeStartFromParameter:
 
     @patch("showcase.node_factory.execute_prompt")
     def test_resume_from_summarize_skips_generate_and_analyze(self, mock_execute):
-        """When state has 'generated' and 'analysis', only summarize runs.
-        """
+        """When state has 'generated' and 'analysis', only summarize runs."""
         state = create_initial_state(topic="test", thread_id="issue1b")
         state["generated"] = GeneratedContent(
             title="Done",
@@ -72,12 +71,12 @@ class TestResumeStartFromParameter:
             sentiment="positive",
             confidence=0.9,
         )
-        
+
         mock_execute.return_value = "Final summary"
-        
+
         graph = build_resume_graph().compile()
         result = graph.invoke(state)
-        
+
         # Expected: 1 call (summarize only)
         assert mock_execute.call_count == 1, (
             f"Expected 1 LLM call (summarize only), "
@@ -104,7 +103,7 @@ class TestConditionsFromYAML:
 
     def test_routing_uses_should_continue_function(self):
         """Routing is handled by _should_continue(), not YAML conditions.
-        
+
         This is by design: dynamic condition evaluation adds complexity
         without clear benefit for this showcase. The _should_continue()
         function provides simple, predictable routing.
@@ -117,16 +116,16 @@ class TestConditionsFromYAML:
             "error": None,
         }
         state_error = {"generated": None, "error": "Some error"}
-        
+
         assert _should_continue(state_success) == "continue"
         assert _should_continue(state_error) == "end"
 
     def test_conditions_block_not_in_schema(self):
         """GraphConfig no longer parses conditions block."""
         from showcase.config import DEFAULT_GRAPH
-        
+
         config = load_graph_config(DEFAULT_GRAPH)
-        
+
         # conditions attribute should not exist
         assert not hasattr(config, "conditions"), (
             "GraphConfig should not have 'conditions' attribute - it's dead config"
@@ -166,19 +165,19 @@ edges:
 
     def test_entry_point_accessible_via_behavior(self, simple_yaml):
         """Entry point should be testable via graph behavior, not private attrs.
-        
+
         Currently graph_loader.py sets graph._entry_point for testing.
         This test shows how to test entry point via behavior instead.
         """
         from showcase.graph_loader import load_and_compile
-        
+
         graph = load_and_compile(simple_yaml)
         _ = graph.compile()  # Verify it compiles
-        
+
         # Get the graph structure - this is the proper way
         # The first node after START should be 'first'
         nodes = list(graph.nodes.keys())
         assert "first" in nodes
-        
+
         # We can also check by looking at edges from __start__
         # But testing via invocation is more robust

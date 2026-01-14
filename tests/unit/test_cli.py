@@ -83,18 +83,21 @@ class TestValidateRouteArgs:
     def test_valid_message(self):
         """Valid message should pass validation."""
         from showcase.cli import validate_route_args
+
         args = self._create_args()
         assert validate_route_args(args) is True
 
     def test_empty_message_fails(self):
         """Empty message should fail validation."""
         from showcase.cli import validate_route_args
+
         args = self._create_args(message="")
         assert validate_route_args(args) is False
 
     def test_whitespace_only_fails(self):
         """Whitespace-only message should fail validation."""
         from showcase.cli import validate_route_args
+
         args = self._create_args(message="   ")
         assert validate_route_args(args) is False
 
@@ -105,6 +108,7 @@ class TestCmdRouteFunction:
     def test_cmd_route_exists(self):
         """cmd_route function should exist."""
         from showcase.cli import cmd_route
+
         assert callable(cmd_route)
 
 
@@ -114,6 +118,7 @@ class TestRouteParserSetup:
     def test_route_parser_configured(self):
         """Route subparser should be configured in main."""
         import subprocess
+
         result = subprocess.run(
             ["python", "-m", "showcase.cli", "route", "--help"],
             capture_output=True,
@@ -137,18 +142,21 @@ class TestValidateRefineArgs:
     def test_valid_topic(self):
         """Valid topic should pass validation."""
         from showcase.cli import validate_refine_args
+
         args = self._create_args()
         assert validate_refine_args(args) is True
 
     def test_empty_topic_fails(self):
         """Empty topic should fail validation."""
         from showcase.cli import validate_refine_args
+
         args = self._create_args(topic="")
         assert validate_refine_args(args) is False
 
     def test_whitespace_only_fails(self):
         """Whitespace-only topic should fail validation."""
         from showcase.cli import validate_refine_args
+
         args = self._create_args(topic="   ")
         assert validate_refine_args(args) is False
 
@@ -159,6 +167,7 @@ class TestCmdRefineFunction:
     def test_cmd_refine_exists(self):
         """cmd_refine function should exist."""
         from showcase.cli import cmd_refine
+
         assert callable(cmd_refine)
 
 
@@ -168,6 +177,7 @@ class TestRefineParserSetup:
     def test_refine_parser_configured(self):
         """Refine subparser should be configured in main."""
         import subprocess
+
         result = subprocess.run(
             ["python", "-m", "showcase.cli", "refine", "--help"],
             capture_output=True,

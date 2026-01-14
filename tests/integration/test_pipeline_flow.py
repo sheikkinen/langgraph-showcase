@@ -27,7 +27,7 @@ class TestBuildShowcaseGraph:
 
 class TestBuildResumeGraph:
     """Tests for build_resume_graph function.
-    
+
     Resume works via skip_if_exists: nodes skip LLM calls if output exists in state.
     """
 
@@ -43,7 +43,7 @@ class TestBuildResumeGraph:
         """Resume graph is identical to main showcase graph."""
         main_graph = build_showcase_graph()
         resume_graph = build_resume_graph()
-        
+
         assert set(main_graph.nodes.keys()) == set(resume_graph.nodes.keys())
 
 
@@ -67,11 +67,11 @@ class TestRunPipeline:
             confidence=0.9,
         )
         mock_summary = "Final test summary"
-        
+
         mock_execute.side_effect = [mock_generated, mock_analysis, mock_summary]
-        
+
         result = run_pipeline(topic="test", style="informative", word_count=100)
-        
+
         assert result["generated"] == mock_generated
         assert result["analysis"] == mock_analysis
         assert result["final_summary"] == mock_summary
@@ -81,9 +81,9 @@ class TestRunPipeline:
     def test_pipeline_stops_on_generate_error(self, mock_execute):
         """Pipeline should stop and set error on generate failure."""
         mock_execute.side_effect = Exception("API Error")
-        
+
         result = run_pipeline(topic="test")
-        
+
         assert result.get("error") is not None
         assert "API Error" in result["error"].message
         assert result.get("analysis") is None
@@ -99,8 +99,8 @@ class TestRunPipeline:
             summary="Summary", key_points=[], sentiment="neutral", confidence=0.5
         )
         mock_execute.side_effect = [mock_generated, mock_analysis, "Summary"]
-        
+
         result = run_pipeline(topic="test")
-        
+
         # Final step should be summarize
         assert result["current_step"] == "summarize"

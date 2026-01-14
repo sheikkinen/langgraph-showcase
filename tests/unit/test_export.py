@@ -27,7 +27,7 @@ class TestExportState:
     def test_export_filename_format(self, temp_output_dir, sample_state):
         """Filename should include prefix and thread_id."""
         filepath = export_state(
-            sample_state, 
+            sample_state,
             output_dir=temp_output_dir,
             prefix="test_export",
         )

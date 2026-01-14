@@ -1,7 +1,5 @@
 """Tests for shell tool executor."""
 
-
-
 from showcase.tools.shell import (
     ShellToolConfig,
     execute_shell_tool,
@@ -67,7 +65,7 @@ class TestExecuteShellTool:
         """JSON stdout parsed to dict."""
         # Double braces escape them from .format()
         config = ShellToolConfig(
-            command="echo '{{\"name\": \"test\", \"value\": 42}}'",
+            command='echo \'{{"name": "test", "value": 42}}\'',
             parse="json",
         )
         result = execute_shell_tool(config, {})

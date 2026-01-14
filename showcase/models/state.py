@@ -26,9 +26,10 @@ from showcase.models.schemas import (
 
 class BaseState(TypedDict, total=False):
     """Common fields for all graphs.
-    
+
     Provides shared functionality like error tracking and timestamps.
     """
+
     thread_id: str
     current_step: str
     error: PipelineError | None
@@ -44,9 +45,10 @@ class BaseState(TypedDict, total=False):
 
 class ContentState(BaseState, total=False):
     """State for content generation pipeline.
-    
+
     Used by: graphs/showcase.yaml
     """
+
     topic: str
     style: str
     word_count: int
@@ -57,9 +59,10 @@ class ContentState(BaseState, total=False):
 
 class RouterState(BaseState, total=False):
     """State for router demo.
-    
+
     Used by: graphs/router-demo.yaml
     """
+
     message: str
     classification: ToneClassification | None
     response: str | None
@@ -68,9 +71,10 @@ class RouterState(BaseState, total=False):
 
 class ReflexionState(BaseState, total=False):
     """State for self-correction loops.
-    
+
     Used by: graphs/reflexion-demo.yaml
     """
+
     topic: str
     current_draft: DraftContent | None
     critique: Critique | None
@@ -80,11 +84,12 @@ class ReflexionState(BaseState, total=False):
 
 class AgentState(BaseState, total=False):
     """State for agent with tool use.
-    
+
     Used by: graphs/git-report.yaml
-    
+
     Note: messages uses Annotated with add reducer for accumulation.
     """
+
     input: str
     messages: Annotated[list, add]  # Accumulates across iterations
     analysis: str | None
@@ -110,18 +115,18 @@ def create_initial_state(
     thread_id: str | None = None,
 ) -> ShowcaseState:
     """Create an initial state for a new pipeline run.
-    
+
     Args:
         topic: The topic to generate content about
         style: Writing style (default: informative)
         word_count: Target word count (default: 300)
         thread_id: Optional thread ID (auto-generated if not provided)
-        
+
     Returns:
         Initialized ShowcaseState dictionary
     """
     import uuid
-    
+
     return ShowcaseState(
         thread_id=thread_id or uuid.uuid4().hex[:16],  # 16 chars for better uniqueness
         topic=topic,

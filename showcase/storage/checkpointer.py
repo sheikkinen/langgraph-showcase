@@ -16,20 +16,20 @@ from showcase.config import DATABASE_PATH
 
 def get_checkpointer(db_path: str | Path | None = None) -> SqliteSaver:
     """Get a SQLite checkpointer for graph compilation.
-    
+
     The checkpointer enables:
     - Automatic state persistence after each node
     - Time travel via get_state_history()
     - Resume from any checkpoint
     - Fault tolerance with pending writes
-    
+
     Args:
-        db_path: Path to SQLite database file. 
+        db_path: Path to SQLite database file.
                  Defaults to outputs/showcase.db
-        
+
     Returns:
         SqliteSaver instance for use with graph.compile()
-        
+
     Example:
         >>> checkpointer = get_checkpointer()
         >>> graph = workflow.compile(checkpointer=checkpointer)
@@ -37,10 +37,10 @@ def get_checkpointer(db_path: str | Path | None = None) -> SqliteSaver:
     """
     if db_path is None:
         db_path = DATABASE_PATH
-    
+
     path = Path(db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     conn = sqlite3.connect(str(path), check_same_thread=False)
     return SqliteSaver(conn)
 
@@ -50,16 +50,16 @@ def get_state_history(
     thread_id: str,
 ) -> list[Any]:
     """Get checkpoint history for a thread.
-    
+
     Returns checkpoints in reverse chronological order (most recent first).
-    
+
     Args:
         graph: Compiled graph with checkpointer
         thread_id: Thread identifier to query
-        
+
     Returns:
         List of StateSnapshot objects, or empty list if thread doesn't exist
-        
+
     Example:
         >>> history = get_state_history(graph, "my-thread")
         >>> for snapshot in history:

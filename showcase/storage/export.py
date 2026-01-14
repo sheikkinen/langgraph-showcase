@@ -20,12 +20,12 @@ def export_state(
     prefix: str = "export",
 ) -> Path:
     """Export pipeline state to JSON file.
-    
+
     Args:
         state: State dictionary to export
         output_dir: Directory for output files (default: outputs/)
         prefix: Filename prefix
-        
+
     Returns:
         Path to the created file
     """
@@ -33,35 +33,35 @@ def export_state(
         output_dir = OUTPUTS_DIR
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     thread_id = state.get("thread_id", "unknown")
     filename = f"{prefix}_{thread_id}_{timestamp}.json"
-    
+
     filepath = output_path / filename
-    
+
     # Convert state to JSON-serializable format
     export_data = _serialize_state(state)
-    
+
     with open(filepath, "w") as f:
         json.dump(export_data, f, indent=2, default=str)
-    
+
     return filepath
 
 
 def _serialize_state(state: dict) -> dict:
     """Convert state to JSON-serializable format.
-    
+
     Handles Pydantic models and other complex types.
-    
+
     Args:
         state: State dictionary
-        
+
     Returns:
         JSON-serializable dictionary
     """
     result = {}
-    
+
     for key, value in state.items():
         if isinstance(value, BaseModel):
             result[key] = value.model_dump()
@@ -69,16 +69,16 @@ def _serialize_state(state: dict) -> dict:
             result[key] = _serialize_object(value)
         else:
             result[key] = value
-    
+
     return result
 
 
 def _serialize_object(obj: Any) -> Any:
     """Recursively serialize an object.
-    
+
     Args:
         obj: Object to serialize
-        
+
     Returns:
         JSON-serializable representation
     """
@@ -96,10 +96,10 @@ def _serialize_object(obj: Any) -> Any:
 
 def load_export(filepath: str | Path) -> dict:
     """Load an exported JSON file.
-    
+
     Args:
         filepath: Path to JSON file
-        
+
     Returns:
         Loaded dictionary
     """
@@ -107,32 +107,34 @@ def load_export(filepath: str | Path) -> dict:
         return json.load(f)
 
 
-def list_exports(output_dir: str | Path = "outputs", prefix: str = "export") -> list[Path]:
+def list_exports(
+    output_dir: str | Path = "outputs", prefix: str = "export"
+) -> list[Path]:
     """List all export files in a directory.
-    
+
     Args:
         output_dir: Directory to search
         prefix: Filename prefix filter
-        
+
     Returns:
         List of matching file paths, sorted by modification time
     """
     output_path = Path(output_dir)
     if not output_path.exists():
         return []
-    
+
     files = list(output_path.glob(f"{prefix}_*.json"))
     return sorted(files, key=lambda f: f.stat().st_mtime, reverse=True)
 
 
 def export_summary(state: dict) -> dict:
     """Create a summary export (without full content).
-    
+
     Useful for quick review of pipeline results.
-    
+
     Args:
         state: Full state dictionary
-        
+
     Returns:
         Summary dictionary with key information only
     """
@@ -142,7 +144,7 @@ def export_summary(state: dict) -> dict:
         "current_step": state.get("current_step"),
         "error": state.get("error"),
     }
-    
+
     # Include generated content title if available
     if generated := state.get("generated"):
         if hasattr(generated, "title"):
@@ -151,7 +153,7 @@ def export_summary(state: dict) -> dict:
         elif isinstance(generated, dict):
             summary["generated_title"] = generated.get("title")
             summary["word_count"] = generated.get("word_count")
-    
+
     # Include analysis summary if available
     if analysis := state.get("analysis"):
         if hasattr(analysis, "sentiment"):
@@ -160,10 +162,10 @@ def export_summary(state: dict) -> dict:
         elif isinstance(analysis, dict):
             summary["sentiment"] = analysis.get("sentiment")
             summary["confidence"] = analysis.get("confidence")
-    
+
     # Include final summary presence
     summary["has_final_summary"] = bool(state.get("final_summary"))
-    
+
     return summary
 
 
@@ -173,15 +175,15 @@ def export_result(
     base_path: str | Path = "outputs",
 ) -> list[Path]:
     """Export state fields to files.
-    
+
     Args:
         state: Final graph state
         export_config: Mapping of field -> export settings
         base_path: Base directory for exports
-        
+
     Returns:
         List of paths to exported files
-        
+
     Example config:
         {
             "final_summary": {"format": "markdown", "filename": "summary.md"},
@@ -192,19 +194,19 @@ def export_result(
     thread_id = state.get("thread_id", "unknown")
     output_dir = base_path / thread_id
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     exported = []
-    
+
     for field, settings in export_config.items():
         if field not in state or state[field] is None:
             continue
-            
+
         value = state[field]
         filename = settings.get("filename", f"{field}.txt")
         format_type = settings.get("format", "text")
-        
+
         file_path = output_dir / filename
-        
+
         if format_type == "json":
             content = _serialize_to_json(value)
             file_path.write_text(content)
@@ -213,9 +215,9 @@ def export_result(
             file_path.write_text(content)
         else:
             file_path.write_text(str(value))
-            
+
         exported.append(file_path)
-    
+
     return exported
 
 

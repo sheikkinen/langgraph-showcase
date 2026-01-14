@@ -1,6 +1,5 @@
 """Tests for showcase.models.state module."""
 
-
 from showcase.models import create_initial_state
 
 
