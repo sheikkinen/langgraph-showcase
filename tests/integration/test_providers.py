@@ -67,8 +67,9 @@ class TestProviderIntegration:
     
     def test_provider_in_yaml_metadata(self):
         """Should extract provider from YAML metadata."""
-        # Create a temporary YAML with provider metadata
-        prompt_config = load_prompt("greet")
+        # greet.yaml doesn't have provider metadata,
+        # so this just verifies the load works
+        _ = load_prompt("greet")
         
         # Even though greet.yaml doesn't have provider,
         # the executor should handle it gracefully

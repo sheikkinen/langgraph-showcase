@@ -52,26 +52,21 @@ def build_showcase_graph(graph_path: Path | str | None = None) -> StateGraph:
     return load_and_compile(path)
 
 
-def build_resume_graph(start_from: str = "analyze") -> StateGraph:
-    """Build a graph for resuming from a specific step.
+def build_resume_graph() -> StateGraph:
+    """Build a graph for resuming an interrupted pipeline.
     
-    Creates a minimal graph starting from a specific node,
-    useful for resuming interrupted pipelines.
+    Returns the same graph as build_showcase_graph(). Resume works
+    automatically because nodes skip execution if their output
+    already exists in state (skip_if_exists behavior).
     
-    Args:
-        start_from: Node to start from ('analyze' or 'summarize')
-        
+    To resume:
+    1. Load saved state from database
+    2. Invoke graph with that state
+    3. Nodes with existing outputs are skipped
+    
     Returns:
-        StateGraph for resume
-        
-    Raises:
-        ValueError: If start_from is not a valid node name
+        StateGraph for resume (same as main pipeline)
     """
-    valid_nodes = {"analyze", "summarize"}
-    if start_from not in valid_nodes:
-        raise ValueError(f"start_from must be one of {valid_nodes}, got '{start_from}'")
-    
-    # Load full graph - resume logic uses same graph with different initial state
     return build_showcase_graph()
 
 

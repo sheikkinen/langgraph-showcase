@@ -1,10 +1,7 @@
 """Tests for showcase.cli module."""
 
 import argparse
-from io import StringIO
-from unittest.mock import patch
 
-import pytest
 
 from showcase.cli import validate_run_args
 from showcase.config import MAX_TOPIC_LENGTH, MIN_WORD_COUNT, MAX_WORD_COUNT

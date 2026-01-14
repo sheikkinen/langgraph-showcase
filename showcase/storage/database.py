@@ -8,11 +8,10 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from pydantic import BaseModel
 
-from showcase.config import DATABASE_PATH, OUTPUTS_DIR
+from showcase.config import DATABASE_PATH
 
 
 class ShowcaseDB:

@@ -12,7 +12,7 @@ Usage:
 import argparse
 import sys
 
-from showcase.config import MAX_TOPIC_LENGTH, MAX_WORD_COUNT, MIN_WORD_COUNT, VALID_STYLES
+from showcase.config import MAX_WORD_COUNT, MIN_WORD_COUNT
 from showcase.utils.sanitize import sanitize_topic
 
 
@@ -55,7 +55,7 @@ def cmd_run(args):
     from showcase.storage import ShowcaseDB, export_state
     from showcase.utils import get_run_url, is_tracing_enabled
     
-    print(f"\n🚀 Running showcase pipeline")
+    print("\n🚀 Running showcase pipeline")
     print(f"   Topic: {args.topic}")
     print(f"   Style: {args.style}")
     print(f"   Words: {args.word_count}")
@@ -88,12 +88,12 @@ def cmd_run(args):
         print(f"   {generated.content[:200]}...")
     
     if analysis := result.get("analysis"):
-        print(f"\n🔍 Analysis:")
+        print("\n🔍 Analysis:")
         print(f"   Sentiment: {analysis.sentiment} (confidence: {analysis.confidence:.2f})")
         print(f"   Key points: {len(analysis.key_points)}")
     
     if summary := result.get("final_summary"):
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"   {summary[:300]}...")
     
     # Show LangSmith link
@@ -139,23 +139,34 @@ def cmd_resume(args):
     
     print(f"\n🔄 Resuming from: {state.get('current_step', 'unknown')}")
     
-    # Determine where to resume from
-    if state.get("generated") and not state.get("analysis"):
-        start_from = "analyze"
-    elif state.get("analysis") and not state.get("final_summary"):
-        start_from = "summarize"
-    else:
+    # Check what's already completed
+    if state.get("final_summary"):
         print("✅ Pipeline already complete!")
         return
     
-    print(f"   Starting from: {start_from}")
+    # Show what will be skipped vs run
+    skipping = []
+    running = []
+    if state.get("generated"):
+        skipping.append("generate")
+    else:
+        running.append("generate")
+    if state.get("analysis"):
+        skipping.append("analyze")
+    else:
+        running.append("analyze")
+    running.append("summarize")  # Always runs if we get here
     
-    graph = build_resume_graph(start_from=start_from).compile()
+    if skipping:
+        print(f"   Skipping: {', '.join(skipping)} (already in state)")
+    print(f"   Running: {', '.join(running)}")
+    
+    graph = build_resume_graph().compile()
     result = graph.invoke(state)
     
     # Save updated state
     db.save_state(args.thread_id, result, status="completed")
-    print(f"\n✅ Pipeline completed!")
+    print("\n✅ Pipeline completed!")
     
     if summary := result.get("final_summary"):
         print(f"\n📊 Summary: {summary[:200]}...")

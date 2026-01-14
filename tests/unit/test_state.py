@@ -1,8 +1,7 @@
 """Tests for showcase.models.state module."""
 
-import pytest
 
-from showcase.models import ShowcaseState, create_initial_state
+from showcase.models import create_initial_state
 
 
 class TestCreateInitialState:

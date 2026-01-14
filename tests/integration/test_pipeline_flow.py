@@ -1,11 +1,10 @@
 """Integration tests for the complete pipeline flow."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-import pytest
 
 from showcase.builder import build_showcase_graph, build_resume_graph, run_pipeline
-from showcase.models import Analysis, GeneratedContent, create_initial_state
+from showcase.models import Analysis, GeneratedContent
 
 
 class TestBuildShowcaseGraph:
@@ -27,31 +26,25 @@ class TestBuildShowcaseGraph:
 
 
 class TestBuildResumeGraph:
-    """Tests for build_resume_graph function."""
+    """Tests for build_resume_graph function.
+    
+    Resume works via skip_if_exists: nodes skip LLM calls if output exists in state.
+    """
 
-    def test_resume_from_analyze(self):
-        """Resume graph from analyze loads full graph."""
-        graph = build_resume_graph(start_from="analyze")
-        # Now loads full graph - all nodes present
+    def test_resume_graph_loads_full_pipeline(self):
+        """Resume graph loads the full pipeline (same as main graph)."""
+        graph = build_resume_graph()
+        # All nodes present - skip_if_exists handles resume logic
         assert "generate" in graph.nodes
         assert "analyze" in graph.nodes
         assert "summarize" in graph.nodes
 
-    def test_resume_from_summarize(self):
-        """Resume graph from summarize loads full graph."""
-        graph = build_resume_graph(start_from="summarize")
-        # Now loads full graph
-        assert "generate" in graph.nodes
-        assert "analyze" in graph.nodes
-        assert "summarize" in graph.nodes
-
-    def test_resume_invalid_start_raises_error(self):
-        """Resume graph should raise ValueError for invalid start_from."""
-        with pytest.raises(ValueError, match="start_from must be one of"):
-            build_resume_graph(start_from="invalid_node")
+    def test_resume_graph_same_as_main(self):
+        """Resume graph is identical to main showcase graph."""
+        main_graph = build_showcase_graph()
+        resume_graph = build_resume_graph()
         
-        with pytest.raises(ValueError, match="start_from must be one of"):
-            build_resume_graph(start_from="generate")  # Can't resume from start
+        assert set(main_graph.nodes.keys()) == set(resume_graph.nodes.keys())
 
 
 class TestRunPipeline:

@@ -1,7 +1,7 @@
 """Unit tests for LLM factory module."""
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from langchain_anthropic import ChatAnthropic

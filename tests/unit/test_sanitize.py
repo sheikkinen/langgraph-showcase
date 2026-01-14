@@ -1,6 +1,5 @@
 """Tests for showcase.utils.sanitize module."""
 
-import pytest
 
 from showcase.utils.sanitize import sanitize_topic, sanitize_variables
 from showcase.config import MAX_TOPIC_LENGTH

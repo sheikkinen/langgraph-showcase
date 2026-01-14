@@ -65,13 +65,5 @@ edges:
   - from: summarize
     to: END
 
-# Condition definitions for routing
-conditions:
-  continue:
-    all:
-      - "{state.generated} is not None"
-      - "{state.error} is None"
-  end:
-    any:
-      - "{state.error} is not None"
-      - "{state.generated} is None"
+# Note: Routing conditions are handled by _should_continue() in graph_loader.py
+# Condition names 'continue' and 'end' map to that function's return values

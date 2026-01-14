@@ -1,6 +1,5 @@
 """Tests for showcase.config module."""
 
-from pathlib import Path
 
 from showcase.config import (
     DATABASE_PATH,

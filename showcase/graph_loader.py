@@ -34,7 +34,8 @@ class GraphConfig:
         self.nodes = config.get("nodes", {})
         self.edges = config.get("edges", [])
         self.state_class = config.get("state_class", "showcase.models.ShowcaseState")
-        self.conditions = config.get("conditions", {})
+        # Note: 'conditions' block intentionally not parsed
+        # Routing is handled by _should_continue() function
 
 
 def load_graph_config(path: str | Path) -> GraphConfig:
@@ -152,6 +153,12 @@ def create_node_function(
 
     def node_fn(state: ShowcaseState) -> dict:
         """Generated node function."""
+        # Skip if output already exists (enables resume)
+        existing = state.get(state_key)
+        if existing is not None:
+            logger.info(f"Node {node_name} skipped - {state_key} already in state")
+            return {"current_step": node_name}
+
         # Check requirements
         for req in requires:
             if state.get(req) is None:
@@ -240,7 +247,6 @@ def compile_graph(config: GraphConfig) -> StateGraph:
 
         if from_node == "START":
             graph.set_entry_point(to_node)
-            graph._entry_point = to_node  # Store for testing
         elif condition:
             # Collect conditional edges from same source
             if conditional_source is None:

@@ -1,10 +1,8 @@
 """Tests for showcase.executor module."""
 
 import pytest
-from pathlib import Path
 
 from showcase.executor import load_prompt, format_prompt
-from showcase.config import PROMPTS_DIR
 
 
 class TestLoadPrompt:

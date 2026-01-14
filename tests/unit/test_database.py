@@ -1,8 +1,6 @@
 """Tests for showcase.storage.database module."""
 
-import json
 
-import pytest
 
 from showcase.models import create_initial_state
 
