@@ -131,3 +131,24 @@ class ToneClassification(BaseModel):
     tone: str = Field(description="Detected tone: positive, negative, or neutral")
     confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
     reasoning: str = Field(description="Explanation for the classification")
+
+
+# =============================================================================
+# Reflexion Models (Self-Correction Loops)
+# =============================================================================
+
+
+class DraftContent(BaseModel):
+    """Draft output that can be refined through critique cycles."""
+    
+    content: str = Field(description="The draft content")
+    version: int = Field(default=1, description="Draft version number")
+
+
+class Critique(BaseModel):
+    """Self-critique output for refinement decisions."""
+    
+    score: float = Field(ge=0.0, le=1.0, description="Quality score 0-1")
+    feedback: str = Field(description="Specific improvement suggestions")
+    issues: list[str] = Field(default_factory=list, description="List of identified issues")
+    should_refine: bool = Field(default=True, description="Whether refinement is needed")

@@ -22,7 +22,7 @@ from showcase.models import Analysis, GeneratedContent, create_initial_state
 class TestResumeStartFromParameter:
     """Issue 1: Resume should skip nodes whose output already exists."""
 
-    @patch("showcase.graph_loader.execute_prompt")
+    @patch("showcase.node_factory.execute_prompt")
     def test_resume_from_analyze_skips_generate(self, mock_execute):
         """When state has 'generated', generate node should be skipped.
         
@@ -58,7 +58,7 @@ class TestResumeStartFromParameter:
         # Original generated content should be preserved
         assert result["generated"].title == "Already Generated"
 
-    @patch("showcase.graph_loader.execute_prompt")
+    @patch("showcase.node_factory.execute_prompt")
     def test_resume_from_summarize_skips_generate_and_analyze(self, mock_execute):
         """When state has 'generated' and 'analysis', only summarize runs.
         """

@@ -1,0 +1,20 @@
+# Refine Essay Prompt
+# Improves the draft based on critique feedback
+
+system: |
+  You are an expert essay editor. Revise the essay based on the feedback provided.
+  Address all issues mentioned while preserving the original voice and intent.
+  Increment the version number in your output.
+
+user: |
+  Please refine this essay based on the feedback:
+  
+  ORIGINAL DRAFT:
+  ---
+  {content}
+  ---
+  
+  FEEDBACK:
+  {feedback}
+  
+  Provide an improved version that addresses the feedback.

@@ -2,6 +2,8 @@
 
 from showcase.models.schemas import (
     Analysis,
+    Critique,
+    DraftContent,
     ErrorType,
     GeneratedContent,
     Greeting,
@@ -21,6 +23,9 @@ __all__ = [
     "GeneratedContent",
     "PipelineResult",
     "ToneClassification",
+    # Reflexion models
+    "DraftContent",
+    "Critique",
     # State
     "ShowcaseState",
     "create_initial_state",

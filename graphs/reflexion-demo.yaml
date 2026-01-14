@@ -1,0 +1,60 @@
+# Reflexion Demo - Self-Correction Loop
+# Draft → Critique → Refine cycle with loop limit
+
+version: "1.0"
+name: reflexion-demo
+description: Self-improving essay with critique loop
+
+state_class: showcase.models.ShowcaseState
+
+defaults:
+  provider: mistral
+  temperature: 0.7
+
+nodes:
+  draft:
+    type: llm
+    prompt: reflexion-demo/draft
+    output_model: showcase.models.DraftContent
+    variables:
+      topic: "{state.topic}"
+    state_key: current_draft
+
+  critique:
+    type: llm
+    prompt: reflexion-demo/critique
+    output_model: showcase.models.Critique
+    variables:
+      content: "{state.current_draft.content}"
+      iteration: "{state._loop_counts.critique}"
+    state_key: critique
+
+  refine:
+    type: llm
+    prompt: reflexion-demo/refine
+    output_model: showcase.models.DraftContent
+    variables:
+      content: "{state.current_draft.content}"
+      feedback: "{state.critique.feedback}"
+    state_key: current_draft
+
+edges:
+  - from: START
+    to: draft
+
+  - from: draft
+    to: critique
+
+  - from: critique
+    to: refine
+    condition: critique.score < 0.8
+
+  - from: critique
+    to: END
+    condition: critique.score >= 0.8
+
+  - from: refine
+    to: critique
+
+loop_limits:
+  critique: 3

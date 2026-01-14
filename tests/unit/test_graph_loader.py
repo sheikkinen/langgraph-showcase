@@ -243,7 +243,7 @@ class TestCreateNodeFunction:
             tags=[],
         )
         
-        with patch("showcase.graph_loader.execute_prompt", return_value=mock_result) as mock:
+        with patch("showcase.node_factory.execute_prompt", return_value=mock_result) as mock:
             node_fn = create_node_function("generate", node_config, {"provider": "mistral"})
             result = node_fn(sample_state)
             
@@ -281,7 +281,7 @@ class TestCreateNodeFunction:
             "state_key": "generated",
         }
         
-        with patch("showcase.graph_loader.execute_prompt", side_effect=ValueError("API Error")):
+        with patch("showcase.node_factory.execute_prompt", side_effect=ValueError("API Error")):
             node_fn = create_node_function("generate", node_config, {})
             result = node_fn(sample_state)
         
@@ -301,7 +301,7 @@ class TestCreateNodeFunction:
         
         mock_result = GeneratedContent(title="T", content="C", word_count=1, tags=[])
         
-        with patch("showcase.graph_loader.execute_prompt", return_value=mock_result) as mock:
+        with patch("showcase.node_factory.execute_prompt", return_value=mock_result) as mock:
             node_fn = create_node_function("generate", node_config, defaults)
             node_fn(sample_state)
             
@@ -375,7 +375,7 @@ class TestLoadAndCompile:
             tags=[],
         )
         
-        with patch("showcase.graph_loader.execute_prompt", return_value=mock_result):
+        with patch("showcase.node_factory.execute_prompt", return_value=mock_result):
             graph = load_and_compile(sample_yaml_file)
             compiled = graph.compile()
             

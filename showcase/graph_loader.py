@@ -4,22 +4,33 @@ This module provides functionality to load graph definitions from YAML files
 and compile them into LangGraph StateGraph instances.
 """
 
-import importlib
 import logging
 from pathlib import Path
-from typing import Any, Callable
 
 import yaml
 from langgraph.graph import END, StateGraph
 
-from showcase.executor import execute_prompt
-from showcase.models import ErrorType, PipelineError, ShowcaseState
+from showcase.models import ShowcaseState
+from showcase.node_factory import (
+    create_node_function,
+    resolve_class,
+    resolve_template,
+)
+from showcase.utils.conditions import evaluate_condition
+
+# Re-export for backward compatibility
+__all__ = [
+    "GraphConfig",
+    "load_graph_config",
+    "compile_graph",
+    "load_and_compile",
+    "create_node_function",
+    "resolve_class",
+    "resolve_template",
+    "evaluate_condition",
+]
 
 logger = logging.getLogger(__name__)
-
-# Constants for template parsing
-STATE_TEMPLATE_PREFIX = "{state."
-STATE_TEMPLATE_SUFFIX = "}"
 
 
 def _validate_config(config: dict) -> None:
@@ -98,8 +109,7 @@ class GraphConfig:
         self.nodes = config.get("nodes", {})
         self.edges = config.get("edges", [])
         self.state_class = config.get("state_class", "showcase.models.ShowcaseState")
-        # Note: 'conditions' block intentionally not parsed
-        # Routing is handled by _should_continue() function
+        self.loop_limits = config.get("loop_limits", {})
 
 
 def load_graph_config(path: str | Path) -> GraphConfig:
@@ -122,220 +132,7 @@ def load_graph_config(path: str | Path) -> GraphConfig:
     with open(path) as f:
         config = yaml.safe_load(f)
 
-    # Validation happens in GraphConfig.__init__
     return GraphConfig(config)
-
-
-def resolve_class(class_path: str) -> type:
-    """Import a class from its dotted path.
-    
-    Args:
-        class_path: Dotted path like "showcase.models.GeneratedContent"
-        
-    Returns:
-        The imported class
-        
-    Raises:
-        ImportError: If module doesn't exist
-        AttributeError: If class doesn't exist in module
-    """
-    module_path, class_name = class_path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)
-
-
-def resolve_template(template: str, state: ShowcaseState) -> Any:
-    """Resolve a template string against state.
-    
-    Supports simple path resolution like "{state.topic}" or 
-    "{state.generated.content}" for nested access.
-    
-    Args:
-        template: Template string with {state.path} syntax
-        state: Pipeline state dictionary
-        
-    Returns:
-        Resolved value, or None if path not found
-        
-    Examples:
-        >>> resolve_template("{state.topic}", {"topic": "AI"})
-        'AI'
-        >>> resolve_template("literal", {})
-        'literal'
-    """
-    if not isinstance(template, str):
-        return template
-    
-    if not template.startswith(STATE_TEMPLATE_PREFIX):
-        return template
-
-    # Extract path: "{state.foo.bar}" -> ["foo", "bar"]
-    prefix_len = len(STATE_TEMPLATE_PREFIX)
-    suffix_len = len(STATE_TEMPLATE_SUFFIX)
-    path_str = template[prefix_len:-suffix_len]
-    path = path_str.split(".")
-
-    value = state
-    for part in path:
-        if value is None:
-            return None
-        if isinstance(value, dict):
-            value = value.get(part)
-        else:
-            value = getattr(value, part, None)
-
-    return value
-
-
-def create_node_function(
-    node_name: str,
-    node_config: dict,
-    defaults: dict,
-) -> Callable[[ShowcaseState], dict]:
-    """Create a node function from YAML config.
-    
-    Factory function that generates node functions dynamically
-    based on YAML configuration.
-    
-    Args:
-        node_name: Name of the node
-        node_config: Node configuration from YAML
-        defaults: Default configuration values
-        
-    Returns:
-        Node function compatible with LangGraph
-    """
-    node_type = node_config.get("type", "llm")
-    prompt_name = node_config.get("prompt")
-    
-    # Resolve output model class
-    output_model = None
-    if model_path := node_config.get("output_model"):
-        output_model = resolve_class(model_path)
-
-    # Get temperature (node config > defaults)
-    temperature = node_config.get("temperature", defaults.get("temperature", 0.7))
-    provider = node_config.get("provider", defaults.get("provider"))
-    state_key = node_config.get("state_key", node_name)
-    variable_templates = node_config.get("variables", {})
-    requires = node_config.get("requires", [])
-    
-    # Error handling config
-    on_error = node_config.get("on_error")  # skip | retry | fail | fallback | None
-    max_retries = node_config.get("max_retries", 3)
-    fallback_config = node_config.get("fallback", {})
-    fallback_provider = fallback_config.get("provider") if fallback_config else None
-    
-    # Router config
-    routes = node_config.get("routes", {})
-    default_route = node_config.get("default_route")
-
-    def node_fn(state: ShowcaseState) -> dict:
-        """Generated node function."""
-        # Skip if output already exists (enables resume)
-        existing = state.get(state_key)
-        if existing is not None:
-            logger.info(f"Node {node_name} skipped - {state_key} already in state")
-            return {"current_step": node_name}
-
-        # Check requirements
-        for req in requires:
-            if state.get(req) is None:
-                error = PipelineError(
-                    type=ErrorType.STATE_ERROR,
-                    message=f"Missing required state: {req}",
-                    node=node_name,
-                    retryable=False,
-                )
-                return {"error": error, "current_step": node_name}
-
-        # Resolve variables from state
-        variables = {}
-        for key, template in variable_templates.items():
-            resolved = resolve_template(template, state)
-            # Convert list to string for key_points
-            if isinstance(resolved, list):
-                resolved = ", ".join(str(item) for item in resolved)
-            variables[key] = resolved
-
-        def attempt_execute(use_provider: str | None) -> tuple[Any, Exception | None]:
-            """Attempt to execute prompt with given provider."""
-            try:
-                result = execute_prompt(
-                    prompt_name=prompt_name,
-                    variables=variables,
-                    output_model=output_model,
-                    temperature=temperature,
-                    provider=use_provider,
-                )
-                return result, None
-            except Exception as e:
-                return None, e
-
-        # Execute with error handling based on on_error setting
-        result, error = attempt_execute(provider)
-        
-        if error is None:
-            logger.info(f"Node {node_name} completed successfully")
-            update = {state_key: result, "current_step": node_name}
-            
-            # For router nodes, add _route to state
-            if node_type == "router" and routes:
-                # Get the route key from the classification result
-                route_key = getattr(result, "tone", None) or getattr(result, "intent", None)
-                if route_key and route_key in routes:
-                    # Map the classification key to target node name
-                    update["_route"] = routes[route_key]
-                elif default_route:
-                    update["_route"] = default_route
-                else:
-                    update["_route"] = list(routes.values())[0]  # First route as fallback
-                logger.info(f"Router {node_name} routing to: {update['_route']}")
-            
-            return update
-
-        # Handle error based on on_error setting
-        if on_error == "skip":
-            logger.warning(f"Node {node_name} failed, skipping: {error}")
-            return {"current_step": node_name}
-        
-        elif on_error == "fail":
-            logger.error(f"Node {node_name} failed (on_error=fail): {error}")
-            raise error
-        
-        elif on_error == "retry":
-            # Retry with configured max_retries
-            for attempt in range(1, max_retries):
-                logger.info(f"Node {node_name} retry {attempt}/{max_retries - 1}")
-                result, error = attempt_execute(provider)
-                if error is None:
-                    logger.info(f"Node {node_name} completed on retry {attempt}")
-                    return {state_key: result, "current_step": node_name}
-            # All retries exhausted
-            logger.error(f"Node {node_name} failed after {max_retries} attempts")
-            pipeline_error = PipelineError.from_exception(error, node=node_name)
-            return {"error": pipeline_error, "current_step": node_name}
-        
-        elif on_error == "fallback" and fallback_provider:
-            # Try fallback provider
-            logger.info(f"Node {node_name} trying fallback provider: {fallback_provider}")
-            result, fallback_error = attempt_execute(fallback_provider)
-            if fallback_error is None:
-                logger.info(f"Node {node_name} completed with fallback provider")
-                return {state_key: result, "current_step": node_name}
-            # Both providers failed
-            logger.error(f"Node {node_name} failed with primary and fallback providers")
-            pipeline_error = PipelineError.from_exception(fallback_error, node=node_name)
-            return {"error": pipeline_error, "current_step": node_name}
-        
-        else:
-            # Default behavior: return error in state
-            logger.error(f"Node {node_name} failed: {error}")
-            pipeline_error = PipelineError.from_exception(error, node=node_name)
-            return {"error": pipeline_error, "current_step": node_name}
-
-    node_fn.__name__ = f"{node_name}_node"
-    return node_fn
 
 
 def _should_continue(state: ShowcaseState) -> str:
@@ -367,9 +164,14 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     state_class = resolve_class(config.state_class)
     graph = StateGraph(state_class)
 
-    # Add nodes
+    # Add nodes - inject loop_limits from graph config into node config
     for node_name, node_config in config.nodes.items():
-        node_fn = create_node_function(node_name, node_config, config.defaults)
+        # Copy node config and add loop_limit if specified in graph's loop_limits
+        enriched_config = dict(node_config)
+        if node_name in config.loop_limits:
+            enriched_config["loop_limit"] = config.loop_limits[node_name]
+        
+        node_fn = create_node_function(node_name, enriched_config, config.defaults)
         graph.add_node(node_name, node_fn)
         logger.info(f"Added node: {node_name}")
 
@@ -377,6 +179,7 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     conditional_source = None
     conditional_targets = {}
     router_edges = {}  # For type: conditional edges with list targets
+    expression_edges: dict[str, list[tuple[str, str]]] = {}  # For expression conditions
 
     # Process edges
     for edge in config.edges:
@@ -391,8 +194,14 @@ def compile_graph(config: GraphConfig) -> StateGraph:
             # Router-style conditional edge: routes to one of multiple targets
             # Store for later processing
             router_edges[from_node] = to_node
+        elif condition and condition not in ("continue", "end"):
+            # Expression-based condition (e.g., "critique.score < 0.8")
+            if from_node not in expression_edges:
+                expression_edges[from_node] = []
+            target = END if to_node == "END" else to_node
+            expression_edges[from_node].append((condition, target))
         elif condition:
-            # Collect conditional edges from same source
+            # Legacy continue/end style conditions
             if conditional_source is None:
                 conditional_source = from_node
             if from_node == conditional_source:
@@ -402,7 +211,7 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         else:
             graph.add_edge(from_node, to_node)
 
-    # Add conditional edges if any (continue/end style)
+    # Add conditional edges if any (continue/end style - legacy)
     if conditional_source and conditional_targets:
         graph.add_conditional_edges(
             conditional_source,
@@ -428,6 +237,38 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         graph.add_conditional_edges(
             source_node,
             make_router_fn(target_nodes),
+            route_mapping,
+        )
+    
+    # Add expression-based conditional edges
+    for source_node, expr_edges in expression_edges.items():
+        def make_expr_router_fn(edges: list[tuple[str, str]]) -> Callable:
+            """Create router that evaluates expression conditions."""
+            def expr_router_fn(state: ShowcaseState) -> str:
+                # Check loop limit first
+                if state.get("_loop_limit_reached"):
+                    return END
+                    
+                for condition, target in edges:
+                    try:
+                        if evaluate_condition(condition, state):
+                            logger.debug(f"Condition '{condition}' matched, routing to {target}")
+                            return target
+                    except ValueError as e:
+                        logger.warning(f"Failed to evaluate condition '{condition}': {e}")
+                # No condition matched - this shouldn't happen with well-formed graphs
+                logger.warning(f"No condition matched for {source_node}, defaulting to END")
+                return END
+            return expr_router_fn
+        
+        # Build mapping: all possible targets
+        targets = {target for _, target in expr_edges}
+        targets.add(END)  # Always include END as fallback
+        route_mapping = {t: (END if t == END else t) for t in targets}
+        
+        graph.add_conditional_edges(
+            source_node,
+            make_expr_router_fn(expr_edges),
             route_mapping,
         )
 

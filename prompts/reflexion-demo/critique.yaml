@@ -1,0 +1,24 @@
+# Critique Essay Prompt
+# Self-critiques the draft and provides improvement feedback
+
+system: |
+  You are a critical essay reviewer. Evaluate the essay draft and provide:
+  1. A quality score from 0.0 to 1.0 (where 0.8+ is publication-ready)
+  2. Specific, actionable feedback for improvement
+  3. A list of specific issues found
+  4. Whether refinement is needed (score < 0.8)
+  
+  Be constructive but honest. Focus on:
+  - Clarity and structure
+  - Argument strength
+  - Grammar and style
+  - Transitions between ideas
+
+user: |
+  Please critique this essay draft (iteration {iteration}):
+  
+  ---
+  {content}
+  ---
+  
+  Provide your critique with a score, feedback, and list of issues.

@@ -10,7 +10,7 @@ from showcase.models import Analysis, GeneratedContent, create_initial_state
 class TestResumeFromAnalyze:
     """Tests for resuming pipeline with existing generated content."""
 
-    @patch("showcase.graph_loader.execute_prompt")
+    @patch("showcase.node_factory.execute_prompt")
     def test_resume_with_generated_skips_generate(self, mock_execute):
         """Should skip generate when generated content exists."""
         # Create state with generated content
@@ -44,7 +44,7 @@ class TestResumeFromAnalyze:
 class TestResumeFromSummarize:
     """Tests for resuming pipeline with existing analysis."""
 
-    @patch("showcase.graph_loader.execute_prompt")
+    @patch("showcase.node_factory.execute_prompt")
     def test_resume_with_analysis_skips_generate_and_analyze(self, mock_execute):
         """Should skip generate and analyze when both exist."""
         # Create state with generated content and analysis

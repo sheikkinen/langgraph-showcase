@@ -48,6 +48,10 @@ showcase route "I love this product!"      # → positive response
 showcase route "This is frustrating"       # → empathetic response
 showcase route "What are your hours?"      # → informative response
 
+# Reflexion demo - self-refinement loop
+showcase refine --topic "climate change"   # → draft → critique → refine cycle
+showcase refine -t "AI ethics" -m 5        # → max 5 iterations
+
 # View recent runs
 showcase list-runs
 

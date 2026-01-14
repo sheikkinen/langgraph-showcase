@@ -120,3 +120,57 @@ class TestRouteParserSetup:
             text=True,
         )
         assert "message" in result.stdout.lower() or result.returncode == 0
+
+
+# =============================================================================
+# Test: Refine Command
+# =============================================================================
+
+
+class TestValidateRefineArgs:
+    """Tests for validate_refine_args function."""
+
+    def _create_args(self, topic="climate change", max_iterations=3):
+        """Helper to create args namespace."""
+        return argparse.Namespace(topic=topic, max_iterations=max_iterations)
+
+    def test_valid_topic(self):
+        """Valid topic should pass validation."""
+        from showcase.cli import validate_refine_args
+        args = self._create_args()
+        assert validate_refine_args(args) is True
+
+    def test_empty_topic_fails(self):
+        """Empty topic should fail validation."""
+        from showcase.cli import validate_refine_args
+        args = self._create_args(topic="")
+        assert validate_refine_args(args) is False
+
+    def test_whitespace_only_fails(self):
+        """Whitespace-only topic should fail validation."""
+        from showcase.cli import validate_refine_args
+        args = self._create_args(topic="   ")
+        assert validate_refine_args(args) is False
+
+
+class TestCmdRefineFunction:
+    """Tests for cmd_refine CLI function."""
+
+    def test_cmd_refine_exists(self):
+        """cmd_refine function should exist."""
+        from showcase.cli import cmd_refine
+        assert callable(cmd_refine)
+
+
+class TestRefineParserSetup:
+    """Tests for refine subparser configuration."""
+
+    def test_refine_parser_configured(self):
+        """Refine subparser should be configured in main."""
+        import subprocess
+        result = subprocess.run(
+            ["python", "-m", "showcase.cli", "refine", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        assert "topic" in result.stdout.lower() or result.returncode == 0

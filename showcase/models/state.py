@@ -40,6 +40,7 @@ class ShowcaseState(TypedDict, total=False):
     style: str
     word_count: int
     message: str  # For router demo
+    topic: str  # For reflexion demo
     
     # Pipeline outputs
     generated: GeneratedContent | None
@@ -47,6 +48,8 @@ class ShowcaseState(TypedDict, total=False):
     final_summary: str | None
     classification: object | None  # For router demo
     response: str | None  # For router demo
+    current_draft: object | None  # For reflexion demo
+    critique: object | None  # For reflexion demo
     
     # Metadata
     current_step: str
@@ -55,6 +58,10 @@ class ShowcaseState(TypedDict, total=False):
     
     # Router internal
     _route: str | None  # Router routing decision
+    
+    # Loop tracking
+    _loop_counts: dict[str, int]  # Per-node iteration counts
+    _loop_limit_reached: bool  # Flag when limit hit
     
     # Timestamps
     started_at: datetime | None

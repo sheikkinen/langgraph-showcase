@@ -7,6 +7,7 @@ Usage:
     showcase list-runs
     showcase resume --thread-id abc123
     showcase route "I love this product!"
+    showcase refine --topic "climate change" --max-iterations 3
     showcase trace --run-id <run-id>
 """
 
@@ -29,6 +30,22 @@ def validate_route_args(args) -> bool:
     message = args.message.strip() if args.message else ""
     if not message:
         print("❌ Message cannot be empty")
+        return False
+    return True
+
+
+def validate_refine_args(args) -> bool:
+    """Validate refine command arguments.
+    
+    Args:
+        args: Parsed arguments namespace
+        
+    Returns:
+        True if valid, False otherwise (prints error message)
+    """
+    topic = args.topic.strip() if args.topic else ""
+    if not topic:
+        print("❌ Topic cannot be empty")
         return False
     return True
 
@@ -151,6 +168,54 @@ def cmd_route(args):
             print("RESPONSE")
             print("=" * 60)
             print(f"\n{response}\n")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
+
+
+def cmd_refine(args):
+    """Run the reflexion demo pipeline (draft → critique → refine loop)."""
+    if not validate_refine_args(args):
+        sys.exit(1)
+    
+    from showcase.graph_loader import load_and_compile
+    
+    print("\n📝 Running reflexion pipeline (self-refinement loop)")
+    print(f"   Topic: {args.topic}")
+    print(f"   Max iterations: {args.max_iterations}")
+    print()
+    
+    try:
+        graph = load_and_compile("graphs/reflexion-demo.yaml")
+        app = graph.compile()
+        
+        result = app.invoke({"topic": args.topic})
+        
+        # Show iteration count
+        loop_counts = result.get("_loop_counts", {})
+        iterations = loop_counts.get("critique", 0)
+        limit_reached = result.get("_loop_limit_reached", False)
+        
+        print(f"\n🔄 Iterations: {iterations}")
+        if limit_reached:
+            print("⚠️  Loop limit reached (circuit breaker triggered)")
+        
+        # Show critique result
+        if critique := result.get("critique"):
+            score = getattr(critique, "score", 0.0)
+            print(f"📊 Final score: {score:.2f}")
+        
+        # Show draft result
+        if draft := result.get("current_draft"):
+            version = getattr(draft, "version", 1)
+            content = getattr(draft, "content", "")
+            print(f"📄 Final version: {version}")
+            
+            print("\n" + "=" * 60)
+            print("FINAL CONTENT")
+            print("=" * 60)
+            print(f"\n{content}\n")
         
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -322,6 +387,14 @@ def main():
     route_parser = subparsers.add_parser("route", help="Run router demo (tone classification)")
     route_parser.add_argument("message", help="Message to classify and route")
     route_parser.set_defaults(func=cmd_route)
+    
+    # Refine command (reflexion demo)
+    refine_parser = subparsers.add_parser("refine", help="Run reflexion demo (self-refinement loop)")
+    refine_parser.add_argument("--topic", "-t", required=True,
+                               help="Topic to write about")
+    refine_parser.add_argument("--max-iterations", "-m", type=int, default=3,
+                               help="Maximum refinement iterations (default: 3)")
+    refine_parser.set_defaults(func=cmd_refine)
     
     # Resume command
     resume_parser = subparsers.add_parser("resume", help="Resume a pipeline")
