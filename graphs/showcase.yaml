@@ -1,0 +1,77 @@
+# Showcase Pipeline - YAML Graph Definition
+# Replaces Python-defined graph in builder.py
+
+version: "1.0"
+name: showcase
+description: Content generation pipeline (generate → analyze → summarize)
+
+state_class: showcase.models.ShowcaseState
+
+defaults:
+  provider: mistral
+  temperature: 0.7
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    output_model: showcase.models.GeneratedContent
+    temperature: 0.8
+    variables:
+      topic: "{state.topic}"
+      word_count: "{state.word_count}"
+      style: "{state.style}"
+    state_key: generated
+
+  analyze:
+    type: llm
+    prompt: analyze
+    output_model: showcase.models.Analysis
+    temperature: 0.3
+    variables:
+      content: "{state.generated.content}"
+    state_key: analysis
+    requires: [generated]
+
+  summarize:
+    type: llm
+    prompt: summarize
+    output_model: null
+    temperature: 0.5
+    variables:
+      topic: "{state.topic}"
+      generated_content: "{state.generated.content}"
+      analysis_summary: "{state.analysis.summary}"
+      key_points: "{state.analysis.key_points}"
+      sentiment: "{state.analysis.sentiment}"
+    state_key: final_summary
+    requires: [generated, analysis]
+
+edges:
+  - from: START
+    to: generate
+
+  - from: generate
+    to: analyze
+    condition: continue
+
+  - from: generate
+    to: END
+    condition: end
+
+  - from: analyze
+    to: summarize
+
+  - from: summarize
+    to: END
+
+# Condition definitions for routing
+conditions:
+  continue:
+    all:
+      - "{state.generated} is not None"
+      - "{state.error} is None"
+  end:
+    any:
+      - "{state.error} is not None"
+      - "{state.generated} is None"

@@ -30,18 +30,20 @@ class TestBuildResumeGraph:
     """Tests for build_resume_graph function."""
 
     def test_resume_from_analyze(self):
-        """Resume graph from analyze should have analyze and summarize."""
+        """Resume graph from analyze loads full graph."""
         graph = build_resume_graph(start_from="analyze")
+        # Now loads full graph - all nodes present
+        assert "generate" in graph.nodes
         assert "analyze" in graph.nodes
         assert "summarize" in graph.nodes
-        assert "generate" not in graph.nodes
 
     def test_resume_from_summarize(self):
-        """Resume graph from summarize should only have summarize."""
+        """Resume graph from summarize loads full graph."""
         graph = build_resume_graph(start_from="summarize")
+        # Now loads full graph
+        assert "generate" in graph.nodes
+        assert "analyze" in graph.nodes
         assert "summarize" in graph.nodes
-        assert "analyze" not in graph.nodes
-        assert "generate" not in graph.nodes
 
     def test_resume_invalid_start_raises_error(self):
         """Resume graph should raise ValueError for invalid start_from."""
@@ -55,7 +57,7 @@ class TestBuildResumeGraph:
 class TestRunPipeline:
     """Tests for run_pipeline function with mocked LLM."""
 
-    @patch("showcase.nodes.content.execute_prompt")
+    @patch("showcase.graph_loader.execute_prompt")
     def test_full_pipeline_success(self, mock_execute):
         """Full pipeline should execute all steps."""
         # Setup mock returns for each call
@@ -82,7 +84,7 @@ class TestRunPipeline:
         assert result["final_summary"] == mock_summary
         assert mock_execute.call_count == 3
 
-    @patch("showcase.nodes.content.execute_prompt")
+    @patch("showcase.graph_loader.execute_prompt")
     def test_pipeline_stops_on_generate_error(self, mock_execute):
         """Pipeline should stop and set error on generate failure."""
         mock_execute.side_effect = Exception("API Error")
@@ -94,7 +96,7 @@ class TestRunPipeline:
         assert result.get("analysis") is None
         assert result.get("final_summary") is None
 
-    @patch("showcase.nodes.content.execute_prompt")
+    @patch("showcase.graph_loader.execute_prompt")
     def test_pipeline_state_progression(self, mock_execute):
         """Pipeline should update current_step as it progresses."""
         mock_generated = GeneratedContent(

@@ -40,13 +40,17 @@
 - Never mutate state directly
 
 ### 5. Error Handling
+Error handling is built into `graph_loader.py` for YAML-defined nodes.
+For custom Python nodes:
 ```python
 try:
     result = execute_prompt(...)
     return {"field": result, "current_step": "node_name"}
 except Exception as e:
     error = PipelineError.from_exception(e, node="node_name")
-    return {**_add_error(state, error), "current_step": "node_name"}
+    errors = list(state.get("errors") or [])
+    errors.append(error)
+    return {"errors": errors, "current_step": "node_name"}
 ```
 
 ### 6. Code Quality

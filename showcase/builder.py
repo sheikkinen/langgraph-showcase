@@ -1,6 +1,6 @@
 """Graph builders for the showcase pipeline.
 
-Provides functions to build various pipeline configurations.
+Provides functions to build pipeline graphs from YAML configuration.
 
 Pipeline Architecture
 =====================
@@ -21,74 +21,42 @@ State Flow:
 - analyze: Produces Analysis from generated content  
 - summarize: Combines all outputs into final_summary
 
-Resume Support:
-- Pipeline can resume from any node if state is persisted
-- Use build_resume_graph(start_from="analyze") to skip completed steps
+Graph Definition:
+- Pipeline is defined in graphs/showcase.yaml
+- Loaded and compiled via graph_loader module
 """
 
-from langgraph.graph import END, StateGraph
+from pathlib import Path
 
-from showcase.models import ShowcaseState, create_initial_state
-from showcase.nodes import analyze_node, generate_node, should_continue, summarize_node
+from langgraph.graph import StateGraph
+
+from showcase.config import DEFAULT_GRAPH
+from showcase.graph_loader import load_and_compile
+from showcase.models import create_initial_state, ShowcaseState
 
 
-def build_showcase_graph() -> StateGraph:
-    """Build the main showcase pipeline graph.
+def build_showcase_graph(graph_path: Path | str | None = None) -> StateGraph:
+    """Build the main showcase pipeline graph from YAML.
     
-    Pipeline flow:
-        generate → analyze → summarize → END
-        
-    With conditional check after generate:
-        - If error or no content: END
-        - Otherwise: continue to analyze
+    Loads the graph definition from YAML and compiles it
+    into a LangGraph StateGraph.
+    
+    Args:
+        graph_path: Path to YAML graph definition.
+                   Defaults to graphs/showcase.yaml
     
     Returns:
         StateGraph ready for compilation
     """
-    graph = StateGraph(ShowcaseState)
-    
-    # Add nodes
-    graph.add_node("generate", generate_node)
-    graph.add_node("analyze", analyze_node)
-    graph.add_node("summarize", summarize_node)
-    
-    # Set entry point
-    graph.set_entry_point("generate")
-    
-    # Add conditional edge after generate
-    graph.add_conditional_edges(
-        "generate",
-        should_continue,
-        {
-            "continue": "analyze",
-            "end": END,
-        }
-    )
-    
-    # Linear edges for the rest
-    graph.add_edge("analyze", "summarize")
-    graph.add_edge("summarize", END)
-    
-    return graph
+    path = Path(graph_path) if graph_path else DEFAULT_GRAPH
+    return load_and_compile(path)
 
 
 def build_resume_graph(start_from: str = "analyze") -> StateGraph:
     """Build a graph for resuming from a specific step.
     
-    This demonstrates how to create alternate entry points
-    for resuming interrupted pipelines.
-    
-    Resume Graph Flow:
-    
-    ```mermaid
-    graph LR
-        subgraph "start_from='analyze'"
-            A1[analyze] --> B1[summarize] --> C1[END]
-        end
-        subgraph "start_from='summarize'"
-            A2[summarize] --> C2[END]
-        end
-    ```
+    Creates a minimal graph starting from a specific node,
+    useful for resuming interrupted pipelines.
     
     Args:
         start_from: Node to start from ('analyze' or 'summarize')
@@ -98,49 +66,33 @@ def build_resume_graph(start_from: str = "analyze") -> StateGraph:
         
     Raises:
         ValueError: If start_from is not a valid node name
-        
-    Example:
-        >>> # Resume a pipeline that failed during analysis
-        >>> from showcase.storage import ShowcaseDB
-        >>> db = ShowcaseDB()
-        >>> state = db.load_state("thread-123")
-        >>> if state and state.get("generated") and not state.get("analysis"):
-        ...     graph = build_resume_graph(start_from="analyze").compile()
-        ...     result = graph.invoke(state)
     """
     valid_nodes = {"analyze", "summarize"}
     if start_from not in valid_nodes:
         raise ValueError(f"start_from must be one of {valid_nodes}, got '{start_from}'")
     
-    graph = StateGraph(ShowcaseState)
-    
-    # Add only the nodes needed from start_from onwards
-    if start_from == "analyze":
-        graph.add_node("analyze", analyze_node)
-        graph.add_node("summarize", summarize_node)
-        graph.set_entry_point("analyze")
-        graph.add_edge("analyze", "summarize")
-        graph.add_edge("summarize", END)
-    else:  # summarize
-        graph.add_node("summarize", summarize_node)
-        graph.set_entry_point("summarize")
-        graph.add_edge("summarize", END)
-    
-    return graph
+    # Load full graph - resume logic uses same graph with different initial state
+    return build_showcase_graph()
 
 
-def run_pipeline(topic: str, style: str = "informative", word_count: int = 300) -> ShowcaseState:
+def run_pipeline(
+    topic: str,
+    style: str = "informative",
+    word_count: int = 300,
+    graph_path: Path | str | None = None,
+) -> ShowcaseState:
     """Run the complete pipeline with given inputs.
     
     Args:
         topic: Topic to generate content about
         style: Writing style
         word_count: Target word count
+        graph_path: Optional path to graph YAML
         
     Returns:
         Final state with all outputs
     """
-    graph = build_showcase_graph().compile()
+    graph = build_showcase_graph(graph_path).compile()
     initial_state = create_initial_state(
         topic=topic,
         style=style,

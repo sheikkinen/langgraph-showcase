@@ -20,8 +20,12 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 # Directory paths
 PROMPTS_DIR = PROJECT_ROOT / "prompts"
+GRAPHS_DIR = PROJECT_ROOT / "graphs"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 DATABASE_PATH = OUTPUTS_DIR / "showcase.db"
+
+# Default graph configuration
+DEFAULT_GRAPH = GRAPHS_DIR / "showcase.yaml"
 
 # LLM Configuration
 DEFAULT_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")

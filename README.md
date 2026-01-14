@@ -2,6 +2,7 @@
 
 A minimal, self-contained demonstration / template of a LLM pipeline using:
 
+- **YAML Graph Configuration** - Declarative pipeline definition
 - **YAML Prompts** - Declarative prompt templates with Jinja2 support
 - **Pydantic Models** - Structured LLM outputs
 - **Multi-Provider LLMs** - Support for Anthropic, Mistral, and OpenAI
@@ -62,9 +63,13 @@ showcase/
 ├── .env.sample           # Environment template
 ├── run.py                # Simple entry point
 │
+├── graphs/               # YAML graph definitions
+│   └── showcase.yaml     # Main pipeline definition
+│
 ├── showcase/             # Main package
 │   ├── __init__.py       # Package exports
-│   ├── builder.py        # Graph builders + pipeline runner
+│   ├── builder.py        # Graph builders (loads from YAML)
+│   ├── graph_loader.py   # YAML → LangGraph compiler
 │   ├── config.py         # Centralized configuration
 │   ├── executor.py       # YAML prompt executor
 │   ├── cli.py            # CLI commands
@@ -74,10 +79,6 @@ showcase/
 │   │   ├── schemas.py    # Output schemas (Analysis, GeneratedContent, etc.)
 │   │   └── state.py      # LangGraph state definition
 │   │
-│   ├── nodes/            # Graph node functions
-│   │   ├── __init__.py
-│   │   └── content.py    # generate, analyze, summarize nodes
-│   │
 │   ├── storage/          # Persistence layer
 │   │   ├── __init__.py
 │   │   ├── database.py   # SQLite wrapper
@@ -85,6 +86,7 @@ showcase/
 │   │
 │   └── utils/            # Utilities
 │       ├── __init__.py
+│       ├── llm_factory.py # Multi-provider LLM creation
 │       └── langsmith.py  # Tracing helpers
 │
 ├── prompts/              # YAML prompt templates
@@ -100,6 +102,7 @@ showcase/
 │   └── integration/      # Integration tests
 │
 └── outputs/              # Generated files (gitignored)
+```
 ```
 
 ## Pipeline Flow
@@ -229,12 +232,71 @@ Provider selection priority:
 3. Environment variable: `PROVIDER=mistral`
 4. Default: `anthropic`
 
-### 4. LangGraph Pipeline
+### 4. YAML Graph Configuration
 
+Pipelines are defined declaratively in YAML and compiled to LangGraph:
+
+```yaml
+# graphs/showcase.yaml
+version: "1.0"
+name: showcase
+description: Content generation pipeline
+
+state_class: showcase.models.ShowcaseState
+
+defaults:
+  provider: mistral
+  temperature: 0.7
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    output_model: showcase.models.GeneratedContent
+    temperature: 0.8
+    variables:
+      topic: "{state.topic}"
+      word_count: "{state.word_count}"
+      style: "{state.style}"
+    state_key: generated
+
+  analyze:
+    type: llm
+    prompt: analyze
+    output_model: showcase.models.Analysis
+    temperature: 0.3
+    variables:
+      content: "{state.generated.content}"
+    state_key: analysis
+    requires: [generated]
+
+  summarize:
+    type: llm
+    prompt: summarize
+    temperature: 0.5
+    state_key: final_summary
+    requires: [generated, analysis]
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: analyze
+    condition: continue
+  - from: generate
+    to: END
+    condition: end
+  - from: analyze
+    to: summarize
+  - from: summarize
+    to: END
+```
+
+**Load and run**:
 ```python
-from showcase.graph import build_showcase_graph
+from showcase.builder import build_showcase_graph
 
-graph = build_showcase_graph().compile()
+graph = build_showcase_graph().compile()  # Loads from graphs/showcase.yaml
 result = graph.invoke(initial_state)
 ```
 
@@ -297,7 +359,7 @@ pytest tests/ --cov=showcase --cov-report=term-missing
 
 ## Extending the Pipeline
 
-### Adding a New Node (Complete Example)
+### Adding a New Node (YAML-First Approach)
 
 Let's add a "fact_check" node that verifies generated content:
 
@@ -325,107 +387,84 @@ user: |
   Identify key claims and assess their verifiability.
 ```
 
-**Step 3: Add the node function** (`showcase/nodes/content.py`):
-```python
-from showcase.models import FactCheck
-
-def fact_check_node(state: ShowcaseState) -> dict:
-    """Fact-check the generated content."""
-    generated = state.get("generated")
-    if not generated:
-        error = PipelineError(
-            type=ErrorType.STATE_ERROR,
-            message="No content to fact-check",
-            node="fact_check",
-            retryable=False,
-        )
-        return {**_add_error(state, error), "current_step": "fact_check"}
-    
-    print(f"🔎 Fact-checking: {generated.title}")
-    
-    try:
-        result = execute_prompt(
-            "fact_check",
-            variables={"content": generated.content},
-            output_model=FactCheck,
-            temperature=0.2,  # Low temp for accuracy
-        )
-        print(f"   ✓ Verified: {result.verified} (confidence: {result.confidence:.2f})")
-        return {"fact_check": result, "current_step": "fact_check"}
-    except Exception as e:
-        error = PipelineError.from_exception(e, node="fact_check")
-        return {**_add_error(state, error), "current_step": "fact_check"}
-```
-
-**Step 4: Add to state** (`showcase/models/state.py`):
+**Step 3: Add to state** (`showcase/models/state.py`):
 ```python
 class ShowcaseState(TypedDict, total=False):
     # ... existing fields ...
     fact_check: FactCheck | None  # Add new field
 ```
 
-**Step 5: Wire into the graph** (`showcase/builder.py`):
-```python
-from showcase.nodes import fact_check_node
+**Step 4: Add the node to your graph** (`graphs/showcase.yaml`):
+```yaml
+nodes:
+  generate:
+    type: prompt
+    prompt: generate
+    output_model: showcase.models.GeneratedContent
+    variables:
+      topic: topic
+    output_key: generated
 
-def build_showcase_graph() -> StateGraph:
-    graph = StateGraph(ShowcaseState)
-    
-    graph.add_node("generate", generate_node)
-    graph.add_node("fact_check", fact_check_node)  # New node
-    graph.add_node("analyze", analyze_node)
-    graph.add_node("summarize", summarize_node)
-    
-    graph.set_entry_point("generate")
-    graph.add_conditional_edges("generate", should_continue, {
-        "continue": "fact_check",  # Route to fact_check first
-        "end": END,
-    })
-    graph.add_edge("fact_check", "analyze")  # Then to analyze
-    graph.add_edge("analyze", "summarize")
-    graph.add_edge("summarize", END)
-    
-    return graph
+  fact_check:  # ✨ New node - just YAML!
+    type: prompt
+    prompt: fact_check
+    output_model: showcase.models.FactCheck
+    requires: [generated]
+    variables:
+      content: generated.content
+    output_key: fact_check
+
+  analyze:
+    # ... existing config ...
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: fact_check
+    condition:
+      type: has_value
+      field: generated
+  - from: fact_check
+    to: analyze
+  # ... rest of edges ...
 ```
+
+That's it! No Python node code needed. The graph loader dynamically generates the node function.
 
 Resulting pipeline:
 ```mermaid
 graph TD
-    A[generate] --> B{should_continue}
-    B -->|continue| C[fact_check]
+    A[generate] --> B{has generated?}
+    B -->|yes| C[fact_check]
     C --> D[analyze]
     D --> E[summarize]
     E --> F[END]
-    B -->|end| F
+    B -->|no| F
 ```
 
 ### Adding Conditional Branching
 
-Route to different nodes based on analysis results:
+Route to different nodes based on analysis results (all in YAML):
 
-```python
-def route_by_sentiment(state: ShowcaseState) -> str:
-    """Route based on sentiment analysis."""
-    analysis = state.get("analysis")
-    if not analysis:
-        return "default"
-    
-    if analysis.sentiment == "negative" and analysis.confidence > 0.8:
-        return "handle_negative"
-    elif analysis.sentiment == "positive":
-        return "celebrate"
-    return "default"
-
-# In build_showcase_graph():
-graph.add_conditional_edges(
-    "analyze",
-    route_by_sentiment,
-    {
-        "handle_negative": "rewrite_node",
-        "celebrate": "enhance_node", 
-        "default": "summarize",
-    }
-)
+```yaml
+edges:
+  - from: analyze
+    to: rewrite_node
+    condition:
+      type: field_equals
+      field: analysis.sentiment
+      value: negative
+  
+  - from: analyze
+    to: enhance_node
+    condition:
+      type: field_equals
+      field: analysis.sentiment
+      value: positive
+  
+  - from: analyze
+    to: summarize  # Default fallback
 ```
 
 ### Add a New Prompt
@@ -456,14 +495,16 @@ result = execute_prompt("prompt", output_model=MyOutput)
 
 ## Known Issues & Future Improvements
 
-This project demonstrates solid production patterns but underutilizes some LangGraph capabilities:
+This project demonstrates solid production patterns with declarative YAML-based configuration.
 
 ### Completed Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|
+| YAML Graph Configuration | ✅ | Declarative pipeline definition in `graphs/showcase.yaml` |
 | Jinja2 Templating | ✅ | Hybrid auto-detection (simple {var} + advanced Jinja2) |
 | Multi-Provider LLMs | ✅ | Factory pattern supporting Anthropic/Mistral/OpenAI |
+| Dynamic Node Generation | ✅ | Nodes compiled from YAML at runtime |
 
 ### Missing LangGraph Features
 
@@ -484,6 +525,7 @@ This project demonstrates solid production patterns but underutilizes some LangG
 3. **Use LangGraph's checkpointer** - Replace custom DB with native persistence
 4. **Add streaming** - `--stream` CLI flag for real-time output
 5. **Add agent example** - Demonstrate tool calling patterns
+6. **JSON Schema validation** - Validate `graphs/*.yaml` against schema
 
 ## License
 
@@ -491,4 +533,4 @@ MIT
 
 ## Remember
 
-Prompts in yaml templates, shared executor, pydantic, data stored in sqllite, langgraph, langsmith, venv, tdd red-green-blue, refactor modules to < 400 lines, kiss
+Prompts in yaml templates, graphs in yaml, shared executor, pydantic, data stored in sqlite, langgraph, langsmith, venv, tdd red-green-refactor, modules < 400 lines, kiss

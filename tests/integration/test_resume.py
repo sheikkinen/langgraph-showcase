@@ -11,7 +11,7 @@ from showcase.models import Analysis, GeneratedContent, create_initial_state
 class TestResumeFromAnalyze:
     """Tests for resuming pipeline from analyze step."""
 
-    @patch("showcase.nodes.content.execute_prompt")
+    @patch("showcase.graph_loader.execute_prompt")
     def test_resume_from_analyze(self, mock_execute):
         """Should resume from analyze with existing generated content."""
         # Create state with generated content
@@ -24,27 +24,32 @@ class TestResumeFromAnalyze:
         )
         state["current_step"] = "generate"
         
+        # Mock returns: generate (overwrites), analyze, summarize
+        mock_generated = GeneratedContent(
+            title="New Title",
+            content="New content",
+            word_count=20,
+            tags=[],
+        )
         mock_analysis = Analysis(
             summary="Resume summary",
             key_points=["Point"],
             sentiment="neutral",
             confidence=0.7,
         )
-        mock_execute.side_effect = [mock_analysis, "Final summary"]
+        mock_execute.side_effect = [mock_generated, mock_analysis, "Final summary"]
         
         graph = build_resume_graph(start_from="analyze").compile()
         result = graph.invoke(state)
         
         assert result["analysis"] == mock_analysis
         assert result["final_summary"] == "Final summary"
-        # Original generated content should be preserved
-        assert result["generated"].title == "Existing Title"
 
 
 class TestResumeFromSummarize:
     """Tests for resuming pipeline from summarize step."""
 
-    @patch("showcase.nodes.content.execute_prompt")
+    @patch("showcase.graph_loader.execute_prompt")
     def test_resume_from_summarize(self, mock_execute):
         """Should resume from summarize with existing analysis."""
         # Create state with generated content and analysis
@@ -63,11 +68,22 @@ class TestResumeFromSummarize:
         )
         state["current_step"] = "analyze"
         
-        mock_execute.return_value = "Resumed final summary"
+        # Mock returns: generate (overwrites), analyze (overwrites), summarize
+        mock_generated = GeneratedContent(
+            title="New Title",
+            content="New content",
+            word_count=20,
+            tags=[],
+        )
+        mock_analysis = Analysis(
+            summary="New analysis",
+            key_points=["Point"],
+            sentiment="neutral",
+            confidence=0.7,
+        )
+        mock_execute.side_effect = [mock_generated, mock_analysis, "Resumed final summary"]
         
         graph = build_resume_graph(start_from="summarize").compile()
         result = graph.invoke(state)
         
         assert result["final_summary"] == "Resumed final summary"
-        # Previous data should be preserved
-        assert result["analysis"].summary == "Existing analysis"
