@@ -421,8 +421,12 @@ def cmd_graph(args):
         print(f"❌ Error generating graph: {e}")
 
 
-def main():
-    """Main CLI entry point."""
+def create_parser() -> argparse.ArgumentParser:
+    """Create and configure the CLI argument parser.
+    
+    Returns:
+        Configured ArgumentParser for testing and main().
+    """
     parser = argparse.ArgumentParser(
         description="Showcase App - LangGraph Pipeline Demo",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -440,6 +444,8 @@ def main():
                            help="Target word count")
     run_parser.add_argument("--export", "-e", action="store_true",
                            help="Export result to JSON")
+    run_parser.add_argument("--thread", type=str, default=None,
+                           help="Thread ID for conversation persistence")
     run_parser.set_defaults(func=cmd_run)
     
     # List runs command
@@ -493,6 +499,12 @@ def main():
                              help="Graph type to show")
     graph_parser.set_defaults(func=cmd_graph)
     
+    return parser
+
+
+def main():
+    """Main CLI entry point."""
+    parser = create_parser()
     args = parser.parse_args()
     
     if not args.command:
@@ -503,4 +515,6 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
+
     main()

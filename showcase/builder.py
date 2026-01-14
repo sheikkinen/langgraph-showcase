@@ -27,12 +27,39 @@ Graph Definition:
 """
 
 from pathlib import Path
+from typing import Any
 
 from langgraph.graph import StateGraph
 
 from showcase.config import DEFAULT_GRAPH
 from showcase.graph_loader import load_and_compile
 from showcase.models import create_initial_state, ShowcaseState
+
+
+def build_graph(
+    graph_path: Path | str | None = None,
+    checkpointer: Any | None = None,
+) -> StateGraph:
+    """Build a pipeline graph from YAML with optional checkpointer.
+    
+    Args:
+        graph_path: Path to YAML graph definition.
+                   Defaults to graphs/showcase.yaml
+        checkpointer: Optional LangGraph checkpointer for state persistence.
+                     Use get_checkpointer() from storage.checkpointer.
+    
+    Returns:
+        StateGraph ready for compilation
+    """
+    path = Path(graph_path) if graph_path else DEFAULT_GRAPH
+    graph = load_and_compile(path)
+    
+    # Checkpointer is applied at compile time
+    if checkpointer is not None:
+        # Store reference for compile() to use
+        graph._checkpointer = checkpointer
+    
+    return graph
 
 
 def build_showcase_graph(graph_path: Path | str | None = None) -> StateGraph:

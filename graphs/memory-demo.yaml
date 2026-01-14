@@ -1,0 +1,42 @@
+name: memory_demo
+description: Multi-turn code review assistant with memory
+
+# Use AgentState which has messages with add reducer
+state_class: showcase.models.state.AgentState
+
+tools:
+  git_log:
+    command: git log --oneline -n {count}
+    description: Get recent commits (count = number of commits)
+    
+  git_diff:
+    command: git diff --stat HEAD~{commits}
+    description: Show file changes in last N commits
+    
+  git_show:
+    command: git show --stat {commit}
+    description: Show details of a specific commit
+
+nodes:
+  review:
+    type: agent
+    prompt: code_review
+    tools: [git_log, git_diff, git_show]
+    state_key: response
+    tool_results_key: _tool_results
+    max_iterations: 5
+
+edges:
+  - from: START
+    to: review
+  - from: review
+    to: END
+
+# Export configuration for results
+exports:
+  response:
+    format: markdown
+    filename: review.md
+  _tool_results:
+    format: json
+    filename: tool_outputs.json
