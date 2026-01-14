@@ -41,6 +41,7 @@ class ShowcaseState(TypedDict, total=False):
     word_count: int
     message: str  # For router demo
     topic: str  # For reflexion demo
+    input: str  # Generic input for agent demos
     
     # Pipeline outputs
     generated: GeneratedContent | None
@@ -62,6 +63,12 @@ class ShowcaseState(TypedDict, total=False):
     # Loop tracking
     _loop_counts: dict[str, int]  # Per-node iteration counts
     _loop_limit_reached: bool  # Flag when limit hit
+    
+    # Agent tracking
+    _agent_iterations: int  # How many iterations agent ran
+    _agent_limit_reached: bool  # True if hit max_iterations
+    analysis: str | Analysis | None  # Can be string from agent or structured
+    report: object | None  # GitReport or other structured output
     
     # Timestamps
     started_at: datetime | None

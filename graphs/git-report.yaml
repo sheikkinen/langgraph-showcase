@@ -1,0 +1,59 @@
+version: "1.0"
+name: git-report
+description: Agent that analyzes git repository and generates reports
+
+tools:
+  recent_commits:
+    type: shell
+    command: git log --oneline -n {count}
+    description: "List recent commits. Use count=10 for last 10 commits."
+    parse: text
+    
+  commit_details:
+    type: shell
+    command: git show --stat {commit_hash}
+    description: "Show details of a specific commit by hash."
+    parse: text
+    
+  changed_files:
+    type: shell
+    command: git diff --name-only HEAD~{n}
+    description: "List files changed in last n commits."
+    parse: text
+    
+  file_blame:
+    type: shell
+    command: git log --oneline -n 5 -- {file}
+    description: "Show recent commits that modified a specific file."
+    parse: text
+    
+  line_count:
+    type: shell
+    command: wc -l {file} | awk '{print $1}'
+    description: "Count lines in a file."
+    parse: text
+
+nodes:
+  analyze:
+    type: agent
+    prompt: git_analyst
+    tools: [recent_commits, commit_details, changed_files, file_blame, line_count]
+    max_iterations: 8
+    state_key: analysis
+    
+  report:
+    type: llm
+    prompt: git_report
+    requires: [analysis]
+    output_model: GitReport
+    state_key: report
+    variables:
+      analysis: "{state.analysis}"
+
+edges:
+  - from: START
+    to: analyze
+  - from: analyze
+    to: report
+  - from: report
+    to: END

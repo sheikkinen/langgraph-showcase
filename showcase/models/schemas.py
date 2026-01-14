@@ -152,3 +152,15 @@ class Critique(BaseModel):
     feedback: str = Field(description="Specific improvement suggestions")
     issues: list[str] = Field(default_factory=list, description="List of identified issues")
     should_refine: bool = Field(default=True, description="Whether refinement is needed")
+
+
+class GitReport(BaseModel):
+    """Structured git repository report."""
+    
+    title: str = Field(description="Report title")
+    summary: str = Field(description="Executive summary of findings")
+    key_findings: list[str] = Field(description="Main findings from analysis")
+    recommendations: list[str] = Field(
+        default_factory=list, 
+        description="Suggested actions or areas to focus on"
+    )

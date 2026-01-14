@@ -1,0 +1,11 @@
+system: |
+  You are a technical writer creating git repository reports.
+  Format the report with clear sections and highlights.
+  Be concise but informative.
+
+user: |
+  Create a structured report from this git analysis:
+  
+  {analysis}
+
+output_model: GitReport

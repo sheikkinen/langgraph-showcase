@@ -51,6 +51,11 @@ showcase route "What are your hours?"      # → informative response
 # Reflexion demo - self-refinement loop
 showcase refine --topic "climate change"   # → draft → critique → refine cycle
 
+# Git report demo - AI agent with shell tools
+showcase git-report -q "What changed recently?"
+showcase git-report -q "Summarize the test files"
+showcase git-report -q "Which files have the most activity?"
+
 # View recent runs
 showcase list-runs
 
@@ -74,7 +79,8 @@ showcase/
 ├── graphs/               # YAML graph definitions
 │   ├── showcase.yaml     # Main pipeline definition
 │   ├── router-demo.yaml  # Tone-based routing demo
-│   └── reflexion-demo.yaml # Self-refinement loop demo
+│   ├── reflexion-demo.yaml # Self-refinement loop demo
+│   └── git-report.yaml   # AI agent demo with shell tools
 │
 ├── showcase/             # Main package
 │   ├── __init__.py       # Package exports
@@ -88,6 +94,12 @@ showcase/
 │   │   ├── __init__.py
 │   │   ├── schemas.py    # Output schemas (Analysis, GeneratedContent, etc.)
 │   │   └── state.py      # LangGraph state definition
+│   │
+│   ├── tools/            # Tool execution
+│   │   ├── __init__.py
+│   │   ├── shell.py      # Shell command executor
+│   │   ├── nodes.py      # Tool node factory
+│   │   └── agent.py      # Agent node factory
 │   │
 │   ├── storage/          # Persistence layer
 │   │   ├── __init__.py
@@ -340,6 +352,45 @@ print_run_tree(verbose=True)
 #    ├─ analyze (3.1s) ✅
 #    └─ summarize (4.0s) ✅
 ```
+
+### 7. Shell Tools & Agent Nodes
+
+Define shell tools and let the LLM decide when to use them:
+
+```yaml
+# graphs/git-report.yaml
+tools:
+  recent_commits:
+    type: shell
+    command: git log --oneline -n {count}
+    description: "List recent commits"
+    
+  changed_files:
+    type: shell
+    command: git diff --name-only HEAD~{n}
+    description: "List files changed in last n commits"
+
+nodes:
+  analyze:
+    type: agent              # LLM decides which tools to call
+    prompt: git_analyst
+    tools: [recent_commits, changed_files]
+    max_iterations: 8
+    state_key: analysis
+```
+
+Run the git analysis agent:
+
+```bash
+showcase git-report -q "What changed recently?"
+showcase git-report -q "Summarize the test directory"
+```
+
+**Node types:**
+- `type: llm` - Standard LLM call with structured output
+- `type: router` - Classify and route to different paths
+- `type: tool` - Execute a specific shell tool
+- `type: agent` - LLM loop that autonomously calls tools
 
 ## Environment Variables
 

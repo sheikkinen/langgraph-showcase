@@ -13,6 +13,9 @@ from langgraph.graph import END, StateGraph
 
 from showcase.models import ShowcaseState
 from showcase.node_factory import create_node_function, resolve_class
+from showcase.tools.agent import create_agent_node
+from showcase.tools.nodes import create_tool_node
+from showcase.tools.shell import parse_tools
 from showcase.utils.conditions import evaluate_condition
 
 logger = logging.getLogger(__name__)
@@ -38,7 +41,9 @@ def _validate_config(config: dict) -> None:
     
     # Validate each node
     for node_name, node_config in nodes.items():
-        if not node_config.get("prompt"):
+        node_type = node_config.get("type", "llm")
+        # Only LLM and router nodes require prompt
+        if node_type in ("llm", "router") and not node_config.get("prompt"):
             raise ValueError(f"Node '{node_name}' missing required 'prompt' field")
         
         # Validate router nodes
@@ -93,6 +98,7 @@ class GraphConfig:
         self.defaults = config.get("defaults", {})
         self.nodes = config.get("nodes", {})
         self.edges = config.get("edges", [])
+        self.tools = config.get("tools", {})
         self.state_class = config.get("state_class", "showcase.models.ShowcaseState")
         self.loop_limits = config.get("loop_limits", {})
 
@@ -148,6 +154,11 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     # Get state class
     state_class = resolve_class(config.state_class)
     graph = StateGraph(state_class)
+    
+    # Parse tools if present
+    tools = parse_tools(config.tools)
+    if tools:
+        logger.info(f"Parsed {len(tools)} tools: {', '.join(tools.keys())}")
 
     # Add nodes - inject loop_limits from graph config into node config
     for node_name, node_config in config.nodes.items():
@@ -156,9 +167,18 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         if node_name in config.loop_limits:
             enriched_config["loop_limit"] = config.loop_limits[node_name]
         
-        node_fn = create_node_function(node_name, enriched_config, config.defaults)
+        node_type = node_config.get("type", "llm")
+        
+        if node_type == "tool":
+            node_fn = create_tool_node(node_name, enriched_config, tools)
+        elif node_type == "agent":
+            node_fn = create_agent_node(node_name, enriched_config, tools)
+        else:
+            # LLM and router nodes
+            node_fn = create_node_function(node_name, enriched_config, config.defaults)
+        
         graph.add_node(node_name, node_fn)
-        logger.info(f"Added node: {node_name}")
+        logger.info(f"Added node: {node_name} (type={node_type})")
 
     # Track which edges need conditional routing
     conditional_source = None

@@ -221,6 +221,72 @@ def cmd_refine(args):
         sys.exit(1)
 
 
+def cmd_git_report(args):
+    """Analyze git repository with AI agent."""
+    import os
+    from showcase.graph_loader import load_and_compile
+    
+    # Change to repo directory
+    original_dir = os.getcwd()
+    try:
+        os.chdir(args.repo)
+        
+        print("\n🤖 Starting git analysis agent...")
+        print(f"   Query: {args.query}")
+        print(f"   Repo: {os.getcwd()}")
+        print()
+        
+        graph = load_and_compile("graphs/git-report.yaml")
+        app = graph.compile()
+        
+        result = app.invoke({"input": args.query})
+        
+        # Show agent stats
+        iterations = result.get("_agent_iterations", 0)
+        limit_reached = result.get("_agent_limit_reached", False)
+        
+        print(f"\n🔧 Agent iterations: {iterations}")
+        if limit_reached:
+            print("⚠️  Iteration limit reached")
+        
+        # Show report
+        if report := result.get("report"):
+            title = getattr(report, "title", "Git Report")
+            summary = getattr(report, "summary", "")
+            findings = getattr(report, "key_findings", [])
+            recommendations = getattr(report, "recommendations", [])
+            
+            print("\n" + "=" * 60)
+            print(f"📊 {title}")
+            print("=" * 60)
+            
+            print(f"\n{summary}\n")
+            
+            if findings:
+                print("📌 Key Findings:")
+                for i, finding in enumerate(findings, 1):
+                    print(f"   {i}. {finding}")
+            
+            if recommendations:
+                print("\n💡 Recommendations:")
+                for i, rec in enumerate(recommendations, 1):
+                    print(f"   {i}. {rec}")
+            
+            print()
+        elif analysis := result.get("analysis"):
+            # Fallback to raw analysis
+            print("\n" + "=" * 60)
+            print("ANALYSIS")
+            print("=" * 60)
+            print(f"\n{analysis}\n")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
+    finally:
+        os.chdir(original_dir)
+
+
 def cmd_list_runs(args):
     """List recent pipeline runs."""
     from showcase.storage import ShowcaseDB
@@ -392,6 +458,14 @@ def main():
     refine_parser.add_argument("--topic", "-t", required=True,
                                help="Topic to write about")
     refine_parser.set_defaults(func=cmd_refine)
+    
+    # Git-report command (agent demo)
+    git_parser = subparsers.add_parser("git-report", help="Analyze git repo with AI agent")
+    git_parser.add_argument("--query", "-q", required=True,
+                            help="What to analyze (e.g., 'recent changes', 'test activity')")
+    git_parser.add_argument("--repo", "-r", default=".",
+                            help="Repository path (default: current directory)")
+    git_parser.set_defaults(func=cmd_git_report)
     
     # Resume command
     resume_parser = subparsers.add_parser("resume", help="Resume a pipeline")

@@ -55,7 +55,7 @@ def resolve_class(class_path: str) -> type:
     """Dynamically import and return a class from a module path.
     
     Args:
-        class_path: Full path like "showcase.models.Analysis"
+        class_path: Full path like "showcase.models.Analysis" or short name like "Analysis"
         
     Returns:
         The class object
@@ -64,6 +64,13 @@ def resolve_class(class_path: str) -> type:
     
     parts = class_path.rsplit(".", 1)
     if len(parts) != 2:
+        # Try to find in showcase.models.schemas
+        try:
+            from showcase.models import schemas
+            if hasattr(schemas, class_path):
+                return getattr(schemas, class_path)
+        except ImportError:
+            pass
         raise ValueError(f"Invalid class path: {class_path}")
     
     module_path, class_name = parts
