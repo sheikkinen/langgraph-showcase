@@ -2,7 +2,7 @@
 
 A minimal, self-contained demonstration / template of a LLM pipeline using:
 
-- **YAML Prompts** - Declarative prompt templates
+- **YAML Prompts** - Declarative prompt templates with Jinja2 support
 - **Pydantic Models** - Structured LLM outputs
 - **LangGraph** - Pipeline orchestration
 - **SQLite** - State persistence
@@ -89,6 +89,7 @@ showcase/
 ├── prompts/              # YAML prompt templates
 │   ├── greet.yaml
 │   ├── analyze.yaml
+│   ├── analyze_list.yaml # Jinja2 example with loops/filters
 │   ├── generate.yaml
 │   └── summarize.yaml
 │
@@ -418,6 +419,12 @@ result = execute_prompt("prompt", output_model=MyOutput)
 
 This project demonstrates solid production patterns but underutilizes some LangGraph capabilities:
 
+### Completed Features
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Jinja2 Templating | ✅ | Hybrid auto-detection (simple {var} + advanced Jinja2) |
+
 ### Missing LangGraph Features
 
 | Feature | Status | Notes |
@@ -428,16 +435,17 @@ This project demonstrates solid production patterns but underutilizes some LangG
 | Native Checkpointing | ❌ | Uses custom SQLite instead of LangGraph's `SqliteSaver` / `MemorySaver` |
 | Tool/Agent Patterns | ❌ | No ReAct agent or tool calling examples |
 | Sub-graphs | ❌ | No nested graph composition |
-| Multiple LLM Providers | ❌ | Hardcoded to Anthropic only |
+| Multiple LLM Providers | ⏸️ | Planned (see docs/matrix-features.md) - Hardcoded to Anthropic only |
 | Async Nodes | ❌ | Everything is synchronous |
 
 ### Potential Enhancements
 
-1. **Add parallel nodes** - Run `sentiment_analysis` and `topic_extraction` concurrently
-2. **Add a cycle** - Content → review → revise loop with max iterations
-3. **Use LangGraph's checkpointer** - Replace custom DB with native persistence
-4. **Add streaming** - `--stream` CLI flag for real-time output
-5. **Add agent example** - Demonstrate tool calling patterns
+1. **Add multi-provider support** - Implement LLM factory (see docs/matrix-features.md Phase 2)
+2. **Add parallel nodes** - Run `sentiment_analysis` and `topic_extraction` concurrently
+3. **Add a cycle** - Content → review → revise loop with max iterations
+4. **Use LangGraph's checkpointer** - Replace custom DB with native persistence
+5. **Add streaming** - `--stream` CLI flag for real-time output
+6. **Add agent example** - Demonstrate tool calling patterns
 
 ## License
 
