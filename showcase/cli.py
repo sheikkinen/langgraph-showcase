@@ -7,7 +7,7 @@ Usage:
     showcase list-runs
     showcase resume --thread-id abc123
     showcase route "I love this product!"
-    showcase refine --topic "climate change" --max-iterations 3
+    showcase refine --topic "climate change"
     showcase trace --run-id <run-id>
 """
 
@@ -183,7 +183,6 @@ def cmd_refine(args):
     
     print("\n📝 Running reflexion pipeline (self-refinement loop)")
     print(f"   Topic: {args.topic}")
-    print(f"   Max iterations: {args.max_iterations}")
     print()
     
     try:
@@ -392,8 +391,6 @@ def main():
     refine_parser = subparsers.add_parser("refine", help="Run reflexion demo (self-refinement loop)")
     refine_parser.add_argument("--topic", "-t", required=True,
                                help="Topic to write about")
-    refine_parser.add_argument("--max-iterations", "-m", type=int, default=3,
-                               help="Maximum refinement iterations (default: 3)")
     refine_parser.set_defaults(func=cmd_refine)
     
     # Resume command

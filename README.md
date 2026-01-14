@@ -50,7 +50,6 @@ showcase route "What are your hours?"      # → informative response
 
 # Reflexion demo - self-refinement loop
 showcase refine --topic "climate change"   # → draft → critique → refine cycle
-showcase refine -t "AI ethics" -m 5        # → max 5 iterations
 
 # View recent runs
 showcase list-runs
@@ -74,7 +73,8 @@ showcase/
 │
 ├── graphs/               # YAML graph definitions
 │   ├── showcase.yaml     # Main pipeline definition
-│   └── router-demo.yaml  # Tone-based routing demo
+│   ├── router-demo.yaml  # Tone-based routing demo
+│   └── reflexion-demo.yaml # Self-refinement loop demo
 │
 ├── showcase/             # Main package
 │   ├── __init__.py       # Package exports

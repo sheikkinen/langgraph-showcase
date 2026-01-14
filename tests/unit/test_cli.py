@@ -130,9 +130,9 @@ class TestRouteParserSetup:
 class TestValidateRefineArgs:
     """Tests for validate_refine_args function."""
 
-    def _create_args(self, topic="climate change", max_iterations=3):
+    def _create_args(self, topic="climate change"):
         """Helper to create args namespace."""
-        return argparse.Namespace(topic=topic, max_iterations=max_iterations)
+        return argparse.Namespace(topic=topic)
 
     def test_valid_topic(self):
         """Valid topic should pass validation."""
