@@ -272,7 +272,7 @@ print_run_tree(verbose=True)
 | `ANTHROPIC_MODEL` | No | Anthropic model (default: claude-sonnet-4-20250514) |
 | `MISTRAL_MODEL` | No | Mistral model (default: mistral-large-latest) |
 | `OPENAI_MODEL` | No | OpenAI model (default: gpt-4o) |
-| `LANGCHAIN_TRACING_V2` | No | Enable LangSmith tracing |
+| `LANGCHAIN_TRACING` | No | Enable LangSmith tracing |
 | `LANGCHAIN_API_KEY` | No | LangSmith API key |
 | `LANGCHAIN_ENDPOINT` | No | LangSmith endpoint URL |
 | `LANGCHAIN_PROJECT` | No | LangSmith project name |
