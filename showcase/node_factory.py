@@ -113,6 +113,9 @@ def create_node_function(
     
     # Loop limit
     loop_limit = node_config.get("loop_limit")
+    
+    # Skip if exists (default true for resume support, false for loop nodes)
+    skip_if_exists = node_config.get("skip_if_exists", True)
 
     def node_fn(state: ShowcaseState) -> dict:
         """Generated node function."""
@@ -126,8 +129,8 @@ def create_node_function(
         
         loop_counts[node_name] = current_count + 1
         
-        # Skip if output exists (resume support)
-        if state.get(state_key) is not None:
+        # Skip if output exists (resume support) - disabled for loop nodes
+        if skip_if_exists and state.get(state_key) is not None:
             logger.info(f"Node {node_name} skipped - {state_key} already in state")
             return {"current_step": node_name, "_loop_counts": loop_counts}
 
