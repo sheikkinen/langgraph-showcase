@@ -43,6 +43,11 @@ python -m showcase.cli run --topic "machine learning" --style casual
 # With export
 showcase run -t "climate change" -s informative -w 500 --export
 
+# Router demo - tone-based routing
+showcase route "I love this product!"      # → positive response
+showcase route "This is frustrating"       # → empathetic response
+showcase route "What are your hours?"      # → informative response
+
 # View recent runs
 showcase list-runs
 
@@ -64,7 +69,8 @@ showcase/
 ├── run.py                # Simple entry point
 │
 ├── graphs/               # YAML graph definitions
-│   └── showcase.yaml     # Main pipeline definition
+│   ├── showcase.yaml     # Main pipeline definition
+│   └── router-demo.yaml  # Tone-based routing demo
 │
 ├── showcase/             # Main package
 │   ├── __init__.py       # Package exports
@@ -94,7 +100,12 @@ showcase/
 │   ├── analyze.yaml
 │   ├── analyze_list.yaml # Jinja2 example with loops/filters
 │   ├── generate.yaml
-│   └── summarize.yaml
+│   ├── summarize.yaml
+│   └── router-demo/      # Tone routing prompts
+│       ├── classify_tone.yaml
+│       ├── respond_positive.yaml
+│       ├── respond_negative.yaml
+│       └── respond_neutral.yaml
 │
 ├── tests/                # Test suite
 │   ├── conftest.py       # Shared fixtures
