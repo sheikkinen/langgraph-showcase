@@ -7,6 +7,7 @@ from showcase.models.schemas import (
     Greeting,
     PipelineError,
     PipelineResult,
+    ToneClassification,
 )
 from showcase.models.state import ShowcaseState, create_initial_state
 
@@ -19,6 +20,7 @@ __all__ = [
     "Analysis",
     "GeneratedContent",
     "PipelineResult",
+    "ToneClassification",
     # State
     "ShowcaseState",
     "create_initial_state",

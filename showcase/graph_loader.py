@@ -38,10 +38,25 @@ def _validate_config(config: dict) -> None:
     if not config.get("edges"):
         raise ValueError("Graph config missing required 'edges' section")
     
+    nodes = config["nodes"]
+    
     # Validate each node
-    for node_name, node_config in config["nodes"].items():
+    for node_name, node_config in nodes.items():
         if not node_config.get("prompt"):
             raise ValueError(f"Node '{node_name}' missing required 'prompt' field")
+        
+        # Validate router nodes
+        if node_config.get("type") == "router":
+            if not node_config.get("routes"):
+                raise ValueError(f"Router node '{node_name}' missing required 'routes' field")
+            
+            # Validate route targets exist
+            for route_key, target_node in node_config["routes"].items():
+                if target_node not in nodes:
+                    raise ValueError(
+                        f"Router node '{node_name}' route '{route_key}' points to "
+                        f"nonexistent node '{target_node}'"
+                    )
     
     # Validate each edge
     for i, edge in enumerate(config["edges"]):
@@ -52,7 +67,7 @@ def _validate_config(config: dict) -> None:
 
     # Validate on_error values
     valid_on_error = {"skip", "retry", "fail", "fallback"}
-    for node_name, node_config in config["nodes"].items():
+    for node_name, node_config in nodes.items():
         on_error = node_config.get("on_error")
         if on_error and on_error not in valid_on_error:
             raise ValueError(
@@ -190,6 +205,7 @@ def create_node_function(
     Returns:
         Node function compatible with LangGraph
     """
+    node_type = node_config.get("type", "llm")
     prompt_name = node_config.get("prompt")
     
     # Resolve output model class
@@ -209,6 +225,10 @@ def create_node_function(
     max_retries = node_config.get("max_retries", 3)
     fallback_config = node_config.get("fallback", {})
     fallback_provider = fallback_config.get("provider") if fallback_config else None
+    
+    # Router config
+    routes = node_config.get("routes", {})
+    default_route = node_config.get("default_route")
 
     def node_fn(state: ShowcaseState) -> dict:
         """Generated node function."""
@@ -257,7 +277,22 @@ def create_node_function(
         
         if error is None:
             logger.info(f"Node {node_name} completed successfully")
-            return {state_key: result, "current_step": node_name}
+            update = {state_key: result, "current_step": node_name}
+            
+            # For router nodes, add _route to state
+            if node_type == "router" and routes:
+                # Get the route key from the classification result
+                route_key = getattr(result, "tone", None) or getattr(result, "intent", None)
+                if route_key and route_key in routes:
+                    # Map the classification key to target node name
+                    update["_route"] = routes[route_key]
+                elif default_route:
+                    update["_route"] = default_route
+                else:
+                    update["_route"] = list(routes.values())[0]  # First route as fallback
+                logger.info(f"Router {node_name} routing to: {update['_route']}")
+            
+            return update
 
         # Handle error based on on_error setting
         if on_error == "skip":
@@ -341,15 +376,21 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     # Track which edges need conditional routing
     conditional_source = None
     conditional_targets = {}
+    router_edges = {}  # For type: conditional edges with list targets
 
     # Process edges
     for edge in config.edges:
         from_node = edge["from"]
         to_node = edge["to"]
         condition = edge.get("condition")
+        edge_type = edge.get("type")
 
         if from_node == "START":
             graph.set_entry_point(to_node)
+        elif edge_type == "conditional" and isinstance(to_node, list):
+            # Router-style conditional edge: routes to one of multiple targets
+            # Store for later processing
+            router_edges[from_node] = to_node
         elif condition:
             # Collect conditional edges from same source
             if conditional_source is None:
@@ -361,12 +402,33 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         else:
             graph.add_edge(from_node, to_node)
 
-    # Add conditional edges if any
+    # Add conditional edges if any (continue/end style)
     if conditional_source and conditional_targets:
         graph.add_conditional_edges(
             conditional_source,
             _should_continue,
             conditional_targets,
+        )
+    
+    # Add router conditional edges
+    for source_node, target_nodes in router_edges.items():
+        # Create routing function that reads _route from state
+        def make_router_fn(targets: list[str]) -> Callable:
+            def router_fn(state: ShowcaseState) -> str:
+                route = state.get("_route")
+                if route and route in targets:
+                    return route
+                # Default to first target
+                return targets[0]
+            return router_fn
+        
+        # Create mapping: target_name -> target_name (identity mapping)
+        route_mapping = {target: target for target in target_nodes}
+        
+        graph.add_conditional_edges(
+            source_node,
+            make_router_fn(target_nodes),
+            route_mapping,
         )
 
     return graph

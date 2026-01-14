@@ -31,22 +31,30 @@ class ShowcaseState(TypedDict, total=False):
         
         started_at: Pipeline start timestamp
         completed_at: Pipeline completion timestamp
+        
+        _route: Internal field for router node routing decisions
     """
     # Input fields
     thread_id: str
     topic: str
     style: str
     word_count: int
+    message: str  # For router demo
     
     # Pipeline outputs
     generated: GeneratedContent | None
     analysis: Analysis | None
     final_summary: str | None
+    classification: object | None  # For router demo
+    response: str | None  # For router demo
     
     # Metadata
     current_step: str
     error: PipelineError | None  # Current/last error
     errors: list[PipelineError]  # All errors encountered
+    
+    # Router internal
+    _route: str | None  # Router routing decision
     
     # Timestamps
     started_at: datetime | None

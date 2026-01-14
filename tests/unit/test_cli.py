@@ -66,3 +66,57 @@ class TestValidateRunArgs:
         """Word count at maximum should pass validation."""
         args = self._create_args(word_count=MAX_WORD_COUNT)
         assert validate_run_args(args) is True
+
+
+# =============================================================================
+# Test: Route Command
+# =============================================================================
+
+
+class TestValidateRouteArgs:
+    """Tests for validate_route_args function."""
+
+    def _create_args(self, message="I love this!"):
+        """Helper to create args namespace."""
+        return argparse.Namespace(message=message)
+
+    def test_valid_message(self):
+        """Valid message should pass validation."""
+        from showcase.cli import validate_route_args
+        args = self._create_args()
+        assert validate_route_args(args) is True
+
+    def test_empty_message_fails(self):
+        """Empty message should fail validation."""
+        from showcase.cli import validate_route_args
+        args = self._create_args(message="")
+        assert validate_route_args(args) is False
+
+    def test_whitespace_only_fails(self):
+        """Whitespace-only message should fail validation."""
+        from showcase.cli import validate_route_args
+        args = self._create_args(message="   ")
+        assert validate_route_args(args) is False
+
+
+class TestCmdRouteFunction:
+    """Tests for cmd_route CLI function."""
+
+    def test_cmd_route_exists(self):
+        """cmd_route function should exist."""
+        from showcase.cli import cmd_route
+        assert callable(cmd_route)
+
+
+class TestRouteParserSetup:
+    """Tests for route subparser configuration."""
+
+    def test_route_parser_configured(self):
+        """Route subparser should be configured in main."""
+        import subprocess
+        result = subprocess.run(
+            ["python", "-m", "showcase.cli", "route", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        assert "message" in result.stdout.lower() or result.returncode == 0

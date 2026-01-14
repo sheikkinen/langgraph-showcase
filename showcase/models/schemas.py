@@ -118,3 +118,16 @@ class PipelineResult(BaseModel):
     generated: GeneratedContent = Field(description="Generated content")
     analysis: Analysis = Field(description="Analysis of generated content")
     final_summary: str = Field(description="Final summarized output")
+
+
+# =============================================================================
+# Router Models
+# =============================================================================
+
+
+class ToneClassification(BaseModel):
+    """Classification result for tone-based routing."""
+    
+    tone: str = Field(description="Detected tone: positive, negative, or neutral")
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
+    reasoning: str = Field(description="Explanation for the classification")

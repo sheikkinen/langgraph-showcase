@@ -6,6 +6,7 @@ Usage:
     showcase run --topic "machine learning" --style casual
     showcase list-runs
     showcase resume --thread-id abc123
+    showcase route "I love this product!"
     showcase trace --run-id <run-id>
 """
 
@@ -14,6 +15,22 @@ import sys
 
 from showcase.config import MAX_WORD_COUNT, MIN_WORD_COUNT
 from showcase.utils.sanitize import sanitize_topic
+
+
+def validate_route_args(args) -> bool:
+    """Validate route command arguments.
+    
+    Args:
+        args: Parsed arguments namespace
+        
+    Returns:
+        True if valid, False otherwise (prints error message)
+    """
+    message = args.message.strip() if args.message else ""
+    if not message:
+        print("❌ Message cannot be empty")
+        return False
+    return True
 
 
 def validate_run_args(args) -> bool:
@@ -102,6 +119,42 @@ def cmd_run(args):
             print(f"\n🔗 LangSmith: {url}")
     
     print()
+
+
+def cmd_route(args):
+    """Run the router demo pipeline."""
+    if not validate_route_args(args):
+        sys.exit(1)
+    
+    from showcase.graph_loader import load_and_compile
+    
+    print("\n🔍 Classifying tone...")
+    
+    try:
+        graph = load_and_compile("graphs/router-demo.yaml")
+        app = graph.compile()
+        
+        result = app.invoke({"message": args.message})
+        
+        # Show classification result
+        if classification := result.get("classification"):
+            tone = getattr(classification, "tone", "unknown")
+            confidence = getattr(classification, "confidence", 0.0)
+            print(f"📊 Detected: {tone} (confidence: {confidence:.2f})")
+            
+            route = result.get("_route", f"respond_{tone}")
+            print(f"🚀 Routing to: {route}")
+        
+        # Show response
+        if response := result.get("response"):
+            print("\n" + "=" * 60)
+            print("RESPONSE")
+            print("=" * 60)
+            print(f"\n{response}\n")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
 
 
 def cmd_list_runs(args):
@@ -264,6 +317,11 @@ def main():
     list_parser.add_argument("--limit", "-l", type=int, default=10,
                             help="Maximum runs to show")
     list_parser.set_defaults(func=cmd_list_runs)
+    
+    # Route command (router demo)
+    route_parser = subparsers.add_parser("route", help="Run router demo (tone classification)")
+    route_parser.add_argument("message", help="Message to classify and route")
+    route_parser.set_defaults(func=cmd_route)
     
     # Resume command
     resume_parser = subparsers.add_parser("resume", help="Resume a pipeline")

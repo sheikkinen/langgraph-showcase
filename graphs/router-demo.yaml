@@ -1,0 +1,62 @@
+# Tone Router Demo - YAML Graph Definition
+# Routes responses based on detected message tone
+
+version: "1.0"
+name: tone-router-demo
+description: Route responses based on detected message tone
+
+state_class: showcase.models.ShowcaseState
+
+defaults:
+  provider: mistral
+  temperature: 0.7
+
+nodes:
+  classify:
+    type: router
+    prompt: router-demo/classify_tone
+    output_model: showcase.models.ToneClassification
+    routes:
+      positive: respond_positive
+      negative: respond_negative
+      neutral: respond_neutral
+    default_route: respond_neutral
+    variables:
+      message: "{state.message}"
+    state_key: classification
+
+  respond_positive:
+    type: llm
+    prompt: router-demo/respond_positive
+    variables:
+      message: "{state.message}"
+    state_key: response
+
+  respond_negative:
+    type: llm
+    prompt: router-demo/respond_negative
+    variables:
+      message: "{state.message}"
+    state_key: response
+
+  respond_neutral:
+    type: llm
+    prompt: router-demo/respond_neutral
+    variables:
+      message: "{state.message}"
+    state_key: response
+
+edges:
+  - from: START
+    to: classify
+
+  - from: classify
+    to: [respond_positive, respond_negative, respond_neutral]
+    type: conditional
+
+  - from: respond_positive
+    to: END
+  - from: respond_negative
+    to: END
+  - from: respond_neutral
+    to: END
