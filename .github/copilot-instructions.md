@@ -9,6 +9,8 @@
 - **SQLite**: State persistence and checkpointing
 - **LangSmith**: Observability and tracing
 
+- Term 'backward compatibility' is a key indicator for a refactoring need in this project. 
+
 ## Essential Rules
 
 ### 1. YAML Prompts with Jinja2 Support

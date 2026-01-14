@@ -7,10 +7,7 @@ import pytest
 from unittest.mock import patch
 
 from showcase.builder import build_resume_graph
-from showcase.graph_loader import (
-    load_graph_config,
-    _should_continue,
-)
+from showcase.graph_loader import load_graph_config, _should_continue
 from showcase.models import Analysis, GeneratedContent, create_initial_state
 
 

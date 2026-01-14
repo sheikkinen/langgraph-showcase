@@ -6,15 +6,16 @@ TDD: Write tests first, then implement graph_loader.py.
 import pytest
 from unittest.mock import patch
 
-# Will fail until graph_loader.py is created
 from showcase.graph_loader import (
     GraphConfig,
     load_graph_config,
-    resolve_class,
-    resolve_template,
-    create_node_function,
     compile_graph,
     load_and_compile,
+)
+from showcase.node_factory import (
+    create_node_function,
+    resolve_class,
+    resolve_template,
 )
 from showcase.models import GeneratedContent, ShowcaseState
 

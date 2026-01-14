@@ -8,10 +8,10 @@ from unittest.mock import patch, MagicMock
 
 from showcase.graph_loader import (
     GraphConfig,
-    create_node_function,
     compile_graph,
     load_graph_config,
 )
+from showcase.node_factory import create_node_function
 
 
 # =============================================================================

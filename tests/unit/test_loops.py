@@ -17,12 +17,12 @@ class TestExpressionConditions:
 
     def test_evaluate_condition_exists(self):
         """evaluate_condition function should exist."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         assert callable(evaluate_condition)
 
     def test_less_than_comparison(self):
         """Evaluates 'score < 0.8' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"score": 0.5}
         assert evaluate_condition("score < 0.8", state) is True
@@ -32,7 +32,7 @@ class TestExpressionConditions:
 
     def test_greater_than_comparison(self):
         """Evaluates 'score > 0.5' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"score": 0.7}
         assert evaluate_condition("score > 0.5", state) is True
@@ -42,7 +42,7 @@ class TestExpressionConditions:
 
     def test_less_than_or_equal(self):
         """Evaluates 'score <= 0.8' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"score": 0.8}
         assert evaluate_condition("score <= 0.8", state) is True
@@ -52,7 +52,7 @@ class TestExpressionConditions:
 
     def test_greater_than_or_equal(self):
         """Evaluates 'score >= 0.8' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"score": 0.8}
         assert evaluate_condition("score >= 0.8", state) is True
@@ -62,7 +62,7 @@ class TestExpressionConditions:
 
     def test_equality_comparison(self):
         """Evaluates 'status == \"approved\"' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"status": "approved"}
         assert evaluate_condition('status == "approved"', state) is True
@@ -72,7 +72,7 @@ class TestExpressionConditions:
 
     def test_inequality_comparison(self):
         """Evaluates 'error != null' correctly."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"error": "something"}
         assert evaluate_condition("error != null", state) is True
@@ -82,7 +82,7 @@ class TestExpressionConditions:
 
     def test_nested_attribute_access(self):
         """Evaluates 'critique.score >= 0.8' from state."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         # Using object with attribute
         critique = MagicMock()
@@ -95,7 +95,7 @@ class TestExpressionConditions:
 
     def test_compound_and_condition(self):
         """Evaluates 'score < 0.8 and iteration < 3'."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"score": 0.5, "iteration": 2}
         assert evaluate_condition("score < 0.8 and iteration < 3", state) is True
@@ -108,7 +108,7 @@ class TestExpressionConditions:
 
     def test_compound_or_condition(self):
         """Evaluates 'approved == true or override == true'."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {"approved": True, "override": False}
         assert evaluate_condition("approved == true or override == true", state) is True
@@ -121,14 +121,14 @@ class TestExpressionConditions:
 
     def test_invalid_expression_raises(self):
         """Malformed expression raises ValueError."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         with pytest.raises(ValueError):
             evaluate_condition("score <<< 0.8", {})
 
     def test_missing_attribute_returns_false(self):
         """Missing attribute in state returns False gracefully."""
-        from showcase.graph_loader import evaluate_condition
+        from showcase.utils.conditions import evaluate_condition
         
         state = {}
         # Should not raise, should return False for missing attribute
@@ -153,7 +153,7 @@ class TestLoopTracking:
 
     def test_node_increments_loop_counter(self):
         """Each node execution increments its counter in _loop_counts."""
-        from showcase.graph_loader import create_node_function
+        from showcase.node_factory import create_node_function
         
         node_config = {
             "prompt": "test_prompt",
@@ -222,7 +222,7 @@ class TestLoopLimits:
 
     def test_node_checks_loop_limit(self):
         """Node execution checks loop limit before running."""
-        from showcase.graph_loader import create_node_function
+        from showcase.node_factory import create_node_function
         
         node_config = {
             "prompt": "test_prompt",

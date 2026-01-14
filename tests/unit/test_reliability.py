@@ -6,10 +6,8 @@ TDD tests for on_error behaviors and fallback provider chains.
 import pytest
 from unittest.mock import patch, MagicMock
 
-from showcase.graph_loader import (
-    GraphConfig,
-    create_node_function,
-)
+from showcase.graph_loader import GraphConfig
+from showcase.node_factory import create_node_function
 from showcase.models import PipelineError
 
 
