@@ -1,6 +1,17 @@
 # Draft Essay Prompt
 # Generates initial essay content on a topic
 
+schema:
+  name: DraftContent
+  fields:
+    content:
+      type: str
+      description: "The draft content"
+    version:
+      type: int
+      description: "Draft version number"
+      default: 1
+
 system: |
   You are a skilled essay writer. Write a clear, well-structured short essay
   on the given topic. Include an introduction, 2-3 main points, and a conclusion.

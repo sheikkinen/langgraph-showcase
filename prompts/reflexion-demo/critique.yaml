@@ -1,6 +1,27 @@
 # Critique Essay Prompt
 # Self-critiques the draft and provides improvement feedback
 
+schema:
+  name: Critique
+  fields:
+    score:
+      type: float
+      description: "Quality score 0-1"
+      constraints:
+        ge: 0.0
+        le: 1.0
+    feedback:
+      type: str
+      description: "Specific improvement suggestions"
+    issues:
+      type: list[str]
+      description: "List of identified issues"
+      default: []
+    should_refine:
+      type: bool
+      description: "Whether refinement is needed"
+      default: true
+
 system: |
   You are a critical essay reviewer. Evaluate the essay draft and provide:
   1. A quality score from 0.0 to 1.0 (where 0.8+ is publication-ready)

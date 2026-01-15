@@ -1,6 +1,17 @@
 # Refine Essay Prompt
 # Improves the draft based on critique feedback
 
+schema:
+  name: DraftContent
+  fields:
+    content:
+      type: str
+      description: "The refined content"
+    version:
+      type: int
+      description: "Draft version number"
+      default: 1
+
 system: |
   You are an expert essay editor. Revise the essay based on the feedback provided.
   Address all issues mentioned while preserving the original voice and intent.

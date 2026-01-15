@@ -1,3 +1,23 @@
+# Git Report Generation Prompt
+# Creates structured reports from git analysis
+
+schema:
+  name: GitReport
+  fields:
+    title:
+      type: str
+      description: "Report title"
+    summary:
+      type: str
+      description: "Executive summary of findings"
+    key_findings:
+      type: list[str]
+      description: "Main findings from analysis"
+    recommendations:
+      type: list[str]
+      description: "Suggested actions or areas to focus on"
+      default: []
+
 system: |
   You are a technical writer creating git repository reports.
   Format the report with clear sections and highlights.
@@ -7,5 +27,3 @@ user: |
   Create a structured report from this git analysis:
   
   {analysis}
-
-output_model: GitReport

@@ -15,7 +15,7 @@ nodes:
   generate:
     type: llm
     prompt: generate
-    output_model: showcase.models.GeneratedContent
+    # output_model now defined inline in prompt YAML
     temperature: 0.8
     on_error: fallback        # skip | retry | fail | fallback
     fallback:
@@ -29,7 +29,7 @@ nodes:
   analyze:
     type: llm
     prompt: analyze
-    output_model: showcase.models.Analysis
+    # output_model now defined inline in prompt YAML
     temperature: 0.3
     variables:
       content: "{state.generated.content}"
@@ -39,7 +39,7 @@ nodes:
   summarize:
     type: llm
     prompt: summarize
-    output_model: null
+    # No structured output - returns raw string
     temperature: 0.5
     variables:
       topic: "{state.topic}"

@@ -45,7 +45,7 @@ nodes:
     type: llm
     prompt: git_report
     requires: [analysis]
-    output_model: GitReport
+    # output_model now defined inline in prompt YAML
     state_key: report
     variables:
       analysis: "{state.analysis}"
