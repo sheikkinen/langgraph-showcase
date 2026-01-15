@@ -2,9 +2,8 @@
 
 from unittest.mock import patch
 
-
+from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
 from showcase.builder import build_showcase_graph, build_resume_graph, run_pipeline
-from showcase.models import Analysis, GeneratedContent
 
 
 class TestBuildShowcaseGraph:
@@ -54,13 +53,13 @@ class TestRunPipeline:
     def test_full_pipeline_success(self, mock_execute):
         """Full pipeline should execute all steps."""
         # Setup mock returns for each call
-        mock_generated = GeneratedContent(
+        mock_generated = FixtureGeneratedContent(
             title="Test Title",
             content="Test content " * 50,
             word_count=100,
             tags=["test"],
         )
-        mock_analysis = Analysis(
+        mock_analysis = FixtureAnalysis(
             summary="Test summary",
             key_points=["Point 1"],
             sentiment="positive",
@@ -92,10 +91,10 @@ class TestRunPipeline:
     @patch("showcase.node_factory.execute_prompt")
     def test_pipeline_state_progression(self, mock_execute):
         """Pipeline should update current_step as it progresses."""
-        mock_generated = GeneratedContent(
+        mock_generated = FixtureGeneratedContent(
             title="Test", content="Content", word_count=1, tags=[]
         )
-        mock_analysis = Analysis(
+        mock_analysis = FixtureAnalysis(
             summary="Summary", key_points=[], sentiment="neutral", confidence=0.5
         )
         mock_execute.side_effect = [mock_generated, mock_analysis, "Summary"]

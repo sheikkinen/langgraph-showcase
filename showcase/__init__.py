@@ -1,12 +1,15 @@
-"""Showcase package - LangGraph pipeline demonstration."""
+"""Showcase package - LangGraph pipeline demonstration.
+
+Framework for building LLM pipelines with YAML configuration.
+Demo-specific output schemas are defined inline in graph YAML files.
+"""
 
 from showcase.builder import build_resume_graph, build_showcase_graph, run_pipeline
 from showcase.executor import execute_prompt, get_executor
 from showcase.models import (
-    Analysis,
-    GeneratedContent,
-    Greeting,
-    PipelineResult,
+    ErrorType,
+    GenericReport,
+    PipelineError,
     ShowcaseState,
     create_initial_state,
 )
@@ -20,11 +23,10 @@ __all__ = [
     # Executor
     "execute_prompt",
     "get_executor",
-    # Models
-    "Analysis",
-    "GeneratedContent",
-    "Greeting",
-    "PipelineResult",
+    # Framework models
+    "ErrorType",
+    "PipelineError",
+    "GenericReport",
     # State
     "ShowcaseState",
     "create_initial_state",

@@ -5,11 +5,11 @@ making prompts fully self-contained with their expected output structure.
 
 Example YAML schema:
     schema:
-      name: ToneClassification
+      name: MyOutputModel
       fields:
-        tone:
+        title:
           type: str
-          description: "Detected tone"
+          description: "The output title"
         confidence:
           type: float
           constraints: {ge: 0.0, le: 1.0}
@@ -84,10 +84,10 @@ def build_pydantic_model(schema: dict) -> type:
         schema: Schema definition with 'name' and 'fields' keys
             Example:
                 {
-                    "name": "ToneClassification",
+                    "name": "MyOutputModel",
                     "fields": {
-                        "tone": {"type": "str", "description": "..."},
-                        "confidence": {"type": "float", "constraints": {"ge": 0}},
+                        "title": {"type": "str", "description": "..."},
+                        "score": {"type": "float", "constraints": {"ge": 0}},
                     }
                 }
 

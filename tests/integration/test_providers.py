@@ -4,10 +4,19 @@ import os
 from unittest.mock import patch
 
 import pytest
+from pydantic import BaseModel, Field
 
 from showcase.executor import execute_prompt, load_prompt
-from showcase.models.schemas import GeneratedContent
 from showcase.utils.llm_factory import clear_cache
+
+
+class ProviderTestContent(BaseModel):
+    """Test model for provider tests - replaces demo model dependency."""
+
+    title: str = Field(description="Title of the generated content")
+    content: str = Field(description="The main generated text")
+    word_count: int = Field(description="Approximate word count")
+    tags: list[str] = Field(default_factory=list, description="Relevant tags")
 
 
 class TestProviderIntegration:
@@ -86,10 +95,10 @@ class TestProviderIntegration:
                 "style": "technical",
                 "word_count": 50,
             },
-            output_model=GeneratedContent,
+            output_model=ProviderTestContent,
             provider="anthropic",
         )
-        assert isinstance(result, GeneratedContent)
+        assert isinstance(result, ProviderTestContent)
         assert result.content
         assert isinstance(result.tags, list)
 

@@ -322,33 +322,37 @@ class TestCyclicEdges:
 
 
 class TestReflexionModels:
-    """Tests for DraftContent and Critique models."""
+    """Tests for DraftContent and Critique-like fixture models.
+    
+    Note: Demo models were removed from showcase.models in Section 10.
+    These tests use fixture models to prove the pattern still works.
+    """
 
     def test_draft_content_model_exists(self):
-        """DraftContent model can be imported."""
-        from showcase.models import DraftContent
+        """DraftContent-like fixture model can be created."""
+        from tests.conftest import FixtureDraftContent
 
-        assert DraftContent is not None
+        assert FixtureDraftContent is not None
 
     def test_draft_content_fields(self):
-        """DraftContent has content and version fields."""
-        from showcase.models import DraftContent
+        """DraftContent-like model has content and version fields."""
+        from tests.conftest import FixtureDraftContent
 
-        draft = DraftContent(content="Test essay", version=1)
+        draft = FixtureDraftContent(content="Test essay", version=1)
         assert draft.content == "Test essay"
         assert draft.version == 1
 
     def test_critique_model_exists(self):
-        """Critique model can be imported."""
-        from showcase.models import Critique
+        """Critique-like fixture model can be created."""
+        from tests.conftest import FixtureCritique
 
-        assert Critique is not None
+        assert FixtureCritique is not None
 
     def test_critique_fields(self):
-        """Critique has score, feedback, issues, should_refine fields."""
-        from showcase.models import Critique
+        """Critique-like model has score, feedback, issues, should_refine fields."""
+        from tests.conftest import FixtureCritique
 
-        critique = Critique(
+        critique = FixtureCritique(
             score=0.75,
             feedback="Improve transitions",
             issues=["Weak intro", "No conclusion"],

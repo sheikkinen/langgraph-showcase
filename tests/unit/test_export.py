@@ -2,9 +2,8 @@
 
 import json
 
-
+from tests.conftest import FixtureGeneratedContent
 from showcase.storage.export import export_state, _serialize_state
-from showcase.models import GeneratedContent
 
 
 class TestExportState:
@@ -53,7 +52,7 @@ class TestSerializeState:
 
     def test_serialize_pydantic_models(self):
         """Pydantic models should be converted to dicts."""
-        content = GeneratedContent(
+        content = FixtureGeneratedContent(
             title="Test",
             content="Content",
             word_count=1,

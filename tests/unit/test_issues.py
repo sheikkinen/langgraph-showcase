@@ -6,9 +6,10 @@ These tests verify the fixes for issues documented in docs/open-issues.md.
 import pytest
 from unittest.mock import patch
 
+from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
 from showcase.builder import build_resume_graph
 from showcase.graph_loader import load_graph_config, _should_continue
-from showcase.models import Analysis, GeneratedContent, create_initial_state
+from showcase.models import create_initial_state
 
 
 # =============================================================================
@@ -27,7 +28,7 @@ class TestResumeStartFromParameter:
         """
         # State with generated content already present
         state = create_initial_state(topic="test", thread_id="issue1")
-        state["generated"] = GeneratedContent(
+        state["generated"] = FixtureGeneratedContent(
             title="Already Generated",
             content="This was generated in a previous run",
             word_count=10,
@@ -35,7 +36,7 @@ class TestResumeStartFromParameter:
         )
 
         # Only mock analyze and summarize - generate should be skipped
-        mock_analysis = Analysis(
+        mock_analysis = FixtureAnalysis(
             summary="Analysis",
             key_points=["Point"],
             sentiment="neutral",
@@ -59,13 +60,13 @@ class TestResumeStartFromParameter:
     def test_resume_from_summarize_skips_generate_and_analyze(self, mock_execute):
         """When state has 'generated' and 'analysis', only summarize runs."""
         state = create_initial_state(topic="test", thread_id="issue1b")
-        state["generated"] = GeneratedContent(
+        state["generated"] = FixtureGeneratedContent(
             title="Done",
             content="Content",
             word_count=5,
             tags=[],
         )
-        state["analysis"] = Analysis(
+        state["analysis"] = FixtureAnalysis(
             summary="Done",
             key_points=["Point"],
             sentiment="positive",
@@ -110,7 +111,7 @@ class TestConditionsFromYAML:
         """
         # _should_continue checks 'generated' and 'error'
         state_success = {
-            "generated": GeneratedContent(
+            "generated": FixtureGeneratedContent(
                 title="T", content="C", word_count=5, tags=[]
             ),
             "error": None,
@@ -151,7 +152,7 @@ nodes:
   first:
     type: llm
     prompt: generate
-    output_model: showcase.models.GeneratedContent
+    output_model: showcase.models.GenericReport
     state_key: generated
 edges:
   - from: START

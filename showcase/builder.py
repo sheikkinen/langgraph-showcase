@@ -17,8 +17,8 @@ graph LR
 ```
 
 State Flow:
-- generate: Creates GeneratedContent from topic
-- analyze: Produces Analysis from generated content
+- generate: Creates structured content from topic
+- analyze: Produces analysis from generated content
 - summarize: Combines all outputs into final_summary
 
 Graph Definition:

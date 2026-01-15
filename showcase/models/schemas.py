@@ -1,7 +1,7 @@
 """Pydantic models for structured LLM outputs.
 
-These models define the expected structure of LLM responses,
-enabling type-safe, validated outputs from prompts.
+This module contains FRAMEWORK models only - models used by the framework itself.
+Demo-specific output schemas are defined inline in graph YAML files.
 """
 
 from datetime import datetime
@@ -79,97 +79,6 @@ class PipelineError(BaseModel):
             retryable=retryable,
             details={"exception_type": type(e).__name__},
         )
-
-
-# =============================================================================
-# LLM Output Models
-# =============================================================================
-
-
-class Greeting(BaseModel):
-    """Structured greeting response."""
-
-    message: str = Field(description="The greeting message")
-    tone: str = Field(description="The tone used (formal, casual, enthusiastic)")
-    language: str = Field(default="en", description="Language code")
-
-
-class Analysis(BaseModel):
-    """Structured content analysis."""
-
-    summary: str = Field(description="Brief summary of the content")
-    key_points: list[str] = Field(description="Main points extracted")
-    sentiment: str = Field(
-        description="Overall sentiment: positive, neutral, or negative"
-    )
-    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
-
-
-class GeneratedContent(BaseModel):
-    """Creative content generation output."""
-
-    title: str = Field(description="Title of the generated content")
-    content: str = Field(description="The main generated text")
-    word_count: int = Field(description="Approximate word count")
-    tags: list[str] = Field(default_factory=list, description="Relevant tags")
-
-
-class PipelineResult(BaseModel):
-    """Combined result from multi-step pipeline."""
-
-    topic: str = Field(description="Original topic")
-    generated: GeneratedContent = Field(description="Generated content")
-    analysis: Analysis = Field(description="Analysis of generated content")
-    final_summary: str = Field(description="Final summarized output")
-
-
-# =============================================================================
-# Router Models
-# =============================================================================
-
-
-class ToneClassification(BaseModel):
-    """Classification result for tone-based routing."""
-
-    tone: str = Field(description="Detected tone: positive, negative, or neutral")
-    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
-    reasoning: str = Field(description="Explanation for the classification")
-
-
-# =============================================================================
-# Reflexion Models (Self-Correction Loops)
-# =============================================================================
-
-
-class DraftContent(BaseModel):
-    """Draft output that can be refined through critique cycles."""
-
-    content: str = Field(description="The draft content")
-    version: int = Field(default=1, description="Draft version number")
-
-
-class Critique(BaseModel):
-    """Self-critique output for refinement decisions."""
-
-    score: float = Field(ge=0.0, le=1.0, description="Quality score 0-1")
-    feedback: str = Field(description="Specific improvement suggestions")
-    issues: list[str] = Field(
-        default_factory=list, description="List of identified issues"
-    )
-    should_refine: bool = Field(
-        default=True, description="Whether refinement is needed"
-    )
-
-
-class GitReport(BaseModel):
-    """Structured git repository report."""
-
-    title: str = Field(description="Report title")
-    summary: str = Field(description="Executive summary of findings")
-    key_findings: list[str] = Field(description="Main findings from analysis")
-    recommendations: list[str] = Field(
-        default_factory=list, description="Suggested actions or areas to focus on"
-    )
 
 
 # =============================================================================

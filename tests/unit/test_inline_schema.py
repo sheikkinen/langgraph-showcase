@@ -82,7 +82,7 @@ user: "{input}"
         node_config = {
             "type": "llm",
             "prompt": "test/with_schema",
-            "output_model": "showcase.models.Greeting",  # Explicit - takes precedence
+            "output_model": "showcase.models.GenericReport",  # Explicit - takes precedence
         }
 
         from showcase.node_factory import get_output_model_for_node
@@ -90,7 +90,7 @@ user: "{input}"
         model = get_output_model_for_node(node_config, str(tmp_path / "prompts"))
 
         # Should use explicit model, not inline
-        assert model.__name__ == "Greeting"
+        assert model.__name__ == "GenericReport"
 
     def test_no_schema_returns_none(self, tmp_path, monkeypatch):
         """Prompt without schema returns None for output_model."""

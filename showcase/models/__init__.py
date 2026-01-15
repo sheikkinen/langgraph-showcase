@@ -1,15 +1,13 @@
-"""Pydantic models and state definitions."""
+"""Pydantic models and state definitions.
+
+Framework models for error handling and generic reports.
+Demo-specific output schemas are defined inline in graph YAML files.
+"""
 
 from showcase.models.schemas import (
-    Analysis,
-    Critique,
-    DraftContent,
     ErrorType,
-    GeneratedContent,
-    Greeting,
+    GenericReport,
     PipelineError,
-    PipelineResult,
-    ToneClassification,
 )
 from showcase.models.state import (
     AgentState,
@@ -20,18 +18,10 @@ from showcase.models.state import (
 )
 
 __all__ = [
-    # Error types
+    # Framework models
     "ErrorType",
     "PipelineError",
-    # Output schemas
-    "Greeting",
-    "Analysis",
-    "GeneratedContent",
-    "PipelineResult",
-    "ToneClassification",
-    # Reflexion models
-    "DraftContent",
-    "Critique",
+    "GenericReport",
     # States
     "ShowcaseState",
     "RouterState",

@@ -55,7 +55,7 @@ def resolve_class(class_path: str) -> type:
     """Dynamically import and return a class from a module path.
 
     Args:
-        class_path: Full path like "showcase.models.Analysis" or short name like "Analysis"
+        class_path: Full path like "showcase.models.GenericReport" or short name
 
     Returns:
         The class object

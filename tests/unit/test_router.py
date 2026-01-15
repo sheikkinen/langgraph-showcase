@@ -15,24 +15,28 @@ from showcase.node_factory import create_node_function
 
 
 # =============================================================================
-# Test: ToneClassification Model
+# Test: ToneClassification Model (Using Test Fixture)
 # =============================================================================
 
 
 class TestToneClassificationModel:
-    """Tests for ToneClassification Pydantic model."""
+    """Tests for ToneClassification-like model in tests.
+    
+    Note: Demo models were removed from showcase.models in Section 10.
+    These tests use the fixture model to prove the pattern still works.
+    """
 
     def test_tone_classification_model_exists(self):
-        """ToneClassification model can be imported."""
-        from showcase.models import ToneClassification
+        """ToneClassification-like fixture model can be created."""
+        from tests.conftest import FixtureToneClassification
 
-        assert ToneClassification is not None
+        assert FixtureToneClassification is not None
 
     def test_tone_classification_has_required_fields(self):
-        """ToneClassification has tone, confidence, reasoning fields."""
-        from showcase.models import ToneClassification
+        """ToneClassification-like model has tone, confidence, reasoning fields."""
+        from tests.conftest import FixtureToneClassification
 
-        classification = ToneClassification(
+        classification = FixtureToneClassification(
             tone="positive",
             confidence=0.95,
             reasoning="User expressed happiness",
@@ -143,10 +147,11 @@ class TestRouterNodeFunction:
         mock_classification.tone = "positive"
         mock_execute.return_value = mock_classification
 
+        # Use GenericReport which exists in framework
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
-            "output_model": "showcase.models.ToneClassification",
+            "output_model": "showcase.models.GenericReport",
             "routes": {
                 "positive": "respond_positive",
                 "negative": "respond_negative",
@@ -169,10 +174,11 @@ class TestRouterNodeFunction:
         mock_classification.tone = "confused"  # Not in routes
         mock_execute.return_value = mock_classification
 
+        # Use GenericReport which exists in framework
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
-            "output_model": "showcase.models.ToneClassification",
+            "output_model": "showcase.models.GenericReport",
             "routes": {
                 "positive": "respond_positive",
                 "negative": "respond_negative",
@@ -237,7 +243,7 @@ class TestConditionalEdges:
                 "classify": {
                     "type": "router",
                     "prompt": "classify",
-                    "output_model": "showcase.models.ToneClassification",
+                    "output_model": "showcase.models.GenericReport",
                     "routes": {
                         "positive": "respond_positive",
                         "negative": "respond_negative",

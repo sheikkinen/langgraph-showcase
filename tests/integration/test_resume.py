@@ -2,9 +2,9 @@
 
 from unittest.mock import patch
 
-
+from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
 from showcase.builder import build_resume_graph
-from showcase.models import Analysis, GeneratedContent, create_initial_state
+from showcase.models import create_initial_state
 
 
 class TestResumeFromAnalyze:
@@ -15,7 +15,7 @@ class TestResumeFromAnalyze:
         """Should skip generate when generated content exists."""
         # Create state with generated content
         state = create_initial_state(topic="test", thread_id="resume1")
-        state["generated"] = GeneratedContent(
+        state["generated"] = FixtureGeneratedContent(
             title="Existing Title",
             content="Existing content",
             word_count=10,
@@ -24,7 +24,7 @@ class TestResumeFromAnalyze:
         state["current_step"] = "generate"
 
         # Mock returns: analyze, summarize (generate is skipped)
-        mock_analysis = Analysis(
+        mock_analysis = FixtureAnalysis(
             summary="Resume summary",
             key_points=["Point"],
             sentiment="neutral",
@@ -49,13 +49,13 @@ class TestResumeFromSummarize:
         """Should skip generate and analyze when both exist."""
         # Create state with generated content and analysis
         state = create_initial_state(topic="test", thread_id="resume2")
-        state["generated"] = GeneratedContent(
+        state["generated"] = FixtureGeneratedContent(
             title="Title",
             content="Content",
             word_count=5,
             tags=[],
         )
-        state["analysis"] = Analysis(
+        state["analysis"] = FixtureAnalysis(
             summary="Existing analysis",
             key_points=["Point"],
             sentiment="positive",

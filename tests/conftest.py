@@ -1,24 +1,89 @@
-"""Shared test fixtures for langgraph-showcase tests."""
+"""Shared test fixtures for langgraph-showcase tests.
+
+This module provides test-only Pydantic models and fixtures for testing.
+These models are intentionally NOT imported from showcase.models to
+demonstrate that the framework is truly generic and works with any schema.
+"""
 
 from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import BaseModel, Field
 
-from showcase.models import (
-    Analysis,
-    GeneratedContent,
-    ShowcaseState,
-    create_initial_state,
-)
+from showcase.models import ShowcaseState, create_initial_state
 from showcase.storage import ShowcaseDB
 
 
+# =============================================================================
+# Test-Only Pydantic Models (Fixtures)
+# =============================================================================
+# These replicate demo model structures but are defined here to prove
+# the framework is generic and doesn't depend on demo-specific schemas.
+# Named with "Fixture" suffix to avoid pytest collection warnings.
+
+
+class FixtureGeneratedContent(BaseModel):
+    """Test fixture for generated content."""
+
+    title: str = Field(description="Title of the generated content")
+    content: str = Field(description="The main generated text")
+    word_count: int = Field(description="Approximate word count")
+    tags: list[str] = Field(default_factory=list, description="Relevant tags")
+
+
+class FixtureAnalysis(BaseModel):
+    """Test fixture for content analysis."""
+
+    summary: str = Field(description="Brief summary of the content")
+    key_points: list[str] = Field(description="Main points extracted")
+    sentiment: str = Field(description="Overall sentiment")
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
+
+
+class FixtureToneClassification(BaseModel):
+    """Test fixture for tone classification."""
+
+    tone: str = Field(description="Detected tone: positive, negative, or neutral")
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
+    reasoning: str = Field(description="Explanation for the classification")
+
+
+class FixtureDraftContent(BaseModel):
+    """Test fixture for draft content."""
+
+    content: str = Field(description="The draft content")
+    version: int = Field(default=1, description="Draft version number")
+
+
+class FixtureCritique(BaseModel):
+    """Test fixture for critique output."""
+
+    score: float = Field(ge=0.0, le=1.0, description="Quality score 0-1")
+    feedback: str = Field(description="Specific improvement suggestions")
+    issues: list[str] = Field(default_factory=list, description="List of identified issues")
+    should_refine: bool = Field(default=True, description="Whether refinement is needed")
+
+
+class FixtureGitReport(BaseModel):
+    """Test fixture for git report."""
+
+    title: str = Field(description="Report title")
+    summary: str = Field(description="Executive summary")
+    key_findings: list[str] = Field(description="Main findings")
+    recommendations: list[str] = Field(default_factory=list, description="Suggestions")
+
+
+# =============================================================================
+# Fixtures
+# =============================================================================
+
+
 @pytest.fixture
-def sample_generated_content() -> GeneratedContent:
+def sample_generated_content() -> FixtureGeneratedContent:
     """Sample generated content for testing."""
-    return GeneratedContent(
+    return FixtureGeneratedContent(
         title="Test Article",
         content="This is test content about artificial intelligence. " * 20,
         word_count=100,
@@ -27,9 +92,9 @@ def sample_generated_content() -> GeneratedContent:
 
 
 @pytest.fixture
-def sample_analysis() -> Analysis:
+def sample_analysis() -> FixtureAnalysis:
     """Sample analysis for testing."""
-    return Analysis(
+    return FixtureAnalysis(
         summary="This is a test summary of the content.",
         key_points=["Point 1", "Point 2", "Point 3"],
         sentiment="positive",

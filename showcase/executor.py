@@ -138,9 +138,9 @@ def execute_prompt(
         >>> result = execute_prompt(
         ...     "greet",
         ...     variables={"name": "World", "style": "formal"},
-        ...     output_model=Greeting,
+        ...     output_model=GenericReport,
         ... )
-        >>> print(result.message)
+        >>> print(result.summary)
     """
     return get_executor().execute(
         prompt_name=prompt_name,
