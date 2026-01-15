@@ -1,6 +1,23 @@
 # Tone Classification Prompt
 # Classifies user message tone for routing
 
+# Inline schema - makes this prompt self-contained
+schema:
+  name: ToneClassification
+  fields:
+    tone:
+      type: str
+      description: "Detected tone: positive, negative, or neutral"
+    confidence:
+      type: float
+      description: "Confidence score 0-1"
+      constraints:
+        ge: 0.0
+        le: 1.0
+    reasoning:
+      type: str
+      description: "Explanation for the classification"
+
 system: |
   You are a tone classifier. Analyze the user's message and classify its emotional tone.
   

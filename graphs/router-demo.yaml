@@ -15,7 +15,7 @@ nodes:
   classify:
     type: router
     prompt: router-demo/classify_tone
-    output_model: showcase.models.ToneClassification
+    # output_model now defined inline in prompt YAML
     routes:
       positive: respond_positive
       negative: respond_negative

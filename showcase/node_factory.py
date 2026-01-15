@@ -79,6 +79,69 @@ def resolve_class(class_path: str) -> type:
     return getattr(module, class_name)
 
 
+def resolve_prompt_path(prompt_name: str, prompts_dir: str | None = None) -> str:
+    """Resolve a prompt name to its full YAML file path.
+
+    Args:
+        prompt_name: Prompt name like "greet" or "router-demo/classify"
+        prompts_dir: Base prompts directory (defaults to "prompts/")
+
+    Returns:
+        Full path to the YAML file
+
+    Raises:
+        FileNotFoundError: If prompt file doesn't exist
+    """
+    import os
+
+    if prompts_dir is None:
+        prompts_dir = os.environ.get("PROMPTS_DIR", "prompts")
+
+    yaml_path = os.path.join(prompts_dir, f"{prompt_name}.yaml")
+
+    if not os.path.exists(yaml_path):
+        raise FileNotFoundError(f"Prompt file not found: {yaml_path}")
+
+    return yaml_path
+
+
+def get_output_model_for_node(
+    node_config: dict, prompts_dir: str | None = None
+) -> type | None:
+    """Get output model for a node, checking inline schema if no explicit model.
+
+    Priority:
+    1. Explicit output_model in node config (class path)
+    2. Inline schema in prompt YAML file
+    3. None (raw string output)
+
+    Args:
+        node_config: Node configuration from YAML
+        prompts_dir: Base prompts directory
+
+    Returns:
+        Pydantic model class or None
+    """
+    # 1. Check for explicit output_model
+    if model_path := node_config.get("output_model"):
+        return resolve_class(model_path)
+
+    # 2. Check for inline schema in prompt YAML
+    prompt_name = node_config.get("prompt")
+    if prompt_name:
+        try:
+            from showcase.schema_loader import load_schema_from_yaml
+
+            yaml_path = resolve_prompt_path(prompt_name, prompts_dir)
+            return load_schema_from_yaml(yaml_path)
+        except FileNotFoundError:
+            # Prompt file doesn't exist yet - will fail later
+            pass
+
+    # 3. No output model
+    return None
+
+
 def create_node_function(
     node_name: str,
     node_config: dict,
@@ -97,10 +160,8 @@ def create_node_function(
     node_type = node_config.get("type", "llm")
     prompt_name = node_config.get("prompt")
 
-    # Resolve output model class
-    output_model = None
-    if model_path := node_config.get("output_model"):
-        output_model = resolve_class(model_path)
+    # Resolve output model (explicit > inline schema > None)
+    output_model = get_output_model_for_node(node_config)
 
     # Get config values (node > defaults)
     temperature = node_config.get("temperature", defaults.get("temperature", 0.7))
