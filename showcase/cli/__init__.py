@@ -24,10 +24,8 @@ from showcase.cli.validators import (
 # Re-export commands for backward compatibility
 from showcase.cli.commands import (
     cmd_export,
-    cmd_git_report,
     cmd_graph,
     cmd_list_runs,
-    cmd_memory_demo,
     cmd_resume,
     cmd_run,
     cmd_trace,
@@ -41,8 +39,6 @@ __all__ = [
     "validate_run_args",
     # Commands
     "cmd_run",
-    "cmd_memory_demo",
-    "cmd_git_report",
     "cmd_list_runs",
     "cmd_resume",
     "cmd_trace",
@@ -99,43 +95,6 @@ def create_parser() -> argparse.ArgumentParser:
         "--limit", "-l", type=int, default=10, help="Maximum runs to show"
     )
     list_parser.set_defaults(func=cmd_list_runs)
-
-    # Git-report command (agent demo)
-    git_parser = subparsers.add_parser(
-        "git-report", help="Analyze git repo with AI agent"
-    )
-    git_parser.add_argument(
-        "--query",
-        "-q",
-        required=True,
-        help="What to analyze (e.g., 'recent changes', 'test activity')",
-    )
-    git_parser.add_argument(
-        "--repo", "-r", default=".", help="Repository path (default: current directory)"
-    )
-    git_parser.set_defaults(func=cmd_git_report)
-
-    # Memory-demo command (multi-turn agent with memory)
-    memory_parser = subparsers.add_parser(
-        "memory-demo", help="Multi-turn code review with memory"
-    )
-    memory_parser.add_argument(
-        "--input", "-i", required=True, help="Query or follow-up question"
-    )
-    memory_parser.add_argument(
-        "--thread",
-        "-t",
-        type=str,
-        default=None,
-        help="Thread ID to continue conversation",
-    )
-    memory_parser.add_argument(
-        "--repo", "-r", default=".", help="Repository path (default: current directory)"
-    )
-    memory_parser.add_argument(
-        "--export", "-e", action="store_true", help="Export results to files"
-    )
-    memory_parser.set_defaults(func=cmd_memory_demo)
 
     # Resume command
     resume_parser = subparsers.add_parser("resume", help="Resume a pipeline")

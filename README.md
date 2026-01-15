@@ -54,16 +54,10 @@ showcase graph list                        # List available graphs
 showcase graph info graphs/router-demo.yaml # Show graph structure
 showcase graph validate graphs/*.yaml      # Validate graph schemas
 
-# Git report demo - AI agent with shell tools
-showcase git-report -q "What changed recently?"
-showcase git-report -q "Summarize the test files"
-
-# Memory demo - multi-turn conversation with state persistence
-showcase memory-demo --input "Show me the last 5 commits"
-showcase memory-demo --input "What about test files?" --thread mem-abc123
-
 # Deprecated commands (raise DeprecationError with replacement suggestion)
-# showcase route "hello"  # → DeprecationError: Use 'graph run graphs/router-demo.yaml --var message=hello'
+# showcase route "hello"       → Use: showcase graph run graphs/router-demo.yaml --var message=hello
+# showcase git-report -q "..." → Use: showcase graph run graphs/git-report.yaml --var input="..."
+# showcase memory-demo -i "..." → Use: showcase graph run graphs/memory-demo.yaml --var input="..."
 
 # View recent runs
 showcase list-runs
