@@ -85,13 +85,14 @@ class ReflexionState(BaseState, total=False):
 class AgentState(BaseState, total=False):
     """State for agent with tool use.
 
-    Used by: graphs/git-report.yaml
+    Used by: graphs/git-report.yaml, graphs/memory-demo.yaml
 
     Note: messages uses Annotated with add reducer for accumulation.
     """
 
     input: str
     messages: Annotated[list, add]  # Accumulates across iterations
+    response: str | None  # Agent's final response (state_key target)
     analysis: str | None
     report: object | None  # Flexible for different report types
     _tool_results: list[dict] | None  # Raw tool outputs
