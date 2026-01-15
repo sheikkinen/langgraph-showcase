@@ -66,6 +66,3 @@ class TestValidateRunArgs:
         """Word count at maximum should pass validation."""
         args = self._create_args(word_count=MAX_WORD_COUNT)
         assert validate_run_args(args) is True
-
-
-

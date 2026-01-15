@@ -229,12 +229,17 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     # Add router conditional edges
     for source_node, target_nodes in router_edges.items():
         # Create routing function that reads _route from state
+        # NOTE: Use `state: dict` not `state: ShowcaseState` - type hints cause
+        # LangGraph to filter state fields. See docs/debug-router-type-hints.md
         def make_router_fn(targets: list[str]) -> Callable:
-            def router_fn(state: ShowcaseState) -> str:
+            def router_fn(state: dict) -> str:
                 route = state.get("_route")
+                logger.debug(f"Router: _route={route}, targets={targets}")
                 if route and route in targets:
+                    logger.debug(f"Router: matched route {route}")
                     return route
                 # Default to first target
+                logger.debug(f"Router: defaulting to {targets[0]}")
                 return targets[0]
 
             return router_fn

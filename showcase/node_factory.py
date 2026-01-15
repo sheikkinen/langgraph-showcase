@@ -125,7 +125,7 @@ def create_node_function(
     # Skip if exists (default true for resume support, false for loop nodes)
     skip_if_exists = node_config.get("skip_if_exists", True)
 
-    def node_fn(state: ShowcaseState) -> dict:
+    def node_fn(state: dict) -> dict:
         """Generated node function."""
         loop_counts = dict(state.get("_loop_counts") or {})
         current_count = loop_counts.get(node_name, 0)

@@ -5,7 +5,7 @@ version: "1.0"
 name: tone-router-demo
 description: Route responses based on detected message tone
 
-state_class: showcase.models.ShowcaseState
+state_class: showcase.models.RouterState
 
 defaults:
   provider: mistral

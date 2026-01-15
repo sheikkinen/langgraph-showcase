@@ -7,7 +7,7 @@ Term 'backward compatibility' signals refactoring need per project guidelines.
 
 Example:
     >>> from showcase.cli.deprecation import DeprecationError, deprecated_command
-    >>> 
+    >>>
     >>> def cmd_old_command(args):
     ...     # Signal this command needs refactoring
     ...     deprecated_command("old", "graph run graphs/new.yaml --var x=y")
@@ -32,8 +32,7 @@ class DeprecationError(Exception):
         self.old_command = old_command
         self.new_command = new_command
         message = (
-            f"DEPRECATED: '{old_command}' is deprecated. "
-            f"Use '{new_command}' instead."
+            f"DEPRECATED: '{old_command}' is deprecated. Use '{new_command}' instead."
         )
         super().__init__(message)
 
@@ -55,9 +54,7 @@ ARG_MAPPINGS = {
 }
 
 
-def get_replacement_command(
-    old_command: str, args: dict[str, str]
-) -> str | None:
+def get_replacement_command(old_command: str, args: dict[str, str]) -> str | None:
     """Get the replacement graph run command.
 
     Args:

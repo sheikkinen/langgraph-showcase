@@ -242,7 +242,7 @@ def cmd_graph_validate(args):
 
             if from_node not in node_names:
                 errors.append(f"Edge {i + 1}: unknown 'from' node '{from_node}'")
-            
+
             # Handle conditional edges where 'to' is a list
             if isinstance(to_node, list):
                 for t in to_node:
