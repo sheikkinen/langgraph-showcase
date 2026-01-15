@@ -71,3 +71,78 @@ class TestSerializeState:
         result = _serialize_state(empty_state)
         assert result["generated"] is None
         assert result["error"] is None
+
+
+class TestExportSummaryGeneric:
+    """Tests for generic export_summary behavior."""
+
+    def test_export_summary_with_any_pydantic_model(self):
+        """export_summary should work with any Pydantic model, not just demo-specific ones."""
+        from pydantic import BaseModel
+        from showcase.storage.export import export_summary
+
+        class CustomModel(BaseModel):
+            name: str
+            value: int
+
+        state = {
+            "thread_id": "test-123",
+            "topic": "custom topic",
+            "custom_field": CustomModel(name="test", value=42),
+        }
+
+        summary = export_summary(state)
+
+        # Should include core fields
+        assert summary["thread_id"] == "test-123"
+        assert summary["topic"] == "custom topic"
+
+    def test_export_summary_extracts_scalar_fields(self):
+        """export_summary should extract key scalar fields from any model."""
+        from pydantic import BaseModel
+        from showcase.storage.export import export_summary
+
+        class ReportContent(BaseModel):
+            headline: str
+            body: str
+            author: str
+
+        state = {
+            "thread_id": "report-1",
+            "topic": "report topic",
+            "report": ReportContent(
+                headline="Breaking News",
+                body="Content here...",
+                author="Alice",
+            ),
+        }
+
+        summary = export_summary(state)
+        # Should extract and include scalar fields
+        assert "report" in summary or any(k.startswith("report") for k in summary)
+
+    def test_export_summary_no_demo_model_dependencies(self):
+        """export_summary should not import demo-specific model types."""
+        import ast
+        import inspect
+        from showcase.storage import export
+
+        source = inspect.getsource(export)
+        tree = ast.parse(source)
+
+        demo_models = {
+            "GeneratedContent",
+            "Analysis",
+            "ToneClassification",
+            "DraftContent",
+            "Critique",
+            "SearchResults",
+            "FinalReport",
+        }
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                if node.module and "schemas" in node.module:
+                    imported_names = {alias.name for alias in node.names}
+                    overlap = imported_names & demo_models
+                    assert not overlap, f"export.py imports demo models: {overlap}"

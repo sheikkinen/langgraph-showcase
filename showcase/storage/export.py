@@ -131,6 +131,7 @@ def export_summary(state: dict) -> dict:
     """Create a summary export (without full content).
 
     Useful for quick review of pipeline results.
+    Works generically with any Pydantic models in state.
 
     Args:
         state: Full state dictionary
@@ -138,6 +139,11 @@ def export_summary(state: dict) -> dict:
     Returns:
         Summary dictionary with key information only
     """
+    # Internal keys to skip
+    internal_keys = frozenset(
+        {"_route", "_loop_counts", "thread_id", "topic", "current_step", "error"}
+    )
+
     summary = {
         "thread_id": state.get("thread_id"),
         "topic": state.get("topic"),
@@ -145,28 +151,42 @@ def export_summary(state: dict) -> dict:
         "error": state.get("error"),
     }
 
-    # Include generated content title if available
-    if generated := state.get("generated"):
-        if hasattr(generated, "title"):
-            summary["generated_title"] = generated.title
-            summary["word_count"] = generated.word_count
-        elif isinstance(generated, dict):
-            summary["generated_title"] = generated.get("title")
-            summary["word_count"] = generated.get("word_count")
+    # Process all non-internal fields generically
+    for key, value in state.items():
+        if key in internal_keys or value is None:
+            continue
 
-    # Include analysis summary if available
-    if analysis := state.get("analysis"):
-        if hasattr(analysis, "sentiment"):
-            summary["sentiment"] = analysis.sentiment
-            summary["confidence"] = analysis.confidence
-        elif isinstance(analysis, dict):
-            summary["sentiment"] = analysis.get("sentiment")
-            summary["confidence"] = analysis.get("confidence")
-
-    # Include final summary presence
-    summary["has_final_summary"] = bool(state.get("final_summary"))
+        if isinstance(value, BaseModel):
+            # Extract scalar fields from any Pydantic model
+            summary[key] = _extract_scalar_summary(value)
+        elif isinstance(value, str):
+            # For strings, include presence only
+            summary[f"has_{key}"] = bool(value)
 
     return summary
+
+
+def _extract_scalar_summary(model: BaseModel) -> dict[str, Any]:
+    """Extract scalar fields from a Pydantic model for summary.
+
+    Args:
+        model: Any Pydantic model
+
+    Returns:
+        Dict with scalar field names and values (strings truncated)
+    """
+    result = {}
+    for field_name, field_value in model.model_dump().items():
+        if isinstance(field_value, str):
+            # Truncate long strings
+            result[field_name] = (
+                field_value[:100] + "..." if len(field_value) > 100 else field_value
+            )
+        elif isinstance(field_value, (int, float, bool)):
+            result[field_name] = field_value
+        elif isinstance(field_value, list):
+            result[f"{field_name}_count"] = len(field_value)
+    return result
 
 
 def export_result(
