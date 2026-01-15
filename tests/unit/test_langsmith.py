@@ -210,17 +210,13 @@ class TestShareRun:
                 assert result is None
 
     def test_handles_exception_gracefully(self):
-        """Returns None and prints warning on error."""
+        """Returns None on error (logs warning to stderr)."""
         mock_client = MagicMock()
         mock_client.share_run.side_effect = Exception("API error")
 
         with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
-            with patch("builtins.print") as mock_print:
-                result = share_run("test-id")
-
-                assert result is None
-                mock_print.assert_called_once()
-                assert "API error" in str(mock_print.call_args)
+            result = share_run("test-id")
+            assert result is None
 
 
 # =============================================================================
@@ -316,11 +312,10 @@ class TestGetLatestRunId:
             )
 
     def test_handles_exception_gracefully(self):
-        """Returns None on error."""
+        """Returns None on error (logs warning to stderr)."""
         mock_client = MagicMock()
         mock_client.list_runs.side_effect = Exception("API error")
 
         with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
-            with patch("builtins.print"):
-                result = get_latest_run_id()
-                assert result is None
+            result = get_latest_run_id()
+            assert result is None

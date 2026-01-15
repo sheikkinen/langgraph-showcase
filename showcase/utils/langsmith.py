@@ -4,11 +4,14 @@ Provides functions for interacting with LangSmith traces,
 printing execution trees, and logging run information.
 """
 
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
 
 from showcase.config import PROJECT_ROOT
+
+logger = logging.getLogger(__name__)
 
 
 def get_client():
@@ -82,7 +85,7 @@ def get_latest_run_id(project_name: str | None = None) -> str | None:
         if runs:
             return str(runs[0].id)
     except Exception as e:
-        print(f"Warning: Could not get latest run: {e}")
+        logger.warning("Could not get latest run: %s", e)
 
     return None
 
@@ -115,7 +118,7 @@ def share_run(run_id: str | None = None) -> str | None:
         # Use the share_run method from LangSmith SDK
         return client.share_run(run_id)
     except Exception as e:
-        print(f"Warning: Could not share run: {e}")
+        logger.warning("Could not share run: %s", e)
         return None
 
 
@@ -147,21 +150,21 @@ def print_run_tree(run_id: str | None = None, verbose: bool = False):
     """
     client = get_client()
     if not client:
-        print("⚠️  LangSmith client not available")
+        logger.warning("LangSmith client not available")
         return
 
     if not run_id:
         run_id = get_latest_run_id()
 
     if not run_id:
-        print("⚠️  No run found")
+        logger.warning("No run found")
         return
 
     try:
         run = client.read_run(run_id)
         _print_run_node(run, client, verbose=verbose, indent=0)
     except Exception as e:
-        print(f"⚠️  Error reading run: {e}")
+        logger.warning("Error reading run: %s", e)
 
 
 def _print_run_node(
@@ -215,7 +218,7 @@ def _print_run_node(
     elif "summarize" in display_name.lower():
         display_name = f"📊 {display_name}"
 
-    print(f"{prefix}{connector}{display_name}{timing} {status}")
+    logger.info("%s%s%s%s %s", prefix, connector, display_name, timing, status)
 
     # Get child runs
     try:
@@ -332,7 +335,7 @@ def print_graph_mermaid(graph_type: str = "main"):
         graph_type: Type of graph ('main', 'resume-analyze', 'resume-summarize')
     """
     mermaid = get_graph_mermaid(graph_type)
-    print(f"```mermaid\n{mermaid}```")
+    logger.info("```mermaid\n%s```", mermaid)
 
 
 def export_graph_png(
@@ -375,6 +378,6 @@ def export_graph_png(
             f.write(png_data)
         return output_path
     except Exception as e:
-        print(f"⚠️  Could not export PNG: {e}")
-        print("   (Mermaid PNG export requires additional dependencies)")
+        logger.warning("Could not export PNG: %s", e)
+        logger.warning("Mermaid PNG export requires additional dependencies")
         return None
