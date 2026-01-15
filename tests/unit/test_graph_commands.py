@@ -334,46 +334,32 @@ class TestCmdGraphValidate:
 
 
 class TestDeprecationWarnings:
-    """Tests for deprecation warnings on old commands."""
+    """Tests for deprecation errors on old commands."""
 
-    def test_route_shows_deprecation_warning(self, capsys):
-        """route command should show deprecation warning."""
+    def test_route_raises_deprecation_error(self):
+        """route command should raise DeprecationError."""
         from showcase.cli.commands import cmd_route
+        from showcase.cli.deprecation import DeprecationError
 
         args = argparse.Namespace(message="test message")
 
-        # Mock to avoid actual execution
-        with patch("showcase.graph_loader.load_and_compile") as mock_load:
-            mock_graph = MagicMock()
-            mock_app = MagicMock()
-            mock_app.invoke.return_value = {"classification": None, "response": "ok"}
-            mock_graph.compile.return_value = mock_app
-            mock_load.return_value = mock_graph
-
+        with pytest.raises(DeprecationError) as exc_info:
             cmd_route(args)
 
-        captured = capsys.readouterr()
-        assert "deprecated" in captured.out.lower() or "graph run" in captured.out
+        assert "route" in str(exc_info.value)
+        assert "graph run" in str(exc_info.value)
+        assert "router-demo.yaml" in str(exc_info.value)
 
-    def test_refine_shows_deprecation_warning(self, capsys):
-        """refine command should show deprecation warning."""
+    def test_refine_raises_deprecation_error(self):
+        """refine command should raise DeprecationError."""
         from showcase.cli.commands import cmd_refine
+        from showcase.cli.deprecation import DeprecationError
 
         args = argparse.Namespace(topic="test topic")
 
-        # Mock to avoid actual execution
-        with patch("showcase.graph_loader.load_and_compile") as mock_load:
-            mock_graph = MagicMock()
-            mock_app = MagicMock()
-            mock_app.invoke.return_value = {
-                "_loop_counts": {},
-                "critique": None,
-                "current_draft": None,
-            }
-            mock_graph.compile.return_value = mock_app
-            mock_load.return_value = mock_graph
-
+        with pytest.raises(DeprecationError) as exc_info:
             cmd_refine(args)
 
-        captured = capsys.readouterr()
-        assert "deprecated" in captured.out.lower() or "graph run" in captured.out
+        assert "refine" in str(exc_info.value)
+        assert "graph run" in str(exc_info.value)
+        assert "reflexion-demo.yaml" in str(exc_info.value)

@@ -74,13 +74,14 @@ def cmd_run(args):
 
 def cmd_route(args):
     """Run the router demo pipeline."""
+    from showcase.cli.deprecation import get_replacement_command, deprecated_command
+
     if not validate_route_args(args):
         sys.exit(1)
 
-    # Deprecation warning
-    print(
-        "⚠️  DEPRECATED: Use 'showcase graph run graphs/router-demo.yaml --var message=\"...\"' instead"
-    )
+    # Raise deprecation error with replacement command
+    replacement = get_replacement_command("route", {"message": args.message})
+    deprecated_command("route", replacement)
 
     from showcase.graph_loader import load_and_compile
 
@@ -115,13 +116,14 @@ def cmd_route(args):
 
 def cmd_refine(args):
     """Run the reflexion demo pipeline (draft → critique → refine loop)."""
+    from showcase.cli.deprecation import get_replacement_command, deprecated_command
+
     if not validate_refine_args(args):
         sys.exit(1)
 
-    # Deprecation warning
-    print(
-        "⚠️  DEPRECATED: Use 'showcase graph run graphs/reflexion-demo.yaml --var topic=\"...\"' instead"
-    )
+    # Raise deprecation error with replacement command
+    replacement = get_replacement_command("refine", {"topic": args.topic})
+    deprecated_command("refine", replacement)
 
     from showcase.graph_loader import load_and_compile
 
