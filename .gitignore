@@ -34,3 +34,6 @@ build/
 coverage.xml
 htmlcov/
 .pytest_cache/
+
+# Custom graphs
+projects/

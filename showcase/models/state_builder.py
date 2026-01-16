@@ -42,6 +42,47 @@ COMMON_INPUT_FIELDS: dict[str, type] = {
     "message": str,     # Router message input
 }
 
+# Type mapping for YAML state config
+TYPE_MAP: dict[str, type] = {
+    "str": str,
+    "string": str,
+    "int": int,
+    "integer": int,
+    "float": float,
+    "bool": bool,
+    "boolean": bool,
+    "list": list,
+    "dict": dict,
+    "any": Any,
+}
+
+
+def parse_state_config(state_config: dict) -> dict[str, type]:
+    """Parse YAML state section into field types.
+
+    Supports simple type strings:
+        state:
+          concept: str
+          count: int
+
+    Args:
+        state_config: Dict from YAML 'state' section
+
+    Returns:
+        Dict of field_name -> Python type
+    """
+    fields: dict[str, type] = {}
+
+    for field_name, type_spec in state_config.items():
+        if isinstance(type_spec, str):
+            # Simple type: "str", "int", etc.
+            python_type = TYPE_MAP.get(type_spec.lower(), Any)
+            fields[field_name] = python_type
+        else:
+            # Unknown format, use Any
+            fields[field_name] = Any
+
+    return fields
 
 def build_state_class(config: dict) -> type:
     """Build TypedDict state class from graph configuration.
@@ -49,6 +90,7 @@ def build_state_class(config: dict) -> type:
     Dynamically generates a TypedDict with:
     - Base infrastructure fields (errors, messages, thread_id, etc.)
     - Common input fields (topic, style, input, message, etc.)
+    - Custom fields from YAML 'state' section
     - Fields extracted from node output_key/state_key
     - Special fields for agent/router node types
 
@@ -62,6 +104,11 @@ def build_state_class(config: dict) -> type:
     fields: dict[str, type] = {}
     fields.update(BASE_FIELDS)
     fields.update(COMMON_INPUT_FIELDS)
+
+    # Add custom state fields from YAML 'state' section
+    state_config = config.get("state", {})
+    custom_fields = parse_state_config(state_config)
+    fields.update(custom_fields)
 
     # Extract fields from nodes
     nodes = config.get("nodes", {})
