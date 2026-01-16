@@ -251,9 +251,7 @@ class PromptExecutor:
         prompt_config = load_prompt(prompt_name)
 
         # Validate all required variables are provided (fail fast)
-        full_template = (
-            prompt_config.get("system", "") + prompt_config.get("user", "")
-        )
+        full_template = prompt_config.get("system", "") + prompt_config.get("user", "")
         validate_variables(full_template, variables, prompt_name)
 
         # Extract provider from YAML metadata if not provided

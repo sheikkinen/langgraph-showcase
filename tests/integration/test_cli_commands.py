@@ -26,7 +26,14 @@ class TestGraphCommands:
     def test_graph_validate_valid_graph(self):
         """'graph validate' succeeds for valid graph."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "validate", "graphs/showcase.yaml"],
+            [
+                sys.executable,
+                "-m",
+                "showcase.cli",
+                "graph",
+                "validate",
+                "graphs/showcase.yaml",
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -37,7 +44,14 @@ class TestGraphCommands:
     def test_graph_validate_invalid_path(self):
         """'graph validate' fails for missing file."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "validate", "nonexistent.yaml"],
+            [
+                sys.executable,
+                "-m",
+                "showcase.cli",
+                "graph",
+                "validate",
+                "nonexistent.yaml",
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -47,7 +61,14 @@ class TestGraphCommands:
     def test_graph_info_shows_nodes(self):
         """'graph info' shows node details."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "info", "graphs/showcase.yaml"],
+            [
+                sys.executable,
+                "-m",
+                "showcase.cli",
+                "graph",
+                "info",
+                "graphs/showcase.yaml",
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -69,7 +90,10 @@ class TestListRunsCommand:
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
-            env={**subprocess.os.environ, "SHOWCASE_DB_PATH": str(tmp_path / "test.db")},
+            env={
+                **subprocess.os.environ,
+                "SHOWCASE_DB_PATH": str(tmp_path / "test.db"),
+            },
         )
         # Should succeed even with no runs
         assert result.returncode == 0
@@ -89,7 +113,11 @@ class TestMermaidCommand:
         )
         assert result.returncode == 0
         # Mermaid diagrams start with graph or flowchart
-        assert "graph" in result.stdout.lower() or "flowchart" in result.stdout.lower() or "stateDiagram" in result.stdout
+        assert (
+            "graph" in result.stdout.lower()
+            or "flowchart" in result.stdout.lower()
+            or "stateDiagram" in result.stdout
+        )
 
 
 class TestHelpOutput:

@@ -130,6 +130,9 @@ def execute_shell_tool(
 def parse_tools(tools_config: dict[str, Any]) -> dict[str, ShellToolConfig]:
     """Parse tools: section from YAML into ShellToolConfig registry.
 
+    Only parses shell tools (type: shell or no type specified with command).
+    Skips Python tools (type: python).
+
     Args:
         tools_config: Dict from YAML tools: section
 
@@ -139,6 +142,13 @@ def parse_tools(tools_config: dict[str, Any]) -> dict[str, ShellToolConfig]:
     registry: dict[str, ShellToolConfig] = {}
 
     for name, config in tools_config.items():
+        # Skip Python tools
+        if config.get("type") == "python":
+            continue
+        # Skip tools without command (invalid shell tools)
+        if "command" not in config:
+            continue
+
         registry[name] = ShellToolConfig(
             command=config["command"],
             description=config.get("description", ""),

@@ -58,29 +58,35 @@ class TestParseStateConfig:
 
     def test_type_aliases(self):
         """Type aliases like 'string', 'integer', 'boolean' work."""
-        result = parse_state_config({
-            "name": "string",
-            "age": "integer",
-            "active": "boolean",
-        })
+        result = parse_state_config(
+            {
+                "name": "string",
+                "age": "integer",
+                "active": "boolean",
+            }
+        )
         assert result == {"name": str, "age": int, "active": bool}
 
     def test_case_insensitive(self):
         """Type names are case-insensitive."""
-        result = parse_state_config({
-            "a": "STR",
-            "b": "Int",
-            "c": "FLOAT",
-        })
+        result = parse_state_config(
+            {
+                "a": "STR",
+                "b": "Int",
+                "c": "FLOAT",
+            }
+        )
         assert result == {"a": str, "b": int, "c": float}
 
     def test_multiple_fields(self):
         """Parse multiple fields."""
-        result = parse_state_config({
-            "concept": "str",
-            "count": "int",
-            "score": "float",
-        })
+        result = parse_state_config(
+            {
+                "concept": "str",
+                "count": "int",
+                "score": "float",
+            }
+        )
         assert result == {"concept": str, "count": int, "score": float}
 
     def test_unknown_type_defaults_to_any(self):
@@ -90,10 +96,12 @@ class TestParseStateConfig:
 
     def test_non_string_value_defaults_to_any(self):
         """Non-string values default to Any."""
-        result = parse_state_config({
-            "nested": {"type": "str"},  # Dict value, not string
-            "number": 123,  # Int value, not string
-        })
+        result = parse_state_config(
+            {
+                "nested": {"type": "str"},  # Dict value, not string
+                "number": 123,  # Int value, not string
+            }
+        )
         assert result == {"nested": Any, "number": Any}
 
 

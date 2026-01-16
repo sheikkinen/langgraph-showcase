@@ -106,7 +106,9 @@ class TestCLIThreadFlag:
 
         parser = create_parser()
         # Parse with thread flag
-        args = parser.parse_args(["graph", "run", "graphs/showcase.yaml", "--thread", "abc123"])
+        args = parser.parse_args(
+            ["graph", "run", "graphs/showcase.yaml", "--thread", "abc123"]
+        )
         assert args.thread == "abc123"
 
     def test_graph_run_thread_defaults_to_none(self):

@@ -179,6 +179,30 @@ nodes:
 | `max_iterations` | `int` | `5` | Maximum tool invocations |
 | `tool_results_key` | `string` | - | State key for tool execution logs |
 
+### `type: python` - Python Function Node
+
+Execute an arbitrary Python function as a node.
+
+```yaml
+nodes:
+  generate_images:
+    type: python
+    tool: generate_images            # References tool from tools section
+    state_key: images
+    requires: [story]                # Wait for story to be generated
+```
+
+**Python node properties:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `tool` | `string` | required | Name of Python tool from `tools` section |
+| `state_key` | `string` | node name | State key to store result |
+| `requires` | `list[str]` | `[]` | Required state keys before execution |
+| `on_error` | `string` | `"fail"` | Error handling: `skip` or `fail` |
+
+**Note:** The Python function must be defined in the `tools` section with `type: python`.
+
 ### Error Handling Properties
 
 All node types support error handling:
@@ -325,6 +349,42 @@ tools:
 **Parameterized commands:**
 - Use `{param_name}` placeholders in commands
 - Agent provides parameter values at runtime
+
+### Python Tool
+
+Execute Python functions directly:
+
+```yaml
+tools:
+  generate_images:
+    type: python
+    module: projects.storyboard.nodes.image_node
+    function: generate_images_node
+    description: "Generate images for each story panel"
+```
+
+**Python tool properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | `string` | Yes | Must be `"python"` |
+| `module` | `string` | Yes | Full Python module path |
+| `function` | `string` | Yes | Function name in the module |
+| `description` | `string` | No | Human-readable description |
+
+**Function signature:**
+The Python function must accept `state: dict[str, Any]` and return a `dict` with state updates:
+
+```python
+def generate_images_node(state: dict[str, Any]) -> dict:
+    """Process state and return updates."""
+    story = state.get("story")
+    # ... do work ...
+    return {
+        "images": image_paths,
+        "current_step": "generate_images",
+    }
+```
 
 ### Example Tools
 

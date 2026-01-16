@@ -35,11 +35,11 @@ BASE_FIELDS: dict[str, type] = {
 # Common input fields used across graph types
 # These are always included to support --var inputs
 COMMON_INPUT_FIELDS: dict[str, type] = {
-    "input": str,       # Agent prompt input
-    "topic": str,       # Content generation topic
-    "style": str,       # Writing style
+    "input": str,  # Agent prompt input
+    "topic": str,  # Content generation topic
+    "style": str,  # Writing style
     "word_count": int,  # Target word count
-    "message": str,     # Router message input
+    "message": str,  # Router message input
 }
 
 # Type mapping for YAML state config
@@ -83,6 +83,7 @@ def parse_state_config(state_config: dict) -> dict[str, type]:
             fields[field_name] = Any
 
     return fields
+
 
 def build_state_class(config: dict) -> type:
     """Build TypedDict state class from graph configuration.

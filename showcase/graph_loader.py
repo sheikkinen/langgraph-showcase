@@ -16,6 +16,7 @@ from showcase.models.state_builder import build_state_class
 from showcase.node_factory import create_node_function, resolve_class
 from showcase.tools.agent import create_agent_node
 from showcase.tools.nodes import create_tool_node
+from showcase.tools.python_tool import create_python_node, parse_python_tools
 from showcase.tools.shell import parse_tools
 from showcase.utils.conditions import evaluate_condition
 
@@ -36,6 +37,8 @@ def _validate_required_sections(config: dict[str, Any]) -> None:
 def _validate_node_prompt(node_name: str, node_config: dict[str, Any]) -> None:
     """Validate node has required prompt if applicable."""
     node_type = node_config.get("type", "llm")
+    # Only llm and router nodes require prompts
+    # tool, python, and agent nodes don't require prompts
     if node_type in ("llm", "router") and not node_config.get("prompt"):
         raise ValueError(f"Node '{node_name}' missing required 'prompt' field")
 
@@ -48,9 +51,7 @@ def _validate_router_node(
         return
 
     if not node_config.get("routes"):
-        raise ValueError(
-            f"Router node '{node_name}' missing required 'routes' field"
-        )
+        raise ValueError(f"Router node '{node_name}' missing required 'routes' field")
 
     for route_key, target_node in node_config["routes"].items():
         if target_node not in all_nodes:
@@ -180,6 +181,7 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     # If state_class is explicitly set, use it (with deprecation warning)
     if config.state_class and config.state_class != "showcase.models.GraphState":
         import warnings
+
         warnings.warn(
             f"state_class '{config.state_class}' is deprecated. "
             "State is now auto-generated from graph config.",
@@ -194,8 +196,13 @@ def compile_graph(config: GraphConfig) -> StateGraph:
 
     # Parse tools if present
     tools = parse_tools(config.tools)
+    python_tools = parse_python_tools(config.tools)
     if tools:
-        logger.info(f"Parsed {len(tools)} tools: {', '.join(tools.keys())}")
+        logger.info(f"Parsed {len(tools)} shell tools: {', '.join(tools.keys())}")
+    if python_tools:
+        logger.info(
+            f"Parsed {len(python_tools)} Python tools: {', '.join(python_tools.keys())}"
+        )
 
     # Add nodes - inject loop_limits from graph config into node config
     for node_name, node_config in config.nodes.items():
@@ -208,6 +215,8 @@ def compile_graph(config: GraphConfig) -> StateGraph:
 
         if node_type == "tool":
             node_fn = create_tool_node(node_name, enriched_config, tools)
+        elif node_type == "python":
+            node_fn = create_python_node(node_name, enriched_config, python_tools)
         elif node_type == "agent":
             node_fn = create_agent_node(node_name, enriched_config, tools)
         else:
