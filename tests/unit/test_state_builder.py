@@ -6,6 +6,73 @@ TDD: Red phase - these tests define the expected behavior.
 from operator import add
 from typing import Annotated, get_args, get_origin
 
+from showcase.models.state_builder import sorted_add
+
+
+class TestSortedAdd:
+    """Test the sorted_add reducer for map node fan-in."""
+
+    def test_concatenates_lists(self):
+        """Should concatenate two lists."""
+        result = sorted_add([1, 2], [3, 4])
+        assert result == [1, 2, 3, 4]
+
+    def test_handles_empty_existing(self):
+        """Should handle empty existing list."""
+        result = sorted_add([], [1, 2])
+        assert result == [1, 2]
+
+    def test_handles_none_existing(self):
+        """Should handle None as existing list."""
+        result = sorted_add(None, [1, 2])
+        assert result == [1, 2]
+
+    def test_handles_empty_new(self):
+        """Should handle empty new list."""
+        result = sorted_add([1, 2], [])
+        assert result == [1, 2]
+
+    def test_handles_none_new(self):
+        """Should handle None as new list."""
+        result = sorted_add([1, 2], None)
+        assert result == [1, 2]
+
+    def test_sorts_by_map_index(self):
+        """Should sort results by _map_index for map fan-in."""
+        # Simulate out-of-order parallel results
+        existing = [{"_map_index": 2, "value": "third"}]
+        new = [{"_map_index": 0, "value": "first"}]
+        result = sorted_add(existing, new)
+
+        assert result[0]["_map_index"] == 0
+        assert result[0]["value"] == "first"
+        assert result[1]["_map_index"] == 2
+        assert result[1]["value"] == "third"
+
+    def test_sorts_multiple_out_of_order(self):
+        """Should sort many out-of-order items correctly."""
+        # Simulate 5 items arriving in random order
+        items = [
+            {"_map_index": 3, "data": "d"},
+            {"_map_index": 0, "data": "a"},
+            {"_map_index": 4, "data": "e"},
+            {"_map_index": 1, "data": "b"},
+            {"_map_index": 2, "data": "c"},
+        ]
+        result = sorted_add([], items)
+
+        assert [r["data"] for r in result] == ["a", "b", "c", "d", "e"]
+
+    def test_no_sort_for_non_dict_items(self):
+        """Should not sort if items are not dicts."""
+        result = sorted_add([3, 1], [2])
+        assert result == [3, 1, 2]  # Preserved insertion order
+
+    def test_no_sort_for_dicts_without_map_index(self):
+        """Should not sort if dicts lack _map_index."""
+        result = sorted_add([{"a": 1}], [{"b": 2}])
+        assert result == [{"a": 1}, {"b": 2}]
+
 
 class TestBuildStateClass:
     """Test dynamic TypedDict generation from graph config."""

@@ -44,12 +44,11 @@ class TestAnimatedStoryboardGraph:
             call_args = mock_compile_map.call_args
             assert call_args[0][0] == "animate_panels"
 
-    def test_state_has_animated_panels_reducer(self) -> None:
-        """State class has reducer for animated_panels."""
-        import operator
+    def test_state_has_animated_panels_sorted_reducer(self) -> None:
+        """State class has sorted_add reducer for animated_panels."""
         from typing import Annotated, get_args, get_origin
 
-        from showcase.models.state_builder import build_state_class
+        from showcase.models.state_builder import build_state_class, sorted_add
 
         config = load_graph_config("examples/storyboard/animated-character-graph.yaml")
         state_class = build_state_class(config.raw_config)
@@ -61,4 +60,4 @@ class TestAnimatedStoryboardGraph:
         assert get_origin(field_type) is Annotated
         args = get_args(field_type)
         assert args[0] is list
-        assert args[1] is operator.add
+        assert args[1] is sorted_add

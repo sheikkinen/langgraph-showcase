@@ -7,6 +7,29 @@ the need for state_class coupling between YAML and Python.
 from operator import add
 from typing import Annotated, Any, TypedDict
 
+
+def sorted_add(existing: list, new: list) -> list:
+    """Reducer that adds items and sorts by _map_index if present.
+
+    Used for map node fan-in to guarantee order regardless of
+    parallel execution timing.
+
+    Args:
+        existing: Current list in state
+        new: New items to add
+
+    Returns:
+        Combined list sorted by _map_index (if items have it)
+    """
+    combined = (existing or []) + (new or [])
+
+    # Sort by _map_index if items have it
+    if combined and isinstance(combined[0], dict) and "_map_index" in combined[0]:
+        combined = sorted(combined, key=lambda x: x.get("_map_index", 0))
+
+    return combined
+
+
 # =============================================================================
 # Base Fields - Always included in generated state
 # =============================================================================
@@ -159,9 +182,9 @@ def extract_node_fields(nodes: dict) -> dict[str, type]:
             fields["_route"] = str
 
         elif node_type == "map":
-            # Map node collect field needs list reducer for fan-in
+            # Map node collect field needs sorted reducer for ordered fan-in
             if collect_key := node_config.get("collect"):
-                fields[collect_key] = Annotated[list, add]
+                fields[collect_key] = Annotated[list, sorted_add]
 
     return fields
 

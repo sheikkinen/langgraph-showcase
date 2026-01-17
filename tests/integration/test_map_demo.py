@@ -31,12 +31,11 @@ class TestMapDemoGraph:
             call_args = mock_compile_map.call_args
             assert call_args[0][0] == "expand"
 
-    def test_map_demo_state_has_reducer(self) -> None:
-        """Map demo compiled state has reducer for expansions."""
-        import operator
+    def test_map_demo_state_has_sorted_reducer(self) -> None:
+        """Map demo compiled state has sorted_add reducer for expansions."""
         from typing import Annotated, get_args, get_origin
 
-        from showcase.models.state_builder import build_state_class
+        from showcase.models.state_builder import build_state_class, sorted_add
 
         config = load_graph_config("graphs/map-demo.yaml")
         state_class = build_state_class(config.raw_config)
@@ -48,4 +47,4 @@ class TestMapDemoGraph:
         assert get_origin(field_type) is Annotated
         args = get_args(field_type)
         assert args[0] is list
-        assert args[1] is operator.add
+        assert args[1] is sorted_add
