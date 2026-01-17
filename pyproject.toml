@@ -28,6 +28,9 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
 ]
+storyboard = [
+    "replicate>=0.25.0",
+]
 
 [project.scripts]
 showcase = "showcase.cli:main"
