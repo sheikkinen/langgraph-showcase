@@ -12,8 +12,8 @@ class TestMapDemoGraph:
         """Map demo graph config loads successfully."""
         config = load_graph_config("graphs/map-demo.yaml")
         assert config.name == "map-demo"
-        assert "expand_frames" in config.nodes
-        assert config.nodes["expand_frames"]["type"] == "map"
+        assert "expand" in config.nodes
+        assert config.nodes["expand"]["type"] == "map"
 
     def test_map_demo_graph_compiles(self) -> None:
         """Map demo graph compiles to StateGraph."""
@@ -22,17 +22,17 @@ class TestMapDemoGraph:
         # Mock compile_map_node to avoid needing prompt execution
         with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
-            mock_compile_map.return_value = (mock_map_edge_fn, "_map_expand_frames_sub")
+            mock_compile_map.return_value = (mock_map_edge_fn, "_map_expand_sub")
 
             compile_graph(config)
 
-            # Should have called compile_map_node for expand_frames
+            # Should have called compile_map_node for expand
             mock_compile_map.assert_called_once()
             call_args = mock_compile_map.call_args
-            assert call_args[0][0] == "expand_frames"
+            assert call_args[0][0] == "expand"
 
     def test_map_demo_state_has_reducer(self) -> None:
-        """Map demo compiled state has reducer for expanded_frames."""
+        """Map demo compiled state has reducer for expansions."""
         import operator
         from typing import Annotated, get_args, get_origin
 
@@ -42,9 +42,9 @@ class TestMapDemoGraph:
         state_class = build_state_class(config.raw_config)
 
         annotations = state_class.__annotations__
-        assert "expanded_frames" in annotations
+        assert "expansions" in annotations
 
-        field_type = annotations["expanded_frames"]
+        field_type = annotations["expansions"]
         assert get_origin(field_type) is Annotated
         args = get_args(field_type)
         assert args[0] is list
