@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-01-17
+
 ### Added
 - `demo.sh` script to run all demos with single command
 - Pydantic schema validation for graph configuration (`GraphConfigSchema`, `NodeConfig`, `EdgeConfig`)
@@ -34,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README architecture documentation updated to reflect dynamic state generation
 - `.env` file now correctly loaded from current directory when installed via `pip install yamlgraph`
 
-## [1.0.0] - 2026-01-17
+## [0.1.0] - 2026-01-17
 
 ### Added
 - YAML-based graph definition with `graphs/*.yaml`
