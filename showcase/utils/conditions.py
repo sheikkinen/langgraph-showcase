@@ -13,6 +13,8 @@ Examples:
 import re
 from typing import Any
 
+from showcase.utils.expressions import resolve_state_path
+
 # Regex patterns for expression parsing
 # Valid operators: <=, >=, ==, !=, <, > (strict matching)
 COMPARISON_PATTERN = re.compile(
@@ -25,6 +27,8 @@ COMPOUND_OR_PATTERN = re.compile(r"\s+or\s+", re.IGNORECASE)
 def resolve_value(path: str, state: dict) -> Any:
     """Resolve a dotted path to a value from state.
 
+    Delegates to consolidated resolve_state_path in expressions module.
+
     Args:
         path: Dotted path like "critique.score"
         state: State dictionary
@@ -32,19 +36,7 @@ def resolve_value(path: str, state: dict) -> Any:
     Returns:
         Resolved value or None if not found
     """
-    parts = path.split(".")
-    value = state
-
-    for part in parts:
-        if value is None:
-            return None
-        if isinstance(value, dict):
-            value = value.get(part)
-        else:
-            # Try attribute access for objects
-            value = getattr(value, part, None)
-
-    return value
+    return resolve_state_path(path, state)
 
 
 def parse_literal(value_str: str) -> Any:

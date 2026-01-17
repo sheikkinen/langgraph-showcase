@@ -1,6 +1,11 @@
 """Utility functions for observability and logging."""
 
 from showcase.utils.conditions import evaluate_condition
+from showcase.utils.expressions import (
+    resolve_state_expression,
+    resolve_state_path,
+    resolve_template,
+)
 from showcase.utils.langsmith import (
     export_graph_png,
     get_client,
@@ -19,6 +24,10 @@ from showcase.utils.template import extract_variables, validate_variables
 __all__ = [
     # Conditions
     "evaluate_condition",
+    # Expression resolution (consolidated)
+    "resolve_state_path",
+    "resolve_state_expression",
+    "resolve_template",
     # LangSmith
     "get_client",
     "get_project_name",

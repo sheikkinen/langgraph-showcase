@@ -13,46 +13,12 @@ from typing import Any, Callable
 from showcase.constants import ErrorHandler, NodeType
 from showcase.executor import execute_prompt
 from showcase.models import ErrorType, PipelineError
+from showcase.utils.expressions import resolve_template
 
 # Type alias for dynamic state
 GraphState = dict[str, Any]
 
 logger = logging.getLogger(__name__)
-
-
-def resolve_template(template: str, state: GraphState) -> Any:
-    """Resolve a template string to a value from state.
-
-    Args:
-        template: Template string like "{state.field}" or "{state.obj.attr}"
-        state: Current pipeline state
-
-    Returns:
-        Resolved value or None if not found
-    """
-    STATE_PREFIX = "{state."
-    STATE_SUFFIX = "}"
-
-    if not isinstance(template, str):
-        return template
-
-    if not (template.startswith(STATE_PREFIX) and template.endswith(STATE_SUFFIX)):
-        return template
-
-    # Extract path: "{state.foo.bar}" -> "foo.bar"
-    path = template[len(STATE_PREFIX) : -len(STATE_SUFFIX)]
-    parts = path.split(".")
-
-    value = state
-    for part in parts:
-        if value is None:
-            return None
-        if isinstance(value, dict):
-            value = value.get(part)
-        else:
-            value = getattr(value, part, None)
-
-    return value
 
 
 def resolve_class(class_path: str) -> type:

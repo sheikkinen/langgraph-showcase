@@ -1,8 +1,13 @@
 """Tests for state expression resolution."""
 
 import pytest
+from pydantic import BaseModel
 
-from showcase.utils.expressions import resolve_state_expression
+from showcase.utils.expressions import (
+    resolve_state_expression,
+    resolve_state_path,
+    resolve_template,
+)
 
 
 class TestResolveStateExpression:
@@ -90,3 +95,84 @@ class TestResolveStateExpression:
         state = {"outer": {"middle": Inner()}}
         result = resolve_state_expression("{outer.middle.value}", state)
         assert result == "found"
+
+
+class TestResolveStatePath:
+    """Tests for resolve_state_path - the core resolution function."""
+
+    def test_simple_key(self):
+        """Should resolve simple key."""
+        state = {"score": 0.8}
+        assert resolve_state_path("score", state) == 0.8
+
+    def test_nested_dict_path(self):
+        """Should resolve nested dict path."""
+        state = {"critique": {"score": 0.9}}
+        assert resolve_state_path("critique.score", state) == 0.9
+
+    def test_deeply_nested(self):
+        """Should resolve deeply nested path."""
+        state = {"a": {"b": {"c": {"d": 42}}}}
+        assert resolve_state_path("a.b.c.d", state) == 42
+
+    def test_missing_key_returns_none(self):
+        """Should return None for missing key."""
+        state = {"a": 1}
+        assert resolve_state_path("b", state) is None
+
+    def test_missing_nested_returns_none(self):
+        """Should return None for missing nested path."""
+        state = {"a": {"b": 1}}
+        assert resolve_state_path("a.c", state) is None
+
+    def test_pydantic_model_attribute(self):
+        """Should resolve Pydantic model attribute."""
+
+        class Critique(BaseModel):
+            score: float
+            feedback: str
+
+        state = {"critique": Critique(score=0.75, feedback="Good")}
+        assert resolve_state_path("critique.score", state) == 0.75
+        assert resolve_state_path("critique.feedback", state) == "Good"
+
+    def test_empty_path_returns_none(self):
+        """Should return None for empty path."""
+        assert resolve_state_path("", {"a": 1}) is None
+
+
+class TestResolveTemplate:
+    """Tests for resolve_template - optional resolution returning None."""
+
+    def test_state_template(self):
+        """Should resolve {state.field} template."""
+        state = {"topic": "AI"}
+        assert resolve_template("{state.topic}", state) == "AI"
+
+    def test_nested_template(self):
+        """Should resolve nested path template."""
+        state = {"config": {"max_tokens": 100}}
+        assert resolve_template("{state.config.max_tokens}", state) == 100
+
+    def test_missing_returns_none(self):
+        """Should return None for missing path."""
+        state = {"a": 1}
+        assert resolve_template("{state.missing}", state) is None
+
+    def test_non_string_passthrough(self):
+        """Should pass through non-string values."""
+        assert resolve_template(123, {}) == 123
+
+    def test_non_state_template_passthrough(self):
+        """Should pass through non-state templates."""
+        assert resolve_template("{other.field}", {}) == "{other.field}"
+        assert resolve_template("plain text", {}) == "plain text"
+
+    def test_pydantic_model(self):
+        """Should resolve Pydantic model attribute."""
+
+        class Draft(BaseModel):
+            text: str
+
+        state = {"draft": Draft(text="Content")}
+        assert resolve_template("{state.draft.text}", state) == "Content"

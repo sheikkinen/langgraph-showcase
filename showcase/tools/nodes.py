@@ -8,12 +8,12 @@ decision-making (agent nodes).
 from __future__ import annotations
 
 import logging
-import re
 from collections.abc import Callable
 from typing import Any
 
 from showcase.models.schemas import ErrorType, PipelineError
 from showcase.tools.shell import ShellToolConfig, execute_shell_tool
+from showcase.utils.expressions import resolve_template
 
 # Type alias for state - dynamic TypedDict at runtime
 GraphState = dict[str, Any]
@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 def resolve_state_variable(template: str, state: dict[str, Any]) -> str:
     """Resolve {state.path.to.value} to actual state value.
 
+    Note: Uses consolidated resolve_template from expressions module.
+
     Args:
         template: String with {state.key} or {state.nested.key} placeholders
         state: Current graph state
@@ -31,24 +33,10 @@ def resolve_state_variable(template: str, state: dict[str, Any]) -> str:
     Returns:
         Resolved string value
     """
-    if not template.startswith("{state."):
+    value = resolve_template(template, state)
+    # resolve_template returns the template unchanged if not a state expression
+    if value is template:
         return template
-
-    # Extract the path: {state.foo.bar} -> foo.bar
-    match = re.match(r"\{state\.([^}]+)\}", template)
-    if not match:
-        return template
-
-    path = match.group(1)
-    parts = path.split(".")
-
-    value = state
-    for part in parts:
-        if isinstance(value, dict):
-            value = value.get(part)
-        else:
-            return template  # Can't resolve further
-
     return str(value) if value is not None else ""
 
 
