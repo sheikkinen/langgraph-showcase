@@ -1,5 +1,9 @@
 # YamlGraph
 
+[![PyPI version](https://badge.fury.io/py/yamlgraph.svg)](https://pypi.org/project/yamlgraph/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A YAML-first framework for building LLM pipelines using:
 
 - **YAML Graph Configuration** - Declarative pipeline definition with schema validation
@@ -11,49 +15,102 @@ A YAML-first framework for building LLM pipelines using:
 - **LangSmith** - Observability and tracing
 - **JSON Export** - Result serialization
 
-## Quick Start
-
-### 1. Setup Environment
+## Installation
 
 ```bash
-# Clone or copy the yamlgraph directory
-cd yamlgraph
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# Install as editable package
-pip install -e .
-
-# Optional: For storyboard image generation
-pip install -e ".[storyboard]"
-
-# Configure environment
-cp .env.sample .env
-# Edit .env with your ANTHROPIC_API_KEY
+pip install yamlgraph
 ```
 
-### 2. Run a Pipeline
+## Quick Start
+
+### 1. Create a Prompt
+
+Create `prompts/greet.yaml`:
+
+```yaml
+system: |
+  You are a friendly assistant.
+
+user: |
+  Say hello to {name} in a {style} way.
+```
+
+### 2. Create a Graph
+
+Create `graphs/hello.yaml`:
+
+```yaml
+version: "1.0"
+name: hello-world
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    variables:
+      name: "{state.name}"
+      style: "{state.style}"
+    state_key: greeting
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END
+```
+
+### 3. Set API Key
 
 ```bash
-# Run any YAML graph with the universal graph runner
-yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
-yamlgraph graph run graphs/router-demo.yaml --var message="I love this!"
-yamlgraph graph run graphs/reflexion-demo.yaml --var topic="climate change"
-yamlgraph graph run graphs/git-report.yaml --var input="What changed recently?"
-yamlgraph graph run graphs/memory-demo.yaml --var input="Show me recent commits"
+export ANTHROPIC_API_KEY=your-key-here
+# Or: export MISTRAL_API_KEY=... or OPENAI_API_KEY=...
+```
 
-# Animated storyboard with parallel fan-out (type: map)
+### 4. Run It
+
+```bash
+yamlgraph graph run graphs/hello.yaml --var name="World" --var style="enthusiastic"
+```
+
+Or use the Python API:
+
+```python
+from yamlgraph.graph_loader import load_and_compile
+
+graph = load_and_compile("graphs/hello.yaml")
+app = graph.compile()
+result = app.invoke({"name": "World", "style": "enthusiastic"})
+print(result["greeting"])
+```
+
+---
+
+## More Examples
+
+```bash
+# Content generation pipeline
+yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
+
+# Sentiment-based routing
+yamlgraph graph run graphs/router-demo.yaml --var message="I love this!"
+
+# Self-correction loop (Reflexion pattern)
+yamlgraph graph run graphs/reflexion-demo.yaml --var topic="climate change"
+
+# AI agent with shell tools
+yamlgraph graph run graphs/git-report.yaml --var input="What changed recently?"
+
+# Parallel fan-out with map nodes
 yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A brave mouse knight" --var model=hidream
+```
 
-# Graph utilities
+### CLI Utilities
+
+```bash
 yamlgraph graph list                         # List available graphs
 yamlgraph graph info graphs/router-demo.yaml # Show graph structure
 yamlgraph graph validate graphs/*.yaml       # Validate graph schemas
-
-# State management
 yamlgraph list-runs                          # View recent runs
 yamlgraph resume --thread-id abc123          # Resume a run
 yamlgraph export --thread-id abc123          # Export run to JSON
