@@ -1,11 +1,11 @@
-"""Graph builders for the showcase pipeline.
+"""Graph builders for yamlgraph pipelines.
 
 Provides functions to build pipeline graphs from YAML configuration.
 
 Pipeline Architecture
 =====================
 
-The main showcase pipeline follows this flow:
+The main pipeline follows this flow:
 
 ```mermaid
 graph LR
@@ -22,7 +22,7 @@ State Flow:
 - summarize: Combines all outputs into final_summary
 
 Graph Definition:
-- Pipeline is defined in graphs/showcase.yaml
+- Pipelines are defined in graphs/*.yaml
 - Loaded and compiled via graph_loader module
 """
 
@@ -47,7 +47,7 @@ def build_graph(
 
     Args:
         graph_path: Path to YAML graph definition.
-                   Defaults to graphs/showcase.yaml
+                   Defaults to graphs/yamlgraph.yaml
         checkpointer: Optional LangGraph checkpointer for state persistence.
                      Use get_checkpointer() from storage.checkpointer.
 
@@ -65,27 +65,10 @@ def build_graph(
     return graph
 
 
-def build_showcase_graph(graph_path: Path | str | None = None) -> StateGraph:
-    """Build the main showcase pipeline graph from YAML.
-
-    Loads the graph definition from YAML and compiles it
-    into a LangGraph StateGraph.
-
-    Args:
-        graph_path: Path to YAML graph definition.
-                   Defaults to graphs/showcase.yaml
-
-    Returns:
-        StateGraph ready for compilation
-    """
-    path = Path(graph_path) if graph_path else DEFAULT_GRAPH
-    return load_and_compile(path)
-
-
 def build_resume_graph() -> StateGraph:
     """Build a graph for resuming an interrupted pipeline.
 
-    This is an alias for build_showcase_graph(). Resume works automatically
+    This is an alias for build_graph(). Resume works automatically
     because nodes skip execution if their output already exists in state
     (skip_if_exists behavior).
 
@@ -97,7 +80,7 @@ def build_resume_graph() -> StateGraph:
     Returns:
         StateGraph for resume (same as main pipeline)
     """
-    return build_showcase_graph()
+    return build_graph()
 
 
 def run_pipeline(
@@ -117,7 +100,7 @@ def run_pipeline(
     Returns:
         Final state with all outputs
     """
-    graph = build_showcase_graph(graph_path).compile()
+    graph = build_graph(graph_path).compile()
     initial_state = create_initial_state(
         topic=topic,
         style=style,

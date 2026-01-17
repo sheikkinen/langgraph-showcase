@@ -1,4 +1,4 @@
-"""Tests for showcase.cli module."""
+"""Tests for yamlgraph.cli module."""
 
 import argparse
 

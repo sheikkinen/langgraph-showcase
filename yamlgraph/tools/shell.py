@@ -122,9 +122,13 @@ def execute_shell_tool(
     env.update(config.env)
 
     try:
+        # Security: shell=True is required for command templates with pipes/redirects.
+        # All user-provided variables are sanitized via shlex.quote() in sanitize_variables()
+        # before substitution, preventing shell injection attacks. The command template
+        # itself comes from trusted YAML configuration, not user input.
         result = subprocess.run(
             command,
-            shell=True,
+            shell=True,  # nosec B602
             capture_output=True,
             text=True,
             timeout=config.timeout,

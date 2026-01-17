@@ -6,11 +6,11 @@
 # 3. Generate 3 images per panel: original + 2 img2img frames
 #
 # Usage:
-#   showcase graph run examples/storyboard/animated-character-graph.yaml \
+#   yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
 #     --var concept="A detective solving a mystery" --var model=hidream
 #
 #   # With pre-existing character image:
-#   showcase graph run examples/storyboard/animated-character-graph.yaml \
+#   yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
 #     --var concept="A detective" --var model=hidream \
 #     --var reference_image="path/to/character.png"
 

@@ -51,7 +51,7 @@ def get_project_name() -> str:
     return (
         os.environ.get("LANGCHAIN_PROJECT")
         or os.environ.get("LANGSMITH_PROJECT")
-        or "showcase-app"
+        or "yamlgraph"
     )
 
 

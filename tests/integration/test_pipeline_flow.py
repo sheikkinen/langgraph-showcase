@@ -5,21 +5,21 @@ from unittest.mock import patch
 import pytest
 
 from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
-from yamlgraph.builder import build_resume_graph, build_showcase_graph, run_pipeline
+from yamlgraph.builder import build_graph, build_resume_graph, run_pipeline
 
 
-class TestBuildShowcaseGraph:
-    """Tests for build_showcase_graph function."""
+class TestBuildGraph:
+    """Tests for build_graph function."""
 
     def test_graph_compiles(self):
         """Graph should compile without errors."""
-        graph = build_showcase_graph()
+        graph = build_graph()
         compiled = graph.compile()
         assert compiled is not None
 
     def test_graph_has_expected_nodes(self):
         """Graph should have generate, analyze, summarize nodes."""
-        graph = build_showcase_graph()
+        graph = build_graph()
         # StateGraph stores nodes internally
         assert "generate" in graph.nodes
         assert "analyze" in graph.nodes
@@ -41,8 +41,8 @@ class TestBuildResumeGraph:
         assert "summarize" in graph.nodes
 
     def test_resume_graph_same_as_main(self):
-        """Resume graph is identical to main showcase graph."""
-        main_graph = build_showcase_graph()
+        """Resume graph is identical to main graph."""
+        main_graph = build_graph()
         resume_graph = build_resume_graph()
 
         assert set(main_graph.nodes.keys()) == set(resume_graph.nodes.keys())

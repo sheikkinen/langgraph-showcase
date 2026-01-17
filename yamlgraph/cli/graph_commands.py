@@ -84,7 +84,7 @@ def cmd_graph_run(args: Namespace) -> None:
     """Run any graph with provided variables.
 
     Usage:
-        showcase graph run graphs/showcase.yaml --var topic=AI --var style=casual
+        yamlgraph graph run graphs/yamlgraph.yaml --var topic=AI --var style=casual
     """
     from yamlgraph.graph_loader import load_and_compile
 

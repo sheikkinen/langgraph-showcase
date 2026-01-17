@@ -1,6 +1,6 @@
 # YAML Configuration Reference
 
-Welcome to the LangGraph Showcase reference documentation. This guide explains how to configure YAML-based LLM pipelines.
+Welcome to the YamlGraph reference documentation. This guide explains how to configure YAML-based LLM pipelines.
 
 ## Documents
 
@@ -101,7 +101,7 @@ Copy-paste patterns for common use cases:
 A TypedDict that flows through the pipeline. Nodes read from and write to state.
 
 ```python
-class ShowcaseState(TypedDict, total=False):
+class PipelineState(TypedDict, total=False):
     topic: str
     generated: GeneratedContent
     analysis: Analysis

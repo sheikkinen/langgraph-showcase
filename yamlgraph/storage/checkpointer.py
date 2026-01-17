@@ -25,7 +25,7 @@ def get_checkpointer(db_path: str | Path | None = None) -> SqliteSaver:
 
     Args:
         db_path: Path to SQLite database file.
-                 Defaults to outputs/showcase.db
+                 Defaults to outputs/yamlgraph.db
 
     Returns:
         SqliteSaver instance for use with graph.compile()

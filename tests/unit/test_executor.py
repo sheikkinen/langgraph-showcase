@@ -1,4 +1,4 @@
-"""Tests for showcase.executor module."""
+"""Tests for yamlgraph.executor module."""
 
 import pytest
 

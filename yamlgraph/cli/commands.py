@@ -82,15 +82,15 @@ def _format_result(result: dict[str, Any]) -> None:
 
 
 def cmd_run(args: Namespace) -> None:
-    """Run the showcase pipeline."""
+    """Run the yamlgraph pipeline."""
     if not validate_run_args(args):
         sys.exit(1)
 
     from yamlgraph.builder import run_pipeline
-    from yamlgraph.storage import ShowcaseDB, export_state
+    from yamlgraph.storage import YamlGraphDB, export_state
     from yamlgraph.utils import get_run_url, is_tracing_enabled
 
-    print("\n🚀 Running showcase pipeline")
+    print("\n🚀 Running yamlgraph pipeline")
     print(f"   Topic: {args.topic}")
     print(f"   Style: {args.style}")
     print(f"   Words: {args.word_count}")
@@ -104,7 +104,7 @@ def cmd_run(args: Namespace) -> None:
     )
 
     # Save to database
-    db = ShowcaseDB()
+    db = YamlGraphDB()
     db.save_state(result["thread_id"], result, status="completed")
     print(f"\n💾 Saved to database: thread_id={result['thread_id']}")
 
@@ -130,9 +130,9 @@ def cmd_run(args: Namespace) -> None:
 
 def cmd_list_runs(args: Namespace) -> None:
     """List recent pipeline runs."""
-    from yamlgraph.storage import ShowcaseDB
+    from yamlgraph.storage import YamlGraphDB
 
-    db = ShowcaseDB()
+    db = YamlGraphDB()
     runs = db.list_runs(limit=args.limit)
 
     if not runs:
@@ -152,9 +152,9 @@ def cmd_list_runs(args: Namespace) -> None:
 def cmd_resume(args: Namespace) -> None:
     """Resume a pipeline from saved state."""
     from yamlgraph.builder import build_resume_graph
-    from yamlgraph.storage import ShowcaseDB
+    from yamlgraph.storage import YamlGraphDB
 
-    db = ShowcaseDB()
+    db = YamlGraphDB()
     state = db.load_state(args.thread_id)
 
     if not state:
@@ -219,9 +219,9 @@ def cmd_trace(args: Namespace) -> None:
 
 def cmd_export(args: Namespace) -> None:
     """Export a run to JSON."""
-    from yamlgraph.storage import ShowcaseDB, export_state
+    from yamlgraph.storage import YamlGraphDB, export_state
 
-    db = ShowcaseDB()
+    db = YamlGraphDB()
     state = db.load_state(args.thread_id)
 
     if not state:

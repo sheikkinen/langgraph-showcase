@@ -1,4 +1,4 @@
-"""Tests for showcase.utils.template module - Variable extraction and validation."""
+"""Tests for yamlgraph.utils.template module - Variable extraction and validation."""
 
 import pytest
 

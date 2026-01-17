@@ -1,6 +1,6 @@
-# LangGraph Showcase App
+# YamlGraph
 
-A minimal, self-contained demonstration / template of a LLM pipeline using:
+A YAML-first framework for building LLM pipelines using:
 
 - **YAML Graph Configuration** - Declarative pipeline definition with schema validation
 - **YAML Prompts** - Declarative prompt templates with Jinja2 support
@@ -16,8 +16,8 @@ A minimal, self-contained demonstration / template of a LLM pipeline using:
 ### 1. Setup Environment
 
 ```bash
-# Clone or copy the showcase directory
-cd showcase
+# Clone or copy the yamlgraph directory
+cd yamlgraph
 
 # Create virtual environment
 python -m venv .venv
@@ -38,29 +38,29 @@ cp .env.sample .env
 
 ```bash
 # Run any YAML graph with the universal graph runner
-showcase graph run graphs/showcase.yaml --var topic="AI" --var style=casual
-showcase graph run graphs/router-demo.yaml --var message="I love this!"
-showcase graph run graphs/reflexion-demo.yaml --var topic="climate change"
-showcase graph run graphs/git-report.yaml --var input="What changed recently?"
-showcase graph run graphs/memory-demo.yaml --var input="Show me recent commits"
+yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
+yamlgraph graph run graphs/router-demo.yaml --var message="I love this!"
+yamlgraph graph run graphs/reflexion-demo.yaml --var topic="climate change"
+yamlgraph graph run graphs/git-report.yaml --var input="What changed recently?"
+yamlgraph graph run graphs/memory-demo.yaml --var input="Show me recent commits"
 
 # Animated storyboard with parallel fan-out (type: map)
-showcase graph run examples/storyboard/animated-character-graph.yaml \
+yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A brave mouse knight" --var model=hidream
 
 # Graph utilities
-showcase graph list                         # List available graphs
-showcase graph info graphs/router-demo.yaml # Show graph structure
-showcase graph validate graphs/*.yaml       # Validate graph schemas
+yamlgraph graph list                         # List available graphs
+yamlgraph graph info graphs/router-demo.yaml # Show graph structure
+yamlgraph graph validate graphs/*.yaml       # Validate graph schemas
 
 # State management
-showcase list-runs                          # View recent runs
-showcase resume --thread-id abc123          # Resume a run
-showcase export --thread-id abc123          # Export run to JSON
+yamlgraph list-runs                          # View recent runs
+yamlgraph resume --thread-id abc123          # Resume a run
+yamlgraph export --thread-id abc123          # Export run to JSON
 
 # Observability (requires LangSmith)
-showcase trace --verbose                    # View execution trace
-showcase mermaid                            # Show pipeline as Mermaid diagram
+yamlgraph trace --verbose                    # View execution trace
+yamlgraph mermaid                            # Show pipeline as Mermaid diagram
 ```
 
 ## Documentation
@@ -130,18 +130,18 @@ flowchart TB
 ### Directory Structure
 
 ```
-showcase/
+yamlgraph/
 ├── README.md
 ├── pyproject.toml        # Package definition with CLI entry point and dependencies
 ├── .env.sample           # Environment template
 │
 ├── graphs/               # YAML graph definitions
-│   ├── showcase.yaml     # Main pipeline definition
+│   ├── yamlgraph.yaml    # Main pipeline definition
 │   ├── router-demo.yaml  # Tone-based routing demo
 │   ├── reflexion-demo.yaml # Self-refinement loop demo
 │   └── git-report.yaml   # AI agent demo with shell tools
 │
-├── showcase/             # Main package
+├── yamlgraph/            # Main package
 │   ├── __init__.py       # Package exports
 │   ├── builder.py        # Graph builders (loads from YAML)
 │   ├── graph_loader.py   # YAML → LangGraph compiler
@@ -239,7 +239,7 @@ graph LR
 
 ```bash
 # Resume an interrupted run
-showcase resume --thread-id abc123
+yamlgraph resume --thread-id abc123
 ```
 
 When resumed:
@@ -317,7 +317,7 @@ result = execute_prompt(
 )
 
 # Or set via environment variable
-# PROVIDER=openai showcase run ...
+# PROVIDER=openai yamlgraph graph run ...
 ```
 
 Supported providers:
@@ -336,9 +336,9 @@ Provider selection priority:
 Pipelines are defined declaratively in YAML and compiled to LangGraph:
 
 ```yaml
-# graphs/showcase.yaml
+# graphs/yamlgraph.yaml
 version: "1.0"
-name: showcase
+name: yamlgraph-demo
 description: Content generation pipeline
 
 defaults:
@@ -399,18 +399,18 @@ edges:
 
 **Load and run**:
 ```python
-from yamlgraph.builder import build_showcase_graph
+from yamlgraph.builder import build_graph
 
-graph = build_showcase_graph().compile()  # Loads from graphs/showcase.yaml
+graph = build_graph().compile()  # Loads from graphs/yamlgraph.yaml
 result = graph.invoke(initial_state)
 ```
 
 ### 5. State Persistence
 
 ```python
-from yamlgraph.storage import ShowcaseDB
+from yamlgraph.storage import YamlGraphDB
 
-db = ShowcaseDB()
+db = YamlGraphDB()
 db.save_state("thread-123", state)
 state = db.load_state("thread-123")
 ```
@@ -422,7 +422,7 @@ from yamlgraph.utils.langsmith import print_run_tree
 
 print_run_tree(verbose=True)
 # 📊 Execution Tree:
-# └─ showcase_graph (12.3s) ✅
+# └─ yamlgraph_pipeline (12.3s) ✅
 #    ├─ generate (5.2s) ✅
 #    ├─ analyze (3.1s) ✅
 #    └─ summarize (4.0s) ✅
@@ -457,8 +457,8 @@ nodes:
 Run the git analysis agent:
 
 ```bash
-showcase git-report -q "What changed recently?"
-showcase git-report -q "Summarize the test directory"
+yamlgraph git-report -q "What changed recently?"
+yamlgraph git-report -q "Summarize the test directory"
 ```
 
 **Node types:**
@@ -499,10 +499,10 @@ pytest tests/unit/ -v
 pytest tests/integration/ -v
 
 # Run with coverage report
-pytest tests/ --cov=showcase --cov-report=term-missing
+pytest tests/ --cov=yamlgraph --cov-report=term-missing
 
 # Run with HTML coverage report
-pytest tests/ --cov=showcase --cov-report=html
+pytest tests/ --cov=yamlgraph --cov-report=html
 # Then open htmlcov/index.html
 ```
 
@@ -514,7 +514,7 @@ pytest tests/ --cov=showcase --cov-report=html
 
 Let's add a "fact_check" node that verifies generated content:
 
-**Step 1: Define the output schema** (`showcase/models/schemas.py`):
+**Step 1: Define the output schema** (`yamlgraph/models/schemas.py`):
 ```python
 class FactCheck(BaseModel):
     """Structured fact-checking output."""
@@ -550,7 +550,7 @@ fact_check:
   state_key: fact_check  # This creates the state field
 ```
 
-**Step 4: Add the node to your graph** (`graphs/showcase.yaml`):
+**Step 4: Add the node to your graph** (`graphs/yamlgraph.yaml`):
 ```yaml
 nodes:
   generate:
@@ -642,7 +642,7 @@ result = execute_prompt("new_prompt", variables={"var": "value"})
 
 ### Add Structured Output
 
-1. Define model in `showcase/models/schemas.py`:
+1. Define model in `yamlgraph/models/schemas.py`:
 ```python
 class MyOutput(BaseModel):
     field: str = Field(description="...")
@@ -661,7 +661,7 @@ This project demonstrates solid production patterns with declarative YAML-based 
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| YAML Graph Configuration | ✅ | Declarative pipeline definition in `graphs/showcase.yaml` |
+| YAML Graph Configuration | ✅ | Declarative pipeline definition in `graphs/yamlgraph.yaml` |
 | Jinja2 Templating | ✅ | Hybrid auto-detection (simple {var} + advanced Jinja2) |
 | Multi-Provider LLMs | ✅ | Factory pattern supporting Anthropic/Mistral/OpenAI |
 | Dynamic Node Generation | ✅ | Nodes compiled from YAML at runtime |
@@ -735,7 +735,7 @@ variables = {"author": "$(rm -rf /)"}
 # Executed as: git log --author='$(rm -rf /)'  (quoted, harmless)
 ```
 
-See [showcase/tools/shell.py](showcase/tools/shell.py) for implementation details.
+See [yamlgraph/tools/shell.py](yamlgraph/tools/shell.py) for implementation details.
 
 ### ⚠️ Security Considerations
 

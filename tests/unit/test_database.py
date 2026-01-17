@@ -1,10 +1,10 @@
-"""Tests for showcase.storage.database module."""
+"""Tests for yamlgraph.storage.database module."""
 
 from yamlgraph.models import create_initial_state
 
 
-class TestShowcaseDB:
-    """Tests for ShowcaseDB class."""
+class TestYamlGraphDB:
+    """Tests for YamlGraphDB class."""
 
     def test_db_initialization(self, temp_db):
         """Database should initialize successfully."""
@@ -100,10 +100,10 @@ class TestConnectionPool:
 
     def test_pooled_mode_works(self, tmp_path):
         """Database should work in pooled mode."""
-        from yamlgraph.storage.database import ShowcaseDB
+        from yamlgraph.storage.database import YamlGraphDB
 
         db_path = tmp_path / "pooled_test.db"
-        db = ShowcaseDB(db_path=db_path, use_pool=True, pool_size=3)
+        db = YamlGraphDB(db_path=db_path, use_pool=True, pool_size=3)
 
         try:
             # Save and load should work
@@ -133,10 +133,10 @@ class TestConnectionPool:
 
     def test_close_method(self, tmp_path):
         """Close should clean up connections."""
-        from yamlgraph.storage.database import ShowcaseDB
+        from yamlgraph.storage.database import YamlGraphDB
 
         db_path = tmp_path / "close_test.db"
-        db = ShowcaseDB(db_path=db_path, use_pool=True, pool_size=2)
+        db = YamlGraphDB(db_path=db_path, use_pool=True, pool_size=2)
 
         # Use the connection to create one
         db.save_state("test", {"data": "value"})

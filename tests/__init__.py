@@ -1,1 +1,1 @@
-"""Test suite for langgraph-showcase."""
+"""Test suite for yamlgraph."""

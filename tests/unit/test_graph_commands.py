@@ -1,6 +1,6 @@
 """Tests for universal graph runner (Phase 7.2).
 
-TDD tests for `showcase graph run <path>` command.
+TDD tests for `yamlgraph graph run <path>` command.
 """
 
 import argparse
@@ -32,10 +32,10 @@ class TestGraphSubcommand:
 
         parser = create_parser()
         args = parser.parse_args(
-            ["graph", "run", "graphs/showcase.yaml", "--var", "topic=AI"]
+            ["graph", "run", "graphs/yamlgraph.yaml", "--var", "topic=AI"]
         )
         assert args.graph_command == "run"
-        assert args.graph_path == "graphs/showcase.yaml"
+        assert args.graph_path == "graphs/yamlgraph.yaml"
 
     def test_graph_list_subcommand_exists(self):
         """graph list subcommand should exist."""
@@ -50,9 +50,9 @@ class TestGraphSubcommand:
         from yamlgraph.cli import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["graph", "info", "graphs/showcase.yaml"])
+        args = parser.parse_args(["graph", "info", "graphs/yamlgraph.yaml"])
         assert args.graph_command == "info"
-        assert args.graph_path == "graphs/showcase.yaml"
+        assert args.graph_path == "graphs/yamlgraph.yaml"
 
 
 # =============================================================================
@@ -209,7 +209,7 @@ class TestCmdGraphRun:
         mock_load.return_value = mock_graph
 
         args = argparse.Namespace(
-            graph_path="graphs/showcase.yaml",
+            graph_path="graphs/yamlgraph.yaml",
             var=["topic=AI", "style=casual"],
             thread=None,
             export=False,
@@ -248,7 +248,7 @@ class TestCmdGraphList:
         mock_path.return_value = mock_graphs_dir
         mock_graphs_dir.exists.return_value = True
         mock_graphs_dir.glob.return_value = [
-            Path("graphs/showcase.yaml"),
+            Path("graphs/yamlgraph.yaml"),
             Path("graphs/router-demo.yaml"),
         ]
 
@@ -258,7 +258,7 @@ class TestCmdGraphList:
             cmd_graph_list(args)
             # Check it printed something about the graphs
             calls = [str(c) for c in mock_print.call_args_list]
-            assert any("showcase" in c for c in calls)
+            assert any("yamlgraph" in c for c in calls)
 
 
 # =============================================================================
@@ -312,7 +312,7 @@ class TestCmdGraphValidate:
         """Should validate a correct graph without errors."""
         from yamlgraph.cli.graph_commands import cmd_graph_validate
 
-        args = argparse.Namespace(graph_path="graphs/showcase.yaml")
+        args = argparse.Namespace(graph_path="graphs/yamlgraph.yaml")
 
         # Should not raise
         cmd_graph_validate(args)
@@ -322,6 +322,6 @@ class TestCmdGraphValidate:
         from yamlgraph.cli import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["graph", "validate", "graphs/showcase.yaml"])
+        args = parser.parse_args(["graph", "validate", "graphs/yamlgraph.yaml"])
         assert args.graph_command == "validate"
-        assert args.graph_path == "graphs/showcase.yaml"
+        assert args.graph_path == "graphs/yamlgraph.yaml"

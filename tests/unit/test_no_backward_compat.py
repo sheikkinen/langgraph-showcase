@@ -14,7 +14,7 @@ from pathlib import Path
 class TestNoBackwardCompatibilityMarkers:
     """Ensure no backward compatibility markers exist in source code."""
 
-    def test_no_backward_compat_in_showcase_source(self):
+    def test_no_backward_compat_in_yamlgraph_source(self):
         """Source files should not contain 'backward compatibility' markers.
 
         Allowed exceptions:
@@ -22,7 +22,7 @@ class TestNoBackwardCompatibilityMarkers:
         - Tests in this file
         """
         project_root = Path(__file__).parent.parent.parent
-        showcase_dir = project_root / "showcase"
+        yamlgraph_dir = project_root / "yamlgraph"
 
         result = subprocess.run(
             [
@@ -30,7 +30,7 @@ class TestNoBackwardCompatibilityMarkers:
                 "-rn",
                 "-i",
                 "backward compatib",
-                str(showcase_dir),
+                str(yamlgraph_dir),
                 "--include=*.py",
             ],
             capture_output=True,

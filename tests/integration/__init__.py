@@ -1,1 +1,1 @@
-"""Integration tests for langgraph-showcase."""
+"""Integration tests for yamlgraph."""

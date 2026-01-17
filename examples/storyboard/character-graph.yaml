@@ -2,11 +2,11 @@
 # Generates a character image first, then uses image-to-image editing for panels
 #
 # Usage:
-#   showcase graph run examples/storyboard/character-graph.yaml \
+#   yamlgraph graph run examples/storyboard/character-graph.yaml \
 #     --var concept="A detective solving a mystery"
 #
 #   # With HiDream (cartoon style):
-#   showcase graph run examples/storyboard/character-graph.yaml \
+#   yamlgraph graph run examples/storyboard/character-graph.yaml \
 #     --var concept="A robot learning emotions" \
 #     --var model="hidream"
 

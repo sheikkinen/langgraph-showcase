@@ -1,4 +1,4 @@
-"""Shared test fixtures for langgraph-showcase tests.
+"""Shared test fixtures for yamlgraph tests.
 
 This module provides test-only Pydantic models and fixtures for testing.
 These models are intentionally NOT imported from yamlgraph.models to
@@ -13,7 +13,7 @@ import pytest
 from pydantic import BaseModel, Field
 
 from yamlgraph.models import create_initial_state
-from yamlgraph.storage import ShowcaseDB
+from yamlgraph.storage import YamlGraphDB
 
 # =============================================================================
 # Test-Only Pydantic Models (Fixtures)
@@ -132,10 +132,10 @@ def empty_state() -> dict:
 
 
 @pytest.fixture
-def temp_db(tmp_path: Path) -> Generator[ShowcaseDB, None, None]:
+def temp_db(tmp_path: Path) -> Generator[YamlGraphDB, None, None]:
     """Temporary database for testing."""
     db_path = tmp_path / "test.db"
-    db = ShowcaseDB(db_path=db_path)
+    db = YamlGraphDB(db_path=db_path)
     yield db
 
 

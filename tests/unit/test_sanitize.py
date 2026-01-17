@@ -1,4 +1,4 @@
-"""Tests for showcase.utils.sanitize module."""
+"""Tests for yamlgraph.utils.sanitize module."""
 
 from yamlgraph.config import MAX_TOPIC_LENGTH
 from yamlgraph.utils.sanitize import sanitize_topic, sanitize_variables

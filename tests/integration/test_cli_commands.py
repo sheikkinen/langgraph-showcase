@@ -20,7 +20,7 @@ class TestGraphCommands:
             cwd=Path(__file__).parent.parent.parent,
         )
         assert result.returncode == 0
-        assert "showcase.yaml" in result.stdout
+        assert "yamlgraph.yaml" in result.stdout
         assert "Available graphs" in result.stdout
 
     def test_graph_list_shows_all_demos(self):
@@ -46,7 +46,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "validate",
-                "graphs/showcase.yaml",
+                "graphs/yamlgraph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -58,7 +58,7 @@ class TestGraphCommands:
     def test_graph_validate_all_demos(self):
         """'graph validate' succeeds for all demo graphs."""
         demos = [
-            "graphs/showcase.yaml",
+            "graphs/yamlgraph.yaml",
             "graphs/router-demo.yaml",
             "graphs/reflexion-demo.yaml",
             "graphs/git-report.yaml",
@@ -100,7 +100,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "info",
-                "graphs/showcase.yaml",
+                "graphs/yamlgraph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -118,7 +118,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "info",
-                "graphs/showcase.yaml",
+                "graphs/yamlgraph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -177,7 +177,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "run",
-                "graphs/showcase.yaml",
+                "graphs/yamlgraph.yaml",
                 "--var",
                 "invalid_no_equals",
             ],

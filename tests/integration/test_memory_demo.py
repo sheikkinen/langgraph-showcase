@@ -107,7 +107,7 @@ class TestCLIThreadFlag:
         parser = create_parser()
         # Parse with thread flag
         args = parser.parse_args(
-            ["graph", "run", "graphs/showcase.yaml", "--thread", "abc123"]
+            ["graph", "run", "graphs/yamlgraph.yaml", "--thread", "abc123"]
         )
         assert args.thread == "abc123"
 
@@ -116,7 +116,7 @@ class TestCLIThreadFlag:
         from yamlgraph.cli import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["graph", "run", "graphs/showcase.yaml"])
+        args = parser.parse_args(["graph", "run", "graphs/yamlgraph.yaml"])
         assert args.thread is None
 
 
@@ -128,7 +128,7 @@ class TestCLIExportFlag:
         from yamlgraph.cli import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["graph", "run", "graphs/showcase.yaml", "--export"])
+        args = parser.parse_args(["graph", "run", "graphs/yamlgraph.yaml", "--export"])
         assert args.export is True
 
     def test_graph_run_export_defaults_to_false(self):
@@ -136,7 +136,7 @@ class TestCLIExportFlag:
         from yamlgraph.cli import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["graph", "run", "graphs/showcase.yaml"])
+        args = parser.parse_args(["graph", "run", "graphs/yamlgraph.yaml"])
         assert args.export is False
 
 

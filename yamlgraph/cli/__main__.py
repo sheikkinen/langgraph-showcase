@@ -1,4 +1,4 @@
-"""Allow running showcase.cli as a module: python -m showcase.cli"""
+"""Allow running yamlgraph.cli as a module: python -m yamlgraph.cli"""
 
 from yamlgraph.cli import main
 

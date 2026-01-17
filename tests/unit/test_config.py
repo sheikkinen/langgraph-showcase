@@ -1,4 +1,4 @@
-"""Tests for showcase.config module."""
+"""Tests for yamlgraph.config module."""
 
 from yamlgraph.config import (
     DATABASE_PATH,

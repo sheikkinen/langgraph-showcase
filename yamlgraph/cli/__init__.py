@@ -1,14 +1,14 @@
-"""Showcase CLI - Command-line interface for the showcase app.
+"""YamlGraph CLI - Command-line interface for yamlgraph.
 
 This package provides the CLI entry point and command implementations.
 
 Usage:
-    showcase graph run graphs/showcase.yaml --var topic="AI" --var style=casual
-    showcase graph run graphs/router-demo.yaml --var message="hello"
-    showcase graph list
-    showcase list-runs
-    showcase resume --thread-id abc123
-    showcase trace --run-id <run-id>
+    yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
+    yamlgraph graph run graphs/router-demo.yaml --var message="hello"
+    yamlgraph graph list
+    yamlgraph list-runs
+    yamlgraph resume --thread-id abc123
+    yamlgraph trace --run-id <run-id>
 """
 
 import argparse

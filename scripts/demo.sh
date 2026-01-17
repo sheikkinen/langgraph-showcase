@@ -1,7 +1,7 @@
 #!/bin/bash
-# Demo script - runs all YAMLGraph demos
+# Demo script - runs all YamlGraph demos
 # Usage: ./demo.sh [demo_name]
-#   demo_name: router | showcase | reflexion | git | memory | map | storyboard | all (default)
+#   demo_name: router | yamlgraph | reflexion | git | memory | map | storyboard | all (default)
 
 set -e
 
@@ -31,8 +31,8 @@ demo_router() {
         --var message="I absolutely love this product"
 }
 
-demo_showcase() {
-    run_demo "Showcase Pipeline" "graphs/showcase.yaml" \
+demo_yamlgraph() {
+    run_demo "YamlGraph Demo Pipeline" "graphs/yamlgraph.yaml" \
         --var topic=AI --var style=casual
 }
 
@@ -62,13 +62,13 @@ demo_storyboard() {
 }
 
 print_usage() {
-    echo -e "${YELLOW}YAMLGraph Demos${NC}"
+    echo -e "${YELLOW}YamlGraph Demos${NC}"
     echo ""
     echo "Usage: ./demo.sh [demo_name]"
     echo ""
     echo "Available demos:"
     echo "  router     - Tone-based routing (positive/negative/neutral)"
-    echo "  showcase   - Content generation pipeline (generate → analyze → summarize)"
+    echo "  yamlgraph  - Content generation pipeline (generate → analyze → summarize)"
     echo "  reflexion  - Self-refinement loop (draft → critique → refine)"
     echo "  git        - AI agent with git tools"
     echo "  memory     - Agent with conversation memory"
@@ -85,8 +85,8 @@ case "${1:-all}" in
     router)
         demo_router
         ;;
-    showcase)
-        demo_showcase
+    yamlgraph)
+        demo_yamlgraph
         ;;
     reflexion)
         demo_reflexion
@@ -104,9 +104,9 @@ case "${1:-all}" in
         demo_storyboard
         ;;
     all)
-        echo -e "${YELLOW}🚀 Running all YAMLGraph demos...${NC}"
+        echo -e "${YELLOW}🚀 Running all YamlGraph demos...${NC}"
         demo_router
-        demo_showcase
+        demo_yamlgraph
         demo_reflexion
         demo_git
         demo_memory

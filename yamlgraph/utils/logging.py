@@ -1,4 +1,4 @@
-"""Structured logging configuration for the showcase app.
+"""Structured logging configuration for yamlgraph.
 
 Provides consistent logging across all modules with JSON-formatted
 output for production environments.
@@ -50,7 +50,7 @@ def setup_logging(
     level: str | None = None,
     use_json: bool | None = None,
 ) -> logging.Logger:
-    """Configure logging for the showcase app.
+    """Configure logging for yamlgraph.
 
     Args:
         level: Log level (DEBUG, INFO, WARNING, ERROR).
@@ -59,7 +59,7 @@ def setup_logging(
                   Defaults to LOG_FORMAT=json env var.
 
     Returns:
-        Root logger for the showcase package
+        Root logger for the yamlgraph package
     """
     if level is None:
         level = os.getenv("LOG_LEVEL", "INFO")
@@ -67,8 +67,8 @@ def setup_logging(
     if use_json is None:
         use_json = os.getenv("LOG_FORMAT", "").lower() == "json"
 
-    # Get the showcase logger
-    logger = logging.getLogger("showcase")
+    # Get the yamlgraph logger
+    logger = logging.getLogger("yamlgraph")
     logger.setLevel(getattr(logging, level.upper()))
 
     # Remove existing handlers

@@ -88,7 +88,7 @@ class TestGetProjectName:
     def test_default_value(self):
         """Returns default when no env vars."""
         with patch.dict(os.environ, {}, clear=True):
-            assert get_project_name() == "showcase-app"
+            assert get_project_name() == "yamlgraph"
 
 
 # =============================================================================

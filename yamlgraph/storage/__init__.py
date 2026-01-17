@@ -1,6 +1,6 @@
 """Storage utilities for persistence and export."""
 
-from yamlgraph.storage.database import ShowcaseDB
+from yamlgraph.storage.database import YamlGraphDB
 from yamlgraph.storage.export import (
     export_state,
     export_summary,
@@ -9,7 +9,7 @@ from yamlgraph.storage.export import (
 )
 
 __all__ = [
-    "ShowcaseDB",
+    "YamlGraphDB",
     "export_state",
     "export_summary",
     "list_exports",

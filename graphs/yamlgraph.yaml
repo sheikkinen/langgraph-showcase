@@ -1,8 +1,8 @@
-# Showcase Pipeline - YAML Graph Definition
-# Replaces Python-defined graph in builder.py
+# YamlGraph Demo Pipeline - YAML Graph Definition
+# Example pipeline showing generate → analyze → summarize flow
 
 version: "1.0"
-name: showcase
+name: yamlgraph-demo
 description: Content generation pipeline (generate → analyze → summarize)
 
 defaults:

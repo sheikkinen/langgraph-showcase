@@ -98,8 +98,8 @@ class ConnectionPool:
             self._total_connections = 0
 
 
-class ShowcaseDB:
-    """SQLite wrapper for showcase state persistence.
+class YamlGraphDB:
+    """SQLite wrapper for yamlgraph state persistence.
 
     Supports two connection modes:
     - Default: Creates new connection per operation (simple, safe)
@@ -107,10 +107,10 @@ class ShowcaseDB:
 
     Example:
         # Default mode (simple)
-        db = ShowcaseDB()
+        db = YamlGraphDB()
 
         # Pooled mode (high-throughput)
-        db = ShowcaseDB(use_pool=True, pool_size=10)
+        db = YamlGraphDB(use_pool=True, pool_size=10)
     """
 
     def __init__(
@@ -122,7 +122,7 @@ class ShowcaseDB:
         """Initialize database connection.
 
         Args:
-            db_path: Path to SQLite database file (default: outputs/showcase.db)
+            db_path: Path to SQLite database file (default: outputs/yamlgraph.db)
             use_pool: Enable connection pooling for high-throughput scenarios
             pool_size: Maximum connections in pool (only used if use_pool=True)
         """

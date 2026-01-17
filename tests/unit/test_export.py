@@ -1,4 +1,4 @@
-"""Tests for showcase.storage.export module."""
+"""Tests for yamlgraph.storage.export module."""
 
 import json
 

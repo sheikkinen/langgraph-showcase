@@ -159,15 +159,15 @@ class TestCompileGraph:
 class TestLoadAndCompile:
     """Integration tests for full load-compile flow."""
 
-    def test_load_and_compile_showcase(self):
-        """Load the actual showcase.yaml and compile it."""
+    def test_load_and_compile_yamlgraph(self):
+        """Load the actual yamlgraph.yaml and compile it."""
         from yamlgraph.config import PROJECT_ROOT
 
-        showcase_path = PROJECT_ROOT / "graphs" / "yamlgraph.yaml"
-        if not showcase_path.exists():
+        yamlgraph_path = PROJECT_ROOT / "graphs" / "yamlgraph.yaml"
+        if not yamlgraph_path.exists():
             pytest.skip("yamlgraph.yaml not created yet")
 
-        graph = load_and_compile(showcase_path)
+        graph = load_and_compile(yamlgraph_path)
         compiled = graph.compile()
 
         assert compiled is not None
