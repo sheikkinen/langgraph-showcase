@@ -132,13 +132,13 @@ class TestResolvePromptPath:
 
         from yamlgraph.node_factory import resolve_prompt_path
 
-        # Simple prompt
-        path = resolve_prompt_path("simple", str(prompt_dir))
-        assert path.endswith("simple.yaml")
+        # Simple prompt - now returns Path object
+        path = resolve_prompt_path("simple", prompt_dir)
+        assert path.name == "simple.yaml"
 
         # Nested prompt
-        path = resolve_prompt_path("nested/deep", str(prompt_dir))
-        assert path.endswith("deep.yaml")
+        path = resolve_prompt_path("nested/deep", prompt_dir)
+        assert path.name == "deep.yaml"
 
     def test_resolve_missing_prompt_raises(self, tmp_path):
         """Missing prompt file raises FileNotFoundError."""
@@ -148,4 +148,4 @@ class TestResolvePromptPath:
         from yamlgraph.node_factory import resolve_prompt_path
 
         with pytest.raises(FileNotFoundError):
-            resolve_prompt_path("nonexistent", str(prompt_dir))
+            resolve_prompt_path("nonexistent", prompt_dir)

@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions - LangGraph Showcase
+# GitHub Copilot Instructions - YAMLGraph
 
 ## Core Technologies
 - **LangGraph**: Pipeline orchestration with state management
@@ -17,7 +17,8 @@
 ### 1. YAML Prompts with Jinja2 Support
 - **ALL prompts MUST be in YAML files** under `prompts/`
 - Never hardcode prompts in Python
-- Use shared `execute_prompt()` from `showcase.executor`
+- Use shared `execute_prompt()` from `yamlgraph.executor`
+- Use `load_prompt()` and `resolve_prompt_path()` from `yamlgraph.utils.prompts`
 - **Simple templates**: Use `{variable}` for basic substitution
 - **Advanced templates**: Use Jinja2 syntax for loops, conditionals, filters
   - Loops: `{% for item in items %}...{% endfor %}`
@@ -26,19 +27,21 @@
 - Template engine auto-detects: `{{` or `{%` triggers Jinja2 mode
 
 ### 2. Multi-Provider LLM Factory
-- **Use factory**: `from showcase.utils.llm_factory import create_llm`
+- **Use factory**: `from yamlgraph.utils.llm_factory import create_llm`
 - **Never import providers directly** in nodes (use factory)
 - **Provider selection**: Parameter > YAML metadata > env var > default
 - **Caching**: Factory handles LLM instance caching
 - Supported: `"anthropic"`, `"mistral"`, `"openai"`
 
 ### 3. Pydantic for All Outputs
-- All LLM outputs use Pydantic models in `showcase/models/schemas.py`
+- All LLM outputs use Pydantic models in `yamlgraph/models/schemas.py`
+- Or define inline schemas in YAML prompt files (preferred for graph-specific outputs)
 - Define fields with `Field(description="...")`
 - Inherit from `pydantic.BaseModel`
 
 ### 4. LangGraph State Pattern
-- State is `ShowcaseState` (TypedDict with `total=False`)
+- State is dynamically generated from YAML graph config (no manual state.py needed)
+- Built via `build_state_class()` from `yamlgraph.models.state_builder`
 - Nodes return `dict` with partial updates
 - Never mutate state directly
 
@@ -46,6 +49,8 @@
 Error handling is built into `graph_loader.py` for YAML-defined nodes.
 For custom Python nodes:
 ```python
+from yamlgraph.models import PipelineError
+
 try:
     result = execute_prompt(...)
     return {"field": result, "current_step": "node_name"}

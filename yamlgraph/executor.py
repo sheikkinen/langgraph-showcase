@@ -7,10 +7,8 @@ with support for structured outputs via Pydantic models.
 import logging
 import threading
 import time
-from pathlib import Path
 from typing import Type, TypeVar
 
-import yaml
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel
@@ -18,11 +16,11 @@ from pydantic import BaseModel
 from yamlgraph.config import (
     DEFAULT_TEMPERATURE,
     MAX_RETRIES,
-    PROMPTS_DIR,
     RETRY_BASE_DELAY,
     RETRY_MAX_DELAY,
 )
 from yamlgraph.utils.llm_factory import create_llm
+from yamlgraph.utils.prompts import load_prompt
 from yamlgraph.utils.template import validate_variables
 
 logger = logging.getLogger(__name__)
@@ -51,37 +49,6 @@ def is_retryable(exception: Exception) -> bool:
     """
     exc_name = type(exception).__name__
     return exc_name in RETRYABLE_EXCEPTIONS or "rate" in exc_name.lower()
-
-
-def load_prompt(prompt_name: str) -> dict:
-    """Load a YAML prompt template.
-
-    Search order:
-    1. prompts/{prompt_name}.yaml
-    2. {parent}/prompts/{basename}.yaml (for external examples like examples/storyboard/...)
-
-    Args:
-        prompt_name: Name of the prompt file (without .yaml extension)
-
-    Returns:
-        Dictionary with 'system' and 'user' keys
-    """
-    # Try standard location first
-    prompt_path = PROMPTS_DIR / f"{prompt_name}.yaml"
-    if prompt_path.exists():
-        with open(prompt_path) as f:
-            return yaml.safe_load(f)
-
-    # Try external example location: {parent}/prompts/{basename}.yaml
-    parts = prompt_name.rsplit("/", 1)
-    if len(parts) == 2:
-        parent_dir, basename = parts
-        alt_path = Path(parent_dir) / "prompts" / f"{basename}.yaml"
-        if alt_path.exists():
-            with open(alt_path) as f:
-                return yaml.safe_load(f)
-
-    raise FileNotFoundError(f"Prompt not found: {prompt_path}")
 
 
 def format_prompt(

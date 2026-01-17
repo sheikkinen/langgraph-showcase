@@ -22,6 +22,7 @@ from yamlgraph.error_handlers import (
 )
 from yamlgraph.executor import execute_prompt
 from yamlgraph.utils.expressions import resolve_template
+from yamlgraph.utils.prompts import resolve_prompt_path
 
 # Type alias for dynamic state
 GraphState = dict[str, Any]
@@ -55,45 +56,6 @@ def resolve_class(class_path: str) -> type:
     module_path, class_name = parts
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
-
-
-def resolve_prompt_path(prompt_name: str, prompts_dir: str | None = None) -> str:
-    """Resolve a prompt name to its full YAML file path.
-
-    Search order:
-    1. prompts_dir/{prompt_name}.yaml (default: prompts/)
-    2. {prompt_name}/prompts/{basename}.yaml (for external examples)
-
-    Args:
-        prompt_name: Prompt name like "greet" or "examples/storyboard/expand_story"
-        prompts_dir: Base prompts directory (defaults to "prompts/")
-
-    Returns:
-        Full path to the YAML file
-
-    Raises:
-        FileNotFoundError: If prompt file doesn't exist
-    """
-    import os
-
-    if prompts_dir is None:
-        prompts_dir = os.environ.get("PROMPTS_DIR", "prompts")
-
-    # Try standard location first: prompts/{prompt_name}.yaml
-    yaml_path = os.path.join(prompts_dir, f"{prompt_name}.yaml")
-    if os.path.exists(yaml_path):
-        return yaml_path
-
-    # Try external example location: {parent}/prompts/{basename}.yaml
-    # e.g., "examples/storyboard/expand_story" -> "examples/storyboard/prompts/expand_story.yaml"
-    parts = prompt_name.rsplit("/", 1)
-    if len(parts) == 2:
-        parent_dir, basename = parts
-        alt_path = os.path.join(parent_dir, "prompts", f"{basename}.yaml")
-        if os.path.exists(alt_path):
-            return alt_path
-
-    raise FileNotFoundError(f"Prompt not found: {yaml_path}")
 
 
 def get_output_model_for_node(

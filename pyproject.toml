@@ -52,3 +52,23 @@ select = [
 ignore = [
     "E501",   # Line too long (handled by formatter)
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "strict"
+addopts = "--cov=yamlgraph --cov-report=term-missing --cov-fail-under=70"
+
+[tool.coverage.run]
+source = ["yamlgraph"]
+omit = [
+    "yamlgraph/cli/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Demo script - runs all LangGraph Showcase demos
+# Demo script - runs all YAMLGraph demos
 # Usage: ./demo.sh [demo_name]
 #   demo_name: router | showcase | reflexion | git | memory | map | storyboard | all (default)
 
@@ -21,7 +21,7 @@ run_demo() {
     echo -e "${GREEN}▶ Running: ${name}${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    python -m showcase.cli graph run "$graph" "${vars[@]}"
+    python -m yamlgraph.cli graph run "$graph" "${vars[@]}"
 
     echo -e "${GREEN}✓ ${name} completed${NC}"
 }
@@ -62,7 +62,7 @@ demo_storyboard() {
 }
 
 print_usage() {
-    echo -e "${YELLOW}LangGraph Showcase Demos${NC}"
+    echo -e "${YELLOW}YAMLGraph Demos${NC}"
     echo ""
     echo "Usage: ./demo.sh [demo_name]"
     echo ""
@@ -79,7 +79,7 @@ print_usage() {
 }
 
 # Main
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 case "${1:-all}" in
     router)
@@ -104,7 +104,7 @@ case "${1:-all}" in
         demo_storyboard
         ;;
     all)
-        echo -e "${YELLOW}🚀 Running all LangGraph Showcase demos...${NC}"
+        echo -e "${YELLOW}🚀 Running all YAMLGraph demos...${NC}"
         demo_router
         demo_showcase
         demo_reflexion

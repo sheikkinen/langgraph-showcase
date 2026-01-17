@@ -16,6 +16,7 @@ Example YAML schema:
 """
 
 import re
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -141,7 +142,7 @@ def build_pydantic_model(schema: dict) -> type:
 # =============================================================================
 
 
-def load_schema_from_yaml(yaml_path: str) -> type | None:
+def load_schema_from_yaml(yaml_path: str | Path) -> type | None:
     """Load a Pydantic model from a prompt YAML file's schema block.
 
     Args:

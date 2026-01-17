@@ -16,6 +16,7 @@ from yamlgraph.utils.langsmith import (
     print_run_tree,
 )
 from yamlgraph.utils.logging import get_logger, setup_logging
+from yamlgraph.utils.prompts import load_prompt, load_prompt_path, resolve_prompt_path
 from yamlgraph.utils.template import extract_variables, validate_variables
 
 __all__ = [
@@ -36,6 +37,10 @@ __all__ = [
     # Logging
     "get_logger",
     "setup_logging",
+    # Prompts
+    "resolve_prompt_path",
+    "load_prompt",
+    "load_prompt_path",
     # Template utilities
     "extract_variables",
     "validate_variables",
