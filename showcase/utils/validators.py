@@ -82,6 +82,54 @@ def validate_edges(edges: list[dict[str, Any]]) -> None:
         if "to" not in edge:
             raise ValueError(f"Edge {i} missing required 'to' field")
 
+        # Validate condition expressions at load time
+        if "condition" in edge:
+            validate_condition_expression(edge["condition"], i)
+
+
+def validate_condition_expression(condition: str, edge_index: int) -> None:
+    """Validate a condition expression has valid syntax.
+
+    Performs compile-time validation of condition expressions to catch
+    syntax errors early rather than at runtime.
+
+    Supports two condition types:
+    1. Routing keywords: "continue", "end" (legacy pattern)
+    2. Expression conditions: "score < 0.8", "a.b >= 1 and c == 'done'"
+
+    Args:
+        condition: Condition expression like "score < 0.8" or "continue"
+        edge_index: Edge index for error messages
+
+    Raises:
+        ValueError: If condition has invalid syntax
+    """
+    import re
+
+    # Special routing keywords (legacy pattern - deprecated but supported)
+    routing_keywords = {"continue", "end"}
+    if condition.strip().lower() in routing_keywords:
+        return  # Valid routing keyword
+
+    # Expression syntax check - must match comparison pattern
+    # Valid: "score < 0.8", "a.b >= 1", "x == 'done'"
+    # Also valid: compound expressions "a > 1 and b < 2"
+    comparison_pattern = r"[a-zA-Z_][\w.]*\s*(<=|>=|==|!=|<|>)\s*.+"
+    compound_pattern = r"\s+(and|or)\s+"
+
+    # Split by and/or and validate each part
+    parts = re.split(compound_pattern, condition, flags=re.IGNORECASE)
+    # parts includes the 'and'/'or' tokens, so filter to just comparisons
+    comparisons = [p.strip() for p in parts if p.strip().lower() not in ("and", "or")]
+
+    for part in comparisons:
+        if not re.match(comparison_pattern, part.strip()):
+            raise ValueError(
+                f"Edge {edge_index} has invalid condition syntax: '{condition}'. "
+                f"Expected format: 'field <op> value' (e.g., 'score < 0.8') or "
+                f"routing keyword ('continue', 'end')"
+            )
+
 
 def validate_on_error(node_name: str, node_config: dict[str, Any]) -> None:
     """Validate on_error value is valid.

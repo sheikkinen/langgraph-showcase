@@ -16,7 +16,11 @@ class NodeConfig(BaseModel):
     type: str = Field(default=NodeType.LLM, description="Node type")
     prompt: str | None = Field(default=None, description="Prompt template name")
     state_key: str | None = Field(default=None, description="State key for output")
-    output_key: str | None = Field(default=None, description="Output key (deprecated)")
+    output_key: str | None = Field(
+        default=None,
+        description="Deprecated: Use state_key instead. Will be removed in v2.0.",
+        deprecated=True,
+    )
     temperature: float | None = Field(default=None, ge=0, le=2)
     provider: str | None = Field(default=None)
     on_error: str | None = Field(default=None)

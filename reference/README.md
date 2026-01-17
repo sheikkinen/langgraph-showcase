@@ -90,7 +90,7 @@ Copy-paste patterns for common use cases:
 | Graphs | `graphs/*.yaml` | `graphs/showcase.yaml` |
 | Prompts | `prompts/*.yaml` | `prompts/generate.yaml` |
 | Grouped prompts | `prompts/group/*.yaml` | `prompts/router-demo/classify.yaml` |
-| State classes | `showcase/models/state.py` | `ShowcaseState`, `AgentState` |
+| State classes | Auto-generated from YAML | `build_state_class(config)` |
 | Output schemas | Inline in prompt YAML | `schema:` block |
 
 ---

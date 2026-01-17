@@ -5,6 +5,7 @@ which node to route to based on state values and expressions.
 """
 
 import logging
+import warnings
 from collections.abc import Callable
 from typing import Any
 
@@ -21,7 +22,9 @@ logger = logging.getLogger(__name__)
 def should_continue(state: GraphState) -> str:
     """Default routing condition: continue or end.
 
-    Legacy router for continue/end style conditional edges.
+    .. deprecated:: 1.0
+        Use expression-based routing with `make_expr_router_fn` instead.
+        Will be removed in v2.0.
 
     Args:
         state: Current pipeline state
@@ -29,6 +32,11 @@ def should_continue(state: GraphState) -> str:
     Returns:
         'continue' if should proceed, 'end' if should stop
     """
+    warnings.warn(
+        "should_continue is deprecated. Use expression-based routing instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if state.get("error") is not None:
         return "end"
     if state.get("generated") is None:

@@ -98,7 +98,8 @@ showcase/
 │   ├── models/           # Pydantic models
 │   │   ├── __init__.py
 │   │   ├── schemas.py    # Framework schemas (ErrorType, PipelineError, GenericReport)
-│   │   └── state.py      # LangGraph state definition
+│   │   ├── state_builder.py  # Dynamic state generation from YAML
+│   │   └── graph_schema.py   # Pydantic schema validation
 │   │
 │   ├── tools/            # Tool execution
 │   │   ├── __init__.py
@@ -483,11 +484,16 @@ user: |
   Identify key claims and assess their verifiability.
 ```
 
-**Step 3: Add to state** (`showcase/models/state.py`):
-```python
-class ShowcaseState(TypedDict, total=False):
-    # ... existing fields ...
-    fact_check: FactCheck | None  # Add new field
+**Step 3: State is auto-generated**
+
+State fields are now generated automatically from your YAML graph config.
+The `state_key` in your node config determines where output is stored:
+```yaml
+# Node output stored in state.fact_check automatically
+fact_check:
+  type: llm
+  prompt: fact_check
+  state_key: fact_check  # This creates the state field
 ```
 
 **Step 4: Add the node to your graph** (`graphs/showcase.yaml`):
@@ -652,6 +658,7 @@ tools:
 - ✅ **Command templates** (from YAML) are trusted configuration
 - ✅ **Variable values** (from user input/LLM) are escaped with `shlex.quote()`
 - ✅ **Complex types** (lists, dicts) are JSON-serialized then quoted
+- ✅ **No `eval()`** - condition expressions parsed with regex, not evaluated
 
 **Example protection:**
 ```python
@@ -661,6 +668,20 @@ variables = {"author": "$(rm -rf /)"}
 ```
 
 See [showcase/tools/shell.py](showcase/tools/shell.py) for implementation details.
+
+### ⚠️ Security Considerations
+
+**Shell tools execute real commands** on your system. While variables are sanitized:
+
+1. **Command templates are trusted** - Only use shell tools from trusted YAML configs
+2. **No sandboxing** - Commands run with your user permissions
+3. **Agent autonomy** - Agent nodes may call tools unpredictably
+4. **Review tool definitions** - Audit `tools:` section in graph YAML before running
+
+For production deployments, consider:
+- Running in a container with limited permissions
+- Restricting available tools to read-only operations
+- Implementing approval workflows for sensitive operations
 
 ## License
 
