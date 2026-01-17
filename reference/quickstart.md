@@ -62,7 +62,7 @@ edges:
 ## Step 3: Run It
 
 ```bash
-python run.py --graph graphs/my_pipeline.yaml --topic "Alice" --style "formal"
+showcase graph run graphs/my_pipeline.yaml --var name="Alice" --var style="formal"
 ```
 
 Or programmatically:
@@ -177,10 +177,9 @@ my-project/
 │   └── router-demo/          # Grouped prompts
 │       ├── classify.yaml
 │       └── respond.yaml
-├── showcase/
-│   └── models/
-│       └── state.py          # Custom state if needed
-└── run.py
+└── showcase/
+    └── models/
+        └── state.py          # Custom state if needed
 ```
 
 ---

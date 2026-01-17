@@ -6,7 +6,7 @@
 # 3. Generate character base image + 9 panel frames via img2img
 #
 # Usage:
-#   python run.py graph run examples/storyboard/animated-character-graph.yaml \
+#   showcase graph run examples/storyboard/animated-character-graph.yaml \
 #     --var concept="A detective solving a mystery" --var model=hidream
 
 name: animated-character-storyboard

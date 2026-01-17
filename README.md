@@ -80,7 +80,6 @@ showcase/
 ├── pyproject.toml        # Package definition with CLI entry point
 ├── requirements.txt      # Dependencies
 ├── .env.sample           # Environment template
-├── run.py                # Simple entry point
 │
 ├── graphs/               # YAML graph definitions
 │   ├── showcase.yaml     # Main pipeline definition
@@ -154,7 +153,7 @@ graph TD
     B -->|"✗ error/empty"| F["🛑 END"]
     C -->|analysis| D["📊 summarize"]
     D -->|final_summary| F
-    
+
     style A fill:#e1f5fe
     style C fill:#fff3e0
     style D fill:#e8f5e9
@@ -213,7 +212,7 @@ user: |
 # prompts/analyze_list.yaml
 template: |
   Analyze the following {{ items|length }} items:
-  
+
   {% for item in items %}
   ### {{ loop.index }}. {{ item.title }}
   Topic: {{ item.topic }}
@@ -268,7 +267,7 @@ result = execute_prompt(
 
 Supported providers:
 - **Anthropic** (default): Claude models
-- **Mistral**: Mistral Large and other models  
+- **Mistral**: Mistral Large and other models
 - **OpenAI**: GPT-4 and other models
 
 Provider selection priority:
@@ -385,7 +384,7 @@ tools:
     type: shell
     command: git log --oneline -n {count}
     description: "List recent commits"
-    
+
   changed_files:
     type: shell
     command: git diff --name-only HEAD~{n}
@@ -464,7 +463,7 @@ Let's add a "fact_check" node that verifies generated content:
 ```python
 class FactCheck(BaseModel):
     """Structured fact-checking output."""
-    
+
     claims: list[str] = Field(description="Claims identified in content")
     verified: bool = Field(description="Whether claims are verifiable")
     confidence: float = Field(ge=0.0, le=1.0, description="Verification confidence")
@@ -480,7 +479,7 @@ system: |
 user: |
   Content to fact-check:
   {content}
-  
+
   Identify key claims and assess their verifiability.
 ```
 
@@ -556,14 +555,14 @@ edges:
       type: field_equals
       field: analysis.sentiment
       value: negative
-  
+
   - from: analyze
     to: enhance_node
     condition:
       type: field_equals
       field: analysis.sentiment
       value: positive
-  
+
   - from: analyze
     to: summarize  # Default fallback
 ```
