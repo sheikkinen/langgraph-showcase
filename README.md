@@ -690,9 +690,23 @@ This project demonstrates solid production patterns with declarative YAML-based 
 
 ### Potential Enhancements
 
-1. **Add streaming** - `--stream` CLI flag for real-time output
-2. **JSON Schema validation** - Validate `graphs/*.yaml` against schema
-3. **Sub-graphs** - Nested graph composition for complex workflows
+#### Short-term (Quick Wins)
+1. **Add `in` operator to conditions** - Support `status in ["done", "complete"]` expressions
+2. **Document agent `max_iterations`** - Expose in YAML schema for agent nodes
+3. **Add `--dry-run` flag** - Validate graph without execution
+
+#### Medium-term (Feature Improvements)
+4. **Async map node execution** - Use `asyncio.gather()` for parallel branches
+5. **State field collision warnings** - Log when YAML fields override base fields
+6. **Map node error aggregation** - Summary with success/failure counts per branch
+7. **Add streaming** - `--stream` CLI flag for real-time output
+
+#### Long-term (Architecture)
+8. **Plugin system** - Custom node types via entry points
+9. **Hot-reload for development** - File watcher for prompt/graph YAML changes
+10. **OpenTelemetry integration** - Complement LangSmith with standard observability
+11. **Sub-graphs** - Nested graph composition for complex workflows
+12. **Human-in-the-loop** - `interrupt_before` / `interrupt_after` demonstration
 
 ## Security
 
