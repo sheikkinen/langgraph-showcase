@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from showcase.graph_loader import GraphConfig, compile_graph
+from yamlgraph.graph_loader import GraphConfig, compile_graph
 
 
 def make_graph_config(nodes: dict, edges: list) -> GraphConfig:
@@ -44,7 +44,7 @@ class TestCompileGraphMap:
             ],
         )
 
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             # Setup mock return value
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_process_items_sub")
@@ -71,7 +71,7 @@ class TestCompileGraphMap:
             ],
         )
 
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_map_node_sub")
 
@@ -97,7 +97,7 @@ class TestCompileGraphMap:
             ],
         )
 
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_map_node_sub")
 
@@ -122,7 +122,7 @@ class TestCompileGraphMap:
             ],
         )
 
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_map_node_sub")
 

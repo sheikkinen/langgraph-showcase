@@ -20,7 +20,7 @@ class TestAgentReturnsMessages:
 
     def test_agent_returns_messages_in_state(self):
         """Agent node should return messages for state accumulation."""
-        from showcase.tools.agent import create_agent_node
+        from yamlgraph.tools.agent import create_agent_node
 
         # Setup mock LLM
         mock_response = MagicMock()
@@ -31,7 +31,7 @@ class TestAgentReturnsMessages:
         mock_llm.bind_tools.return_value = mock_llm
         mock_llm.invoke.return_value = mock_response
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
             node_fn = create_agent_node(
                 "agent",
                 {"tools": [], "state_key": "result"},
@@ -41,14 +41,14 @@ class TestAgentReturnsMessages:
 
         # Should include messages in output
         assert "messages" in result, "Agent should return messages for accumulation"
-        assert len(result["messages"]) >= 2, (
-            "Should have at least system + user + AI messages"
-        )
+        assert (
+            len(result["messages"]) >= 2
+        ), "Should have at least system + user + AI messages"
 
     def test_agent_messages_include_all_types(self):
         """Agent should include system, user, AI, and tool messages."""
-        from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
 
         # Mock LLM that calls a tool then responds
         # Use actual AIMessage for proper type checking
@@ -67,8 +67,8 @@ class TestAgentReturnsMessages:
             description="Test tool",
         )
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
-            with patch("showcase.tools.agent.execute_shell_tool") as mock_exec:
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
                 mock_exec.return_value = MagicMock(success=True, output="tool output")
 
                 node_fn = create_agent_node(
@@ -92,8 +92,8 @@ class TestToolResultsPersistence:
 
     def test_tool_results_stored_in_state(self):
         """Agent should store raw tool results in state."""
-        from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
 
         tool_response = MagicMock()
         tool_response.content = ""
@@ -114,8 +114,8 @@ class TestToolResultsPersistence:
             description="Get git log",
         )
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
-            with patch("showcase.tools.agent.execute_shell_tool") as mock_exec:
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
                 mock_exec.return_value = MagicMock(
                     success=True, output="commit abc123\nAuthor: Test"
                 )
@@ -142,7 +142,7 @@ class TestToolResultsPersistence:
 
     def test_tool_results_key_is_optional(self):
         """Without tool_results_key, raw results are not stored."""
-        from showcase.tools.agent import create_agent_node
+        from yamlgraph.tools.agent import create_agent_node
 
         mock_response = MagicMock()
         mock_response.content = "Done"
@@ -152,7 +152,7 @@ class TestToolResultsPersistence:
         mock_llm.bind_tools.return_value = mock_llm
         mock_llm.invoke.return_value = mock_response
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
             node_fn = create_agent_node(
                 "agent",
                 {"tools": [], "state_key": "result"},  # No tool_results_key
@@ -165,8 +165,8 @@ class TestToolResultsPersistence:
 
     def test_multiple_tool_calls_all_stored(self):
         """Multiple tool calls should all be stored."""
-        from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
 
         tool_response = MagicMock()
         tool_response.content = ""
@@ -188,8 +188,8 @@ class TestToolResultsPersistence:
             "tool_b": ShellToolConfig(command="echo b", description="B"),
         }
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
-            with patch("showcase.tools.agent.execute_shell_tool") as mock_exec:
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
                 mock_exec.return_value = MagicMock(success=True, output="output")
 
                 node_fn = create_agent_node(
@@ -214,7 +214,7 @@ class TestMultiTurnConversation:
 
     def test_existing_messages_preserved(self):
         """Agent should preserve existing messages from state."""
-        from showcase.tools.agent import create_agent_node
+        from yamlgraph.tools.agent import create_agent_node
 
         mock_response = MagicMock()
         mock_response.content = "Follow-up response"
@@ -231,7 +231,7 @@ class TestMultiTurnConversation:
             AIMessage(content="First answer"),
         ]
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
             node_fn = create_agent_node(
                 "agent",
                 {"tools": [], "state_key": "result"},
@@ -254,7 +254,7 @@ class TestMultiTurnConversation:
         from operator import add as add_op
         from typing import get_type_hints
 
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         State = build_state_class({"nodes": {"agent": {"type": "agent"}}})
         hints = get_type_hints(State, include_extras=True)
@@ -265,6 +265,6 @@ class TestMultiTurnConversation:
 
         # The Annotated type should have add as metadata
         if hasattr(messages_hint, "__metadata__"):
-            assert add_op in messages_hint.__metadata__, (
-                "messages should use add reducer"
-            )
+            assert (
+                add_op in messages_hint.__metadata__
+            ), "messages should use add reducer"

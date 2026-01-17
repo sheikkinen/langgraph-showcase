@@ -48,7 +48,7 @@ user: "Classify: {message}"
         }
 
         # This should work and detect inline schema
-        from showcase.node_factory import get_output_model_for_node
+        from yamlgraph.node_factory import get_output_model_for_node
 
         model = get_output_model_for_node(node_config, str(tmp_path / "prompts"))
 
@@ -82,10 +82,10 @@ user: "{input}"
         node_config = {
             "type": "llm",
             "prompt": "test/with_schema",
-            "output_model": "showcase.models.GenericReport",  # Explicit - takes precedence
+            "output_model": "yamlgraph.models.GenericReport",  # Explicit - takes precedence
         }
 
-        from showcase.node_factory import get_output_model_for_node
+        from yamlgraph.node_factory import get_output_model_for_node
 
         model = get_output_model_for_node(node_config, str(tmp_path / "prompts"))
 
@@ -111,7 +111,7 @@ user: "{input}"
             "prompt": "test/plain",
         }
 
-        from showcase.node_factory import get_output_model_for_node
+        from yamlgraph.node_factory import get_output_model_for_node
 
         model = get_output_model_for_node(node_config, str(tmp_path / "prompts"))
 
@@ -130,7 +130,7 @@ class TestResolvePromptPath:
         (prompt_dir / "nested").mkdir()
         (prompt_dir / "nested" / "deep.yaml").write_text("name: deep")
 
-        from showcase.node_factory import resolve_prompt_path
+        from yamlgraph.node_factory import resolve_prompt_path
 
         # Simple prompt
         path = resolve_prompt_path("simple", str(prompt_dir))
@@ -145,7 +145,7 @@ class TestResolvePromptPath:
         prompt_dir = tmp_path / "prompts"
         prompt_dir.mkdir()
 
-        from showcase.node_factory import resolve_prompt_path
+        from yamlgraph.node_factory import resolve_prompt_path
 
         with pytest.raises(FileNotFoundError):
             resolve_prompt_path("nonexistent", str(prompt_dir))

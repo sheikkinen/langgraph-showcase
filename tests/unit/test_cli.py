@@ -2,8 +2,8 @@
 
 import argparse
 
-from showcase.cli.validators import validate_run_args
-from showcase.config import MAX_TOPIC_LENGTH, MAX_WORD_COUNT, MIN_WORD_COUNT
+from yamlgraph.cli.validators import validate_run_args
+from yamlgraph.config import MAX_TOPIC_LENGTH, MAX_WORD_COUNT, MIN_WORD_COUNT
 
 
 class TestValidateRunArgs:
@@ -74,7 +74,7 @@ class TestFormatResult:
         """CLI should format any Pydantic model, not just known ones."""
         from pydantic import BaseModel
 
-        from showcase.cli.commands import _format_result
+        from yamlgraph.cli.commands import _format_result
 
         class CustomResult(BaseModel):
             title: str
@@ -93,7 +93,7 @@ class TestFormatResult:
 
     def test_format_result_skips_internal_keys(self, capsys):
         """Internal keys should be skipped."""
-        from showcase.cli.commands import _format_result
+        from yamlgraph.cli.commands import _format_result
 
         result = {
             "current_step": "done",
@@ -110,7 +110,7 @@ class TestFormatResult:
 
     def test_format_result_truncates_long_strings(self, capsys):
         """Long strings should be truncated."""
-        from showcase.cli.commands import _format_result
+        from yamlgraph.cli.commands import _format_result
 
         long_text = "x" * 500
         result = {"summary": long_text}

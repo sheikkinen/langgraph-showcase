@@ -6,8 +6,8 @@ in a loop until it has enough information to respond.
 
 from unittest.mock import MagicMock, patch
 
-from showcase.tools.agent import build_langchain_tool, create_agent_node
-from showcase.tools.shell import ShellToolConfig
+from yamlgraph.tools.agent import build_langchain_tool, create_agent_node
+from yamlgraph.tools.shell import ShellToolConfig
 
 
 class TestBuildLangchainTool:
@@ -45,7 +45,7 @@ class TestBuildLangchainTool:
 class TestCreateAgentNode:
     """Tests for create_agent_node function."""
 
-    @patch("showcase.tools.agent.create_llm")
+    @patch("yamlgraph.tools.agent.create_llm")
     def test_agent_completes_without_tools(self, mock_create_llm):
         """Agent can finish with no tool calls."""
         # Mock LLM that returns a direct answer (no tool calls)
@@ -73,7 +73,7 @@ class TestCreateAgentNode:
         assert result["result"] == "The answer is 42"
         assert result["_agent_iterations"] == 1
 
-    @patch("showcase.tools.agent.create_llm")
+    @patch("yamlgraph.tools.agent.create_llm")
     def test_agent_calls_tool(self, mock_create_llm):
         """LLM tool call executes shell command."""
         # Mock LLM that first calls a tool, then returns answer
@@ -111,7 +111,7 @@ class TestCreateAgentNode:
         assert result["result"] == "I echoed: test"
         assert result["_agent_iterations"] == 2
 
-    @patch("showcase.tools.agent.create_llm")
+    @patch("yamlgraph.tools.agent.create_llm")
     def test_max_iterations_enforced(self, mock_create_llm):
         """Stops after max_iterations reached."""
         # Mock LLM that always calls a tool (never finishes)
@@ -142,7 +142,7 @@ class TestCreateAgentNode:
         assert result["_agent_limit_reached"] is True
         assert mock_llm.invoke.call_count == 3
 
-    @patch("showcase.tools.agent.create_llm")
+    @patch("yamlgraph.tools.agent.create_llm")
     def test_tool_result_returned_to_llm(self, mock_create_llm):
         """LLM sees tool output in next turn."""
         mock_llm = MagicMock()

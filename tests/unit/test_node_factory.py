@@ -7,12 +7,12 @@ from unittest.mock import patch
 
 import pytest
 
-from showcase.node_factory import (
+from tests.conftest import FixtureGeneratedContent
+from yamlgraph.node_factory import (
     create_node_function,
     resolve_class,
     resolve_template,
 )
-from tests.conftest import FixtureGeneratedContent
 
 # =============================================================================
 # Fixtures
@@ -59,14 +59,14 @@ class TestResolveClass:
 
     def test_resolve_existing_class(self):
         """Import a real class from dotted path."""
-        cls = resolve_class("showcase.models.GenericReport")
+        cls = resolve_class("yamlgraph.models.GenericReport")
         # Just verify it resolves to a class with expected attributes
         assert cls is not None
         assert hasattr(cls, "model_fields")  # Pydantic model check
 
     def test_resolve_state_class(self):
         """Dynamic state class can be built."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         cls = build_state_class({"nodes": {}})
         # Dynamic state is a TypedDict
@@ -81,7 +81,7 @@ class TestResolveClass:
     def test_resolve_invalid_class_raises(self):
         """Invalid class name raises AttributeError."""
         with pytest.raises(AttributeError):
-            resolve_class("showcase.models.NonexistentClass")
+            resolve_class("yamlgraph.models.NonexistentClass")
 
 
 # =============================================================================
@@ -136,7 +136,7 @@ class TestCreateNodeFunction:
         node_config = {
             "type": "llm",
             "prompt": "generate",
-            "output_model": "showcase.models.GenericReport",
+            "output_model": "yamlgraph.models.GenericReport",
             "temperature": 0.8,
             "variables": {"topic": "{state.topic}"},
             "state_key": "generated",
@@ -150,7 +150,7 @@ class TestCreateNodeFunction:
         )
 
         with patch(
-            "showcase.node_factory.execute_prompt", return_value=mock_result
+            "yamlgraph.node_factory.execute_prompt", return_value=mock_result
         ) as mock:
             node_fn = create_node_function(
                 "generate", node_config, {"provider": "mistral"}
@@ -192,7 +192,7 @@ class TestCreateNodeFunction:
         }
 
         with patch(
-            "showcase.node_factory.execute_prompt", side_effect=ValueError("API Error")
+            "yamlgraph.node_factory.execute_prompt", side_effect=ValueError("API Error")
         ):
             node_fn = create_node_function("generate", node_config, {})
             result = node_fn(sample_state)
@@ -216,7 +216,7 @@ class TestCreateNodeFunction:
         )
 
         with patch(
-            "showcase.node_factory.execute_prompt", return_value=mock_result
+            "yamlgraph.node_factory.execute_prompt", return_value=mock_result
         ) as mock:
             node_fn = create_node_function("generate", node_config, defaults)
             node_fn(sample_state)

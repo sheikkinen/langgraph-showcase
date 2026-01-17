@@ -1,6 +1,6 @@
 """Integration test for Jinja2 prompt templates."""
 
-from showcase.executor import format_prompt, load_prompt
+from yamlgraph.executor import format_prompt, load_prompt
 
 
 def test_jinja2_analyze_list_prompt():

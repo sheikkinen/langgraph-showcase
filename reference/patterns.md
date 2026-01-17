@@ -1,6 +1,6 @@
 # Common Patterns
 
-This document showcases common patterns for building pipelines with the YAML-based graph system.
+This document yamlgraphs common patterns for building pipelines with the YAML-based graph system.
 
 ---
 
@@ -249,7 +249,7 @@ system: |
 
 user: |
   Review this content (iteration {iteration}):
-  
+
   {content}
 ```
 
@@ -320,20 +320,20 @@ edges:
 # prompts/analyzer.yaml
 system: |
   You are a code analyst with access to these tools:
-  
+
   1. **list_files**: List directory contents
      - directory: Path to list
-  
+
   2. **read_file**: Read a file
      - filepath: Path to the file
-  
+
   3. **search_code**: Search for patterns
      - pattern: Regex pattern
      - directory: Where to search
-  
+
   4. **run_tests**: Execute tests
      - test_path: Path to tests
-  
+
   Your task:
   1. Explore the codebase
   2. Identify patterns and issues
@@ -518,7 +518,7 @@ exports:
 ### AgentState Definition
 
 ```python
-# showcase/models/state.py
+# yamlgraph/models/state.py
 from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict, total=False):
@@ -670,13 +670,13 @@ See [Map Nodes Reference](map-nodes.md) for comprehensive documentation.
 variables:
   # Simple state access
   topic: "{state.topic}"
-  
+
   # Nested object access
   content: "{state.generated.content}"
-  
+
   # Loop counter
   iteration: "{state._loop_counts.node_name}"
-  
+
   # List (auto-joined with ", ")
   tags: "{state.analysis.tags}"
 ```

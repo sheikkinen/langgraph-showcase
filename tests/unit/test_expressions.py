@@ -3,7 +3,7 @@
 import pytest
 from pydantic import BaseModel
 
-from showcase.utils.expressions import (
+from yamlgraph.utils.expressions import (
     resolve_state_expression,
     resolve_state_path,
     resolve_template,

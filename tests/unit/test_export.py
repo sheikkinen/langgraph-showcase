@@ -2,8 +2,8 @@
 
 import json
 
-from showcase.storage.export import _serialize_state, export_state
 from tests.conftest import FixtureGeneratedContent
+from yamlgraph.storage.export import _serialize_state, export_state
 
 
 class TestExportState:
@@ -79,7 +79,7 @@ class TestExportSummaryGeneric:
         """export_summary should work with any Pydantic model, not just demo-specific ones."""
         from pydantic import BaseModel
 
-        from showcase.storage.export import export_summary
+        from yamlgraph.storage.export import export_summary
 
         class CustomModel(BaseModel):
             name: str
@@ -101,7 +101,7 @@ class TestExportSummaryGeneric:
         """export_summary should extract key scalar fields from any model."""
         from pydantic import BaseModel
 
-        from showcase.storage.export import export_summary
+        from yamlgraph.storage.export import export_summary
 
         class ReportContent(BaseModel):
             headline: str
@@ -127,7 +127,7 @@ class TestExportSummaryGeneric:
         import ast
         import inspect
 
-        from showcase.storage import export
+        from yamlgraph.storage import export
 
         source = inspect.getsource(export)
         tree = ast.parse(source)

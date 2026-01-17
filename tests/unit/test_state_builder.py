@@ -6,7 +6,7 @@ TDD: Red phase - these tests define the expected behavior.
 from operator import add
 from typing import Annotated, get_args, get_origin
 
-from showcase.models.state_builder import sorted_add
+from yamlgraph.models.state_builder import sorted_add
 
 
 class TestSortedAdd:
@@ -79,7 +79,7 @@ class TestBuildStateClass:
 
     def test_includes_base_infrastructure_fields(self):
         """State always has infrastructure fields."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -92,7 +92,7 @@ class TestBuildStateClass:
 
     def test_errors_has_reducer(self):
         """errors field uses Annotated[list, add] reducer."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -105,7 +105,7 @@ class TestBuildStateClass:
 
     def test_messages_has_reducer(self):
         """messages field uses Annotated[list, add] reducer."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -118,7 +118,7 @@ class TestBuildStateClass:
 
     def test_extracts_state_key_from_nodes(self):
         """state_key in node config becomes state field."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {
             "nodes": {
@@ -134,7 +134,7 @@ class TestBuildStateClass:
 
     def test_agent_node_adds_input_field(self):
         """Agent nodes automatically add 'input' field."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {
             "nodes": {
@@ -148,7 +148,7 @@ class TestBuildStateClass:
 
     def test_agent_node_adds_tool_results_field(self):
         """Agent nodes add _tool_results field."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {
             "nodes": {
@@ -162,7 +162,7 @@ class TestBuildStateClass:
 
     def test_router_node_adds_route_field(self):
         """Router nodes add _route field."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {
             "nodes": {
@@ -180,7 +180,7 @@ class TestBuildStateClass:
 
     def test_loop_tracking_fields_included(self):
         """Loop tracking fields are always included."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -192,7 +192,7 @@ class TestBuildStateClass:
 
     def test_state_is_typeddict_total_false(self):
         """Generated state is TypedDict with total=False (all optional)."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -204,7 +204,7 @@ class TestBuildStateClass:
         """Generated state class works with LangGraph StateGraph."""
         from langgraph.graph import StateGraph
 
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {
             "nodes": {
@@ -229,7 +229,7 @@ class TestBuildStateClass:
         """Messages reducer accumulates across nodes."""
         from langgraph.graph import StateGraph
 
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -251,7 +251,7 @@ class TestExtractNodeFields:
 
     def test_extracts_state_key(self):
         """Extracts state_key from nodes."""
-        from showcase.models.state_builder import extract_node_fields
+        from yamlgraph.models.state_builder import extract_node_fields
 
         nodes = {
             "gen": {"state_key": "generated"},
@@ -264,7 +264,7 @@ class TestExtractNodeFields:
 
     def test_agent_adds_special_fields(self):
         """Agent nodes add input and _tool_results."""
-        from showcase.models.state_builder import extract_node_fields
+        from yamlgraph.models.state_builder import extract_node_fields
 
         nodes = {"agent": {"type": "agent"}}
         fields = extract_node_fields(nodes)
@@ -274,7 +274,7 @@ class TestExtractNodeFields:
 
     def test_router_adds_route_field(self):
         """Router nodes add _route."""
-        from showcase.models.state_builder import extract_node_fields
+        from yamlgraph.models.state_builder import extract_node_fields
 
         nodes = {"router": {"type": "router", "routes": {}}}
         fields = extract_node_fields(nodes)
@@ -287,7 +287,7 @@ class TestCommonInputFields:
 
     def test_includes_topic_field(self):
         """topic field included for content generation."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -296,7 +296,7 @@ class TestCommonInputFields:
 
     def test_includes_style_field(self):
         """style field included for content generation."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -305,7 +305,7 @@ class TestCommonInputFields:
 
     def test_includes_word_count_field(self):
         """word_count field included for content generation."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -314,7 +314,7 @@ class TestCommonInputFields:
 
     def test_includes_message_field(self):
         """message field included for router."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)
@@ -323,7 +323,7 @@ class TestCommonInputFields:
 
     def test_includes_input_field(self):
         """input field included for agents."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         config = {"nodes": {}, "edges": []}
         State = build_state_class(config)

@@ -2,7 +2,7 @@
 
 from typing import Annotated, get_args, get_origin
 
-from showcase.models.state_builder import (
+from yamlgraph.models.state_builder import (
     build_state_class,
     extract_node_fields,
     sorted_add,

@@ -12,13 +12,13 @@ class TestGenericReportSchema:
 
     def test_generic_report_exists(self):
         """GenericReport model is importable."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         assert GenericReport is not None
 
     def test_minimal_report(self):
         """Report works with just title and summary."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Test Report",
@@ -30,7 +30,7 @@ class TestGenericReportSchema:
 
     def test_report_with_sections(self):
         """Sections field accepts arbitrary dict content."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Report",
@@ -48,7 +48,7 @@ class TestGenericReportSchema:
 
     def test_report_with_findings(self):
         """Findings field is list of strings."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Report",
@@ -61,7 +61,7 @@ class TestGenericReportSchema:
 
     def test_report_with_recommendations(self):
         """Recommendations field is list of strings."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Report",
@@ -73,7 +73,7 @@ class TestGenericReportSchema:
 
     def test_report_with_metadata(self):
         """Metadata field accepts arbitrary key-value data."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Report",
@@ -90,7 +90,7 @@ class TestGenericReportSchema:
 
     def test_defaults_are_empty(self):
         """Optional fields default to empty collections."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(title="Report", summary="Summary")
 
@@ -101,7 +101,7 @@ class TestGenericReportSchema:
 
     def test_title_is_required(self):
         """Title field is required."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         with pytest.raises(ValidationError) as exc_info:
             GenericReport(summary="Summary")
@@ -111,7 +111,7 @@ class TestGenericReportSchema:
 
     def test_summary_is_required(self):
         """Summary field is required."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         with pytest.raises(ValidationError) as exc_info:
             GenericReport(title="Title")
@@ -121,7 +121,7 @@ class TestGenericReportSchema:
 
     def test_model_serializes_to_dict(self):
         """Report serializes to dictionary."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Test",
@@ -139,7 +139,7 @@ class TestGenericReportSchema:
         """Report serializes to JSON string."""
         import json
 
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(title="Test", summary="Summary")
 
@@ -154,7 +154,7 @@ class TestGenericReportUseCases:
 
     def test_git_analysis_report(self):
         """GenericReport works for git analysis output."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="Git Repository Analysis",
@@ -184,7 +184,7 @@ class TestGenericReportUseCases:
 
     def test_api_analysis_report(self):
         """GenericReport works for API analysis output."""
-        from showcase.models.schemas import GenericReport
+        from yamlgraph.models.schemas import GenericReport
 
         report = GenericReport(
             title="API Performance Report",

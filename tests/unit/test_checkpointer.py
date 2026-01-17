@@ -10,7 +10,7 @@ class TestGetCheckpointer:
         """Should return a SqliteSaver instance."""
         from langgraph.checkpoint.sqlite import SqliteSaver
 
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         db_path = tmp_path / "test.db"
         checkpointer = get_checkpointer(db_path)
@@ -19,7 +19,7 @@ class TestGetCheckpointer:
 
     def test_creates_database_file(self, tmp_path: Path):
         """Should create the database file on first use."""
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         db_path = tmp_path / "test.db"
         assert not db_path.exists()
@@ -33,18 +33,18 @@ class TestGetCheckpointer:
 
     def test_uses_default_path_when_none(self, monkeypatch, tmp_path: Path):
         """Should use DATABASE_PATH when db_path is None."""
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         # Monkeypatch the default path
         default_db = tmp_path / "default.db"
-        monkeypatch.setattr("showcase.storage.checkpointer.DATABASE_PATH", default_db)
+        monkeypatch.setattr("yamlgraph.storage.checkpointer.DATABASE_PATH", default_db)
 
         checkpointer = get_checkpointer(None)
         assert checkpointer is not None
 
     def test_accepts_string_path(self, tmp_path: Path):
         """Should accept string path as well as Path."""
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         db_path = str(tmp_path / "test.db")
         checkpointer = get_checkpointer(db_path)
@@ -61,7 +61,7 @@ class TestCheckpointerWithGraph:
 
         from langgraph.graph import END, StateGraph
 
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         class SimpleState(TypedDict, total=False):
             value: str
@@ -85,7 +85,7 @@ class TestCheckpointerWithGraph:
 
         from langgraph.graph import END, StateGraph
 
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         class CounterState(TypedDict, total=False):
             count: int
@@ -117,7 +117,7 @@ class TestCheckpointerWithGraph:
 
         from langgraph.graph import END, StateGraph
 
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         class StepState(TypedDict, total=False):
             step: int
@@ -160,7 +160,7 @@ class TestGetStateHistory:
 
         from langgraph.graph import END, StateGraph
 
-        from showcase.storage.checkpointer import get_checkpointer, get_state_history
+        from yamlgraph.storage.checkpointer import get_checkpointer, get_state_history
 
         class TestState(TypedDict, total=False):
             data: str
@@ -191,7 +191,7 @@ class TestGetStateHistory:
 
         from langgraph.graph import END, StateGraph
 
-        from showcase.storage.checkpointer import get_checkpointer, get_state_history
+        from yamlgraph.storage.checkpointer import get_checkpointer, get_state_history
 
         class TestState(TypedDict, total=False):
             data: str

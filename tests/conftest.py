@@ -1,7 +1,7 @@
 """Shared test fixtures for langgraph-showcase tests.
 
 This module provides test-only Pydantic models and fixtures for testing.
-These models are intentionally NOT imported from showcase.models to
+These models are intentionally NOT imported from yamlgraph.models to
 demonstrate that the framework is truly generic and works with any schema.
 """
 
@@ -12,8 +12,8 @@ from unittest.mock import MagicMock
 import pytest
 from pydantic import BaseModel, Field
 
-from showcase.models import create_initial_state
-from showcase.storage import ShowcaseDB
+from yamlgraph.models import create_initial_state
+from yamlgraph.storage import ShowcaseDB
 
 # =============================================================================
 # Test-Only Pydantic Models (Fixtures)

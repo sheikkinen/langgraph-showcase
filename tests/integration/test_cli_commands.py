@@ -14,7 +14,7 @@ class TestGraphCommands:
     def test_graph_list_returns_graphs(self):
         """'graph list' shows available graphs."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "list"],
+            [sys.executable, "-m", "yamlgraph.cli", "graph", "list"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -26,7 +26,7 @@ class TestGraphCommands:
     def test_graph_list_shows_all_demos(self):
         """'graph list' shows all demo graphs."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "list"],
+            [sys.executable, "-m", "yamlgraph.cli", "graph", "list"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -43,7 +43,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "validate",
                 "graphs/showcase.yaml",
@@ -67,7 +67,7 @@ class TestGraphCommands:
         ]
         for demo in demos:
             result = subprocess.run(
-                [sys.executable, "-m", "showcase.cli", "graph", "validate", demo],
+                [sys.executable, "-m", "yamlgraph.cli", "graph", "validate", demo],
                 capture_output=True,
                 text=True,
                 cwd=Path(__file__).parent.parent.parent,
@@ -80,7 +80,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "validate",
                 "nonexistent.yaml",
@@ -97,7 +97,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "info",
                 "graphs/showcase.yaml",
@@ -115,7 +115,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "info",
                 "graphs/showcase.yaml",
@@ -133,7 +133,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "info",
                 "graphs/router-demo.yaml",
@@ -152,7 +152,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "run",
                 "graphs/does-not-exist.yaml",
@@ -174,7 +174,7 @@ class TestGraphCommands:
             [
                 sys.executable,
                 "-m",
-                "showcase.cli",
+                "yamlgraph.cli",
                 "graph",
                 "run",
                 "graphs/showcase.yaml",
@@ -201,7 +201,7 @@ class TestListRunsCommand:
         monkeypatch.setenv("SHOWCASE_DB_PATH", str(tmp_path / "test.db"))
 
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "list-runs"],
+            [sys.executable, "-m", "yamlgraph.cli", "list-runs"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -221,7 +221,7 @@ class TestHelpOutput:
     def test_main_help(self):
         """Main --help shows available commands."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "--help"],
+            [sys.executable, "-m", "yamlgraph.cli", "--help"],
             capture_output=True,
             text=True,
         )
@@ -232,7 +232,7 @@ class TestHelpOutput:
     def test_graph_help(self):
         """'graph --help' shows subcommands."""
         result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "graph", "--help"],
+            [sys.executable, "-m", "yamlgraph.cli", "graph", "--help"],
             capture_output=True,
             text=True,
         )

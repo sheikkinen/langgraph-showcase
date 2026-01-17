@@ -6,11 +6,11 @@ Generates a visual story with 3-5 panels from a concept using LLM + Replicate im
 
 ```bash
 # Default (z-image model - photorealistic)
-showcase graph run examples/storyboard/graph.yaml \
+yamlgraph graph run examples/storyboard/graph.yaml \
   --var concept="A wizard's apprentice discovers a hidden library"
 
 # HiDream model (cartoon/illustration style)
-showcase graph run examples/storyboard/graph.yaml \
+yamlgraph graph run examples/storyboard/graph.yaml \
   --var concept="A robot learning to paint" \
   --var model="hidream"
 ```
@@ -69,12 +69,12 @@ Generates animation-ready storyboards with 3 frames per panel (original, first_f
 
 ```bash
 # Generate from scratch
-showcase graph run examples/storyboard/animated-character-graph.yaml \
+yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A detective solving a mystery" \
   --var model="hidream"
 
 # With pre-existing character image (better consistency)
-showcase graph run examples/storyboard/animated-character-graph.yaml \
+yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A detective solving a mystery" \
   --var model="hidream" \
   --var reference_image="path/to/character.png"

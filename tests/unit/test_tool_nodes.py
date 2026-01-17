@@ -2,8 +2,8 @@
 
 import pytest
 
-from showcase.tools.nodes import create_tool_node
-from showcase.tools.shell import ShellToolConfig
+from yamlgraph.tools.nodes import create_tool_node
+from yamlgraph.tools.shell import ShellToolConfig
 
 
 class TestCreateToolNode:

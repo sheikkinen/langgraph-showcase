@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from showcase.executor_async import execute_prompt_async, execute_prompts_concurrent
-from showcase.utils.llm_factory_async import shutdown_executor
+from yamlgraph.executor_async import execute_prompt_async, execute_prompts_concurrent
+from yamlgraph.utils.llm_factory_async import shutdown_executor
 
 
 class TestExecutePromptAsync:
@@ -19,7 +19,7 @@ class TestExecutePromptAsync:
     @pytest.mark.asyncio
     async def test_executes_prompt(self):
         """Should execute a prompt and return result."""
-        with patch("showcase.executor_async.invoke_async") as mock_invoke:
+        with patch("yamlgraph.executor_async.invoke_async") as mock_invoke:
             mock_invoke.return_value = "Hello, World!"
 
             result = await execute_prompt_async(
@@ -38,7 +38,7 @@ class TestExecutePromptAsync:
         class TestModel(BaseModel):
             greeting: str
 
-        with patch("showcase.executor_async.invoke_async") as mock_invoke:
+        with patch("yamlgraph.executor_async.invoke_async") as mock_invoke:
             mock_invoke.return_value = TestModel(greeting="Hi")
 
             result = await execute_prompt_async(
@@ -62,9 +62,9 @@ class TestExecutePromptAsync:
     async def test_uses_provider_from_yaml(self):
         """Should extract provider from YAML metadata."""
         with (
-            patch("showcase.executor_async.load_prompt") as mock_load,
-            patch("showcase.executor_async.invoke_async") as mock_invoke,
-            patch("showcase.executor_async.create_llm") as mock_create_llm,
+            patch("yamlgraph.executor_async.load_prompt") as mock_load,
+            patch("yamlgraph.executor_async.invoke_async") as mock_invoke,
+            patch("yamlgraph.executor_async.create_llm") as mock_create_llm,
         ):
             mock_load.return_value = {
                 "system": "You are helpful.",
@@ -92,7 +92,7 @@ class TestExecutePromptsConcurrent:
     async def test_executes_multiple_prompts(self):
         """Should execute multiple prompts concurrently."""
         with patch(
-            "showcase.executor_async.execute_prompt_async", new_callable=AsyncMock
+            "yamlgraph.executor_async.execute_prompt_async", new_callable=AsyncMock
         ) as mock_execute:
             mock_execute.side_effect = ["Result 1", "Result 2", "Result 3"]
 
@@ -112,7 +112,7 @@ class TestExecutePromptsConcurrent:
     async def test_preserves_order(self):
         """Should return results in same order as input."""
         with patch(
-            "showcase.executor_async.execute_prompt_async", new_callable=AsyncMock
+            "yamlgraph.executor_async.execute_prompt_async", new_callable=AsyncMock
         ) as mock_execute:
             # Simulate varying response times
             async def delayed_response(prompt_name, **kwargs):
@@ -154,7 +154,7 @@ class TestExecutePromptsConcurrent:
             value: str
 
         with patch(
-            "showcase.executor_async.execute_prompt_async", new_callable=AsyncMock
+            "yamlgraph.executor_async.execute_prompt_async", new_callable=AsyncMock
         ) as mock_execute:
             mock_execute.return_value = TestModel(value="test")
 

@@ -10,7 +10,7 @@ Tests for:
 import os
 from unittest.mock import MagicMock, patch
 
-from showcase.utils.langsmith import (
+from yamlgraph.utils.langsmith import (
     get_client,
     get_latest_run_id,
     get_project_name,
@@ -165,7 +165,7 @@ class TestShareRun:
 
     def test_returns_none_when_no_client(self):
         """Returns None when client unavailable."""
-        with patch("showcase.utils.langsmith.get_client", return_value=None):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
             result = share_run("test-run-id")
             assert result is None
 
@@ -174,7 +174,7 @@ class TestShareRun:
         mock_client = MagicMock()
         mock_client.share_run.return_value = "https://smith.langchain.com/public/abc123"
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = share_run("my-run-id")
 
             mock_client.share_run.assert_called_once_with("my-run-id")
@@ -185,9 +185,9 @@ class TestShareRun:
         mock_client = MagicMock()
         mock_client.share_run.return_value = "https://share.url"
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             with patch(
-                "showcase.utils.langsmith.get_latest_run_id",
+                "yamlgraph.utils.langsmith.get_latest_run_id",
                 return_value="latest-id",
             ):
                 result = share_run()
@@ -199,9 +199,9 @@ class TestShareRun:
         """Returns None when no latest run found."""
         mock_client = MagicMock()
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             with patch(
-                "showcase.utils.langsmith.get_latest_run_id",
+                "yamlgraph.utils.langsmith.get_latest_run_id",
                 return_value=None,
             ):
                 result = share_run()
@@ -212,7 +212,7 @@ class TestShareRun:
         mock_client = MagicMock()
         mock_client.share_run.side_effect = Exception("API error")
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = share_run("test-id")
             assert result is None
 
@@ -227,7 +227,7 @@ class TestReadRunSharedLink:
 
     def test_returns_none_when_no_client(self):
         """Returns None when client unavailable."""
-        with patch("showcase.utils.langsmith.get_client", return_value=None):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
             result = read_run_shared_link("test-run-id")
             assert result is None
 
@@ -236,7 +236,7 @@ class TestReadRunSharedLink:
         mock_client = MagicMock()
         mock_client.read_run_shared_link.return_value = "https://existing.url"
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = read_run_shared_link("my-run-id")
 
             mock_client.read_run_shared_link.assert_called_once_with("my-run-id")
@@ -247,7 +247,7 @@ class TestReadRunSharedLink:
         mock_client = MagicMock()
         mock_client.read_run_shared_link.side_effect = Exception("Not found")
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = read_run_shared_link("test-id")
             assert result is None
 
@@ -262,7 +262,7 @@ class TestGetLatestRunId:
 
     def test_returns_none_when_no_client(self):
         """Returns None when client unavailable."""
-        with patch("showcase.utils.langsmith.get_client", return_value=None):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
             result = get_latest_run_id()
             assert result is None
 
@@ -274,9 +274,9 @@ class TestGetLatestRunId:
         mock_client = MagicMock()
         mock_client.list_runs.return_value = [mock_run]
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             with patch(
-                "showcase.utils.langsmith.get_project_name",
+                "yamlgraph.utils.langsmith.get_project_name",
                 return_value="test-project",
             ):
                 result = get_latest_run_id()
@@ -291,7 +291,7 @@ class TestGetLatestRunId:
         mock_client = MagicMock()
         mock_client.list_runs.return_value = []
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = get_latest_run_id()
             assert result is None
 
@@ -302,7 +302,7 @@ class TestGetLatestRunId:
         mock_client = MagicMock()
         mock_client.list_runs.return_value = [mock_run]
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             get_latest_run_id(project_name="custom-project")
 
             mock_client.list_runs.assert_called_once_with(
@@ -314,6 +314,6 @@ class TestGetLatestRunId:
         mock_client = MagicMock()
         mock_client.list_runs.side_effect = Exception("API error")
 
-        with patch("showcase.utils.langsmith.get_client", return_value=mock_client):
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = get_latest_run_id()
             assert result is None

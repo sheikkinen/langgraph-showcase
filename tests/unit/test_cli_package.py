@@ -14,38 +14,38 @@ class TestCLIPackageStructure:
     """Tests for CLI package imports."""
 
     def test_cli_package_importable(self):
-        """showcase.cli should be importable as package."""
-        import showcase.cli
+        """yamlgraph.cli should be importable as package."""
+        import yamlgraph.cli
 
-        assert showcase.cli is not None
+        assert yamlgraph.cli is not None
 
     def test_main_function_available(self):
         """main() should be available from package."""
-        from showcase.cli import main
+        from yamlgraph.cli import main
 
         assert callable(main)
 
     def test_validators_submodule_exists(self):
         """validators submodule should exist."""
-        from showcase.cli import validators
+        from yamlgraph.cli import validators
 
         assert validators is not None
 
     def test_validate_run_args_in_validators(self):
         """validate_run_args should be in validators module."""
-        from showcase.cli.validators import validate_run_args
+        from yamlgraph.cli.validators import validate_run_args
 
         assert callable(validate_run_args)
 
     def test_commands_submodule_exists(self):
         """commands submodule should exist."""
-        from showcase.cli import commands
+        from yamlgraph.cli import commands
 
         assert commands is not None
 
     def test_cmd_list_runs_in_commands(self):
         """cmd_list_runs should be in commands module."""
-        from showcase.cli.commands import cmd_list_runs
+        from yamlgraph.cli.commands import cmd_list_runs
 
         assert callable(cmd_list_runs)
 
@@ -68,14 +68,14 @@ class TestValidatorsModule:
 
     def test_validate_run_args_valid(self):
         """Valid run args pass validation."""
-        from showcase.cli.validators import validate_run_args
+        from yamlgraph.cli.validators import validate_run_args
 
         args = self._create_run_args()
         assert validate_run_args(args) is True
 
     def test_validate_run_args_empty_topic(self):
         """Empty topic fails validation."""
-        from showcase.cli.validators import validate_run_args
+        from yamlgraph.cli.validators import validate_run_args
 
         args = self._create_run_args(topic="")
         assert validate_run_args(args) is False

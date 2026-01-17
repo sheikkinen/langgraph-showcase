@@ -10,13 +10,13 @@ from unittest.mock import patch
 
 import pytest
 
-from showcase.graph_loader import (
+from tests.conftest import FixtureGeneratedContent
+from yamlgraph.graph_loader import (
     GraphConfig,
     compile_graph,
     load_and_compile,
     load_graph_config,
 )
-from tests.conftest import FixtureGeneratedContent
 
 # =============================================================================
 # Fixtures
@@ -39,7 +39,7 @@ nodes:
   generate:
     type: llm
     prompt: generate
-    output_model: showcase.models.GenericReport
+    output_model: yamlgraph.models.GenericReport
     temperature: 0.8
     variables:
       topic: "{state.topic}"
@@ -161,11 +161,11 @@ class TestLoadAndCompile:
 
     def test_load_and_compile_showcase(self):
         """Load the actual showcase.yaml and compile it."""
-        from showcase.config import PROJECT_ROOT
+        from yamlgraph.config import PROJECT_ROOT
 
-        showcase_path = PROJECT_ROOT / "graphs" / "showcase.yaml"
+        showcase_path = PROJECT_ROOT / "graphs" / "yamlgraph.yaml"
         if not showcase_path.exists():
-            pytest.skip("showcase.yaml not created yet")
+            pytest.skip("yamlgraph.yaml not created yet")
 
         graph = load_and_compile(showcase_path)
         compiled = graph.compile()
@@ -181,7 +181,7 @@ class TestLoadAndCompile:
             tags=[],
         )
 
-        with patch("showcase.node_factory.execute_prompt", return_value=mock_result):
+        with patch("yamlgraph.node_factory.execute_prompt", return_value=mock_result):
             graph = load_and_compile(sample_yaml_file)
             compiled = graph.compile()
 
@@ -245,7 +245,7 @@ name: bad_node
 nodes:
   generate:
     type: llm
-    output_model: showcase.models.GenericReport
+    output_model: yamlgraph.models.GenericReport
 edges:
   - from: START
     to: generate

@@ -1,6 +1,6 @@
 """Tests for showcase.storage.database module."""
 
-from showcase.models import create_initial_state
+from yamlgraph.models import create_initial_state
 
 
 class TestShowcaseDB:
@@ -100,7 +100,7 @@ class TestConnectionPool:
 
     def test_pooled_mode_works(self, tmp_path):
         """Database should work in pooled mode."""
-        from showcase.storage.database import ShowcaseDB
+        from yamlgraph.storage.database import ShowcaseDB
 
         db_path = tmp_path / "pooled_test.db"
         db = ShowcaseDB(db_path=db_path, use_pool=True, pool_size=3)
@@ -115,7 +115,7 @@ class TestConnectionPool:
 
     def test_pool_reuses_connections(self, tmp_path):
         """Pool should reuse connections."""
-        from showcase.storage.database import ConnectionPool
+        from yamlgraph.storage.database import ConnectionPool
 
         db_path = tmp_path / "pool_test.db"
         pool = ConnectionPool(db_path, pool_size=2)
@@ -133,7 +133,7 @@ class TestConnectionPool:
 
     def test_close_method(self, tmp_path):
         """Close should clean up connections."""
-        from showcase.storage.database import ShowcaseDB
+        from yamlgraph.storage.database import ShowcaseDB
 
         db_path = tmp_path / "close_test.db"
         db = ShowcaseDB(db_path=db_path, use_pool=True, pool_size=2)

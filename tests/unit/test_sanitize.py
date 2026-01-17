@@ -1,7 +1,7 @@
 """Tests for showcase.utils.sanitize module."""
 
-from showcase.config import MAX_TOPIC_LENGTH
-from showcase.utils.sanitize import sanitize_topic, sanitize_variables
+from yamlgraph.config import MAX_TOPIC_LENGTH
+from yamlgraph.utils.sanitize import sanitize_topic, sanitize_variables
 
 
 class TestSanitizeTopic:

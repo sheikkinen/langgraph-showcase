@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from showcase.graph_loader import compile_graph, load_graph_config
+from yamlgraph.graph_loader import compile_graph, load_graph_config
 
 
 class TestMapDemoGraph:
@@ -20,7 +20,7 @@ class TestMapDemoGraph:
         config = load_graph_config("graphs/map-demo.yaml")
 
         # Mock compile_map_node to avoid needing prompt execution
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_expand_sub")
 
@@ -35,7 +35,7 @@ class TestMapDemoGraph:
         """Map demo compiled state has sorted_add reducer for expansions."""
         from typing import Annotated, get_args, get_origin
 
-        from showcase.models.state_builder import build_state_class, sorted_add
+        from yamlgraph.models.state_builder import build_state_class, sorted_add
 
         config = load_graph_config("graphs/map-demo.yaml")
         state_class = build_state_class(config.raw_config)

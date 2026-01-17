@@ -87,7 +87,7 @@ Copy-paste patterns for common use cases:
 
 | Type | Location | Example |
 |------|----------|---------|
-| Graphs | `graphs/*.yaml` | `graphs/showcase.yaml` |
+| Graphs | `graphs/*.yaml` | `graphs/yamlgraph.yaml` |
 | Prompts | `prompts/*.yaml` | `prompts/generate.yaml` |
 | Grouped prompts | `prompts/group/*.yaml` | `prompts/router-demo/classify.yaml` |
 | State classes | Auto-generated from YAML | `build_state_class(config)` |

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from showcase.map_compiler import compile_map_node, wrap_for_reducer
+from yamlgraph.map_compiler import compile_map_node, wrap_for_reducer
 
 
 class TestWrapForReducer:

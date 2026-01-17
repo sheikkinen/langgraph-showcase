@@ -6,8 +6,8 @@ from unittest.mock import patch
 import pytest
 from pydantic import BaseModel, Field
 
-from showcase.executor import execute_prompt, load_prompt
-from showcase.utils.llm_factory import clear_cache
+from yamlgraph.executor import execute_prompt, load_prompt
+from yamlgraph.utils.llm_factory import clear_cache
 
 
 class ProviderTestContent(BaseModel):

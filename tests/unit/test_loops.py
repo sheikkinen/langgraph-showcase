@@ -17,13 +17,13 @@ class TestExpressionConditions:
 
     def test_evaluate_condition_exists(self):
         """evaluate_condition function should exist."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         assert callable(evaluate_condition)
 
     def test_less_than_comparison(self):
         """Evaluates 'score < 0.8' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"score": 0.5}
         assert evaluate_condition("score < 0.8", state) is True
@@ -33,7 +33,7 @@ class TestExpressionConditions:
 
     def test_greater_than_comparison(self):
         """Evaluates 'score > 0.5' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"score": 0.7}
         assert evaluate_condition("score > 0.5", state) is True
@@ -43,7 +43,7 @@ class TestExpressionConditions:
 
     def test_less_than_or_equal(self):
         """Evaluates 'score <= 0.8' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"score": 0.8}
         assert evaluate_condition("score <= 0.8", state) is True
@@ -53,7 +53,7 @@ class TestExpressionConditions:
 
     def test_greater_than_or_equal(self):
         """Evaluates 'score >= 0.8' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"score": 0.8}
         assert evaluate_condition("score >= 0.8", state) is True
@@ -63,7 +63,7 @@ class TestExpressionConditions:
 
     def test_equality_comparison(self):
         """Evaluates 'status == \"approved\"' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"status": "approved"}
         assert evaluate_condition('status == "approved"', state) is True
@@ -73,7 +73,7 @@ class TestExpressionConditions:
 
     def test_inequality_comparison(self):
         """Evaluates 'error != null' correctly."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"error": "something"}
         assert evaluate_condition("error != null", state) is True
@@ -83,7 +83,7 @@ class TestExpressionConditions:
 
     def test_nested_attribute_access(self):
         """Evaluates 'critique.score >= 0.8' from state."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         # Using object with attribute
         critique = MagicMock()
@@ -96,7 +96,7 @@ class TestExpressionConditions:
 
     def test_compound_and_condition(self):
         """Evaluates 'score < 0.8 and iteration < 3'."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"score": 0.5, "iteration": 2}
         assert evaluate_condition("score < 0.8 and iteration < 3", state) is True
@@ -109,7 +109,7 @@ class TestExpressionConditions:
 
     def test_compound_or_condition(self):
         """Evaluates 'approved == true or override == true'."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {"approved": True, "override": False}
         assert evaluate_condition("approved == true or override == true", state) is True
@@ -124,14 +124,14 @@ class TestExpressionConditions:
 
     def test_invalid_expression_raises(self):
         """Malformed expression raises ValueError."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         with pytest.raises(ValueError):
             evaluate_condition("score <<< 0.8", {})
 
     def test_missing_attribute_returns_false(self):
         """Missing attribute in state returns False gracefully."""
-        from showcase.utils.conditions import evaluate_condition
+        from yamlgraph.utils.conditions import evaluate_condition
 
         state = {}
         # Should not raise, should return False for missing attribute
@@ -148,7 +148,7 @@ class TestLoopTracking:
 
     def test_state_has_loop_counts_field(self):
         """Dynamic state should have _loop_counts field."""
-        from showcase.models.state_builder import build_state_class
+        from yamlgraph.models.state_builder import build_state_class
 
         State = build_state_class({"nodes": {}})
         # Should have _loop_counts in annotations
@@ -160,14 +160,14 @@ class TestLoopTracking:
 
     def test_node_increments_loop_counter(self):
         """Each node execution increments its counter in _loop_counts."""
-        from showcase.node_factory import create_node_function
+        from yamlgraph.node_factory import create_node_function
 
         node_config = {
             "prompt": "test_prompt",
             "state_key": "result",
         }
 
-        with patch("showcase.node_factory.execute_prompt") as mock_execute:
+        with patch("yamlgraph.node_factory.execute_prompt") as mock_execute:
             mock_execute.return_value = "test result"
 
             node_fn = create_node_function("critique", node_config, {})
@@ -193,7 +193,7 @@ class TestLoopLimits:
 
     def test_parses_loop_limits_from_yaml(self):
         """GraphConfig parses loop_limits section."""
-        from showcase.graph_loader import GraphConfig
+        from yamlgraph.graph_loader import GraphConfig
 
         config_dict = {
             "version": "1.0",
@@ -216,7 +216,7 @@ class TestLoopLimits:
 
     def test_loop_limits_defaults_to_empty(self):
         """Missing loop_limits defaults to empty dict."""
-        from showcase.graph_loader import GraphConfig
+        from yamlgraph.graph_loader import GraphConfig
 
         config_dict = {
             "version": "1.0",
@@ -229,7 +229,7 @@ class TestLoopLimits:
 
     def test_node_checks_loop_limit(self):
         """Node execution checks loop limit before running."""
-        from showcase.node_factory import create_node_function
+        from yamlgraph.node_factory import create_node_function
 
         node_config = {
             "prompt": "test_prompt",
@@ -237,7 +237,7 @@ class TestLoopLimits:
             "loop_limit": 3,  # Node-level limit
         }
 
-        with patch("showcase.node_factory.execute_prompt") as mock_execute:
+        with patch("yamlgraph.node_factory.execute_prompt") as mock_execute:
             mock_execute.return_value = "test result"
 
             node_fn = create_node_function("critique", node_config, {})
@@ -263,7 +263,7 @@ class TestCyclicEdges:
 
     def test_allows_backward_edges(self):
         """Graph config allows edges pointing to earlier nodes."""
-        from showcase.graph_loader import GraphConfig
+        from yamlgraph.graph_loader import GraphConfig
 
         config_dict = {
             "version": "1.0",
@@ -292,7 +292,7 @@ class TestCyclicEdges:
 
     def test_compiles_cyclic_graph(self):
         """Cyclic graph compiles to StateGraph."""
-        from showcase.graph_loader import GraphConfig, compile_graph
+        from yamlgraph.graph_loader import GraphConfig, compile_graph
 
         config_dict = {
             "version": "1.0",
@@ -328,7 +328,7 @@ class TestCyclicEdges:
 class TestReflexionModels:
     """Tests for DraftContent and Critique-like fixture models.
 
-    Note: Demo models were removed from showcase.models in Section 10.
+    Note: Demo models were removed from yamlgraph.models in Section 10.
     These tests use fixture models to prove the pattern still works.
     """
 
@@ -378,7 +378,7 @@ class TestReflexionDemoGraph:
 
     def test_demo_graph_loads(self):
         """reflexion-demo.yaml loads without error."""
-        from showcase.graph_loader import load_graph_config
+        from yamlgraph.graph_loader import load_graph_config
 
         config = load_graph_config("graphs/reflexion-demo.yaml")
         assert config.name == "reflexion-demo"
@@ -388,7 +388,7 @@ class TestReflexionDemoGraph:
 
     def test_demo_graph_has_loop_limits(self):
         """reflexion-demo.yaml has loop_limits configured."""
-        from showcase.graph_loader import load_graph_config
+        from yamlgraph.graph_loader import load_graph_config
 
         config = load_graph_config("graphs/reflexion-demo.yaml")
         assert "critique" in config.loop_limits
@@ -396,7 +396,7 @@ class TestReflexionDemoGraph:
 
     def test_demo_graph_compiles(self):
         """reflexion-demo.yaml compiles to StateGraph."""
-        from showcase.graph_loader import compile_graph, load_graph_config
+        from yamlgraph.graph_loader import compile_graph, load_graph_config
 
         config = load_graph_config("graphs/reflexion-demo.yaml")
         graph = compile_graph(config)

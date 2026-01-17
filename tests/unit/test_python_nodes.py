@@ -2,7 +2,7 @@
 
 import pytest
 
-from showcase.tools.python_tool import (
+from yamlgraph.tools.python_tool import (
     PythonToolConfig,
     create_python_node,
     load_python_function,

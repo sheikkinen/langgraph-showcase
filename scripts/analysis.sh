@@ -2,7 +2,7 @@
 # ============================================================================
 # Code Analysis Pipeline
 # ============================================================================
-# Comprehensive analysis of the langgraph-showcase codebase
+# Comprehensive analysis of the langgraph-yamlgraph codebase
 # Usage: ./scripts/analysis.sh [--install] [--full]
 #
 # Options:
@@ -20,7 +20,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-PACKAGE="showcase"
+PACKAGE="yamlgraph"
 OUTPUT_DIR="docs/analysis"
 
 # Parse arguments
@@ -221,7 +221,7 @@ grep -rh "^from $PACKAGE" "$PACKAGE"/*.py 2>/dev/null | sort | uniq -c | sort -r
 
 if check_tool pipdeptree; then
     subheader "Package Dependencies"
-    pipdeptree --packages langgraph-showcase 2>/dev/null || pipdeptree 2>/dev/null | head -30
+    pipdeptree --packages langgraph-yamlgraph 2>/dev/null || pipdeptree 2>/dev/null | head -30
 fi
 
 # ============================================================================

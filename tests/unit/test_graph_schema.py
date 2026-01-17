@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from showcase.models.graph_schema import (
+from yamlgraph.models.graph_schema import (
     EdgeConfig,
     NodeConfig,
     validate_graph_schema,

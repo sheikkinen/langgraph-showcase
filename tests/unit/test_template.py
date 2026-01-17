@@ -8,7 +8,7 @@ class TestExtractVariables:
 
     def test_extract_simple_variables(self):
         """Should extract {var} placeholders."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "Hello {name}, your style is {style}."
         variables = extract_variables(template)
@@ -16,7 +16,7 @@ class TestExtractVariables:
 
     def test_extract_single_variable(self):
         """Should extract a single variable."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "Welcome {user}!"
         variables = extract_variables(template)
@@ -24,7 +24,7 @@ class TestExtractVariables:
 
     def test_extract_no_variables(self):
         """Should return empty set when no variables."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "No variables here"
         variables = extract_variables(template)
@@ -32,7 +32,7 @@ class TestExtractVariables:
 
     def test_extract_duplicate_variables(self):
         """Should deduplicate variables."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "{name} and {name} again"
         variables = extract_variables(template)
@@ -40,7 +40,7 @@ class TestExtractVariables:
 
     def test_extract_jinja2_variable(self):
         """Should extract {{ var }} Jinja2 variables."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "Hello {{ name }}!"
         variables = extract_variables(template)
@@ -48,7 +48,7 @@ class TestExtractVariables:
 
     def test_extract_jinja2_variable_with_field_access(self):
         """Should extract base variable from {{ var.field }}."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "User: {{ user.name }}"
         variables = extract_variables(template)
@@ -56,7 +56,7 @@ class TestExtractVariables:
 
     def test_extract_jinja2_loop_variable(self):
         """Should extract iterable from {% for x in items %}."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "{% for item in items %}{{ item.name }}{% endfor %}"
         variables = extract_variables(template)
@@ -66,7 +66,7 @@ class TestExtractVariables:
 
     def test_extract_jinja2_if_variable(self):
         """Should extract variable from {% if condition %}."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "{% if show_details %}Details here{% endif %}"
         variables = extract_variables(template)
@@ -74,7 +74,7 @@ class TestExtractVariables:
 
     def test_exclude_state_variable(self):
         """State is injected by framework, not a required input."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "{{ state.topic }}"
         variables = extract_variables(template)
@@ -83,7 +83,7 @@ class TestExtractVariables:
 
     def test_exclude_jinja2_builtins(self):
         """Should exclude Jinja2 builtins like loop, range."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "{% for i in range(10) %}{{ loop.index }}{% endfor %}"
         variables = extract_variables(template)
@@ -92,7 +92,7 @@ class TestExtractVariables:
 
     def test_mixed_simple_and_jinja2(self):
         """Should handle templates mixing {var} and {{ var }}."""
-        from showcase.utils.template import extract_variables
+        from yamlgraph.utils.template import extract_variables
 
         template = "Simple {name} and Jinja2 {{ topic }}"
         variables = extract_variables(template)
@@ -105,7 +105,7 @@ class TestValidateVariables:
 
     def test_validate_all_provided(self):
         """Should not raise when all variables provided."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "Hello {name}, style: {style}"
         # Should not raise
@@ -113,7 +113,7 @@ class TestValidateVariables:
 
     def test_validate_missing_single_variable(self):
         """Should raise ValueError for single missing variable."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "Hello {name}, style: {style}"
         with pytest.raises(ValueError, match="Missing required variable.*name"):
@@ -121,7 +121,7 @@ class TestValidateVariables:
 
     def test_validate_missing_multiple_variables(self):
         """Should list ALL missing variables in error."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "Hello {name}, style: {style}"
         with pytest.raises(ValueError) as exc_info:
@@ -132,7 +132,7 @@ class TestValidateVariables:
 
     def test_validate_extra_variables_ok(self):
         """Should not raise when extra variables provided."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "Hello {name}"
         # Should not raise - extra vars are fine
@@ -140,7 +140,7 @@ class TestValidateVariables:
 
     def test_validate_prompt_name_in_error(self):
         """Error message should include prompt name."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "Hello {name}"
         with pytest.raises(ValueError, match="greet"):
@@ -148,7 +148,7 @@ class TestValidateVariables:
 
     def test_validate_empty_template(self):
         """Should not raise for template without variables."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "No variables here"
         # Should not raise
@@ -156,7 +156,7 @@ class TestValidateVariables:
 
     def test_validate_jinja2_template(self):
         """Should validate Jinja2 templates correctly."""
-        from showcase.utils.template import validate_variables
+        from yamlgraph.utils.template import validate_variables
 
         template = "{% for item in items %}{{ item }}{% endfor %}"
         with pytest.raises(ValueError, match="items"):
@@ -168,7 +168,7 @@ class TestExecutePromptValidation:
 
     def test_execute_prompt_raises_on_missing_variable(self):
         """Should raise clear error when required variable is missing."""
-        from showcase.executor import execute_prompt
+        from yamlgraph.executor import execute_prompt
 
         with pytest.raises(ValueError, match="Missing required variable.*name"):
             execute_prompt(
@@ -178,7 +178,7 @@ class TestExecutePromptValidation:
 
     def test_execute_prompt_lists_all_missing_variables(self):
         """Error should list ALL missing variables, not just first."""
-        from showcase.executor import execute_prompt
+        from yamlgraph.executor import execute_prompt
 
         with pytest.raises(ValueError) as exc_info:
             execute_prompt(

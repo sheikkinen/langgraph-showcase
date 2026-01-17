@@ -2,7 +2,7 @@
 
 import pytest
 
-from showcase.executor import format_prompt, load_prompt
+from yamlgraph.executor import format_prompt, load_prompt
 
 
 class TestLoadPrompt:

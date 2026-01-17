@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from showcase.utils.llm_factory_async import (
+from yamlgraph.utils.llm_factory_async import (
     create_llm_async,
     get_executor,
     invoke_async,

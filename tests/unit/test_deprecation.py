@@ -11,13 +11,13 @@ class TestDeprecationError:
 
     def test_deprecation_error_exists(self):
         """DeprecationError should be importable."""
-        from showcase.cli.deprecation import DeprecationError
+        from yamlgraph.cli.deprecation import DeprecationError
 
         assert issubclass(DeprecationError, Exception)
 
     def test_deprecation_error_message(self):
         """DeprecationError should include replacement command."""
-        from showcase.cli.deprecation import DeprecationError
+        from yamlgraph.cli.deprecation import DeprecationError
 
         err = DeprecationError(
             old_command="route",
@@ -30,7 +30,7 @@ class TestDeprecationError:
 
     def test_deprecation_error_has_attributes(self):
         """DeprecationError should expose old and new commands."""
-        from showcase.cli.deprecation import DeprecationError
+        from yamlgraph.cli.deprecation import DeprecationError
 
         err = DeprecationError(
             old_command="refine",
@@ -46,13 +46,13 @@ class TestDeprecatedCommand:
 
     def test_deprecated_command_exists(self):
         """deprecated_command should be importable."""
-        from showcase.cli.deprecation import deprecated_command
+        from yamlgraph.cli.deprecation import deprecated_command
 
         assert callable(deprecated_command)
 
     def test_deprecated_command_raises(self):
         """deprecated_command should raise DeprecationError."""
-        from showcase.cli.deprecation import DeprecationError, deprecated_command
+        from yamlgraph.cli.deprecation import DeprecationError, deprecated_command
 
         with pytest.raises(DeprecationError) as exc_info:
             deprecated_command(
@@ -64,7 +64,7 @@ class TestDeprecatedCommand:
 
     def test_deprecated_command_with_mapping(self):
         """deprecated_command should format with variable mapping."""
-        from showcase.cli.deprecation import DeprecationError, deprecated_command
+        from yamlgraph.cli.deprecation import DeprecationError, deprecated_command
 
         with pytest.raises(DeprecationError) as exc_info:
             deprecated_command(
@@ -80,7 +80,7 @@ class TestCommandMappings:
 
     def test_get_replacement_for_route(self):
         """Should return replacement for route command."""
-        from showcase.cli.deprecation import get_replacement_command
+        from yamlgraph.cli.deprecation import get_replacement_command
 
         result = get_replacement_command("route", {"message": "hello"})
         assert "graph run" in result
@@ -89,7 +89,7 @@ class TestCommandMappings:
 
     def test_get_replacement_for_refine(self):
         """Should return replacement for refine command."""
-        from showcase.cli.deprecation import get_replacement_command
+        from yamlgraph.cli.deprecation import get_replacement_command
 
         result = get_replacement_command("refine", {"topic": "AI"})
         assert "graph run" in result
@@ -98,7 +98,7 @@ class TestCommandMappings:
 
     def test_get_replacement_unknown_command(self):
         """Unknown command returns None."""
-        from showcase.cli.deprecation import get_replacement_command
+        from yamlgraph.cli.deprecation import get_replacement_command
 
         result = get_replacement_command("unknown", {})
         assert result is None

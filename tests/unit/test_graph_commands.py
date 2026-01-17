@@ -19,7 +19,7 @@ class TestGraphSubcommand:
 
     def test_graph_subparser_exists(self):
         """graph subparser should be configured."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         # Parse with graph command
@@ -28,7 +28,7 @@ class TestGraphSubcommand:
 
     def test_graph_run_subcommand_exists(self):
         """graph run subcommand should exist."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(
@@ -39,7 +39,7 @@ class TestGraphSubcommand:
 
     def test_graph_list_subcommand_exists(self):
         """graph list subcommand should exist."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "list"])
@@ -47,7 +47,7 @@ class TestGraphSubcommand:
 
     def test_graph_info_subcommand_exists(self):
         """graph info subcommand should exist."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "info", "graphs/showcase.yaml"])
@@ -65,7 +65,7 @@ class TestGraphRunArgs:
 
     def test_var_single_value(self):
         """--var key=value should parse correctly."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(
@@ -75,7 +75,7 @@ class TestGraphRunArgs:
 
     def test_var_multiple_values(self):
         """Multiple --var flags should accumulate."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(
@@ -93,7 +93,7 @@ class TestGraphRunArgs:
 
     def test_thread_argument(self):
         """--thread should set thread ID."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(
@@ -103,7 +103,7 @@ class TestGraphRunArgs:
 
     def test_export_flag(self):
         """--export flag should enable export."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "run", "graphs/test.yaml", "--export"])
@@ -111,7 +111,7 @@ class TestGraphRunArgs:
 
     def test_graph_path_required(self):
         """graph run requires a path argument."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         with pytest.raises(SystemExit):
@@ -128,42 +128,42 @@ class TestParseVars:
 
     def test_parse_single_var(self):
         """Single var should parse to dict."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         result = parse_vars(["topic=AI"])
         assert result == {"topic": "AI"}
 
     def test_parse_multiple_vars(self):
         """Multiple vars should parse to dict."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         result = parse_vars(["topic=AI", "style=casual", "count=5"])
         assert result == {"topic": "AI", "style": "casual", "count": "5"}
 
     def test_parse_empty_list(self):
         """Empty list returns empty dict."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         result = parse_vars([])
         assert result == {}
 
     def test_parse_none_returns_empty(self):
         """None returns empty dict."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         result = parse_vars(None)
         assert result == {}
 
     def test_parse_value_with_equals(self):
         """Value containing = should preserve it."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         result = parse_vars(["equation=a=b+c"])
         assert result == {"equation": "a=b+c"}
 
     def test_parse_invalid_format_raises(self):
         """Invalid format (no =) should raise ValueError."""
-        from showcase.cli.graph_commands import parse_vars
+        from yamlgraph.cli.graph_commands import parse_vars
 
         with pytest.raises(ValueError, match="Invalid"):
             parse_vars(["invalid"])
@@ -179,13 +179,13 @@ class TestCmdGraphRun:
 
     def test_cmd_graph_run_exists(self):
         """cmd_graph_run function should exist."""
-        from showcase.cli.graph_commands import cmd_graph_run
+        from yamlgraph.cli.graph_commands import cmd_graph_run
 
         assert callable(cmd_graph_run)
 
     def test_graph_not_found_error(self):
         """Should error if graph file doesn't exist."""
-        from showcase.cli.graph_commands import cmd_graph_run
+        from yamlgraph.cli.graph_commands import cmd_graph_run
 
         args = argparse.Namespace(
             graph_path="nonexistent.yaml",
@@ -197,10 +197,10 @@ class TestCmdGraphRun:
         with pytest.raises(SystemExit):
             cmd_graph_run(args)
 
-    @patch("showcase.graph_loader.load_and_compile")
+    @patch("yamlgraph.graph_loader.load_and_compile")
     def test_invokes_graph_with_vars(self, mock_load):
         """Should invoke graph with parsed vars as initial state."""
-        from showcase.cli.graph_commands import cmd_graph_run
+        from yamlgraph.cli.graph_commands import cmd_graph_run
 
         mock_graph = MagicMock()
         mock_app = MagicMock()
@@ -235,14 +235,14 @@ class TestCmdGraphList:
 
     def test_cmd_graph_list_exists(self):
         """cmd_graph_list function should exist."""
-        from showcase.cli.graph_commands import cmd_graph_list
+        from yamlgraph.cli.graph_commands import cmd_graph_list
 
         assert callable(cmd_graph_list)
 
-    @patch("showcase.cli.graph_commands.Path")
+    @patch("yamlgraph.cli.graph_commands.Path")
     def test_lists_yaml_files(self, mock_path):
         """Should list all .yaml files in graphs/."""
-        from showcase.cli.graph_commands import cmd_graph_list
+        from yamlgraph.cli.graph_commands import cmd_graph_list
 
         mock_graphs_dir = MagicMock()
         mock_path.return_value = mock_graphs_dir
@@ -271,13 +271,13 @@ class TestCmdGraphInfo:
 
     def test_cmd_graph_info_exists(self):
         """cmd_graph_info function should exist."""
-        from showcase.cli.graph_commands import cmd_graph_info
+        from yamlgraph.cli.graph_commands import cmd_graph_info
 
         assert callable(cmd_graph_info)
 
     def test_info_file_not_found(self):
         """Should error if graph file doesn't exist."""
-        from showcase.cli.graph_commands import cmd_graph_info
+        from yamlgraph.cli.graph_commands import cmd_graph_info
 
         args = argparse.Namespace(graph_path="nonexistent.yaml")
 
@@ -295,13 +295,13 @@ class TestCmdGraphValidate:
 
     def test_cmd_graph_validate_exists(self):
         """cmd_graph_validate function should exist."""
-        from showcase.cli.graph_commands import cmd_graph_validate
+        from yamlgraph.cli.graph_commands import cmd_graph_validate
 
         assert callable(cmd_graph_validate)
 
     def test_validate_file_not_found(self):
         """Should error if graph file doesn't exist."""
-        from showcase.cli.graph_commands import cmd_graph_validate
+        from yamlgraph.cli.graph_commands import cmd_graph_validate
 
         args = argparse.Namespace(graph_path="nonexistent.yaml")
 
@@ -310,7 +310,7 @@ class TestCmdGraphValidate:
 
     def test_validate_valid_graph(self):
         """Should validate a correct graph without errors."""
-        from showcase.cli.graph_commands import cmd_graph_validate
+        from yamlgraph.cli.graph_commands import cmd_graph_validate
 
         args = argparse.Namespace(graph_path="graphs/showcase.yaml")
 
@@ -319,7 +319,7 @@ class TestCmdGraphValidate:
 
     def test_validate_subparser_exists(self):
         """graph validate subcommand should exist."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "validate", "graphs/showcase.yaml"])

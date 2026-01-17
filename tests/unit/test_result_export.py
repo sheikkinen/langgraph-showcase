@@ -22,7 +22,7 @@ class TestExportResult:
 
     def test_export_json_field(self, tmp_path: Path):
         """Export field as JSON file."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "test-123",
@@ -45,7 +45,7 @@ class TestExportResult:
 
     def test_export_markdown_field(self, tmp_path: Path):
         """Export field as Markdown file."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "test-456",
@@ -64,7 +64,7 @@ class TestExportResult:
 
     def test_export_text_field(self, tmp_path: Path):
         """Export field as plain text."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "test-789",
@@ -82,7 +82,7 @@ class TestExportResult:
 
     def test_export_creates_thread_directory(self, tmp_path: Path):
         """Files are created in thread-specific subdirectory."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "my-thread-id",
@@ -98,7 +98,7 @@ class TestExportResult:
 
     def test_export_skips_none_fields(self, tmp_path: Path):
         """Fields with None value are skipped."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "test",
@@ -118,7 +118,7 @@ class TestExportResult:
 
     def test_export_skips_missing_fields(self, tmp_path: Path):
         """Fields not in state are skipped."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {"thread_id": "test"}  # No 'data' field
         config = {"data": {"format": "text", "filename": "data.txt"}}
@@ -129,7 +129,7 @@ class TestExportResult:
 
     def test_export_multiple_fields(self, tmp_path: Path):
         """Export multiple fields in one call."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "multi",
@@ -154,7 +154,7 @@ class TestSerializeToJson:
 
     def test_serializes_pydantic_model(self):
         """Pydantic models serialize properly."""
-        from showcase.storage.export import _serialize_to_json
+        from yamlgraph.storage.export import _serialize_to_json
 
         model = SampleModel(title="Test", content="Body")
         result = _serialize_to_json(model)
@@ -165,7 +165,7 @@ class TestSerializeToJson:
 
     def test_serializes_dict(self):
         """Regular dicts serialize properly."""
-        from showcase.storage.export import _serialize_to_json
+        from yamlgraph.storage.export import _serialize_to_json
 
         result = _serialize_to_json({"a": 1, "b": [1, 2, 3]})
         data = json.loads(result)
@@ -175,7 +175,7 @@ class TestSerializeToJson:
 
     def test_serializes_with_indent(self):
         """JSON output is indented."""
-        from showcase.storage.export import _serialize_to_json
+        from yamlgraph.storage.export import _serialize_to_json
 
         result = _serialize_to_json({"key": "value"})
         # Indented JSON has newlines
@@ -187,7 +187,7 @@ class TestPydanticToMarkdown:
 
     def test_includes_model_name_as_title(self):
         """Model name becomes the markdown title."""
-        from showcase.storage.export import _pydantic_to_markdown
+        from yamlgraph.storage.export import _pydantic_to_markdown
 
         model = SampleModel(title="Test", content="Body")
         result = _pydantic_to_markdown(model)
@@ -196,7 +196,7 @@ class TestPydanticToMarkdown:
 
     def test_formats_list_fields_as_bullets(self):
         """List fields become bullet points."""
-        from showcase.storage.export import _pydantic_to_markdown
+        from yamlgraph.storage.export import _pydantic_to_markdown
 
         model = SampleModel(title="Test", content="Body", tags=["one", "two"])
         result = _pydantic_to_markdown(model)
@@ -206,7 +206,7 @@ class TestPydanticToMarkdown:
 
     def test_formats_scalar_fields_bold(self):
         """Scalar fields use bold labels."""
-        from showcase.storage.export import _pydantic_to_markdown
+        from yamlgraph.storage.export import _pydantic_to_markdown
 
         model = SampleModel(title="Test", content="Body")
         result = _pydantic_to_markdown(model)
@@ -219,7 +219,7 @@ class TestSerializeToMarkdown:
 
     def test_pydantic_model_uses_pydantic_to_markdown(self):
         """Pydantic models use _pydantic_to_markdown."""
-        from showcase.storage.export import _serialize_to_markdown
+        from yamlgraph.storage.export import _serialize_to_markdown
 
         model = SampleModel(title="Test", content="Body")
         result = _serialize_to_markdown(model)
@@ -228,7 +228,7 @@ class TestSerializeToMarkdown:
 
     def test_string_value_returns_as_is(self):
         """String values return as-is."""
-        from showcase.storage.export import _serialize_to_markdown
+        from yamlgraph.storage.export import _serialize_to_markdown
 
         result = _serialize_to_markdown("Just a string")
         assert result == "Just a string"

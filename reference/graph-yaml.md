@@ -505,7 +505,7 @@ exports:
 
 ```yaml
 version: "1.0"
-name: showcase
+name: yamlgraph
 
 nodes:
   generate:

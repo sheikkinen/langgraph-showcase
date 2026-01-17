@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from showcase.graph_loader import (
+from yamlgraph.graph_loader import (
     GraphConfig,
     compile_graph,
     load_graph_config,
 )
-from showcase.node_factory import create_node_function
+from yamlgraph.node_factory import create_node_function
 
 # =============================================================================
 # Test: ToneClassification Model (Using Test Fixture)
@@ -22,7 +22,7 @@ from showcase.node_factory import create_node_function
 class TestToneClassificationModel:
     """Tests for ToneClassification-like model in tests.
 
-    Note: Demo models were removed from showcase.models in Section 10.
+    Note: Demo models were removed from yamlgraph.models in Section 10.
     These tests use the fixture model to prove the pattern still works.
     """
 
@@ -140,7 +140,7 @@ class TestRouterNodeParsing:
 class TestRouterNodeFunction:
     """Tests for router node execution."""
 
-    @patch("showcase.node_factory.execute_prompt")
+    @patch("yamlgraph.node_factory.execute_prompt")
     def test_router_returns_route_in_state(self, mock_execute):
         """Router node adds _route to state based on classification."""
         mock_classification = MagicMock()
@@ -151,7 +151,7 @@ class TestRouterNodeFunction:
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
-            "output_model": "showcase.models.GenericReport",
+            "output_model": "yamlgraph.models.GenericReport",
             "routes": {
                 "positive": "respond_positive",
                 "negative": "respond_negative",
@@ -167,7 +167,7 @@ class TestRouterNodeFunction:
         assert result.get("_route") == "respond_positive"
         assert "classification" in result
 
-    @patch("showcase.node_factory.execute_prompt")
+    @patch("yamlgraph.node_factory.execute_prompt")
     def test_router_uses_default_route_for_unknown(self, mock_execute):
         """Router uses default_route when tone not in routes."""
         mock_classification = MagicMock()
@@ -178,7 +178,7 @@ class TestRouterNodeFunction:
         node_config = {
             "type": "router",
             "prompt": "classify_tone",
-            "output_model": "showcase.models.GenericReport",
+            "output_model": "yamlgraph.models.GenericReport",
             "routes": {
                 "positive": "respond_positive",
                 "negative": "respond_negative",
@@ -228,7 +228,7 @@ class TestConditionalEdges:
         assert conditional_edge["type"] == "conditional"
         assert conditional_edge["to"] == ["node_a", "node_b"]
 
-    @patch("showcase.node_factory.execute_prompt")
+    @patch("yamlgraph.node_factory.execute_prompt")
     def test_graph_routes_to_correct_node(self, mock_execute):
         """Compiled graph routes based on _route in state."""
         # Mock classifier returns "positive"
@@ -243,7 +243,7 @@ class TestConditionalEdges:
                 "classify": {
                     "type": "router",
                     "prompt": "classify",
-                    "output_model": "showcase.models.GenericReport",
+                    "output_model": "yamlgraph.models.GenericReport",
                     "routes": {
                         "positive": "respond_positive",
                         "negative": "respond_negative",

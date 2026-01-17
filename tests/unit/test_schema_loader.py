@@ -12,7 +12,7 @@ class TestBuildPydanticModel:
 
     def test_simple_string_field(self):
         """Build model with single string field."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "SimpleModel",
@@ -32,7 +32,7 @@ class TestBuildPydanticModel:
 
     def test_multiple_fields(self):
         """Build model with multiple field types."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "MultiFieldModel",
@@ -54,7 +54,7 @@ class TestBuildPydanticModel:
 
     def test_list_field(self):
         """Build model with list field."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "ListModel",
@@ -70,7 +70,7 @@ class TestBuildPydanticModel:
 
     def test_optional_field(self):
         """Build model with optional field."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "OptionalModel",
@@ -93,7 +93,7 @@ class TestBuildPydanticModel:
 
     def test_field_with_default(self):
         """Build model with default value."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "DefaultModel",
@@ -110,7 +110,7 @@ class TestBuildPydanticModel:
 
     def test_constraints_ge_le(self):
         """Build model with ge/le constraints."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "ConstrainedModel",
@@ -139,7 +139,7 @@ class TestBuildPydanticModel:
 
     def test_field_description_in_schema(self):
         """Field descriptions should be accessible."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "DescribedModel",
@@ -163,7 +163,7 @@ class TestToneClassificationSchema:
 
     def test_tone_classification_schema(self):
         """Build ToneClassification equivalent from schema."""
-        from showcase.schema_loader import build_pydantic_model
+        from yamlgraph.schema_loader import build_pydantic_model
 
         schema = {
             "name": "ToneClassification",
@@ -202,7 +202,7 @@ class TestLoadSchemaFromYaml:
 
     def test_load_schema_returns_none_if_no_schema(self, tmp_path):
         """Return None if prompt has no schema block."""
-        from showcase.schema_loader import load_schema_from_yaml
+        from yamlgraph.schema_loader import load_schema_from_yaml
 
         prompt_file = tmp_path / "simple.yaml"
         prompt_file.write_text("""
@@ -216,7 +216,7 @@ user: "{input}"
 
     def test_load_schema_builds_model(self, tmp_path):
         """Load and build model from prompt with schema."""
-        from showcase.schema_loader import load_schema_from_yaml
+        from yamlgraph.schema_loader import load_schema_from_yaml
 
         prompt_file = tmp_path / "with_schema.yaml"
         prompt_file.write_text("""
@@ -254,7 +254,7 @@ class TestTypeResolution:
 
     def test_resolve_basic_types(self):
         """Resolve basic type strings."""
-        from showcase.schema_loader import resolve_type
+        from yamlgraph.schema_loader import resolve_type
 
         assert resolve_type("str") is str
         assert resolve_type("int") is int
@@ -263,7 +263,7 @@ class TestTypeResolution:
 
     def test_resolve_list_types(self):
         """Resolve list type strings."""
-        from showcase.schema_loader import resolve_type
+        from yamlgraph.schema_loader import resolve_type
 
         result = resolve_type("list[str]")
         assert result == list[str]
@@ -273,7 +273,7 @@ class TestTypeResolution:
 
     def test_resolve_dict_types(self):
         """Resolve dict type strings."""
-        from showcase.schema_loader import resolve_type
+        from yamlgraph.schema_loader import resolve_type
 
         result = resolve_type("dict[str, str]")
         assert result == dict[str, str]
@@ -282,14 +282,14 @@ class TestTypeResolution:
         """Resolve Any type."""
         from typing import Any
 
-        from showcase.schema_loader import resolve_type
+        from yamlgraph.schema_loader import resolve_type
 
         result = resolve_type("Any")
         assert result is Any
 
     def test_invalid_type_raises(self):
         """Invalid type string raises ValueError."""
-        from showcase.schema_loader import resolve_type
+        from yamlgraph.schema_loader import resolve_type
 
         with pytest.raises(ValueError, match="Unknown type"):
             resolve_type("InvalidType")

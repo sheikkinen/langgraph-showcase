@@ -260,7 +260,7 @@ edges:
 **Run it:**
 
 ```bash
-showcase graph run examples/storyboard/animated-character-graph.yaml \
+yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A brave mouse knight on an adventure" \
   --var model=hidream
 ```
@@ -286,10 +286,10 @@ Each sub-node execution receives:
     # Full parent state
     "story": {...},
     "concept": "...",
-    
+
     # Injected item (from `as: panel_prompt`)
     "panel_prompt": "The knight approaches the castle...",
-    
+
     # Map tracking
     "_map_index": 0,  # Index in the list
 }

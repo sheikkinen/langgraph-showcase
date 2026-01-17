@@ -62,13 +62,13 @@ edges:
 ## Step 3: Run It
 
 ```bash
-showcase graph run graphs/my_pipeline.yaml --var name="Alice" --var style="formal"
+yamlgraph graph run graphs/my_pipeline.yaml --var name="Alice" --var style="formal"
 ```
 
 Or programmatically:
 
 ```python
-from showcase.graph_loader import load_and_compile
+from yamlgraph.graph_loader import load_and_compile
 
 graph = load_and_compile("graphs/my_pipeline.yaml")
 app = graph.compile()
@@ -177,7 +177,7 @@ my-project/
 │   └── router-demo/          # Grouped prompts
 │       ├── classify.yaml
 │       └── respond.yaml
-└── showcase/
+└── yamlgraph/
     └── models/
         └── state.py          # Custom state if needed
 ```

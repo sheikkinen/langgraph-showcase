@@ -1,6 +1,6 @@
 """Tests for showcase.config module."""
 
-from showcase.config import (
+from yamlgraph.config import (
     DATABASE_PATH,
     DEFAULT_MAX_TOKENS,
     DEFAULT_MODELS,

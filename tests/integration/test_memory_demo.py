@@ -24,14 +24,14 @@ class TestMemoryDemoGraphConfig:
 
     def test_graph_config_loads(self):
         """Graph config loads without errors."""
-        from showcase.graph_loader import load_graph_config
+        from yamlgraph.graph_loader import load_graph_config
 
         config = load_graph_config("graphs/memory-demo.yaml")
         assert config.name == "memory_demo"
 
     def test_graph_has_agent_node(self):
         """Graph includes an agent node."""
-        from showcase.graph_loader import load_graph_config
+        from yamlgraph.graph_loader import load_graph_config
 
         config = load_graph_config("graphs/memory-demo.yaml")
         assert "review" in config.nodes
@@ -39,7 +39,7 @@ class TestMemoryDemoGraphConfig:
 
     def test_graph_has_tools(self):
         """Graph defines git tools."""
-        from showcase.graph_loader import load_graph_config
+        from yamlgraph.graph_loader import load_graph_config
 
         config = load_graph_config("graphs/memory-demo.yaml")
         tools = config.tools or {}
@@ -57,7 +57,7 @@ class TestCodeReviewPrompt:
 
     def test_prompt_loads(self):
         """Prompt loads with system and user templates."""
-        from showcase.executor import load_prompt
+        from yamlgraph.executor import load_prompt
 
         prompt = load_prompt("code_review")
         assert "system" in prompt
@@ -71,8 +71,8 @@ class TestCheckpointerIntegration:
         """build_graph accepts optional checkpointer parameter."""
         import tempfile
 
-        from showcase.builder import build_graph
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.builder import build_graph
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
@@ -84,8 +84,8 @@ class TestCheckpointerIntegration:
         """Graph with checkpointer can be invoked with thread_id."""
         import tempfile
 
-        from showcase.builder import build_graph
-        from showcase.storage.checkpointer import get_checkpointer
+        from yamlgraph.builder import build_graph
+        from yamlgraph.storage.checkpointer import get_checkpointer
 
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
@@ -102,7 +102,7 @@ class TestCLIThreadFlag:
 
     def test_graph_run_cli_has_thread_argument(self):
         """Graph run CLI accepts --thread argument."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         # Parse with thread flag
@@ -113,7 +113,7 @@ class TestCLIThreadFlag:
 
     def test_graph_run_thread_defaults_to_none(self):
         """Thread defaults to None when not specified."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "run", "graphs/showcase.yaml"])
@@ -125,7 +125,7 @@ class TestCLIExportFlag:
 
     def test_graph_run_cli_has_export_argument(self):
         """Graph run CLI accepts --export flag."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "run", "graphs/showcase.yaml", "--export"])
@@ -133,7 +133,7 @@ class TestCLIExportFlag:
 
     def test_graph_run_export_defaults_to_false(self):
         """Export defaults to False when not specified."""
-        from showcase.cli import create_parser
+        from yamlgraph.cli import create_parser
 
         parser = create_parser()
         args = parser.parse_args(["graph", "run", "graphs/showcase.yaml"])
@@ -145,8 +145,8 @@ class TestMemoryDemoEndToEnd:
 
     def test_single_turn_returns_messages(self):
         """Single turn execution returns messages in state."""
-        from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
 
         mock_response = AIMessage(content="Here are the recent commits...")
 
@@ -159,7 +159,7 @@ class TestMemoryDemoEndToEnd:
             description="Get recent commits",
         )
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
             node_fn = create_agent_node(
                 "review",
                 {
@@ -176,7 +176,7 @@ class TestMemoryDemoEndToEnd:
 
     def test_multi_turn_preserves_history(self):
         """Multi-turn conversation preserves message history."""
-        from showcase.tools.agent import create_agent_node
+        from yamlgraph.tools.agent import create_agent_node
 
         mock_response = AIMessage(content="Based on our previous discussion...")
 
@@ -191,7 +191,7 @@ class TestMemoryDemoEndToEnd:
             AIMessage(content="Here are 5 commits..."),
         ]
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
             node_fn = create_agent_node(
                 "review",
                 {"tools": [], "state_key": "response"},
@@ -209,8 +209,8 @@ class TestMemoryDemoEndToEnd:
 
     def test_tool_results_stored_in_state(self):
         """Tool execution results are stored in state."""
-        from showcase.tools.agent import create_agent_node
-        from showcase.tools.shell import ShellToolConfig
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
 
         tool_response = AIMessage(
             content="",
@@ -227,8 +227,8 @@ class TestMemoryDemoEndToEnd:
             description="Get recent commits",
         )
 
-        with patch("showcase.tools.agent.create_llm", return_value=mock_llm):
-            with patch("showcase.tools.agent.execute_shell_tool") as mock_exec:
+        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
                 mock_exec.return_value = MagicMock(
                     success=True, output="abc123 First commit\ndef456 Second commit"
                 )
@@ -250,7 +250,7 @@ class TestMemoryDemoEndToEnd:
 
     def test_export_creates_files(self, tmp_path: Path):
         """Export flag creates output files."""
-        from showcase.storage.export import export_result
+        from yamlgraph.storage.export import export_result
 
         state = {
             "thread_id": "demo-123",

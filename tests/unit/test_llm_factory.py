@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from langchain_anthropic import ChatAnthropic
 
-from showcase.utils.llm_factory import clear_cache, create_llm
+from yamlgraph.utils.llm_factory import clear_cache, create_llm
 
 
 class TestCreateLLM:

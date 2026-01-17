@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 import pytest
 
-from showcase.builder import build_resume_graph
-from showcase.graph_loader import load_graph_config
-from showcase.models import create_initial_state
 from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
+from yamlgraph.builder import build_resume_graph
+from yamlgraph.graph_loader import load_graph_config
+from yamlgraph.models import create_initial_state
 
 # =============================================================================
 # Issue 1: Resume Logic - FIXED: skip_if_exists behavior
@@ -20,7 +20,7 @@ from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
 class TestResumeStartFromParameter:
     """Issue 1: Resume should skip nodes whose output already exists."""
 
-    @patch("showcase.node_factory.execute_prompt")
+    @patch("yamlgraph.node_factory.execute_prompt")
     def test_resume_from_analyze_skips_generate(self, mock_execute):
         """When state has 'generated', generate node should be skipped.
 
@@ -56,7 +56,7 @@ class TestResumeStartFromParameter:
         # Original generated content should be preserved
         assert result["generated"].title == "Already Generated"
 
-    @patch("showcase.node_factory.execute_prompt")
+    @patch("yamlgraph.node_factory.execute_prompt")
     def test_resume_from_summarize_skips_generate_and_analyze(self, mock_execute):
         """When state has 'generated' and 'analysis', only summarize runs."""
         state = create_initial_state(topic="test", thread_id="issue1b")
@@ -104,7 +104,7 @@ class TestConditionsFromYAML:
 
     def test_conditions_block_not_in_schema(self):
         """GraphConfig no longer parses conditions block."""
-        from showcase.config import DEFAULT_GRAPH
+        from yamlgraph.config import DEFAULT_GRAPH
 
         config = load_graph_config(DEFAULT_GRAPH)
 
@@ -132,7 +132,7 @@ nodes:
   first:
     type: llm
     prompt: generate
-    output_model: showcase.models.GenericReport
+    output_model: yamlgraph.models.GenericReport
     state_key: generated
 edges:
   - from: START
@@ -150,7 +150,7 @@ edges:
         Currently graph_loader.py sets graph._entry_point for testing.
         This test shows how to test entry point via behavior instead.
         """
-        from showcase.graph_loader import load_and_compile
+        from yamlgraph.graph_loader import load_and_compile
 
         graph = load_and_compile(simple_yaml)
         _ = graph.compile()  # Verify it compiles

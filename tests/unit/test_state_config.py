@@ -6,7 +6,7 @@ in build_state_class.
 
 from typing import Any
 
-from showcase.models.state_builder import (
+from yamlgraph.models.state_builder import (
     TYPE_MAP,
     build_state_class,
     parse_state_config,

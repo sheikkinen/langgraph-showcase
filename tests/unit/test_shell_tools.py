@@ -1,6 +1,6 @@
 """Tests for shell tool executor."""
 
-from showcase.tools.shell import (
+from yamlgraph.tools.shell import (
     ShellToolConfig,
     execute_shell_tool,
     parse_tools,

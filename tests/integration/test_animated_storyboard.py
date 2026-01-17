@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from showcase.graph_loader import compile_graph, load_graph_config
+from yamlgraph.graph_loader import compile_graph, load_graph_config
 
 
 class TestAnimatedStoryboardGraph:
@@ -30,7 +30,7 @@ class TestAnimatedStoryboardGraph:
         """Animated character storyboard graph compiles to StateGraph."""
         config = load_graph_config("examples/storyboard/animated-character-graph.yaml")
 
-        with patch("showcase.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (
                 mock_map_edge_fn,
@@ -48,7 +48,7 @@ class TestAnimatedStoryboardGraph:
         """State class has sorted_add reducer for animated_panels."""
         from typing import Annotated, get_args, get_origin
 
-        from showcase.models.state_builder import build_state_class, sorted_add
+        from yamlgraph.models.state_builder import build_state_class, sorted_add
 
         config = load_graph_config("examples/storyboard/animated-character-graph.yaml")
         state_class = build_state_class(config.raw_config)

@@ -10,8 +10,8 @@ since resolve_value delegates to resolve_state_path.
 import pytest
 from pydantic import BaseModel
 
-from showcase.routing import make_expr_router_fn, make_router_fn
-from showcase.utils.conditions import (
+from yamlgraph.routing import make_expr_router_fn, make_router_fn
+from yamlgraph.utils.conditions import (
     evaluate_comparison,
     evaluate_condition,
     parse_literal,
