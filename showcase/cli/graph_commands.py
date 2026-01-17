@@ -38,6 +38,48 @@ def parse_vars(var_list: list[str] | None) -> dict[str, str]:
     return result
 
 
+def _display_result(result: dict) -> None:
+    """Display result summary to console.
+
+    Args:
+        result: Graph execution result dict
+    """
+    print("=" * 60)
+    print("RESULT")
+    print("=" * 60)
+
+    skip_keys = {"messages", "errors", "_loop_counts"}
+    for key, value in result.items():
+        if key.startswith("_") or key in skip_keys:
+            continue
+        if value is not None:
+            value_str = str(value)[:200]
+            if len(str(value)) > 200:
+                value_str += "..."
+            print(f"  {key}: {value_str}")
+
+
+def _handle_export(graph_path: Path, result: dict) -> None:
+    """Handle optional result export.
+
+    Args:
+        graph_path: Path to the graph YAML file
+        result: Graph execution result dict
+    """
+    from showcase.storage.export import export_result
+
+    with open(graph_path) as f:
+        graph_config = yaml.safe_load(f)
+
+    export_config = graph_config.get("exports", {})
+    if export_config:
+        paths = export_result(result, export_config)
+        if paths:
+            print("\n📁 Exported:")
+            for p in paths:
+                print(f"   {p}")
+
+
 def cmd_graph_run(args: Namespace) -> None:
     """Run any graph with provided variables.
 
@@ -76,37 +118,10 @@ def cmd_graph_run(args: Namespace) -> None:
 
         result = app.invoke(initial_state, config=config if config else None)
 
-        # Show result summary
-        print("=" * 60)
-        print("RESULT")
-        print("=" * 60)
+        _display_result(result)
 
-        # Show key fields from result
-        skip_keys = {"messages", "errors", "_loop_counts"}
-        for key, value in result.items():
-            if key.startswith("_") or key in skip_keys:
-                continue
-            if value is not None:
-                value_str = str(value)[:200]
-                if len(str(value)) > 200:
-                    value_str += "..."
-                print(f"  {key}: {value_str}")
-
-        # Export if requested
         if args.export:
-            from showcase.storage.export import export_result
-
-            # Get export config from graph if available
-            with open(graph_path) as f:
-                graph_config = yaml.safe_load(f)
-
-            export_config = graph_config.get("exports", {})
-            if export_config:
-                paths = export_result(result, export_config)
-                if paths:
-                    print("\n📁 Exported:")
-                    for p in paths:
-                        print(f"   {p}")
+            _handle_export(graph_path, result)
 
         print()
 
@@ -201,6 +216,117 @@ def cmd_graph_info(args: Namespace) -> None:
         sys.exit(1)
 
 
+def _validate_required_fields(config: dict) -> tuple[list[str], list[str]]:
+    """Validate required fields in graph config.
+
+    Args:
+        config: Parsed YAML configuration
+
+    Returns:
+        Tuple of (errors, warnings) lists
+    """
+    errors = []
+    warnings = []
+
+    if not config.get("name"):
+        errors.append("Missing required field: name")
+
+    if not config.get("nodes"):
+        errors.append("Missing required field: nodes")
+
+    if not config.get("edges"):
+        warnings.append("No edges defined")
+
+    return errors, warnings
+
+
+def _validate_edges(edges: list[dict], node_names: set[str]) -> list[str]:
+    """Validate edge references in graph config.
+
+    Args:
+        edges: List of edge configurations
+        node_names: Set of valid node names (including START/END)
+
+    Returns:
+        List of error messages
+    """
+    errors = []
+
+    for i, edge in enumerate(edges):
+        from_node = edge.get("from", "")
+        to_node = edge.get("to", "")
+
+        if from_node not in node_names:
+            errors.append(f"Edge {i + 1}: unknown 'from' node '{from_node}'")
+
+        # Handle conditional edges where 'to' is a list
+        if isinstance(to_node, list):
+            for t in to_node:
+                if t not in node_names:
+                    errors.append(f"Edge {i + 1}: unknown 'to' node '{t}'")
+        elif to_node not in node_names:
+            errors.append(f"Edge {i + 1}: unknown 'to' node '{to_node}'")
+
+    return errors
+
+
+def _validate_nodes(nodes: dict) -> list[str]:
+    """Validate node configurations.
+
+    Args:
+        nodes: Dict of node_name -> node_config
+
+    Returns:
+        List of warning messages
+    """
+    warnings = []
+
+    for node_name, node_config in nodes.items():
+        node_type = node_config.get("type", "llm")
+        if node_type == "agent" and not node_config.get("tools"):
+            warnings.append(f"Node '{node_name}': agent has no tools")
+
+    return warnings
+
+
+def _report_validation_result(
+    graph_path: Path,
+    config: dict,
+    errors: list[str],
+    warnings: list[str],
+) -> None:
+    """Report validation results and exit appropriately.
+
+    Args:
+        graph_path: Path to the graph file
+        config: Parsed graph configuration
+        errors: List of error messages
+        warnings: List of warning messages
+    """
+    name = config.get("name", graph_path.stem)
+    nodes = config.get("nodes", {})
+    edges = config.get("edges", [])
+
+    if errors:
+        print(f"\n❌ {graph_path.name} ({name}) - INVALID\n")
+        for err in errors:
+            print(f"   ✗ {err}")
+        for warn in warnings:
+            print(f"   ⚠ {warn}")
+        print()
+        sys.exit(1)
+    elif warnings:
+        print(f"\n⚠️  {graph_path.name} ({name}) - VALID with warnings\n")
+        for warn in warnings:
+            print(f"   ⚠ {warn}")
+        print()
+    else:
+        print(f"\n✅ {graph_path.name} ({name}) - VALID\n")
+        print(f"   Nodes: {len(nodes)}")
+        print(f"   Edges: {len(edges)}")
+        print()
+
+
 def cmd_graph_validate(args: Namespace) -> None:
     """Validate a graph YAML file.
 
@@ -216,69 +342,22 @@ def cmd_graph_validate(args: Namespace) -> None:
         print(f"❌ Graph file not found: {graph_path}")
         sys.exit(1)
 
-    errors = []
-    warnings = []
-
     try:
         with open(graph_path) as f:
             config = yaml.safe_load(f)
 
-        # Check required fields
-        if not config.get("name"):
-            errors.append("Missing required field: name")
+        # Run validations
+        errors, warnings = _validate_required_fields(config)
 
         nodes = config.get("nodes", {})
-        if not nodes:
-            errors.append("Missing required field: nodes")
-
         edges = config.get("edges", [])
-        if not edges:
-            warnings.append("No edges defined")
-
-        # Validate node references in edges
         node_names = set(nodes.keys()) | {"START", "END"}
-        for i, edge in enumerate(edges):
-            from_node = edge.get("from", "")
-            to_node = edge.get("to", "")
 
-            if from_node not in node_names:
-                errors.append(f"Edge {i + 1}: unknown 'from' node '{from_node}'")
-
-            # Handle conditional edges where 'to' is a list
-            if isinstance(to_node, list):
-                for t in to_node:
-                    if t not in node_names:
-                        errors.append(f"Edge {i + 1}: unknown 'to' node '{t}'")
-            elif to_node not in node_names:
-                errors.append(f"Edge {i + 1}: unknown 'to' node '{to_node}'")
-
-        # Validate node configurations
-        for node_name, node_config in nodes.items():
-            node_type = node_config.get("type", "llm")
-            if node_type == "agent":
-                if not node_config.get("tools"):
-                    warnings.append(f"Node '{node_name}': agent has no tools")
+        errors.extend(_validate_edges(edges, node_names))
+        warnings.extend(_validate_nodes(nodes))
 
         # Report results
-        name = config.get("name", graph_path.stem)
-        if errors:
-            print(f"\n❌ {graph_path.name} ({name}) - INVALID\n")
-            for err in errors:
-                print(f"   ✗ {err}")
-            for warn in warnings:
-                print(f"   ⚠ {warn}")
-            print()
-            sys.exit(1)
-        elif warnings:
-            print(f"\n⚠️  {graph_path.name} ({name}) - VALID with warnings\n")
-            for warn in warnings:
-                print(f"   ⚠ {warn}")
-            print()
-        else:
-            print(f"\n✅ {graph_path.name} ({name}) - VALID\n")
-            print(f"   Nodes: {len(nodes)}")
-            print(f"   Edges: {len(edges)}")
-            print()
+        _report_validation_result(graph_path, config, errors, warnings)
 
     except yaml.YAMLError as e:
         print(f"❌ Invalid YAML: {e}")

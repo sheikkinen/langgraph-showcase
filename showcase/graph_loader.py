@@ -5,15 +5,14 @@ and compile them into LangGraph StateGraph instances.
 """
 
 import logging
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import yaml
 from langgraph.graph import END, StateGraph
-from langgraph.types import Send
 
 from showcase.constants import NodeType
+from showcase.map_compiler import compile_map_node
 from showcase.models.state_builder import build_state_class
 from showcase.node_factory import create_node_function, resolve_class
 from showcase.routing import make_expr_router_fn, make_router_fn
@@ -21,7 +20,6 @@ from showcase.tools.agent import create_agent_node
 from showcase.tools.nodes import create_tool_node
 from showcase.tools.python_tool import create_python_node, parse_python_tools
 from showcase.tools.shell import parse_tools
-from showcase.utils.expressions import resolve_state_expression
 from showcase.utils.validators import validate_config
 
 # Type alias for dynamic state
@@ -81,125 +79,214 @@ def load_graph_config(path: str | Path) -> GraphConfig:
     return GraphConfig(config)
 
 
-def wrap_for_reducer(
-    node_fn: Callable[[dict], dict],
-    collect_key: str,
-    state_key: str,
-) -> Callable[[dict], dict]:
-    """Wrap sub-node output for Annotated reducer aggregation.
+def _resolve_state_class(config: GraphConfig) -> type:
+    """Resolve the state class for the graph.
 
-    Handles error propagation: if a map branch fails, the error is
-    included in the result with the _map_index for tracking.
+    Uses dynamic state generation unless explicit state_class is set
+    (deprecated).
 
     Args:
-        node_fn: The original node function
-        collect_key: State key where results are collected
-        state_key: Key to extract from node result
+        config: Graph configuration
 
     Returns:
-        Wrapped function that outputs in reducer-compatible format
+        TypedDict class for graph state
     """
+    if config.state_class and config.state_class != "showcase.models.GraphState":
+        import warnings
 
-    def wrapped(state: dict) -> dict:
-        try:
-            result = node_fn(state)
-        except Exception as e:
-            # Propagate error with map index
-            from showcase.models import PipelineError
-
-            error_result = {
-                "_map_index": state.get("_map_index", 0),
-                "_error": str(e),
-                "_error_type": type(e).__name__,
-            }
-            return {
-                collect_key: [error_result],
-                "errors": [PipelineError.from_exception(e, node="map_subnode")],
-            }
-
-        # Check if result contains an error
-        if "errors" in result or "error" in result:
-            error_result = {
-                "_map_index": state.get("_map_index", 0),
-                "_error": str(result.get("errors") or result.get("error")),
-            }
-            # Preserve errors in output
-            output = {collect_key: [error_result]}
-            if "errors" in result:
-                output["errors"] = result["errors"]
-            return output
-
-        extracted = result.get(state_key, result)
-
-        # Convert Pydantic models to dicts
-        if hasattr(extracted, "model_dump"):
-            extracted = extracted.model_dump()
-
-        # Include _map_index if present for ordering
-        if "_map_index" in state:
-            if isinstance(extracted, dict):
-                extracted = {"_map_index": state["_map_index"], **extracted}
-            else:
-                extracted = {"_map_index": state["_map_index"], "value": extracted}
-
-        return {collect_key: [extracted]}
-
-    return wrapped
+        warnings.warn(
+            f"state_class '{config.state_class}' is deprecated. "
+            "State is now auto-generated from graph config.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return resolve_class(config.state_class)
+    return build_state_class(config.raw_config)
 
 
-def compile_map_node(
-    name: str,
-    config: dict[str, Any],
-    builder: StateGraph,
-    defaults: dict[str, Any],
-) -> tuple[Callable[[dict], list[Send]], str]:
-    """Compile type: map node using LangGraph Send.
-
-    Creates a sub-node and returns a map edge function that fans out
-    to the sub-node for each item in the list.
+def _parse_all_tools(
+    config: GraphConfig,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Parse shell and Python tools from config.
 
     Args:
-        name: Name of the map node
-        config: Map node configuration with 'over', 'as', 'node', 'collect'
-        builder: StateGraph builder to add sub-node to
-        defaults: Default configuration for nodes
+        config: Graph configuration
 
     Returns:
-        Tuple of (map_edge_function, sub_node_name)
+        Tuple of (shell_tools, python_tools) dictionaries
     """
-    over_expr = config["over"]
-    item_var = config["as"]
-    sub_node_name = f"_map_{name}_sub"
-    collect_key = config["collect"]
-    sub_node_config = dict(config["node"])  # Copy to avoid mutating original
-    state_key = sub_node_config.get("state_key", "result")
+    tools = parse_tools(config.tools)
+    python_tools = parse_python_tools(config.tools)
 
-    # Auto-inject the 'as' variable into sub-node's variables
-    # So the prompt can access it as {item_var}
-    sub_variables = dict(sub_node_config.get("variables", {}))
-    sub_variables[item_var] = f"{{state.{item_var}}}"
-    sub_node_config["variables"] = sub_variables
+    if tools:
+        logger.info(f"Parsed {len(tools)} shell tools: {', '.join(tools.keys())}")
+    if python_tools:
+        logger.info(
+            f"Parsed {len(python_tools)} Python tools: {', '.join(python_tools.keys())}"
+        )
 
-    # Create sub-node from config
-    sub_node = create_node_function(sub_node_name, sub_node_config, defaults)
-    wrapped_node = wrap_for_reducer(sub_node, collect_key, state_key)
-    builder.add_node(sub_node_name, wrapped_node)
+    return tools, python_tools
 
-    # Create fan-out edge function using Send
-    def map_edge(state: dict) -> list[Send]:
-        items = resolve_state_expression(over_expr, state)
 
-        if not isinstance(items, list):
-            raise TypeError(
-                f"Map 'over' must resolve to list, got {type(items).__name__}"
-            )
+def _compile_node(
+    node_name: str,
+    node_config: dict[str, Any],
+    graph: StateGraph,
+    config: GraphConfig,
+    tools: dict[str, Any],
+    python_tools: dict[str, Any],
+) -> tuple[str, Any] | None:
+    """Compile a single node and add to graph.
 
-        return [
-            Send(sub_node_name, {**state, item_var: item, "_map_index": i})
-            for i, item in enumerate(items)
-        ]
+    Args:
+        node_name: Name of the node
+        node_config: Node configuration dict
+        graph: StateGraph to add node to
+        config: Full graph config for defaults
+        tools: Shell tools registry
+        python_tools: Python tools registry
 
-    return map_edge, sub_node_name
+    Returns:
+        Tuple of (node_name, map_info) for map nodes, None otherwise
+    """
+    # Copy node config and add loop_limit if specified
+    enriched_config = dict(node_config)
+    if node_name in config.loop_limits:
+        enriched_config["loop_limit"] = config.loop_limits[node_name]
+
+    node_type = node_config.get("type", NodeType.LLM)
+
+    if node_type == NodeType.TOOL:
+        node_fn = create_tool_node(node_name, enriched_config, tools)
+        graph.add_node(node_name, node_fn)
+    elif node_type == NodeType.PYTHON:
+        node_fn = create_python_node(node_name, enriched_config, python_tools)
+        graph.add_node(node_name, node_fn)
+    elif node_type == NodeType.AGENT:
+        node_fn = create_agent_node(node_name, enriched_config, tools)
+        graph.add_node(node_name, node_fn)
+    elif node_type == NodeType.MAP:
+        map_edge_fn, sub_node_name = compile_map_node(
+            node_name, enriched_config, graph, config.defaults
+        )
+        logger.info(f"Added node: {node_name} (type={node_type})")
+        return (node_name, (map_edge_fn, sub_node_name))
+    else:
+        # LLM and router nodes
+        node_fn = create_node_function(node_name, enriched_config, config.defaults)
+        graph.add_node(node_name, node_fn)
+
+    logger.info(f"Added node: {node_name} (type={node_type})")
+    return None
+
+
+def _compile_nodes(
+    config: GraphConfig,
+    graph: StateGraph,
+    tools: dict[str, Any],
+    python_tools: dict[str, Any],
+) -> dict[str, tuple]:
+    """Compile all nodes and add to graph.
+
+    Args:
+        config: Graph configuration
+        graph: StateGraph to add nodes to
+        tools: Shell tools registry
+        python_tools: Python tools registry
+
+    Returns:
+        Dict of map_nodes: name -> (map_edge_fn, sub_node_name)
+    """
+    map_nodes: dict[str, tuple] = {}
+
+    for node_name, node_config in config.nodes.items():
+        result = _compile_node(
+            node_name, node_config, graph, config, tools, python_tools
+        )
+        if result:
+            map_nodes[result[0]] = result[1]
+
+    return map_nodes
+
+
+def _process_edge(
+    edge: dict[str, Any],
+    graph: StateGraph,
+    map_nodes: dict[str, tuple],
+    router_edges: dict[str, list],
+    expression_edges: dict[str, list[tuple[str, str]]],
+) -> None:
+    """Process a single edge and add to graph or edge tracking dicts.
+
+    Args:
+        edge: Edge configuration dict
+        graph: StateGraph to add edges to
+        map_nodes: Map node tracking dict
+        router_edges: Dict to collect router edges
+        expression_edges: Dict to collect expression-based edges
+    """
+    from_node = edge["from"]
+    to_node = edge["to"]
+    condition = edge.get("condition")
+    edge_type = edge.get("type")
+
+    if from_node == "START":
+        graph.set_entry_point(to_node)
+    elif isinstance(to_node, str) and to_node in map_nodes:
+        # Edge TO a map node: use conditional edge with Send function
+        map_edge_fn, sub_node_name = map_nodes[to_node]
+        graph.add_conditional_edges(from_node, map_edge_fn, [sub_node_name])
+    elif from_node in map_nodes:
+        # Edge FROM a map node: wire sub_node to next_node for fan-in
+        _, sub_node_name = map_nodes[from_node]
+        target = END if to_node == "END" else to_node
+        graph.add_edge(sub_node_name, target)
+    elif edge_type == "conditional" and isinstance(to_node, list):
+        # Router-style conditional edge: store for later processing
+        router_edges[from_node] = to_node
+    elif condition:
+        # Expression-based condition (e.g., "critique.score < 0.8")
+        if from_node not in expression_edges:
+            expression_edges[from_node] = []
+        target = END if to_node == "END" else to_node
+        expression_edges[from_node].append((condition, target))
+    elif to_node == "END":
+        graph.add_edge(from_node, END)
+    else:
+        graph.add_edge(from_node, to_node)
+
+
+def _add_conditional_edges(
+    graph: StateGraph,
+    router_edges: dict[str, list],
+    expression_edges: dict[str, list[tuple[str, str]]],
+) -> None:
+    """Add router and expression conditional edges to graph.
+
+    Args:
+        graph: StateGraph to add edges to
+        router_edges: Router-style conditional edges
+        expression_edges: Expression-based conditional edges
+    """
+    # Add router conditional edges
+    for source_node, target_nodes in router_edges.items():
+        route_mapping = {target: target for target in target_nodes}
+        graph.add_conditional_edges(
+            source_node,
+            make_router_fn(target_nodes),
+            route_mapping,
+        )
+
+    # Add expression-based conditional edges
+    for source_node, expr_edges in expression_edges.items():
+        targets = {target for _, target in expr_edges}
+        targets.add(END)  # Always include END as fallback
+        route_mapping = {t: (END if t == END else t) for t in targets}
+        graph.add_conditional_edges(
+            source_node,
+            make_expr_router_fn(expr_edges, source_node),
+            route_mapping,
+        )
 
 
 def compile_graph(config: GraphConfig) -> StateGraph:
@@ -211,128 +298,25 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     Returns:
         StateGraph ready for compilation
     """
-    # Build state class dynamically from config
-    # If state_class is explicitly set, use it (with deprecation warning)
-    if config.state_class and config.state_class != "showcase.models.GraphState":
-        import warnings
-
-        warnings.warn(
-            f"state_class '{config.state_class}' is deprecated. "
-            "State is now auto-generated from graph config.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        state_class = resolve_class(config.state_class)
-    else:
-        # Dynamic state generation - no YAML coupling!
-        state_class = build_state_class(config.raw_config)
+    # Build state class and create graph
+    state_class = _resolve_state_class(config)
     graph = StateGraph(state_class)
 
-    # Parse tools if present
-    tools = parse_tools(config.tools)
-    python_tools = parse_python_tools(config.tools)
-    if tools:
-        logger.info(f"Parsed {len(tools)} shell tools: {', '.join(tools.keys())}")
-    if python_tools:
-        logger.info(
-            f"Parsed {len(python_tools)} Python tools: {', '.join(python_tools.keys())}"
-        )
+    # Parse all tools
+    tools, python_tools = _parse_all_tools(config)
 
-    # Add nodes - inject loop_limits from graph config into node config
-    # Track map nodes for special edge handling
-    map_nodes: dict[str, tuple] = {}  # name -> (map_edge_fn, sub_node_name)
-
-    for node_name, node_config in config.nodes.items():
-        # Copy node config and add loop_limit if specified in graph's loop_limits
-        enriched_config = dict(node_config)
-        if node_name in config.loop_limits:
-            enriched_config["loop_limit"] = config.loop_limits[node_name]
-
-        node_type = node_config.get("type", NodeType.LLM)
-
-        if node_type == NodeType.TOOL:
-            node_fn = create_tool_node(node_name, enriched_config, tools)
-            graph.add_node(node_name, node_fn)
-        elif node_type == NodeType.PYTHON:
-            node_fn = create_python_node(node_name, enriched_config, python_tools)
-            graph.add_node(node_name, node_fn)
-        elif node_type == NodeType.AGENT:
-            node_fn = create_agent_node(node_name, enriched_config, tools)
-            graph.add_node(node_name, node_fn)
-        elif node_type == NodeType.MAP:
-            # Map node - compile and track for edge wiring
-            map_edge_fn, sub_node_name = compile_map_node(
-                node_name, enriched_config, graph, config.defaults
-            )
-            map_nodes[node_name] = (map_edge_fn, sub_node_name)
-            # Note: compile_map_node adds the sub_node to graph
-        else:
-            # LLM and router nodes
-            node_fn = create_node_function(node_name, enriched_config, config.defaults)
-            graph.add_node(node_name, node_fn)
-
-        logger.info(f"Added node: {node_name} (type={node_type})")
-
-    # Track which edges need conditional routing
-    router_edges = {}  # For type: conditional edges with list targets
-    expression_edges: dict[str, list[tuple[str, str]]] = {}  # For expression conditions
+    # Compile all nodes
+    map_nodes = _compile_nodes(config, graph, tools, python_tools)
 
     # Process edges
+    router_edges: dict[str, list] = {}
+    expression_edges: dict[str, list[tuple[str, str]]] = {}
+
     for edge in config.edges:
-        from_node = edge["from"]
-        to_node = edge["to"]
-        condition = edge.get("condition")
-        edge_type = edge.get("type")
+        _process_edge(edge, graph, map_nodes, router_edges, expression_edges)
 
-        if from_node == "START":
-            graph.set_entry_point(to_node)
-        elif isinstance(to_node, str) and to_node in map_nodes:
-            # Edge TO a map node: use conditional edge with Send function
-            map_edge_fn, sub_node_name = map_nodes[to_node]
-            graph.add_conditional_edges(from_node, map_edge_fn, [sub_node_name])
-        elif from_node in map_nodes:
-            # Edge FROM a map node: wire sub_node to next_node for fan-in
-            _, sub_node_name = map_nodes[from_node]
-            target = END if to_node == "END" else to_node
-            graph.add_edge(sub_node_name, target)
-        elif edge_type == "conditional" and isinstance(to_node, list):
-            # Router-style conditional edge: routes to one of multiple targets
-            # Store for later processing
-            router_edges[from_node] = to_node
-        elif condition:
-            # Expression-based condition (e.g., "critique.score < 0.8")
-            if from_node not in expression_edges:
-                expression_edges[from_node] = []
-            target = END if to_node == "END" else to_node
-            expression_edges[from_node].append((condition, target))
-        elif to_node == "END":
-            graph.add_edge(from_node, END)
-        else:
-            graph.add_edge(from_node, to_node)
-
-    # Add router conditional edges
-    for source_node, target_nodes in router_edges.items():
-        # Create mapping: target_name -> target_name (identity mapping)
-        route_mapping = {target: target for target in target_nodes}
-
-        graph.add_conditional_edges(
-            source_node,
-            make_router_fn(target_nodes),
-            route_mapping,
-        )
-
-    # Add expression-based conditional edges
-    for source_node, expr_edges in expression_edges.items():
-        # Build mapping: all possible targets
-        targets = {target for _, target in expr_edges}
-        targets.add(END)  # Always include END as fallback
-        route_mapping = {t: (END if t == END else t) for t in targets}
-
-        graph.add_conditional_edges(
-            source_node,
-            make_expr_router_fn(expr_edges, source_node),
-            route_mapping,
-        )
+    # Add conditional edges
+    _add_conditional_edges(graph, router_edges, expression_edges)
 
     return graph
 
