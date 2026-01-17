@@ -1,13 +1,13 @@
 """Animated character storyboard node.
 
-Generates for each panel:
-1. Original image:
-   - If reference_image provided: img2img from reference
-   - Otherwise: generate from character_prompt + panel description
-2. First frame (img2img from original)
-3. Last frame (img2img from original)
+Workflow:
+1. If no reference_image provided, generate character.png from character_prompt
+2. For each panel:
+   - Original: img2img from character/reference (magic=0.25 for consistency)
+   - First frame: img2img from original
+   - Last frame: img2img from original
 
-This ensures animation frames are visually coherent within each panel.
+This ensures character consistency across all panels.
 """
 
 from __future__ import annotations
@@ -28,20 +28,18 @@ GraphState = dict[str, Any]
 def generate_animated_character_images(state: GraphState) -> dict:
     """Generate animated character-consistent storyboard images.
 
-    For each panel:
-    1. Generate ORIGINAL:
-       - If reference_image: img2img from reference for character consistency
-       - Otherwise: generate from character_prompt + panel description
-    2. Generate first_frame via img2img from original
-    3. Generate last_frame via img2img from original
-
-    This creates coherent animation sequences within each panel.
+    Workflow:
+    1. If no reference_image: generate character.png from character_prompt
+    2. For each panel:
+       - Original: img2img from character/reference
+       - First frame: img2img from original
+       - Last frame: img2img from original
 
     Args:
         state: Graph state with 'story', 'animated_panels', and optional 'reference_image'
 
     Returns:
-        State update with 'images'
+        State update with 'images', 'character_image', 'output_dir'
     """
     story = state.get("story")
     animated_panels = state.get("animated_panels", [])
@@ -97,11 +95,31 @@ def generate_animated_character_images(state: GraphState) -> dict:
 
     logger.info(f"🎬 Generating animated character storyboard in {output_dir}")
     logger.info(f"🖼️  Using model: {model_name}")
-    if reference_path:
+
+    # If no reference provided, generate a character image first
+    if not reference_path:
+        character_path = output_dir / "character.png"
+        logger.info("🎭 Generating character base image...")
+        char_result = generate_image(
+            prompt=character_prompt,
+            output_path=character_path,
+            model_name=model_name,
+        )
+        if char_result.success:
+            reference_path = character_path
+            logger.info(f"✓ Character image created: {character_path}")
+        else:
+            logger.error(f"Character generation failed: {char_result.error}")
+            return {
+                "current_step": "generate_animated_character_images",
+                "images": [],
+                "error": f"Character generation failed: {char_result.error}",
+            }
+    else:
         logger.info(f"🎭 Using reference image: {reference_path}")
 
     # Generate frames for each panel
-    # Each panel: generate original first, then img2img for first/last
+    # Each panel: img2img from character/reference, then img2img for first/last
     total_images = len(animated_panels) * 3
     logger.info(
         f"🎞️  Generating {total_images} frames ({len(animated_panels)} panels × 3)"
@@ -120,7 +138,7 @@ def generate_animated_character_images(state: GraphState) -> dict:
 
         panel_result = {"panel": panel_idx, "frames": {}}
 
-        # Step 1: Generate ORIGINAL image from character_prompt + panel description
+        # Step 1: Generate ORIGINAL image via img2img from character/reference
         original_prompt = panel_dict.get("original", "")
         if not original_prompt:
             logger.warning(f"Panel {panel_idx} missing original prompt")
@@ -131,23 +149,15 @@ def generate_animated_character_images(state: GraphState) -> dict:
         original_path = output_dir / f"panel_{panel_idx}_original.png"
         logger.info(f"📸 Panel {panel_idx} original: {original_prompt[:50]}...")
 
-        if reference_path:
-            # Use img2img from reference for character consistency
-            # magic=0.25 preserves more of the reference (lower = more original)
-            original_result = edit_image(
-                input_image=reference_path,
-                prompt=full_original_prompt,
-                output_path=original_path,
-                aspect_ratio="16:9",
-                magic=0.25,
-            )
-        else:
-            # Generate from scratch
-            original_result = generate_image(
-                prompt=full_original_prompt,
-                output_path=original_path,
-                model_name=model_name,
-            )
+        # Use img2img from reference for character consistency
+        # magic=0.25 preserves more of the reference (lower = more original)
+        original_result = edit_image(
+            input_image=reference_path,
+            prompt=full_original_prompt,
+            output_path=original_path,
+            aspect_ratio="16:9",
+            magic=0.25,
+        )
 
         if not original_result.success:
             logger.error(f"Panel {panel_idx} original failed: {original_result.error}")
@@ -232,6 +242,7 @@ def generate_animated_character_images(state: GraphState) -> dict:
 
     return {
         "current_step": "generate_animated_character_images",
+        "character_image": str(reference_path),
         "images": all_results,
         "output_dir": str(output_dir),
     }
