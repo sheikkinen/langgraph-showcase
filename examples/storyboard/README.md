@@ -5,9 +5,24 @@ Generates a visual story with 3-5 panels from a concept using LLM + Replicate im
 ## Usage
 
 ```bash
+# Default (z-image model - photorealistic)
 showcase graph run examples/storyboard/graph.yaml \
   --var concept="A wizard's apprentice discovers a hidden library"
+
+# HiDream model (cartoon/illustration style)
+showcase graph run examples/storyboard/graph.yaml \
+  --var concept="A robot learning to paint" \
+  --var model="hidream"
 ```
+
+## Models
+
+| Model | Style | Best For |
+|-------|-------|----------|
+| `z-image` (default) | Photorealistic, cinematic | Realistic scenes, photography |
+| `hidream` | Cartoon, illustration | Stylized art, comics, anime |
+
+The LLM automatically adapts prompts based on the selected model.
 
 ## How It Works
 
@@ -34,7 +49,6 @@ outputs/storyboard/20260117_120000/
 ## Requirements
 
 - `REPLICATE_API_TOKEN` in `.env`
-- Uses `prunaai/z-image-turbo` model (fast, 1344×768)
 
 ## Files
 

@@ -5,6 +5,7 @@ description: Generate a visual story with 3-5 panels from a concept
 # Declare input state fields
 state:
   concept: str
+  model: str
 
 # Python tools for image generation
 tools:
@@ -21,6 +22,7 @@ nodes:
     state_key: story
     variables:
       concept: "{state.concept}"
+      model: "{state.model}"
     # Output schema defined inline in prompt YAML
 
   generate_images:

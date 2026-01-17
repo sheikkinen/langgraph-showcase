@@ -1,6 +1,8 @@
 """Replicate image generation tool for storyboard workflow.
 
-Uses the Z-Image Turbo model to generate images from prompts.
+Supports multiple models:
+- z-image: Fast, good for realistic/photographic (default)
+- hidream: Better for cartoons, illustrations, stylized art
 """
 
 from __future__ import annotations
@@ -13,6 +15,29 @@ from pathlib import Path
 import httpx
 
 logger = logging.getLogger(__name__)
+
+# Model configurations
+MODELS = {
+    "z-image": {
+        "id": "prunaai/z-image-turbo",
+        "width": 1344,
+        "height": 768,
+        "params": {
+            "guidance_scale": 0,
+            "num_inference_steps": 8,
+        },
+    },
+    "hidream": {
+        "id": "prunaai/hidream-l1-fast:f67f0ec7ef9fe91b74e8a68d34efaa9145bec28675cb190cbff8a70f0490256e",
+        "resolution": "1360 \u00d7 768 (Landscape)",
+        "params": {
+            "model_type": "fast",
+            "speed_mode": "Juiced \U0001F525 (more speed)",
+        },
+    },
+}
+
+DEFAULT_MODEL = "z-image"
 
 # Check if replicate is available
 try:
@@ -36,18 +61,14 @@ class ImageResult:
 def generate_image(
     prompt: str,
     output_path: str | Path,
-    width: int = 1344,
-    height: int = 768,
-    model: str = "prunaai/z-image-turbo",
+    model_name: str = DEFAULT_MODEL,
 ) -> ImageResult:
     """Generate an image using Replicate API.
 
     Args:
         prompt: Text prompt for image generation
         output_path: Path to save the generated image
-        width: Image width (default 1344 for 16:9)
-        height: Image height (default 768 for 16:9)
-        model: Replicate model identifier
+        model_name: Model to use ('z-image' or 'hidream')
 
     Returns:
         ImageResult with success status and path or error
@@ -61,26 +82,40 @@ def generate_image(
             success=False, error="REPLICATE_API_TOKEN not set in environment"
         )
 
+    # Get model config
+    model_config = MODELS.get(model_name, MODELS[DEFAULT_MODEL])
+    model_id = model_config["id"]
+
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        logger.info(f"🎨 Generating image: {prompt[:50]}...")
+        logger.info(f"🎨 Generating image with {model_name}: {prompt[:50]}...")
+
+        # Build input params based on model
+        if model_name == "hidream":
+            input_params = {
+                "prompt": prompt,
+                "seed": -1,
+                "resolution": model_config["resolution"],
+                "output_format": "png",
+                "output_quality": 80,
+                **model_config["params"],
+            }
+        else:
+            # z-image and default
+            input_params = {
+                "prompt": prompt,
+                "width": model_config.get("width", 1344),
+                "height": model_config.get("height", 768),
+                "output_format": "png",
+                "output_quality": 80,
+                **model_config.get("params", {}),
+            }
 
         # Run the model
         client = replicate.Client(api_token=api_token)
-        output = client.run(
-            model,
-            input={
-                "prompt": prompt,
-                "width": width,
-                "height": height,
-                "output_format": "png",
-                "guidance_scale": 0,
-                "output_quality": 80,
-                "num_inference_steps": 8,
-            },
-        )
+        output = client.run(model_id, input=input_params)
 
         # output is typically a URL or file-like object
         image_url = output if isinstance(output, str) else str(output)

@@ -28,6 +28,22 @@ system: |
   - Suitable for AI image generation (no text in images)
   - Consistent in style across all panels
   - Written in a cinematic, evocative style
+  {% if model == "hidream" %}
+  
+  **STYLE GUIDANCE (HiDream model):**
+  Use artistic, illustrated styles. Each prompt should explicitly include style keywords like:
+  - "cartoon style", "illustration", "stylized", "digital art"
+  - "anime style", "watercolor", "comic book art", "concept art"
+  - Bold colors, expressive characters, artistic compositions
+  - Avoid photorealistic descriptions
+  {% else %}
+  
+  **STYLE GUIDANCE (Z-Image model):**
+  Use photorealistic, cinematic descriptions. Each prompt should convey:
+  - Photographic quality with realistic lighting
+  - Cinematic camera angles and compositions
+  - Natural colors and textures
+  {% endif %}
   
   Create 3-5 panels following this structure:
   - First panel: Establishing shot - introduce setting, characters, situation
