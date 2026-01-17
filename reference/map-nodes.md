@@ -354,11 +354,11 @@ The `as` name must match exactly in variables.
 
 ### Results not collected
 
-Ensure the `collect` key is defined in state:
+The `collect` key is automatically added to state with a `sorted_add` reducer that:
+- Collects results from all parallel branches
+- Sorts by `_map_index` to maintain order
 
-```yaml
-state:
-  animated_panels: list  # Must be declared
-```
-
-Or let it auto-generate by using `Annotated[list, operator.add]` in state definition.
+If results aren't appearing, check that:
+1. The sub-node's `state_key` matches what you expect
+2. The `collect` key name is spelled correctly
+3. The sub-node is completing without errors

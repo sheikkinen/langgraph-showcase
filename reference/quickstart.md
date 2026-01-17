@@ -177,10 +177,10 @@ my-project/
 │   └── router-demo/          # Grouped prompts
 │       ├── classify.yaml
 │       └── respond.yaml
-└── yamlgraph/
-    └── models/
-        └── state.py          # Custom state if needed
+└── outputs/                   # Generated outputs (gitignored)
 ```
+
+> **Note:** State is auto-generated from your graph config. No `state.py` needed!
 
 ---
 

@@ -1,0 +1,60 @@
+# YamlGraph Demo Pipeline - YAML Graph Definition
+# Example pipeline showing generate → analyze → summarize flow
+
+version: "1.0"
+name: yamlgraph-demo
+description: Content generation pipeline (generate → analyze → summarize)
+
+defaults:
+  provider: mistral
+  temperature: 0.7
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    temperature: 0.8
+    on_error: fail            # Stop pipeline on error
+    fallback:
+      provider: anthropic    # Try fallback provider first
+    variables:
+      topic: "{state.topic}"
+      word_count: "{state.word_count}"
+      style: "{state.style}"
+    state_key: generated
+
+  analyze:
+    type: llm
+    prompt: analyze
+    temperature: 0.3
+    variables:
+      content: "{state.generated.content}"
+    state_key: analysis
+    requires: [generated]
+
+  summarize:
+    type: llm
+    prompt: summarize
+    # No structured output - returns raw string
+    temperature: 0.5
+    variables:
+      topic: "{state.topic}"
+      generated_content: "{state.generated.content}"
+      analysis_summary: "{state.analysis.summary}"
+      key_points: "{state.analysis.key_points}"
+      sentiment: "{state.analysis.sentiment}"
+    state_key: final_summary
+    requires: [generated, analysis]
+
+edges:
+  - from: START
+    to: generate
+
+  - from: generate
+    to: analyze
+
+  - from: analyze
+    to: summarize
+
+  - from: summarize
+    to: END

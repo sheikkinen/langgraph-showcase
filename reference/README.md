@@ -98,14 +98,18 @@ Copy-paste patterns for common use cases:
 ## Key Concepts
 
 ### State
-A TypedDict that flows through the pipeline. Nodes read from and write to state.
+A TypedDict that flows through the pipeline. State is **automatically generated** from your graph configuration based on:
+- Node `state_key` fields
+- Node types (agent adds `messages`, router adds `_route`)
+- Common input fields (`topic`, `style`, `input`, etc.)
 
-```python
-class PipelineState(TypedDict, total=False):
-    topic: str
-    generated: GeneratedContent
-    analysis: Analysis
-    final_summary: str
+```yaml
+# State is auto-generated from graph config
+nodes:
+  generate:
+    state_key: generated  # ← Auto-added to state
+  analyze:
+    state_key: analysis   # ← Auto-added to state
 ```
 
 ### Nodes

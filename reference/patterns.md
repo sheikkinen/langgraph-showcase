@@ -1,6 +1,6 @@
 # Common Patterns
 
-This document yamlgraphs common patterns for building pipelines with the YAML-based graph system.
+This document showcases common patterns for building pipelines with the YAML-based graph system.
 
 ---
 
