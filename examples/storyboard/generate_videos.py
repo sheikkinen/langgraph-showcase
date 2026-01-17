@@ -22,7 +22,9 @@ import argparse
 import json
 import logging
 import os
+import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -131,6 +133,58 @@ def get_prompt_for_pair(
     return ""
 
 
+def concatenate_videos(video_paths: list[Path], output_path: Path) -> bool:
+    """Concatenate multiple video clips into one using ffmpeg.
+
+    Args:
+        video_paths: List of video files in order
+        output_path: Output file path
+
+    Returns:
+        True if successful
+    """
+    if not video_paths:
+        return False
+
+    # Create concat file list
+    concat_file = output_path.parent / "concat_list.txt"
+    with open(concat_file, "w") as f:
+        for video in video_paths:
+            f.write(f"file '{video.name}'\n")
+
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",  # Overwrite
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                str(concat_file),
+                "-c",
+                "copy",
+                str(output_path),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=output_path.parent,
+        )
+
+        concat_file.unlink()  # Clean up
+
+        if result.returncode != 0:
+            logger.error(f"ffmpeg error: {result.stderr}")
+            return False
+
+        return True
+
+    except FileNotFoundError:
+        logger.error("ffmpeg not found. Install with: brew install ffmpeg")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate video clips from consecutive image pairs"
@@ -207,38 +261,74 @@ def main():
 
     # Generate videos for consecutive pairs
     pairs = list(zip(images[:-1], images[1:]))
-    logger.info(f"\n🎬 Generating {len(pairs)} video clips:")
+    logger.info(f"\n🎬 Generating {len(pairs)} video clips (parallel):")
 
-    success_count = 0
+    # Build list of jobs
+    jobs = []
     for i, (img1, img2) in enumerate(pairs, 1):
         output_name = f"clip_{i:02d}_{img1.stem}_to_{img2.stem}.mp4"
         output_path = videos_folder / output_name
-
-        # Get prompt
         prompt = args.prompt or get_prompt_for_pair(metadata, img1.name, img2.name)
 
-        logger.info(f"\n[{i}/{len(pairs)}] {img1.name} → {img2.name}")
+        logger.info(f"   [{i}] {img1.name} → {img2.name}")
         if prompt:
-            logger.info(f"   Prompt: {prompt[:60]}...")
+            logger.info(f"       Prompt: {prompt[:50]}...")
 
-        if args.dry_run:
-            logger.info(f"   Would save: {output_path}")
-            continue
+        jobs.append(
+            {
+                "index": i,
+                "img1": img1,
+                "img2": img2,
+                "output_path": output_path,
+                "prompt": prompt,
+            }
+        )
 
-        if generate_video_clip(
-            first_image=img1,
-            last_image=img2,
-            output_path=output_path,
-            prompt=prompt,
+    if args.dry_run:
+        for job in jobs:
+            logger.info(f"   Would save: {job['output_path']}")
+        sys.exit(0)
+
+    # Parallel generation
+    generated_clips = []
+
+    def run_job(job):
+        success = generate_video_clip(
+            first_image=job["img1"],
+            last_image=job["img2"],
+            output_path=job["output_path"],
+            prompt=job["prompt"],
             fps=args.fps,
             num_frames=args.frames,
             resolution=args.resolution,
-        ):
-            success_count += 1
+        )
+        return job["index"], job["output_path"], success
 
-    if not args.dry_run:
-        logger.info(f"\n✅ Generated {success_count}/{len(pairs)} video clips")
-        logger.info(f"📂 Output: {videos_folder}")
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(run_job, job): job for job in jobs}
+
+        for future in as_completed(futures):
+            idx, output_path, success = future.result()
+            if success:
+                generated_clips.append((idx, output_path))
+
+    # Sort by index and collect paths
+    generated_clips.sort(key=lambda x: x[0])
+    clip_paths = [path for _, path in generated_clips]
+
+    logger.info(f"\n✅ Generated {len(clip_paths)}/{len(pairs)} video clips")
+
+    # Concatenate into final video
+    if len(clip_paths) > 1:
+        final_output = videos_folder / "final_combined.mp4"
+        logger.info(f"\n🎞️  Concatenating clips into {final_output.name}...")
+
+        if concatenate_videos(clip_paths, final_output):
+            logger.info(f"✅ Final video: {final_output}")
+        else:
+            logger.warning("⚠️  Concatenation failed, individual clips available")
+
+    logger.info(f"📂 Output: {videos_folder}")
 
 
 if __name__ == "__main__":
