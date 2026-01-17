@@ -2,6 +2,8 @@
 
 from unittest.mock import patch
 
+import pytest
+
 from showcase.builder import build_resume_graph, build_showcase_graph, run_pipeline
 from tests.conftest import FixtureAnalysis, FixtureGeneratedContent
 
@@ -78,15 +80,13 @@ class TestRunPipeline:
 
     @patch("showcase.node_factory.execute_prompt")
     def test_pipeline_stops_on_generate_error(self, mock_execute):
-        """Pipeline should stop and set error on generate failure."""
+        """Pipeline should stop and raise exception on generate failure."""
         mock_execute.side_effect = Exception("API Error")
 
-        result = run_pipeline(topic="test")
+        with pytest.raises(Exception) as exc_info:
+            run_pipeline(topic="test")
 
-        assert result.get("error") is not None
-        assert "API Error" in result["error"].message
-        assert result.get("analysis") is None
-        assert result.get("final_summary") is None
+        assert "API Error" in str(exc_info.value)
 
     @patch("showcase.node_factory.execute_prompt")
     def test_pipeline_state_progression(self, mock_execute):

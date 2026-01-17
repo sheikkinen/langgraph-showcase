@@ -14,9 +14,9 @@ nodes:
     type: llm
     prompt: generate
     temperature: 0.8
-    on_error: fallback        # skip | retry | fail | fallback
+    on_error: fail            # Stop pipeline on error
     fallback:
-      provider: anthropic    # Fallback provider if primary fails
+      provider: anthropic    # Try fallback provider first
     variables:
       topic: "{state.topic}"
       word_count: "{state.word_count}"
@@ -52,17 +52,9 @@ edges:
 
   - from: generate
     to: analyze
-    condition: continue
-
-  - from: generate
-    to: END
-    condition: end
 
   - from: analyze
     to: summarize
 
   - from: summarize
     to: END
-
-# Note: Routing conditions are handled by _should_continue() in graph_loader.py
-# Condition names 'continue' and 'end' map to that function's return values

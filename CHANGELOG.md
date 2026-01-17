@@ -20,9 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - State is now dynamically generated from YAML config (no manual `state.py` needed)
 - Map node results are automatically sorted by `_map_index` during collection
 
-### Deprecated
-- `output_key` in node config - use `state_key` instead (will be removed in v2.0)
-- `should_continue()` routing function - use expression-based routing instead (will be removed in v2.0)
+### Removed
+- `output_key` node config field - use `state_key` instead
+- `should_continue()` routing function - use expression-based conditions
+- Legacy `continue`/`end` condition keywords - use expression conditions like `field > value`
+- Legacy `mermaid` CLI command - use `graph info` for graph visualization
+- `get_graph_mermaid()`, `print_graph_mermaid()`, `export_graph_png()` functions
 
 ### Fixed
 - Map node ordering now guaranteed regardless of parallel execution timing

@@ -93,23 +93,16 @@ def validate_condition_expression(condition: str, edge_index: int) -> None:
     Performs compile-time validation of condition expressions to catch
     syntax errors early rather than at runtime.
 
-    Supports two condition types:
-    1. Routing keywords: "continue", "end" (legacy pattern)
-    2. Expression conditions: "score < 0.8", "a.b >= 1 and c == 'done'"
+    Supports expression conditions like "score < 0.8", "a.b >= 1 and c == 'done'"
 
     Args:
-        condition: Condition expression like "score < 0.8" or "continue"
+        condition: Condition expression like "score < 0.8"
         edge_index: Edge index for error messages
 
     Raises:
         ValueError: If condition has invalid syntax
     """
     import re
-
-    # Special routing keywords (legacy pattern - deprecated but supported)
-    routing_keywords = {"continue", "end"}
-    if condition.strip().lower() in routing_keywords:
-        return  # Valid routing keyword
 
     # Expression syntax check - must match comparison pattern
     # Valid: "score < 0.8", "a.b >= 1", "x == 'done'"
@@ -126,8 +119,7 @@ def validate_condition_expression(condition: str, edge_index: int) -> None:
         if not re.match(comparison_pattern, part.strip()):
             raise ValueError(
                 f"Edge {edge_index} has invalid condition syntax: '{condition}'. "
-                f"Expected format: 'field <op> value' (e.g., 'score < 0.8') or "
-                f"routing keyword ('continue', 'end')"
+                f"Expected format: 'field <op> value' (e.g., 'score < 0.8')"
             )
 
 

@@ -17,7 +17,6 @@ import argparse
 from showcase.cli import commands, validators
 from showcase.cli.commands import (
     cmd_export,
-    cmd_graph,
     cmd_list_runs,
     cmd_resume,
     cmd_trace,
@@ -120,19 +119,6 @@ def create_parser() -> argparse.ArgumentParser:
     graph_validate_parser.add_argument("graph_path", help="Path to graph YAML file")
 
     graph_parser.set_defaults(func=cmd_graph_dispatch)
-
-    # Legacy: mermaid graph command (renamed to avoid conflict)
-    mermaid_parser = subparsers.add_parser(
-        "mermaid", help="Show pipeline graph (Mermaid diagram)"
-    )
-    mermaid_parser.add_argument(
-        "--type",
-        "-t",
-        default="main",
-        choices=["main", "resume-analyze", "resume-summarize"],
-        help="Graph type to show",
-    )
-    mermaid_parser.set_defaults(func=cmd_graph)
 
     return parser
 

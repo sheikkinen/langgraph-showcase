@@ -215,26 +215,6 @@ class TestListRunsCommand:
         assert "No runs found" in result.stdout or "runs" in result.stdout.lower()
 
 
-class TestMermaidCommand:
-    """Integration tests for mermaid diagram generation."""
-
-    def test_mermaid_generates_diagram(self):
-        """'mermaid' command generates valid mermaid syntax."""
-        result = subprocess.run(
-            [sys.executable, "-m", "showcase.cli", "mermaid"],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent.parent,
-        )
-        assert result.returncode == 0
-        # Mermaid diagrams start with graph or flowchart
-        assert (
-            "graph" in result.stdout.lower()
-            or "flowchart" in result.stdout.lower()
-            or "stateDiagram" in result.stdout
-        )
-
-
 class TestHelpOutput:
     """Test help messages work correctly."""
 

@@ -116,22 +116,6 @@ class TestBuildStateClass:
         assert args[0] is list
         assert args[1] is add
 
-    def test_extracts_output_key_from_nodes(self):
-        """output_key in node config becomes state field."""
-        from showcase.models.state_builder import build_state_class
-
-        config = {
-            "nodes": {
-                "generate": {"prompt": "generate", "output_key": "generated"},
-                "analyze": {"prompt": "analyze", "output_key": "analysis"},
-            },
-            "edges": [],
-        }
-        State = build_state_class(config)
-
-        assert "generated" in State.__annotations__
-        assert "analysis" in State.__annotations__
-
     def test_extracts_state_key_from_nodes(self):
         """state_key in node config becomes state field."""
         from showcase.models.state_builder import build_state_class
@@ -139,12 +123,14 @@ class TestBuildStateClass:
         config = {
             "nodes": {
                 "generate": {"prompt": "generate", "state_key": "generated"},
+                "analyze": {"prompt": "analyze", "state_key": "analysis"},
             },
             "edges": [],
         }
         State = build_state_class(config)
 
         assert "generated" in State.__annotations__
+        assert "analysis" in State.__annotations__
 
     def test_agent_node_adds_input_field(self):
         """Agent nodes automatically add 'input' field."""
@@ -222,7 +208,7 @@ class TestBuildStateClass:
 
         config = {
             "nodes": {
-                "test": {"prompt": "test", "output_key": "result"},
+                "test": {"prompt": "test", "state_key": "result"},
             },
             "edges": [],
         }
@@ -263,27 +249,18 @@ class TestBuildStateClass:
 class TestExtractNodeFields:
     """Test field extraction from node configurations."""
 
-    def test_extracts_output_key(self):
-        """Extracts output_key from nodes."""
+    def test_extracts_state_key(self):
+        """Extracts state_key from nodes."""
         from showcase.models.state_builder import extract_node_fields
 
         nodes = {
-            "gen": {"output_key": "generated"},
-            "analyze": {"output_key": "analysis"},
+            "gen": {"state_key": "generated"},
+            "analyze": {"state_key": "analysis"},
         }
         fields = extract_node_fields(nodes)
 
         assert "generated" in fields
         assert "analysis" in fields
-
-    def test_extracts_state_key(self):
-        """Extracts state_key from nodes."""
-        from showcase.models.state_builder import extract_node_fields
-
-        nodes = {"gen": {"state_key": "result"}}
-        fields = extract_node_fields(nodes)
-
-        assert "result" in fields
 
     def test_agent_adds_special_fields(self):
         """Agent nodes add input and _tool_results."""

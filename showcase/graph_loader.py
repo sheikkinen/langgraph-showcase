@@ -16,7 +16,7 @@ from langgraph.types import Send
 from showcase.constants import NodeType
 from showcase.models.state_builder import build_state_class
 from showcase.node_factory import create_node_function, resolve_class
-from showcase.routing import make_expr_router_fn, make_router_fn, should_continue
+from showcase.routing import make_expr_router_fn, make_router_fn
 from showcase.tools.agent import create_agent_node
 from showcase.tools.nodes import create_tool_node
 from showcase.tools.python_tool import create_python_node, parse_python_tools
@@ -244,8 +244,6 @@ def compile_graph(config: GraphConfig) -> StateGraph:
         logger.info(f"Added node: {node_name} (type={node_type})")
 
     # Track which edges need conditional routing
-    conditional_source = None
-    conditional_targets = {}
     router_edges = {}  # For type: conditional edges with list targets
     expression_edges: dict[str, list[tuple[str, str]]] = {}  # For expression conditions
 
@@ -271,30 +269,16 @@ def compile_graph(config: GraphConfig) -> StateGraph:
             # Router-style conditional edge: routes to one of multiple targets
             # Store for later processing
             router_edges[from_node] = to_node
-        elif condition and condition not in ("continue", "end"):
+        elif condition:
             # Expression-based condition (e.g., "critique.score < 0.8")
             if from_node not in expression_edges:
                 expression_edges[from_node] = []
             target = END if to_node == "END" else to_node
             expression_edges[from_node].append((condition, target))
-        elif condition:
-            # Legacy continue/end style conditions
-            if conditional_source is None:
-                conditional_source = from_node
-            if from_node == conditional_source:
-                conditional_targets[condition] = to_node if to_node != "END" else END
         elif to_node == "END":
             graph.add_edge(from_node, END)
         else:
             graph.add_edge(from_node, to_node)
-
-    # Add conditional edges if any (continue/end style - legacy)
-    if conditional_source and conditional_targets:
-        graph.add_conditional_edges(
-            conditional_source,
-            should_continue,
-            conditional_targets,
-        )
 
     # Add router conditional edges
     for source_node, target_nodes in router_edges.items():

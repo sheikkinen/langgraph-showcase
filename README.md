@@ -507,7 +507,7 @@ nodes:
       content: str
     variables:
       topic: topic
-    output_key: generated
+    state_key: generated
 
   fact_check:  # ✨ New node - just YAML!
     type: prompt
@@ -518,7 +518,7 @@ nodes:
     requires: [generated]
     variables:
       content: generated.content
-    output_key: fact_check
+    state_key: fact_check
 
   analyze:
     # ... existing config ...

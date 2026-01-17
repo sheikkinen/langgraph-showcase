@@ -37,7 +37,7 @@ exports:                           # Optional: Export configuration
 ## Top-Level Properties
 
 ### `version`
-**Type:** `string`  
+**Type:** `string`
 **Default:** `"1.0"`
 
 Schema version for the YAML format.
@@ -47,7 +47,7 @@ version: "1.0"
 ```
 
 ### `name`
-**Type:** `string`  
+**Type:** `string`
 **Default:** `"unnamed"`
 
 Identifier for the graph, used in logging and display.
@@ -57,7 +57,7 @@ name: content-pipeline
 ```
 
 ### `description`
-**Type:** `string`  
+**Type:** `string`
 **Default:** `""`
 
 Human-readable description of what the graph does.
@@ -67,13 +67,13 @@ description: Content generation pipeline (generate → analyze → summarize)
 ```
 
 ### `state_class` (Deprecated)
-**Type:** `string` (Python class path)  
+**Type:** `string` (Python class path)
 **Default:** Auto-generated from graph configuration
 
 > ⚠️ **Deprecated:** State is now automatically generated from the graph configuration. You no longer need to specify `state_class`.
 
 The state TypedDict is built dynamically based on:
-- Node `output_key` and `state_key` fields
+- Node `state_key` fields
 - Node types (agent → adds `input`, `messages`; router → adds `_route`)
 - Common input fields (`topic`, `style`, `word_count`, `message`, `input`)
 - Infrastructure fields (`errors`, `thread_id`, `current_step`, etc.)
@@ -438,7 +438,7 @@ tools:
     command: git show --stat {commit_hash}
     description: "Show details of a specific commit by hash"
     parse: text
-    
+
   line_count:
     command: wc -l {file} | awk '{print $1}'
     description: "Count lines in a file"
@@ -469,7 +469,7 @@ exports:
   response:
     format: markdown
     filename: review.md
-    
+
   _tool_results:
     format: json
     filename: tool_outputs.json

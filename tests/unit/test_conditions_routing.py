@@ -10,7 +10,7 @@ since resolve_value delegates to resolve_state_path.
 import pytest
 from pydantic import BaseModel
 
-from showcase.routing import make_expr_router_fn, make_router_fn, should_continue
+from showcase.routing import make_expr_router_fn, make_router_fn
 from showcase.utils.conditions import (
     evaluate_comparison,
     evaluate_condition,
@@ -170,29 +170,6 @@ class TestEvaluateCondition:
         state = {"critique": Critique(score=0.75)}
         assert evaluate_condition("critique.score < 0.8", state) is True
         assert evaluate_condition("critique.score >= 0.8", state) is False
-
-
-class TestShouldContinue:
-    """Tests for should_continue routing function."""
-
-    def test_continue_when_generated(self):
-        """Should return 'continue' when generated exists."""
-        state = {"generated": {"content": "test"}, "error": None}
-        assert should_continue(state) == "continue"
-
-    def test_end_when_error(self):
-        """Should return 'end' when error exists."""
-        state = {"generated": {"content": "test"}, "error": "Something failed"}
-        assert should_continue(state) == "end"
-
-    def test_end_when_no_generated(self):
-        """Should return 'end' when no generated content."""
-        state = {"generated": None, "error": None}
-        assert should_continue(state) == "end"
-
-    def test_end_when_empty_state(self):
-        """Should return 'end' for empty state."""
-        assert should_continue({}) == "end"
 
 
 class TestMakeRouterFn:

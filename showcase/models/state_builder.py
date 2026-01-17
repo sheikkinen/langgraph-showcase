@@ -115,7 +115,7 @@ def build_state_class(config: dict) -> type:
     - Base infrastructure fields (errors, messages, thread_id, etc.)
     - Common input fields (topic, style, input, message, etc.)
     - Custom fields from YAML 'state' section
-    - Fields extracted from node output_key/state_key
+    - Fields extracted from node state_key
     - Special fields for agent/router node types
 
     Args:
@@ -147,8 +147,7 @@ def extract_node_fields(nodes: dict) -> dict[str, type]:
     """Extract state fields from node configurations.
 
     Analyzes node configs to determine required state fields:
-    - output_key: Where node stores its output
-    - state_key: Alternative name for output storage
+    - state_key: Where node stores its output
     - type: agent → adds input, _tool_results
     - type: router → adds _route
 
@@ -164,10 +163,7 @@ def extract_node_fields(nodes: dict) -> dict[str, type]:
         if not isinstance(node_config, dict):
             continue
 
-        # output_key and state_key → Any (accepts Pydantic models)
-        if output_key := node_config.get("output_key"):
-            fields[output_key] = Any
-
+        # state_key → Any (accepts Pydantic models)
         if state_key := node_config.get("state_key"):
             fields[state_key] = Any
 

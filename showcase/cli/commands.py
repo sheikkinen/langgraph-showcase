@@ -199,7 +199,6 @@ def cmd_resume(args: Namespace) -> None:
 def cmd_trace(args: Namespace) -> None:
     """Show execution trace for a run."""
     from showcase.utils import get_latest_run_id, get_run_url, print_run_tree
-    from showcase.utils.langsmith import get_graph_mermaid
 
     run_id = args.run_id or get_latest_run_id()
 
@@ -211,24 +210,6 @@ def cmd_trace(args: Namespace) -> None:
     print("─" * 50)
     print()
     print_run_tree(run_id, verbose=args.verbose)
-
-    # Show graph structure in verbose mode
-    if args.verbose:
-        print("\n" + "─" * 50)
-        print("📈 Pipeline Graph Structure:")
-        print("─" * 50 + "\n")
-        try:
-            mermaid = get_graph_mermaid("main")
-            # Print a simplified text version
-            print("  generate → analyze → summarize → END")
-            print("      ↓")
-            print("   (error) → END")
-            print()
-            print("  Full Mermaid diagram:")
-            for line in mermaid.split("\n"):
-                print(f"    {line}")
-        except Exception as e:
-            print(f"  ⚠️  Could not generate graph: {e}")
 
     if url := get_run_url(run_id):
         print(f"\n🔗 View in LangSmith: {url}")
@@ -249,14 +230,3 @@ def cmd_export(args: Namespace) -> None:
 
     filepath = export_state(state)
     print(f"✅ Exported to: {filepath}")
-
-
-def cmd_graph(args: Namespace) -> None:
-    """Show pipeline graph as Mermaid diagram."""
-    from showcase.utils.langsmith import get_graph_mermaid
-
-    try:
-        mermaid = get_graph_mermaid(args.type)
-        print(mermaid)
-    except Exception as e:
-        print(f"❌ Error generating graph: {e}")

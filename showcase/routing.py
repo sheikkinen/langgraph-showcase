@@ -5,7 +5,6 @@ which node to route to based on state values and expressions.
 """
 
 import logging
-import warnings
 from collections.abc import Callable
 from typing import Any
 
@@ -17,31 +16,6 @@ from showcase.utils.conditions import evaluate_condition
 GraphState = dict[str, Any]
 
 logger = logging.getLogger(__name__)
-
-
-def should_continue(state: GraphState) -> str:
-    """Default routing condition: continue or end.
-
-    .. deprecated:: 1.0
-        Use expression-based routing with `make_expr_router_fn` instead.
-        Will be removed in v2.0.
-
-    Args:
-        state: Current pipeline state
-
-    Returns:
-        'continue' if should proceed, 'end' if should stop
-    """
-    warnings.warn(
-        "should_continue is deprecated. Use expression-based routing instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if state.get("error") is not None:
-        return "end"
-    if state.get("generated") is None:
-        return "end"
-    return "continue"
 
 
 def make_router_fn(targets: list[str]) -> Callable[[dict], str]:
@@ -110,4 +84,4 @@ def make_expr_router_fn(
     return expr_router_fn
 
 
-__all__ = ["should_continue", "make_router_fn", "make_expr_router_fn"]
+__all__ = ["make_router_fn", "make_expr_router_fn"]
