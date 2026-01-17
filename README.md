@@ -287,8 +287,8 @@ template: |
 ### 2. Structured Executor
 
 ```python
-from showcase.executor import execute_prompt
-from showcase.models import GenericReport
+from yamlgraph.executor import execute_prompt
+from yamlgraph.models import GenericReport
 
 result = execute_prompt(
     "generate",
@@ -301,7 +301,7 @@ print(result.title)  # Typed access!
 ### 3. Multi-Provider LLM Support
 
 ```python
-from showcase.executor import execute_prompt
+from yamlgraph.executor import execute_prompt
 
 # Use default provider (Anthropic)
 result = execute_prompt(
@@ -399,7 +399,7 @@ edges:
 
 **Load and run**:
 ```python
-from showcase.builder import build_showcase_graph
+from yamlgraph.builder import build_showcase_graph
 
 graph = build_showcase_graph().compile()  # Loads from graphs/showcase.yaml
 result = graph.invoke(initial_state)
@@ -408,7 +408,7 @@ result = graph.invoke(initial_state)
 ### 5. State Persistence
 
 ```python
-from showcase.storage import ShowcaseDB
+from yamlgraph.storage import ShowcaseDB
 
 db = ShowcaseDB()
 db.save_state("thread-123", state)
@@ -418,7 +418,7 @@ state = db.load_state("thread-123")
 ### 6. LangSmith Tracing
 
 ```python
-from showcase.langsmith_utils import print_run_tree
+from yamlgraph.utils.langsmith import print_run_tree
 
 print_run_tree(verbose=True)
 # 📊 Execution Tree:
