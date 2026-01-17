@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - State is now dynamically generated from YAML config (no manual `state.py` needed)
 - Map node results are automatically sorted by `_map_index` during collection
+- Config paths (`prompts/`, `graphs/`, `outputs/`, `.env`) now resolve from current working directory instead of package install location
 
 ### Removed
 - `output_key` node config field - use `state_key` instead
@@ -26,10 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy `continue`/`end` condition keywords - use expression conditions like `field > value`
 - Legacy `mermaid` CLI command - use `graph info` for graph visualization
 - `get_graph_mermaid()`, `print_graph_mermaid()`, `export_graph_png()` functions
+- `PROJECT_ROOT` config constant - use `WORKING_DIR` instead
 
 ### Fixed
 - Map node ordering now guaranteed regardless of parallel execution timing
 - README architecture documentation updated to reflect dynamic state generation
+- `.env` file now correctly loaded from current directory when installed via `pip install yamlgraph`
 
 ## [1.0.0] - 2026-01-17
 
