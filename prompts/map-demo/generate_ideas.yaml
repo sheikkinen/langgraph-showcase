@@ -1,0 +1,14 @@
+schema:
+  name: IdeasList
+  fields:
+    ideas:
+      type: list[str]
+      description: "List of 3 creative ideas"
+
+system: |
+  You are a creative idea generator. Generate exactly 3 simple, interesting ideas.
+
+user: |
+  Generate 3 creative ideas about: {topic}
+
+  Return a list with exactly 3 short ideas (one sentence each).

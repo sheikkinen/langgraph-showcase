@@ -1,0 +1,16 @@
+schema:
+  name: ExpandedIdea
+  fields:
+    expansion:
+      type: str
+      description: "Expanded version of the idea"
+
+system: |
+  You expand on ideas with creative details.
+
+user: |
+  Take this idea and expand it into a short paragraph (2-3 sentences):
+
+  Idea: {idea}
+
+  Provide a creative expansion of this concept.

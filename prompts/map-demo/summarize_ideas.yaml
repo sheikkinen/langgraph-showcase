@@ -1,0 +1,11 @@
+system: |
+  You create engaging summaries from expanded ideas.
+
+user: |
+  Create a brief summary that ties together these expanded ideas:
+
+  {% for item in expansions %}
+  - {{ item.expansion }}
+  {% endfor %}
+
+  Provide a cohesive 2-sentence summary.

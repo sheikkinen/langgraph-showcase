@@ -1,37 +1,43 @@
 # Example graph demonstrating type: map for parallel processing
-# Generates a list of frames then expands each in parallel
+# Generates a list of ideas then expands each in parallel
 
 name: map-demo
-version: "0.1"
+version: "1.0"
+description: "Demonstrates parallel fan-out with type: map"
 
-state:
-  frames: list
-  expanded_frames: list
+defaults:
+  provider: mistral
 
 nodes:
-  generate_frames:
-    prompt: generate
-    state_key: frames
-  
-  expand_frames:
+  generate:
+    prompt: map-demo/generate_ideas
+    state_key: ideas
+    variables:
+      topic: "{state.topic}"
+
+  expand:
     type: map
-    over: "{state.frames}"
-    as: frame
+    over: "{state.ideas.ideas}"
+    as: idea
     node:
-      prompt: generate
-      state_key: frame_result
-    collect: expanded_frames
+      prompt: map-demo/expand_idea
+      state_key: expansion
+      variables:
+        idea: "{state.idea}"
+    collect: expansions
 
   summarize:
-    prompt: summarize
+    prompt: map-demo/summarize_ideas
     state_key: summary
+    variables:
+      expansions: "{state.expansions}"
 
 edges:
   - from: START
-    to: generate_frames
-  - from: generate_frames
-    to: expand_frames
-  - from: expand_frames
+    to: generate
+  - from: generate
+    to: expand
+  - from: expand
     to: summarize
   - from: summarize
     to: END
