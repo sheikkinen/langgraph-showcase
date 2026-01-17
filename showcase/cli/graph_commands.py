@@ -7,6 +7,7 @@ Implements:
 """
 
 import sys
+from argparse import Namespace
 from pathlib import Path
 
 import yaml
@@ -37,7 +38,7 @@ def parse_vars(var_list: list[str] | None) -> dict[str, str]:
     return result
 
 
-def cmd_graph_run(args):
+def cmd_graph_run(args: Namespace) -> None:
     """Run any graph with provided variables.
 
     Usage:
@@ -114,7 +115,7 @@ def cmd_graph_run(args):
         sys.exit(1)
 
 
-def cmd_graph_list(args):
+def cmd_graph_list(args: Namespace) -> None:
     """List available graphs in graphs/ directory."""
     graphs_dir = Path("graphs")
 
@@ -144,7 +145,7 @@ def cmd_graph_list(args):
     print()
 
 
-def cmd_graph_info(args):
+def cmd_graph_info(args: Namespace) -> None:
     """Show information about a graph."""
     graph_path = Path(args.graph_path)
 
@@ -200,7 +201,7 @@ def cmd_graph_info(args):
         sys.exit(1)
 
 
-def cmd_graph_validate(args):
+def cmd_graph_validate(args: Namespace) -> None:
     """Validate a graph YAML file.
 
     Checks:
@@ -287,7 +288,7 @@ def cmd_graph_validate(args):
         sys.exit(1)
 
 
-def cmd_graph_dispatch(args):
+def cmd_graph_dispatch(args: Namespace) -> None:
     """Dispatch to graph subcommands."""
     if args.graph_command == "run":
         cmd_graph_run(args)

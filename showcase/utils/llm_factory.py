@@ -6,6 +6,7 @@ across different providers (Anthropic, Mistral, OpenAI).
 
 import logging
 import os
+import threading
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -22,8 +23,9 @@ MODEL_DEFAULTS = {
     "openai": "gpt-4o",
 }
 
-# Cache for LLM instances
+# Thread-safe cache for LLM instances
 _llm_cache: dict[tuple, BaseChatModel] = {}
+_cache_lock = threading.Lock()
 
 
 def create_llm(
@@ -80,35 +82,37 @@ def create_llm(
     # Create cache key
     cache_key = (selected_provider, selected_model, temperature)
 
-    # Return cached instance if available
-    if cache_key in _llm_cache:
-        logger.debug(
-            f"Using cached LLM: {selected_provider}/{selected_model} (temp={temperature})"
+    # Thread-safe cache access
+    with _cache_lock:
+        # Return cached instance if available
+        if cache_key in _llm_cache:
+            logger.debug(
+                f"Using cached LLM: {selected_provider}/{selected_model} (temp={temperature})"
+            )
+            return _llm_cache[cache_key]
+
+        # Create new LLM instance
+        logger.info(
+            f"Creating LLM: {selected_provider}/{selected_model} (temp={temperature})"
         )
-        return _llm_cache[cache_key]
 
-    # Create new LLM instance
-    logger.info(
-        f"Creating LLM: {selected_provider}/{selected_model} (temp={temperature})"
-    )
+        if selected_provider == "mistral":
+            from langchain_mistralai import ChatMistralAI
 
-    if selected_provider == "mistral":
-        from langchain_mistralai import ChatMistralAI
+            llm = ChatMistralAI(model=selected_model, temperature=temperature)
+        elif selected_provider == "openai":
+            from langchain_openai import ChatOpenAI
 
-        llm = ChatMistralAI(model=selected_model, temperature=temperature)
-    elif selected_provider == "openai":
-        from langchain_openai import ChatOpenAI
+            llm = ChatOpenAI(model=selected_model, temperature=temperature)
+        else:  # anthropic (default)
+            from langchain_anthropic import ChatAnthropic
 
-        llm = ChatOpenAI(model=selected_model, temperature=temperature)
-    else:  # anthropic (default)
-        from langchain_anthropic import ChatAnthropic
+            llm = ChatAnthropic(model=selected_model, temperature=temperature)
 
-        llm = ChatAnthropic(model=selected_model, temperature=temperature)
+        # Cache the instance
+        _llm_cache[cache_key] = llm
 
-    # Cache the instance
-    _llm_cache[cache_key] = llm
-
-    return llm
+        return llm
 
 
 def clear_cache() -> None:
@@ -116,6 +120,6 @@ def clear_cache() -> None:
 
     Useful for testing or when you want to force recreation of LLM instances.
     """
-    global _llm_cache
-    _llm_cache.clear()
+    with _cache_lock:
+        _llm_cache.clear()
     logger.debug("LLM cache cleared")

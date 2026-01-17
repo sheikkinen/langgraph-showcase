@@ -4,6 +4,7 @@ Contains all cmd_* functions for CLI subcommands.
 """
 
 import sys
+from argparse import Namespace
 from typing import Any
 
 from pydantic import BaseModel
@@ -80,7 +81,7 @@ def _format_result(result: dict[str, Any]) -> None:
             print(f"   {formatted}")
 
 
-def cmd_run(args):
+def cmd_run(args: Namespace) -> None:
     """Run the showcase pipeline."""
     if not validate_run_args(args):
         sys.exit(1)
@@ -127,7 +128,7 @@ def cmd_run(args):
     print()
 
 
-def cmd_list_runs(args):
+def cmd_list_runs(args: Namespace) -> None:
     """List recent pipeline runs."""
     from showcase.storage import ShowcaseDB
 
@@ -148,7 +149,7 @@ def cmd_list_runs(args):
     print()
 
 
-def cmd_resume(args):
+def cmd_resume(args: Namespace) -> None:
     """Resume a pipeline from saved state."""
     from showcase.builder import build_resume_graph
     from showcase.storage import ShowcaseDB
@@ -195,7 +196,7 @@ def cmd_resume(args):
         print(f"\n📊 Summary: {summary[:200]}...")
 
 
-def cmd_trace(args):
+def cmd_trace(args: Namespace) -> None:
     """Show execution trace for a run."""
     from showcase.utils import get_latest_run_id, get_run_url, print_run_tree
     from showcase.utils.langsmith import get_graph_mermaid
@@ -235,7 +236,7 @@ def cmd_trace(args):
     print()
 
 
-def cmd_export(args):
+def cmd_export(args: Namespace) -> None:
     """Export a run to JSON."""
     from showcase.storage import ShowcaseDB, export_state
 
@@ -250,7 +251,7 @@ def cmd_export(args):
     print(f"✅ Exported to: {filepath}")
 
 
-def cmd_graph(args):
+def cmd_graph(args: Namespace) -> None:
     """Show pipeline graph as Mermaid diagram."""
     from showcase.utils.langsmith import get_graph_mermaid
 

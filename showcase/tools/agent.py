@@ -9,12 +9,12 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 import yaml
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
+from showcase.config import PROMPTS_DIR
 from showcase.tools.shell import ShellToolConfig, execute_shell_tool
 from showcase.utils.llm_factory import create_llm
 
@@ -75,7 +75,7 @@ def _load_prompt(prompt_name: str) -> tuple[str, str]:
     Returns:
         Tuple of (system_prompt, user_template)
     """
-    prompt_path = Path("prompts") / f"{prompt_name}.yaml"
+    prompt_path = PROMPTS_DIR / f"{prompt_name}.yaml"
     if not prompt_path.exists():
         raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
 
