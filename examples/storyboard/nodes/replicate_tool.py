@@ -101,6 +101,7 @@ def generate_image(
                 "resolution": model_config["resolution"],
                 "output_format": "png",
                 "output_quality": 80,
+                "disable_safety_checker": True,
                 **model_config["params"],
             }
         else:
@@ -111,6 +112,7 @@ def generate_image(
                 "height": model_config.get("height", 768),
                 "output_format": "png",
                 "output_quality": 80,
+                "disable_safety_checker": True,
                 **model_config.get("params", {}),
             }
 
@@ -187,6 +189,7 @@ def edit_image(
                 "images": [f],
                 "prompt": prompt,
                 "aspect_ratio": aspect_ratio,
+                "disable_safety_checker": True,
             }
             if magic is not None:
                 input_params["magic"] = magic
