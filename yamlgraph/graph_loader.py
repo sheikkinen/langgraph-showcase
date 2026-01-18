@@ -171,7 +171,9 @@ def _compile_node(
         node_fn = create_python_node(node_name, enriched_config, python_tools)
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.AGENT:
-        node_fn = create_agent_node(node_name, enriched_config, tools, websearch_tools)
+        node_fn = create_agent_node(
+            node_name, enriched_config, tools, websearch_tools, python_tools
+        )
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.MAP:
         map_edge_fn, sub_node_name = compile_map_node(

@@ -30,39 +30,22 @@ user: |
   5. **Severity Rating**: Rate overall severity (critical/high/medium/low)
 
 schema:
-  type: object
-  properties:
+  name: RunAnalysis
+  fields:
     status:
-      type: string
-      enum: [success, partial_failure, complete_failure]
-      description: Overall run status
-    errors:
-      type: array
-      items:
-        type: object
-        properties:
-          node:
-            type: string
-            description: Name of the node that failed
-          classification:
-            type: string
-            enum: [api_error, schema_error, prompt_error, tool_error, state_error, config_error, unknown]
-          root_cause:
-            type: string
-            description: Root cause analysis
-          message:
-            type: string
-            description: Error message
+      type: str
+      description: Overall run status (success, partial_failure, complete_failure)
     severity:
-      type: string
-      enum: [critical, high, medium, low]
-      description: Overall severity rating
-    affected_nodes:
-      type: array
-      items:
-        type: string
-      description: List of nodes that were affected
+      type: str
+      description: Overall severity rating (critical, high, medium, low)
     summary:
-      type: string
+      type: str
       description: Brief summary of the analysis
-  required: [status, severity, summary]
+    errors:
+      type: list[str]
+      description: List of errors found
+      optional: true
+    affected_nodes:
+      type: list[str]
+      description: List of nodes that were affected
+      optional: true

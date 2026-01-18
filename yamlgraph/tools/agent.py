@@ -7,6 +7,7 @@ information to provide a final answer.
 
 from __future__ import annotations
 
+import inspect
 import logging
 from collections.abc import Callable
 from typing import Any
@@ -15,6 +16,7 @@ import yaml
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
 from yamlgraph.config import PROMPTS_DIR
+from yamlgraph.tools.python_tool import PythonToolConfig, load_python_function
 from yamlgraph.tools.shell import ShellToolConfig, execute_shell_tool
 from yamlgraph.utils.llm_factory import create_llm
 
@@ -66,6 +68,63 @@ def build_langchain_tool(name: str, config: ShellToolConfig) -> Callable:
     )
 
 
+def build_python_tool(name: str, config: PythonToolConfig) -> Any:
+    """Convert Python tool config to LangChain StructuredTool.
+
+    Args:
+        name: Tool name for LLM to reference
+        config: Python tool configuration
+
+    Returns:
+        LangChain StructuredTool
+    """
+    from langchain_core.tools import StructuredTool
+    from pydantic import Field, create_model
+
+    # Load the Python function
+    func = load_python_function(config)
+
+    # Build args schema from function signature
+    sig = inspect.signature(func)
+    fields = {}
+    for param_name, param in sig.parameters.items():
+        # Skip *args, **kwargs
+        if param.kind in (
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        ):
+            continue
+
+        # Get type annotation or default to str
+        param_type = (
+            param.annotation if param.annotation != inspect.Parameter.empty else str
+        )
+
+        # Create field with description
+        fields[param_name] = (param_type, Field(description=f"Parameter: {param_name}"))
+
+    # Create dynamic Pydantic model
+    if fields:
+        ArgsModel = create_model(f"{name}_args", **fields)
+    else:
+        ArgsModel = None
+
+    def execute_python(**kwargs) -> str:
+        """Execute the Python function and return result as string."""
+        try:
+            result = func(**kwargs)
+            return str(result) if result is not None else "Success"
+        except Exception as e:
+            return f"Error: {e}"
+
+    return StructuredTool.from_function(
+        func=execute_python,
+        name=name,
+        description=config.description,
+        args_schema=ArgsModel,
+    )
+
+
 def _load_prompt(prompt_name: str) -> tuple[str, str]:
     """Load system and user prompts from YAML file.
 
@@ -90,6 +149,7 @@ def create_agent_node(
     node_config: dict[str, Any],
     tools: dict[str, ShellToolConfig],
     websearch_tools: dict[str, Any] | None = None,
+    python_tools: dict[str, PythonToolConfig] | None = None,
 ) -> Callable[[dict], dict]:
     """Create an agent node that loops with tool calls.
 
@@ -103,6 +163,7 @@ def create_agent_node(
         node_config: Node configuration from YAML
         tools: Registry of available shell tools
         websearch_tools: Registry of web search tools (LangChain StructuredTool)
+        python_tools: Registry of Python tools (PythonToolConfig)
 
     Returns:
         Node function that runs the agent loop
@@ -116,6 +177,8 @@ def create_agent_node(
     """
     if websearch_tools is None:
         websearch_tools = {}
+    if python_tools is None:
+        python_tools = {}
 
     tool_names = node_config.get("tools", [])
     max_iterations = node_config.get("max_iterations", 5)
@@ -123,7 +186,7 @@ def create_agent_node(
     prompt_name = node_config.get("prompt", "agent")
     tool_results_key = node_config.get("tool_results_key")
 
-    # Build LangChain tools from shell configs, plus add websearch tools directly
+    # Build LangChain tools from configs
     lc_tools = []
     tool_lookup = {}
 
@@ -136,8 +199,14 @@ def create_agent_node(
             # Websearch tool - already a LangChain tool
             lc_tools.append(websearch_tools[name])
             tool_lookup[name] = websearch_tools[name]
+        elif name in python_tools:
+            # Python tool - wrap as LangChain tool
+            lc_tools.append(build_python_tool(name, python_tools[name]))
+            tool_lookup[name] = python_tools[name]
         else:
-            logger.warning(f"Tool '{name}' not found in shell or websearch registries")
+            logger.warning(
+                f"Tool '{name}' not found in shell, websearch, or python registries"
+            )
 
     def node_fn(state: dict) -> dict:
         """Execute the agent loop."""
@@ -211,7 +280,7 @@ def create_agent_node(
                 # Execute the tool
                 tool_config = tool_lookup.get(tool_name)
                 if tool_config:
-                    # Check if it's a shell tool config or a LangChain tool
+                    # Check the type of tool config
                     if isinstance(tool_config, ShellToolConfig):
                         # Shell tool - use execute_shell_tool
                         result = execute_shell_tool(tool_config, tool_args)
@@ -221,6 +290,15 @@ def create_agent_node(
                             else f"Error: {result.error}"
                         )
                         success = result.success
+                    elif isinstance(tool_config, PythonToolConfig):
+                        # Python tool - load and execute function
+                        try:
+                            func = load_python_function(tool_config)
+                            output = str(func(**tool_args))
+                            success = True
+                        except Exception as e:
+                            output = f"Error: {e}"
+                            success = False
                     else:
                         # LangChain tool (websearch, etc) - invoke directly
                         try:

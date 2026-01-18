@@ -6,7 +6,12 @@ in a loop until it has enough information to respond.
 
 from unittest.mock import MagicMock, patch
 
-from yamlgraph.tools.agent import build_langchain_tool, create_agent_node
+from yamlgraph.tools.agent import (
+    build_langchain_tool,
+    build_python_tool,
+    create_agent_node,
+)
+from yamlgraph.tools.python_tool import PythonToolConfig
 from yamlgraph.tools.shell import ShellToolConfig
 
 
@@ -198,3 +203,153 @@ class TestCreateAgentNode:
         # Just verify it doesn't fail - actual behavior tested above
         node_fn = create_agent_node("agent", node_config, tools)
         assert callable(node_fn)
+
+
+class TestBuildPythonTool:
+    """Tests for build_python_tool function."""
+
+    def test_creates_tool_with_name(self):
+        """Tool has correct name."""
+        config = PythonToolConfig(
+            module="yamlgraph.utils.langsmith",
+            function="get_run_details",
+            description="Get run details",
+        )
+        tool = build_python_tool("get_run_details", config)
+        assert tool.name == "get_run_details"
+
+    def test_creates_tool_with_description(self):
+        """Tool has correct description."""
+        config = PythonToolConfig(
+            module="yamlgraph.utils.langsmith",
+            function="get_run_details",
+            description="Get details about a LangSmith run",
+        )
+        tool = build_python_tool("run_details", config)
+        assert tool.description == "Get details about a LangSmith run"
+
+    def test_tool_is_structured_tool(self):
+        """Tool is a LangChain StructuredTool."""
+        from langchain_core.tools import StructuredTool
+
+        config = PythonToolConfig(
+            module="yamlgraph.utils.langsmith",
+            function="get_run_details",
+            description="Get run details",
+        )
+        tool = build_python_tool("test_tool", config)
+        assert isinstance(tool, StructuredTool)
+
+    def test_tool_executes_function(self):
+        """Tool invocation calls the Python function."""
+        # Use a simple test function
+        config = PythonToolConfig(
+            module="os.path",
+            function="join",
+            description="Join paths",
+        )
+        tool = build_python_tool("path_join", config)
+        result = tool.invoke({"a": "/home", "p": "user"})
+        assert "/home" in result or "user" in result
+
+
+class TestAgentWithPythonTools:
+    """Tests for agent nodes using Python tools."""
+
+    @patch("yamlgraph.tools.agent.create_llm")
+    def test_agent_calls_python_tool(self, mock_create_llm):
+        """Agent can use Python tools."""
+        mock_llm = MagicMock()
+
+        # First response: call a python tool
+        first_response = MagicMock()
+        first_response.tool_calls = [
+            {
+                "id": "call1",
+                "name": "my_python_tool",
+                "args": {"a": "/home", "p": "user"},
+            }
+        ]
+        first_response.content = ""
+
+        # Second response: final answer
+        second_response = MagicMock()
+        second_response.tool_calls = []
+        second_response.content = "Path is /home/user"
+
+        mock_llm.bind_tools.return_value = mock_llm
+        mock_llm.invoke.side_effect = [first_response, second_response]
+        mock_create_llm.return_value = mock_llm
+
+        python_tools = {
+            "my_python_tool": PythonToolConfig(
+                module="os.path",
+                function="join",
+                description="Join paths",
+            ),
+        }
+        node_config = {
+            "prompt": "agent",
+            "tools": ["my_python_tool"],
+            "max_iterations": 5,
+            "state_key": "result",
+        }
+
+        node_fn = create_agent_node("agent", node_config, {}, python_tools=python_tools)
+        result = node_fn({"input": "Join home and user"})
+
+        assert result["result"] == "Path is /home/user"
+        assert result["_agent_iterations"] == 2
+
+    @patch("yamlgraph.tools.agent.create_llm")
+    def test_agent_mixes_shell_and_python_tools(self, mock_create_llm):
+        """Agent can use both shell and python tools."""
+        mock_llm = MagicMock()
+
+        # First: call shell tool
+        first_response = MagicMock()
+        first_response.tool_calls = [
+            {"id": "call1", "name": "echo_tool", "args": {"message": "hello"}}
+        ]
+        first_response.content = ""
+
+        # Second: call python tool
+        second_response = MagicMock()
+        second_response.tool_calls = [
+            {"id": "call2", "name": "path_tool", "args": {"a": "/", "p": "tmp"}}
+        ]
+        second_response.content = ""
+
+        # Third: final answer
+        third_response = MagicMock()
+        third_response.tool_calls = []
+        third_response.content = "Done with both tools"
+
+        mock_llm.bind_tools.return_value = mock_llm
+        mock_llm.invoke.side_effect = [first_response, second_response, third_response]
+        mock_create_llm.return_value = mock_llm
+
+        shell_tools = {
+            "echo_tool": ShellToolConfig(command="echo {message}", description="Echo"),
+        }
+        python_tools = {
+            "path_tool": PythonToolConfig(
+                module="os.path",
+                function="join",
+                description="Join paths",
+            ),
+        }
+        node_config = {
+            "prompt": "agent",
+            "tools": ["echo_tool", "path_tool"],
+            "max_iterations": 5,
+            "state_key": "result",
+        }
+
+        node_fn = create_agent_node(
+            "agent", node_config, shell_tools, python_tools=python_tools
+        )
+        result = node_fn({"input": "Use both tools"})
+
+        assert result["result"] == "Done with both tools"
+        assert result["_agent_iterations"] == 3

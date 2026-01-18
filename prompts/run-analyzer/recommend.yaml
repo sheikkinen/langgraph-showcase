@@ -33,64 +33,27 @@ user: |
   5. **Testing**: How to verify the fix works?
 
 schema:
-  type: object
-  properties:
+  name: Recommendations
+  fields:
+    summary:
+      type: str
+      description: Executive summary of recommendations
     immediate_fixes:
-      type: array
-      items:
-        type: object
-        properties:
-          action:
-            type: string
-            description: What to do
-          target:
-            type: string
-            description: File or component to modify
-          priority:
-            type: string
-            enum: [critical, high, medium, low]
+      type: list[str]
       description: Actions to take immediately
     config_changes:
-      type: array
-      items:
-        type: object
-        properties:
-          file:
-            type: string
-            description: Config file to modify
-          change:
-            type: string
-            description: What to change
-          reason:
-            type: string
-            description: Why this change helps
+      type: list[str]
       description: YAML or config file changes
+      optional: true
     code_changes:
-      type: array
-      items:
-        type: object
-        properties:
-          file:
-            type: string
-            description: Python file to modify
-          change:
-            type: string
-            description: What to change
-          reason:
-            type: string
-            description: Why this change helps
+      type: list[str]
       description: Python code changes
+      optional: true
     prevention:
-      type: array
-      items:
-        type: string
+      type: list[str]
       description: Steps to prevent recurrence
+      optional: true
     test_plan:
-      type: array
-      items:
-        type: string
+      type: list[str]
       description: How to verify the fix
-    summary:
-      type: string
-      description: Executive summary of recommendations
-  required: [summary, immediate_fixes]
+      optional: true

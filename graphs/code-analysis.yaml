@@ -1,0 +1,78 @@
+version: "1.0"
+name: code-analysis
+description: Run code analysis tools and generate improvement recommendations
+
+tools:
+  run_ruff:
+    type: shell
+    command: ruff check {path} --output-format=text 2>&1 || echo "No issues found"
+    description: "Run ruff linter to check for code style and quality issues"
+    parse: text
+
+  run_tests:
+    type: shell
+    command: python -m pytest {path} -q --tb=no 2>&1 | tail -10
+    description: "Run pytest to check test results"
+    parse: text
+
+  run_coverage:
+    type: shell
+    command: python -m pytest tests/ -q --tb=no --cov={package} --cov-report=term 2>&1 | tail -30
+    description: "Run tests with coverage report"
+    parse: text
+
+  run_bandit:
+    type: shell
+    command: bandit -r {path} -ll -q 2>&1 || echo "No security issues found"
+    description: "Run bandit security scanner to find vulnerabilities"
+    parse: text
+
+  run_radon:
+    type: shell
+    command: radon cc {path} -a -s --min C 2>&1 || echo "All functions have acceptable complexity"
+    description: "Check cyclomatic complexity of functions"
+    parse: text
+
+  run_vulture:
+    type: shell
+    command: vulture {path} --min-confidence 80 2>&1 || echo "No dead code found"
+    description: "Detect potentially dead/unused code"
+    parse: text
+
+  count_lines:
+    type: shell
+    command: find {path} -name "*.py" -exec wc -l {} \; 2>/dev/null | sort -rn | head -10
+    description: "Count lines of code in Python files"
+    parse: text
+
+  find_todos:
+    type: shell
+    command: grep -rn "TODO\|FIXME\|HACK\|XXX" {path} --include="*.py" 2>/dev/null | head -20 || echo "No TODOs found"
+    description: "Find TODO and FIXME comments in code"
+    parse: text
+
+nodes:
+  run_analysis:
+    type: agent
+    prompt: code-analysis/analyzer
+    tools: [run_ruff, run_tests, run_coverage, run_bandit, run_radon, run_vulture, count_lines, find_todos]
+    max_iterations: 12
+    state_key: analysis_results
+
+  generate_recommendations:
+    type: llm
+    prompt: code-analysis/recommend
+    requires: [analysis_results]
+    state_key: recommendations
+    variables:
+      path: "{state.path}"
+      package: "{state.package}"
+      analysis: "{state.analysis_results}"
+
+edges:
+  - from: START
+    to: run_analysis
+  - from: run_analysis
+    to: generate_recommendations
+  - from: generate_recommendations
+    to: END
