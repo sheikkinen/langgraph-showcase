@@ -2,6 +2,11 @@ version: "1.0"
 name: code-analysis
 description: Run code analysis tools and generate improvement recommendations
 
+# Input state - variables passed from CLI
+state:
+  path: str          # Path to analyze (e.g., "yamlgraph")
+  package: str       # Package name for coverage (e.g., "yamlgraph")
+
 tools:
   run_ruff:
     type: shell
@@ -41,7 +46,7 @@ tools:
 
   count_lines:
     type: shell
-    command: find {path} -name "*.py" -exec wc -l {} \; 2>/dev/null | sort -rn | head -10
+    command: find {path} -name "*.py" -exec wc -l {{}} \; 2>/dev/null | sort -rn | head -10
     description: "Count lines of code in Python files"
     parse: text
 

@@ -61,6 +61,11 @@ demo_storyboard() {
         --var concept="A brave mouse knight"
 }
 
+demo_analysis() {
+    run_demo "Code Analysis (Self-Analysis)" "graphs/code-analysis.yaml" \
+        --var path="yamlgraph" --var package="yamlgraph"
+}
+
 print_usage() {
     echo -e "${YELLOW}YamlGraph Demos${NC}"
     echo ""
@@ -74,6 +79,7 @@ print_usage() {
     echo "  memory     - Agent with conversation memory"
     echo "  map        - Parallel fan-out processing"
     echo "  storyboard - Animated character storyboard with image generation"
+    echo "  analysis   - Self-analysis of yamlgraph codebase"
     echo "  all        - Run all demos (default)"
     echo ""
 }
@@ -103,6 +109,9 @@ case "${1:-all}" in
     storyboard)
         demo_storyboard
         ;;
+    analysis)
+        demo_analysis
+        ;;
     all)
         echo -e "${YELLOW}🚀 Running all YamlGraph demos...${NC}"
         demo_router
@@ -112,6 +121,7 @@ case "${1:-all}" in
         demo_memory
         demo_map
         demo_storyboard
+        demo_analysis
         echo ""
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${GREEN}✓ All demos completed successfully!${NC}"

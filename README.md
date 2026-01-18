@@ -113,6 +113,9 @@ yamlgraph graph run graphs/git-report.yaml --var input="What changed recently?"
 # Web research agent (requires: pip install yamlgraph[websearch])
 yamlgraph graph run graphs/web-research.yaml --var topic="LangGraph tutorials"
 
+# Code quality analysis with shell tools
+yamlgraph graph run graphs/code-analysis.yaml --var path="yamlgraph" --var package="yamlgraph"
+
 # Parallel fan-out with map nodes
 yamlgraph graph run examples/storyboard/animated-character-graph.yaml \
   --var concept="A brave mouse knight" --var model=hidream
@@ -605,6 +608,53 @@ Run web research:
 
 ```bash
 yamlgraph graph run graphs/web-research.yaml --var topic="LangGraph tutorials"
+```
+
+### 9. Code Quality Analysis
+
+Run automated code analysis with shell-based quality tools:
+
+```yaml
+# graphs/code-analysis.yaml
+state:
+  path: str      # Directory to analyze
+  package: str   # Package name for coverage
+
+tools:
+  run_ruff:
+    type: shell
+    command: ruff check {path} --output-format=text 2>&1
+    description: "Run ruff linter for code style issues"
+
+  run_tests:
+    type: shell
+    command: python -m pytest {path} -q --tb=no 2>&1 | tail -10
+    description: "Run pytest"
+
+  run_bandit:
+    type: shell
+    command: bandit -r {path} -ll -q 2>&1
+    description: "Security vulnerability scanner"
+
+nodes:
+  run_analysis:
+    type: agent
+    prompt: code-analysis/analyzer
+    tools: [run_ruff, run_tests, run_coverage, run_bandit, run_radon, run_vulture]
+    max_iterations: 12
+    state_key: analysis_results
+
+  generate_recommendations:
+    type: llm
+    prompt: code-analysis/recommend
+    requires: [analysis_results]
+    state_key: recommendations
+```
+
+Run code analysis (yamlgraph analyzes itself!):
+
+```bash
+yamlgraph graph run graphs/code-analysis.yaml --var path="yamlgraph" --var package="yamlgraph"
 ```
 
 **Tool types:**
