@@ -25,14 +25,19 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-# Import DuckDuckGo - handle missing dependency gracefully
+# Import DuckDuckGo - try new package name first, fallback to old
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
 
     DUCKDUCKGO_AVAILABLE = True
 except ImportError:
-    DDGS = None  # type: ignore[assignment, misc]
-    DUCKDUCKGO_AVAILABLE = False
+    try:
+        from duckduckgo_search import DDGS
+
+        DUCKDUCKGO_AVAILABLE = True
+    except ImportError:
+        DDGS = None  # type: ignore[assignment, misc]
+        DUCKDUCKGO_AVAILABLE = False
 
 
 @dataclass

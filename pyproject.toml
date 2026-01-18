@@ -30,7 +30,7 @@ dev = [
     "ruff>=0.1.0",
 ]
 websearch = [
-    "duckduckgo-search>=6.0.0",
+    "ddgs>=6.0.0",
 ]
 storyboard = [
     "replicate>=0.25.0",

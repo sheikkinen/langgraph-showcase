@@ -306,3 +306,148 @@ def get_run_url(run_id: str | None = None) -> str | None:
         return f"{web_url}/o/default/projects/p/{project}/runs/{run_id}"
 
     return f"{web_url}/projects/{project}/runs/{run_id}"
+
+
+def get_run_details(run_id: str | None = None) -> dict | None:
+    """Get detailed information about a run.
+
+    Args:
+        run_id: Run ID (uses latest if not provided)
+
+    Returns:
+        Dict with run details or None if failed:
+        - id: Run ID
+        - name: Run name
+        - status: success/error/pending
+        - error: Error message if any
+        - start_time: ISO timestamp
+        - end_time: ISO timestamp
+        - inputs: Input data
+        - outputs: Output data
+        - run_type: chain/llm/tool etc.
+    """
+    client = get_client()
+    if not client:
+        return None
+
+    if not run_id:
+        run_id = get_latest_run_id()
+
+    if not run_id:
+        return None
+
+    try:
+        run = client.read_run(run_id)
+        return {
+            "id": str(run.id),
+            "name": run.name,
+            "status": run.status,
+            "error": run.error,
+            "start_time": run.start_time.isoformat() if run.start_time else None,
+            "end_time": run.end_time.isoformat() if run.end_time else None,
+            "inputs": run.inputs,
+            "outputs": run.outputs,
+            "run_type": run.run_type,
+        }
+    except Exception as e:
+        logger.warning("Could not get run details: %s", e)
+        return None
+
+
+def get_run_errors(run_id: str | None = None) -> list[dict]:
+    """Get all errors from a run and its child runs.
+
+    Args:
+        run_id: Run ID (uses latest if not provided)
+
+    Returns:
+        List of error dicts with:
+        - node: Name of the failed node
+        - error: Error message
+        - run_type: Type of run (llm/chain/tool)
+    """
+    client = get_client()
+    if not client:
+        return []
+
+    if not run_id:
+        run_id = get_latest_run_id()
+
+    if not run_id:
+        return []
+
+    errors = []
+    try:
+        # Get parent run
+        run = client.read_run(run_id)
+        if run.error:
+            errors.append(
+                {
+                    "node": run.name,
+                    "error": run.error,
+                    "run_type": run.run_type,
+                }
+            )
+
+        # Get child runs with errors
+        children = client.list_runs(
+            parent_run_id=run_id,
+            error=True,
+            limit=50,
+        )
+        for child in children:
+            if child.error:
+                errors.append(
+                    {
+                        "node": child.name,
+                        "error": child.error,
+                        "run_type": child.run_type,
+                    }
+                )
+    except Exception as e:
+        logger.warning("Could not get run errors: %s", e)
+
+    return errors
+
+
+def get_failed_runs(
+    project_name: str | None = None,
+    limit: int = 10,
+) -> list[dict]:
+    """Get recent failed runs from a project.
+
+    Args:
+        project_name: Project name (uses default if not provided)
+        limit: Maximum number of runs to return
+
+    Returns:
+        List of failed run summaries with:
+        - id: Run ID
+        - name: Run name
+        - error: Error message
+        - start_time: ISO timestamp
+    """
+    client = get_client()
+    if not client:
+        return []
+
+    project = project_name or get_project_name()
+
+    try:
+        runs = client.list_runs(
+            project_name=project,
+            error=True,
+            limit=limit,
+        )
+        return [
+            {
+                "id": str(r.id),
+                "name": r.name,
+                "error": r.error,
+                "start_time": r.start_time.isoformat() if r.start_time else None,
+            }
+            for r in runs
+        ]
+    except Exception as e:
+        logger.warning("Could not list failed runs: %s", e)
+        return []

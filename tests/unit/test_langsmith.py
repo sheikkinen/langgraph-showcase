@@ -317,3 +317,271 @@ class TestGetLatestRunId:
         with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
             result = get_latest_run_id()
             assert result is None
+
+
+# =============================================================================
+# get_run_details() tests
+# =============================================================================
+
+
+class TestGetRunDetails:
+    """Tests for get_run_details()."""
+
+    def test_returns_none_when_no_client(self):
+        """Returns None when client unavailable."""
+        from yamlgraph.utils.langsmith import get_run_details
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
+            result = get_run_details("test-run-id")
+            assert result is None
+
+    def test_returns_none_when_no_run_id_and_no_latest(self):
+        """Returns None when no run ID provided and no latest run."""
+        from yamlgraph.utils.langsmith import get_run_details
+
+        mock_client = MagicMock()
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            with patch(
+                "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
+            ):
+                result = get_run_details()
+                assert result is None
+
+    def test_returns_run_details(self):
+        """Returns detailed run information."""
+        from datetime import datetime
+
+        from yamlgraph.utils.langsmith import get_run_details
+
+        mock_run = MagicMock()
+        mock_run.id = "run-123"
+        mock_run.name = "test_pipeline"
+        mock_run.status = "success"
+        mock_run.error = None
+        mock_run.start_time = datetime(2026, 1, 18, 10, 0, 0)
+        mock_run.end_time = datetime(2026, 1, 18, 10, 1, 0)
+        mock_run.inputs = {"topic": "AI"}
+        mock_run.outputs = {"result": "done"}
+        mock_run.run_type = "chain"
+
+        mock_client = MagicMock()
+        mock_client.read_run.return_value = mock_run
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_run_details("run-123")
+
+            assert result["id"] == "run-123"
+            assert result["name"] == "test_pipeline"
+            assert result["status"] == "success"
+            assert result["error"] is None
+            assert result["inputs"] == {"topic": "AI"}
+            assert result["outputs"] == {"result": "done"}
+            assert result["run_type"] == "chain"
+
+    def test_uses_latest_run_when_no_id(self):
+        """Uses latest run ID when not provided."""
+        from yamlgraph.utils.langsmith import get_run_details
+
+        mock_run = MagicMock()
+        mock_run.id = "latest-run"
+        mock_run.name = "latest"
+        mock_run.status = "success"
+        mock_run.error = None
+        mock_run.start_time = None
+        mock_run.end_time = None
+        mock_run.inputs = {}
+        mock_run.outputs = {}
+        mock_run.run_type = "chain"
+
+        mock_client = MagicMock()
+        mock_client.read_run.return_value = mock_run
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            with patch(
+                "yamlgraph.utils.langsmith.get_latest_run_id",
+                return_value="latest-run",
+            ):
+                result = get_run_details()
+
+                mock_client.read_run.assert_called_once_with("latest-run")
+                assert result["id"] == "latest-run"
+
+    def test_handles_exception_gracefully(self):
+        """Returns None on error."""
+        from yamlgraph.utils.langsmith import get_run_details
+
+        mock_client = MagicMock()
+        mock_client.read_run.side_effect = Exception("API error")
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_run_details("test-id")
+            assert result is None
+
+
+# =============================================================================
+# get_run_errors() tests
+# =============================================================================
+
+
+class TestGetRunErrors:
+    """Tests for get_run_errors()."""
+
+    def test_returns_empty_list_when_no_client(self):
+        """Returns empty list when client unavailable."""
+        from yamlgraph.utils.langsmith import get_run_errors
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
+            result = get_run_errors("test-run-id")
+            assert result == []
+
+    def test_returns_empty_list_when_no_run_id(self):
+        """Returns empty list when no run ID and no latest."""
+        from yamlgraph.utils.langsmith import get_run_errors
+
+        mock_client = MagicMock()
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            with patch(
+                "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
+            ):
+                result = get_run_errors()
+                assert result == []
+
+    def test_returns_parent_run_error(self):
+        """Returns error from parent run."""
+        from yamlgraph.utils.langsmith import get_run_errors
+
+        mock_run = MagicMock()
+        mock_run.name = "parent_node"
+        mock_run.error = "Parent failed"
+        mock_run.run_type = "chain"
+
+        mock_client = MagicMock()
+        mock_client.read_run.return_value = mock_run
+        mock_client.list_runs.return_value = []
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_run_errors("run-123")
+
+            assert len(result) == 1
+            assert result[0]["node"] == "parent_node"
+            assert result[0]["error"] == "Parent failed"
+
+    def test_returns_child_run_errors(self):
+        """Returns errors from child runs."""
+        from yamlgraph.utils.langsmith import get_run_errors
+
+        mock_parent = MagicMock()
+        mock_parent.error = None
+
+        mock_child1 = MagicMock()
+        mock_child1.name = "generate"
+        mock_child1.error = "Generate failed"
+        mock_child1.run_type = "llm"
+
+        mock_child2 = MagicMock()
+        mock_child2.name = "analyze"
+        mock_child2.error = "Analyze failed"
+        mock_child2.run_type = "llm"
+
+        mock_client = MagicMock()
+        mock_client.read_run.return_value = mock_parent
+        mock_client.list_runs.return_value = [mock_child1, mock_child2]
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_run_errors("run-123")
+
+            assert len(result) == 2
+            assert result[0]["node"] == "generate"
+            assert result[1]["node"] == "analyze"
+
+    def test_handles_exception_gracefully(self):
+        """Returns empty list on error."""
+        from yamlgraph.utils.langsmith import get_run_errors
+
+        mock_client = MagicMock()
+        mock_client.read_run.side_effect = Exception("API error")
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_run_errors("test-id")
+            assert result == []
+
+
+# =============================================================================
+# get_failed_runs() tests
+# =============================================================================
+
+
+class TestGetFailedRuns:
+    """Tests for get_failed_runs()."""
+
+    def test_returns_empty_list_when_no_client(self):
+        """Returns empty list when client unavailable."""
+        from yamlgraph.utils.langsmith import get_failed_runs
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=None):
+            result = get_failed_runs()
+            assert result == []
+
+    def test_returns_failed_runs(self):
+        """Returns list of failed runs."""
+        from datetime import datetime
+
+        from yamlgraph.utils.langsmith import get_failed_runs
+
+        mock_run1 = MagicMock()
+        mock_run1.id = "run-1"
+        mock_run1.name = "pipeline_1"
+        mock_run1.error = "Error 1"
+        mock_run1.start_time = datetime(2026, 1, 18, 10, 0, 0)
+
+        mock_run2 = MagicMock()
+        mock_run2.id = "run-2"
+        mock_run2.name = "pipeline_2"
+        mock_run2.error = "Error 2"
+        mock_run2.start_time = datetime(2026, 1, 18, 11, 0, 0)
+
+        mock_client = MagicMock()
+        mock_client.list_runs.return_value = [mock_run1, mock_run2]
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            with patch(
+                "yamlgraph.utils.langsmith.get_project_name",
+                return_value="test-project",
+            ):
+                result = get_failed_runs(limit=5)
+
+                mock_client.list_runs.assert_called_once_with(
+                    project_name="test-project",
+                    error=True,
+                    limit=5,
+                )
+                assert len(result) == 2
+                assert result[0]["id"] == "run-1"
+                assert result[0]["error"] == "Error 1"
+
+    def test_uses_provided_project_name(self):
+        """Uses provided project name."""
+        from yamlgraph.utils.langsmith import get_failed_runs
+
+        mock_client = MagicMock()
+        mock_client.list_runs.return_value = []
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            get_failed_runs(project_name="custom-project", limit=3)
+
+            mock_client.list_runs.assert_called_once_with(
+                project_name="custom-project",
+                error=True,
+                limit=3,
+            )
+
+    def test_handles_exception_gracefully(self):
+        """Returns empty list on error."""
+        from yamlgraph.utils.langsmith import get_failed_runs
+
+        mock_client = MagicMock()
+        mock_client.list_runs.side_effect = Exception("API error")
+
+        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
+            result = get_failed_runs()
+            assert result == []
