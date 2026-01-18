@@ -14,7 +14,7 @@ defaults:
 state:
   story: str                      # User story / bug / feature request
   scope: str                      # Package to analyze (e.g., "yamlgraph")
-  discovery_plan: DiscoveryPlan   # LLM-generated discovery tasks
+  discovery_plan: dict            # LLM-generated discovery tasks
   discovery_findings: list        # Collected results from tool calls
 
 tools:

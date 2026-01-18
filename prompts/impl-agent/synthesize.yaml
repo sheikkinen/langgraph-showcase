@@ -53,54 +53,20 @@ user: |
   Synthesize these findings into a structured analysis.
 
 schema:
-  type: object
-  properties:
+  name: CodeAnalysis
+  fields:
     summary:
-      type: string
+      type: str
       description: "One paragraph overview of what needs to change and why"
     target_files:
-      type: array
-      description: "Files that need modification"
-      items:
-        type: object
-        properties:
-          path:
-            type: string
-            description: "File path"
-          relevance:
-            type: string
-            description: "Why this file needs changes"
-          key_functions:
-            type: array
-            items:
-              type: string
-            description: "Functions/classes to modify or reference"
-        required:
-          - path
-          - relevance
+      type: Any
+      description: "Files that need modification with path, relevance, key_functions"
     dependencies:
-      type: array
+      type: list[str]
       description: "Code that depends on the target (callers, importers)"
-      items:
-        type: string
     test_coverage:
-      type: object
-      properties:
-        existing_tests:
-          type: array
-          description: "Test files/functions that cover this code"
-          items:
-            type: string
-        gaps:
-          type: array
-          description: "What additional tests are needed"
-          items:
-            type: string
+      type: Any
+      description: "Dict with existing_tests and gaps arrays"
     patterns_to_follow:
-      type: array
+      type: list[str]
       description: "Code patterns and conventions to match"
-      items:
-        type: string
-  required:
-    - summary
-    - target_files

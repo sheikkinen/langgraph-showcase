@@ -66,31 +66,8 @@ user: |
   Generate a discovery plan with 4-8 ordered tasks.
 
 schema:
-  type: object
-  properties:
+  name: DiscoveryPlan
+  fields:
     tasks:
-      type: array
-      items:
-        type: object
-        properties:
-          id:
-            type: integer
-            description: "Sequential task ID starting from 1"
-          task:
-            type: string
-            description: "Human-readable description of what to discover"
-          tool:
-            type: string
-            description: "Name of the tool to call"
-          args:
-            type: object
-            description: "Arguments to pass to the tool"
-          rationale:
-            type: string
-            description: "Why this discovery matters for the story"
-          priority:
-            type: integer
-            enum: [1, 2, 3]
-            description: "1=high, 2=medium, 3=low"
-        required: [id, task, tool, args, rationale, priority]
-  required: [tasks]
+      type: Any
+      description: "Ordered list of discovery tasks with id, task, tool, args, rationale, priority"

@@ -64,28 +64,31 @@ class TestSynthesizeSchema:
             content = yaml.safe_load(f)
         return content.get("schema", {})
 
+    def test_schema_has_name(self, schema):
+        """Schema should have a name."""
+        assert "name" in schema
+
     def test_schema_has_summary(self, schema):
         """Schema should include summary field."""
-        props = schema.get("properties", {})
-        assert "summary" in props
+        fields = schema.get("fields", {})
+        assert "summary" in fields
 
     def test_schema_has_target_files(self, schema):
         """Schema should include target_files array."""
-        props = schema.get("properties", {})
-        assert "target_files" in props
-        assert props["target_files"].get("type") == "array"
+        fields = schema.get("fields", {})
+        assert "target_files" in fields
 
     def test_schema_has_dependencies(self, schema):
         """Schema should include dependencies."""
-        props = schema.get("properties", {})
-        assert "dependencies" in props or "callers" in props
+        fields = schema.get("fields", {})
+        assert "dependencies" in fields
 
     def test_schema_has_test_coverage(self, schema):
         """Schema should include test coverage info."""
-        props = schema.get("properties", {})
-        assert "test_coverage" in props or "tests" in props
+        fields = schema.get("fields", {})
+        assert "test_coverage" in fields
 
     def test_schema_has_patterns(self, schema):
         """Schema should include patterns to follow."""
-        props = schema.get("properties", {})
-        assert "patterns_to_follow" in props or "patterns" in props
+        fields = schema.get("fields", {})
+        assert "patterns_to_follow" in fields

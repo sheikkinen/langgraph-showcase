@@ -6,7 +6,7 @@ and compile them into LangGraph StateGraph instances.
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import yaml
 from langgraph.graph import END, StateGraph
@@ -22,7 +22,11 @@ from yamlgraph.node_factory import (
 from yamlgraph.routing import make_expr_router_fn, make_router_fn
 from yamlgraph.tools.agent import create_agent_node
 from yamlgraph.tools.nodes import create_tool_node
-from yamlgraph.tools.python_tool import create_python_node, parse_python_tools
+from yamlgraph.tools.python_tool import (
+    create_python_node,
+    load_python_function,
+    parse_python_tools,
+)
 from yamlgraph.tools.shell import parse_tools
 from yamlgraph.tools.websearch import parse_websearch_tools
 from yamlgraph.utils.validators import validate_config
@@ -111,18 +115,27 @@ def _resolve_state_class(config: GraphConfig) -> type:
 
 def _parse_all_tools(
     config: GraphConfig,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Callable]]:
     """Parse shell, Python, and websearch tools from config.
 
     Args:
         config: Graph configuration
 
     Returns:
-        Tuple of (shell_tools, python_tools, websearch_tools) dictionaries
+        Tuple of (shell_tools, python_tools, websearch_tools, callable_registry)
+        callable_registry maps tool names to actual callable functions for tool_call nodes
     """
     tools = parse_tools(config.tools)
     python_tools = parse_python_tools(config.tools)
     websearch_tools = parse_websearch_tools(config.tools)
+
+    # Build callable registry for tool_call nodes
+    callable_registry: dict[str, Callable] = {}
+    for name, tool_config in python_tools.items():
+        try:
+            callable_registry[name] = load_python_function(tool_config)
+        except (ImportError, AttributeError) as e:
+            logger.warning(f"Failed to load tool '{name}': {e}")
 
     if tools:
         logger.info(f"Parsed {len(tools)} shell tools: {', '.join(tools.keys())}")
@@ -135,7 +148,7 @@ def _parse_all_tools(
             f"Parsed {len(websearch_tools)} websearch tools: {', '.join(websearch_tools.keys())}"
         )
 
-    return tools, python_tools, websearch_tools
+    return tools, python_tools, websearch_tools, callable_registry
 
 
 def _compile_node(
@@ -146,6 +159,7 @@ def _compile_node(
     tools: dict[str, Any],
     python_tools: dict[str, Any],
     websearch_tools: dict[str, Any],
+    callable_registry: dict[str, Callable],
 ) -> tuple[str, Any] | None:
     """Compile a single node and add to graph.
 
@@ -157,6 +171,7 @@ def _compile_node(
         tools: Shell tools registry
         python_tools: Python tools registry
         websearch_tools: Web search tools registry (LangChain StructuredTool)
+        callable_registry: Loaded callable functions for tool_call nodes
 
     Returns:
         Tuple of (node_name, map_info) for map nodes, None otherwise
@@ -181,13 +196,13 @@ def _compile_node(
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.MAP:
         map_edge_fn, sub_node_name = compile_map_node(
-            node_name, enriched_config, graph, config.defaults, python_tools
+            node_name, enriched_config, graph, config.defaults, callable_registry
         )
         logger.info(f"Added node: {node_name} (type={node_type})")
         return (node_name, (map_edge_fn, sub_node_name))
     elif node_type == NodeType.TOOL_CALL:
         # Dynamic tool call from state
-        node_fn = create_tool_call_node(node_name, enriched_config, python_tools)
+        node_fn = create_tool_call_node(node_name, enriched_config, callable_registry)
         graph.add_node(node_name, node_fn)
     else:
         # LLM and router nodes
@@ -204,6 +219,7 @@ def _compile_nodes(
     tools: dict[str, Any],
     python_tools: dict[str, Any],
     websearch_tools: dict[str, Any],
+    callable_registry: dict[str, Callable],
 ) -> dict[str, tuple]:
     """Compile all nodes and add to graph.
 
@@ -213,6 +229,7 @@ def _compile_nodes(
         tools: Shell tools registry
         python_tools: Python tools registry
         websearch_tools: Web search tools registry
+        callable_registry: Loaded callable functions for tool_call nodes
 
     Returns:
         Dict of map_nodes: name -> (map_edge_fn, sub_node_name)
@@ -221,7 +238,14 @@ def _compile_nodes(
 
     for node_name, node_config in config.nodes.items():
         result = _compile_node(
-            node_name, node_config, graph, config, tools, python_tools, websearch_tools
+            node_name,
+            node_config,
+            graph,
+            config,
+            tools,
+            python_tools,
+            websearch_tools,
+            callable_registry,
         )
         if result:
             map_nodes[result[0]] = result[1]
@@ -323,10 +347,12 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     graph = StateGraph(state_class)
 
     # Parse all tools
-    tools, python_tools, websearch_tools = _parse_all_tools(config)
+    tools, python_tools, websearch_tools, callable_registry = _parse_all_tools(config)
 
     # Compile all nodes
-    map_nodes = _compile_nodes(config, graph, tools, python_tools, websearch_tools)
+    map_nodes = _compile_nodes(
+        config, graph, tools, python_tools, websearch_tools, callable_registry
+    )
 
     # Process edges
     router_edges: dict[str, list] = {}

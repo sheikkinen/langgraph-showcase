@@ -89,8 +89,9 @@ class TestCompileToolCallNode:
             graph,
             minimal_config,
             tools={},
-            python_tools=tools_registry,  # tool_call uses python_tools
+            python_tools={},
             websearch_tools={},
+            callable_registry=tools_registry,  # tool_call uses callable_registry
         )
 
         # Should not return map info

@@ -46,10 +46,11 @@ class TestPlanDiscoveryPrompt:
         prompt = load_prompt("impl-agent/plan_discovery")
         schema = prompt["schema"]
 
-        # Schema should define tasks array
-        assert "properties" in schema
-        assert "tasks" in schema["properties"]
-        assert schema["properties"]["tasks"]["type"] == "array"
+        # Schema should have name and define tasks field
+        assert "name" in schema
+        assert schema["name"] == "DiscoveryPlan"
+        assert "fields" in schema
+        assert "tasks" in schema["fields"]
 
     def test_discovery_plan_accepts_valid_output(self):
         """DiscoveryPlan can parse expected LLM output format."""
