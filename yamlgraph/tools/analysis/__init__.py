@@ -7,6 +7,11 @@ This subpackage provides static and semantic analysis capabilities:
 - Jedi-based cross-file reference tracking (optional)
 """
 
+from yamlgraph.tools.analysis.ai_helpers import (
+    diff_preview,
+    find_similar_code,
+    summarize_module,
+)
 from yamlgraph.tools.analysis.ast_analysis import get_module_structure
 from yamlgraph.tools.analysis.code_context import (
     find_related_tests,
@@ -48,4 +53,8 @@ __all__ = [
     # Dependency analysis
     "get_imports",
     "get_dependents",
+    # AI helpers
+    "summarize_module",
+    "diff_preview",
+    "find_similar_code",
 ]

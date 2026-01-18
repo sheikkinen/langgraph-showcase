@@ -104,6 +104,25 @@ tools:
     function: get_dependents
     description: "Find all files that import a given module (reverse dependency lookup)"
 
+  # Phase 7 tools (AI helpers)
+  summarize_module:
+    type: python
+    module: yamlgraph.tools.analysis.ai_helpers
+    function: summarize_module
+    description: "Compress module to signatures only (for AI context windows)"
+
+  diff_preview:
+    type: python
+    module: yamlgraph.tools.analysis.ai_helpers
+    function: diff_preview
+    description: "Preview what a patch would look like applied (validates before suggesting)"
+
+  find_similar_code:
+    type: python
+    module: yamlgraph.tools.analysis.ai_helpers
+    function: find_similar_code
+    description: "Find similar functions/classes to follow their patterns"
+
 nodes:
   parse_story:
     type: llm
