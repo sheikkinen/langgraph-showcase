@@ -16,6 +16,7 @@ class NodeType(StrEnum):
     AGENT = "agent"
     PYTHON = "python"
     MAP = "map"
+    TOOL_CALL = "tool_call"
 
     @classmethod
     def requires_prompt(cls, node_type: str) -> bool:
