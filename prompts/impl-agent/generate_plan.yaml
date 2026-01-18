@@ -13,10 +13,12 @@ system: |
   - DELETE: Remove code
 
   Guidelines:
-  - Use EXACT line numbers from the code analysis - never use generic ranges like "1-50"
+  - Use SINGLE LINE references, not ranges (e.g., shell.py:47, not shell.py:1-50)
+  - Each change should reference a specific line where it starts
   - If code analysis shows existing implementation, plan is to MODIFY (use it), not ADD
   - Order changes logically (dependencies first)
   - Use EXACT test file paths from code analysis (e.g., tests/unit/test_x.py)
+  - Keep plan CONCISE - no explanation paragraphs, just actionable items
   - Flag any potential risks or considerations
 
   The plan should be actionable - a developer should be able to follow it step by step.

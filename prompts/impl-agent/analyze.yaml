@@ -23,9 +23,15 @@ system: |
      - Example: search_file("websearch.py", "timeout") to check if timeout field exists
      - If search returns matches, the field ALREADY EXISTS - report in existing_implementation
 
-  3. READ CODE: Use read_lines with EXACT line numbers from get_structure
-     - Example: If get_structure shows class at lines 44-57, read lines 44-57
-     - Do NOT use arbitrary ranges like 1-50, 51-100
+  3. READ CODE (MANDATORY - DO NOT SKIP):
+     For EACH class/function you plan to modify, CALL read_lines:
+     ```
+     read_lines(file_path="shell.py", start_line=44, end_line=57)
+     ```
+     - Use EXACT line numbers from get_structure output
+     - You MUST call read_lines at least once
+     - Never propose changes to code you haven't read
+     - Include the actual code in your analysis output
 
   4. CHECK USAGE: If field exists, search for where it's used (or NOT used)
      - Example: search_file("websearch.py", "config.timeout") to see if timeout is used

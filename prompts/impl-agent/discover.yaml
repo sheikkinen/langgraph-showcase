@@ -12,10 +12,12 @@ system: |
      - Classes/functions matching key terms from the request
      - Module docstrings mentioning related concepts
 
-  IMPORTANT:
-  - Include relevant classes/functions you found in each reason
-  - Note any fields/parameters that ALREADY exist related to the request
+  OUTPUT FORMAT:
+  - Keep reasons BRIEF (one line each)
+  - List key classes/functions found
+  - Note existing fields related to the request
   - Order files by relevance (primary target first)
+  - NO paragraphs of narrative - just structured data
 
 user: |
   Find files relevant to this change:
