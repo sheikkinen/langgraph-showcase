@@ -498,6 +498,50 @@ print_run_tree(verbose=True)
 #    └─ summarize (4.0s) ✅
 ```
 
+#### Self-Correcting Pipelines
+
+Use LangSmith tools to let agents inspect previous runs and fix errors:
+
+```python
+from yamlgraph.utils.langsmith import get_run_details, get_run_errors, get_failed_runs
+
+# Get details of the last run
+details = get_run_details()  # or get_run_details("specific-run-id")
+print(details["status"])  # "success" or "error"
+
+# Get all errors from a run and its child nodes
+errors = get_run_errors()
+for e in errors:
+    print(f"{e['node']}: {e['error']}")
+
+# List recent failed runs
+failures = get_failed_runs(limit=5)
+```
+
+As agent tools (see [docs/tools-langsmith.md](docs/tools-langsmith.md)):
+
+```yaml
+tools:
+  check_last_run:
+    type: python
+    module: yamlgraph.tools.langsmith_tools
+    function: get_run_details_tool
+    description: "Get status and errors from the last pipeline run"
+
+  get_errors:
+    type: python
+    module: yamlgraph.tools.langsmith_tools
+    function: get_run_errors_tool
+    description: "Get detailed error info from a run"
+
+nodes:
+  self_correct:
+    type: agent
+    prompt: error_analyzer
+    tools: [check_last_run, get_errors]
+    max_iterations: 3
+```
+
 ### 7. Shell Tools & Agent Nodes
 
 Define shell tools and let the LLM decide when to use them:
