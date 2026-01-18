@@ -155,6 +155,19 @@ tools:
     function: find_error_handling
     description: "Analyze error handling patterns (exceptions, dict_error, logging)"
 
+  # Phase 10 tools (YAMLGraph meta-templates)
+  extract_graph_template:
+    type: python
+    module: yamlgraph.tools.analysis.meta_tools
+    function: extract_graph_template
+    description: "Extract patterns from graph YAML (node types, edges, state, tools)"
+
+  extract_prompt_template:
+    type: python
+    module: yamlgraph.tools.analysis.meta_tools
+    function: extract_prompt_template
+    description: "Extract patterns from prompt YAML (sections, variables, schema, jinja)"
+
 nodes:
   parse_story:
     type: llm

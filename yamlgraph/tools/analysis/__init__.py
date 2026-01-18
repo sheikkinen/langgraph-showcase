@@ -29,6 +29,10 @@ from yamlgraph.tools.analysis.jedi_analysis import (
     get_callees,
     get_callers,
 )
+from yamlgraph.tools.analysis.meta_tools import (
+    extract_graph_template,
+    extract_prompt_template,
+)
 from yamlgraph.tools.analysis.syntax_tools import syntax_check
 from yamlgraph.tools.analysis.template_tools import (
     extract_class_template,
@@ -70,4 +74,7 @@ __all__ = [
     # Example discovery
     "find_example",
     "find_error_handling",
+    # Meta templates (YAMLGraph)
+    "extract_graph_template",
+    "extract_prompt_template",
 ]
