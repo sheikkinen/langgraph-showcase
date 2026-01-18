@@ -142,6 +142,19 @@ tools:
     function: extract_test_template
     description: "Extract test patterns (fixtures, test classes, mock patterns) for consistent test code"
 
+  # Phase 9 tools (example discovery)
+  find_example:
+    type: python
+    module: yamlgraph.tools.analysis.example_tools
+    function: find_example
+    description: "Find real usage examples of a function/class (prioritizes test files)"
+
+  find_error_handling:
+    type: python
+    module: yamlgraph.tools.analysis.example_tools
+    function: find_error_handling
+    description: "Analyze error handling patterns (exceptions, dict_error, logging)"
+
 nodes:
   parse_story:
     type: llm

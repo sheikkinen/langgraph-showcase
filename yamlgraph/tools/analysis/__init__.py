@@ -21,6 +21,7 @@ from yamlgraph.tools.analysis.code_context import (
 )
 from yamlgraph.tools.analysis.code_nav import list_package_modules
 from yamlgraph.tools.analysis.dependency_tools import get_dependents, get_imports
+from yamlgraph.tools.analysis.example_tools import find_error_handling, find_example
 from yamlgraph.tools.analysis.git_tools import git_blame, git_log
 from yamlgraph.tools.analysis.jedi_analysis import (
     JEDI_AVAILABLE,
@@ -66,4 +67,7 @@ __all__ = [
     "extract_function_template",
     "extract_class_template",
     "extract_test_template",
+    # Example discovery
+    "find_example",
+    "find_error_handling",
 ]
