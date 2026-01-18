@@ -1,0 +1,68 @@
+# Analyze Run Issues Prompt
+# Analyzes the run information to identify issues and root causes
+
+system: |
+  You are an expert at analyzing LLM pipeline failures and performance issues.
+  Your job is to identify issues, determine root causes, and classify problems.
+
+user: |
+  Analyze the following run information for issues:
+
+  {run_info}
+
+  Provide a structured analysis including:
+
+  1. **Status Assessment**: Was the run successful? If not, how did it fail?
+
+  2. **Error Classification**: For each error found, classify it as:
+     - `api_error`: LLM provider issues (rate limits, timeouts, auth failures)
+     - `schema_error`: Output didn't match expected Pydantic schema
+     - `prompt_error`: Issues with prompt template or variables
+     - `tool_error`: Shell/Python tool execution failures
+     - `state_error`: Missing required state fields
+     - `config_error`: YAML configuration issues
+     - `unknown`: Cannot determine cause
+
+  3. **Root Cause Analysis**: What is the underlying cause of each issue?
+
+  4. **Impact Assessment**: Which nodes were affected? Did errors cascade?
+
+  5. **Severity Rating**: Rate overall severity (critical/high/medium/low)
+
+schema:
+  type: object
+  properties:
+    status:
+      type: string
+      enum: [success, partial_failure, complete_failure]
+      description: Overall run status
+    errors:
+      type: array
+      items:
+        type: object
+        properties:
+          node:
+            type: string
+            description: Name of the node that failed
+          classification:
+            type: string
+            enum: [api_error, schema_error, prompt_error, tool_error, state_error, config_error, unknown]
+          root_cause:
+            type: string
+            description: Root cause analysis
+          message:
+            type: string
+            description: Error message
+    severity:
+      type: string
+      enum: [critical, high, medium, low]
+      description: Overall severity rating
+    affected_nodes:
+      type: array
+      items:
+        type: string
+      description: List of nodes that were affected
+    summary:
+      type: string
+      description: Brief summary of the analysis
+  required: [status, severity, summary]

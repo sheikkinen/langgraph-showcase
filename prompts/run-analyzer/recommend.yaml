@@ -1,0 +1,96 @@
+# Recommend Fixes Prompt
+# Generates actionable recommendations based on the analysis
+
+system: |
+  You are an expert at fixing LLM pipeline issues. Based on the analysis provided,
+  generate specific, actionable recommendations to fix the issues.
+
+  Your recommendations should be:
+  - Specific: Reference exact nodes, prompts, or config files
+  - Actionable: Include concrete steps to implement
+  - Prioritized: Order by impact and ease of implementation
+  - Safe: Consider backwards compatibility and testing
+
+user: |
+  Based on this run analysis, provide recommendations for fixing the issues:
+
+  **Run Information:**
+  {run_info}
+
+  **Analysis:**
+  {analysis}
+
+  Generate recommendations including:
+
+  1. **Immediate Fixes**: What should be done right now to resolve the issue?
+
+  2. **Configuration Changes**: Any YAML or prompt changes needed?
+
+  3. **Code Changes**: Any Python code modifications required?
+
+  4. **Prevention**: How to prevent this issue from recurring?
+
+  5. **Testing**: How to verify the fix works?
+
+schema:
+  type: object
+  properties:
+    immediate_fixes:
+      type: array
+      items:
+        type: object
+        properties:
+          action:
+            type: string
+            description: What to do
+          target:
+            type: string
+            description: File or component to modify
+          priority:
+            type: string
+            enum: [critical, high, medium, low]
+      description: Actions to take immediately
+    config_changes:
+      type: array
+      items:
+        type: object
+        properties:
+          file:
+            type: string
+            description: Config file to modify
+          change:
+            type: string
+            description: What to change
+          reason:
+            type: string
+            description: Why this change helps
+      description: YAML or config file changes
+    code_changes:
+      type: array
+      items:
+        type: object
+        properties:
+          file:
+            type: string
+            description: Python file to modify
+          change:
+            type: string
+            description: What to change
+          reason:
+            type: string
+            description: Why this change helps
+      description: Python code changes
+    prevention:
+      type: array
+      items:
+        type: string
+      description: Steps to prevent recurrence
+    test_plan:
+      type: array
+      items:
+        type: string
+      description: How to verify the fix
+    summary:
+      type: string
+      description: Executive summary of recommendations
+  required: [summary, immediate_fixes]

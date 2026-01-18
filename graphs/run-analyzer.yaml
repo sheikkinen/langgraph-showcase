@@ -1,0 +1,87 @@
+# Run Analyzer Graph
+# Analyzes a previous LangSmith run for issues and provides recommendations
+#
+# Usage:
+#   # Analyze the most recent run
+#   yamlgraph graph run graphs/run-analyzer.yaml
+#
+#   # Analyze a specific run by ID
+#   yamlgraph graph run graphs/run-analyzer.yaml --var run_id="abc-123"
+#
+#   # Analyze the most recent failed run
+#   yamlgraph graph run graphs/run-analyzer.yaml --var mode="last_failed"
+#
+# Requires LangSmith to be configured:
+#   LANGCHAIN_TRACING_V2=true
+#   LANGCHAIN_API_KEY=lsv2_...
+#   LANGCHAIN_PROJECT=yamlgraph
+
+version: "1.0"
+name: run-analyzer
+description: Analyze a previous run for issues and provide recommendations
+
+# Input state
+state:
+  run_id: str       # Optional: specific run ID to analyze
+  mode: str         # Optional: "latest" (default), "last_failed", or "specific"
+
+# Python tools for LangSmith access
+tools:
+  get_run_details:
+    type: python
+    module: yamlgraph.tools.langsmith_tools
+    function: get_run_details_tool
+    description: "Get detailed information about a pipeline run including status, inputs, outputs, and timing"
+
+  get_run_errors:
+    type: python
+    module: yamlgraph.tools.langsmith_tools
+    function: get_run_errors_tool
+    description: "Get all errors from a run and its child nodes with node names and error messages"
+
+  get_failed_runs:
+    type: python
+    module: yamlgraph.tools.langsmith_tools
+    function: get_failed_runs_tool
+    description: "List recent failed runs in the project with error summaries"
+
+nodes:
+  # Step 1: Fetch run information using agent with tools
+  fetch_run_info:
+    type: agent
+    prompt: run-analyzer/fetch_info
+    tools: [get_run_details, get_run_errors, get_failed_runs]
+    max_iterations: 5
+    state_key: run_info
+    variables:
+      run_id: "{state.run_id}"
+      mode: "{state.mode}"
+
+  # Step 2: Analyze the run for issues
+  analyze_issues:
+    type: llm
+    prompt: run-analyzer/analyze
+    state_key: analysis
+    requires: [run_info]
+    variables:
+      run_info: "{state.run_info}"
+
+  # Step 3: Generate recommendations
+  recommend:
+    type: llm
+    prompt: run-analyzer/recommend
+    state_key: recommendations
+    requires: [run_info, analysis]
+    variables:
+      run_info: "{state.run_info}"
+      analysis: "{state.analysis}"
+
+edges:
+  - from: START
+    to: fetch_run_info
+  - from: fetch_run_info
+    to: analyze_issues
+  - from: analyze_issues
+    to: recommend
+  - from: recommend
+    to: END
