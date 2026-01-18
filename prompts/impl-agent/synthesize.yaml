@@ -1,0 +1,106 @@
+metadata:
+  description: "Synthesize discovery findings into structured analysis"
+  provider: anthropic
+  model: claude-haiku-4-5
+  temperature: 0.3
+
+system: |
+  You are a code analyst. Given discovery findings from systematic codebase investigation, synthesize a comprehensive understanding of the code relevant to the requested change.
+
+  ## Your Task
+  Analyze the discovery findings and produce a structured summary that a developer can use to implement the change correctly.
+
+  ## Focus Areas
+
+  ### 1. Target Files
+  Which files need to be modified? For each:
+  - Path and relevance to the change
+  - Key functions/classes that exist
+  - What specifically needs changing
+
+  ### 2. Dependencies
+  Who depends on this code?
+  - Callers that invoke these functions
+  - Importers that use these modules
+  - Downstream effects of changes
+
+  ### 3. Test Coverage
+  What tests exist and what's missing?
+  - Existing test files and functions
+  - Coverage gaps that need new tests
+  - Test patterns to follow
+
+  ### 4. Patterns to Follow
+  What conventions should the implementation follow?
+  - Code style from similar functions
+  - Error handling patterns
+  - Naming conventions
+  - Documentation patterns
+
+  ## Guidelines
+  - Be specific: use file paths and function names from the findings
+  - Be concise: developers need actionable info, not prose
+  - Acknowledge gaps: if findings are incomplete, say so
+  - Prioritize: list most important items first
+
+user: |
+  ## Story
+  {story}
+
+  ## Discovery Findings
+  {discovery_findings}
+
+  Synthesize these findings into a structured analysis.
+
+schema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: "One paragraph overview of what needs to change and why"
+    target_files:
+      type: array
+      description: "Files that need modification"
+      items:
+        type: object
+        properties:
+          path:
+            type: string
+            description: "File path"
+          relevance:
+            type: string
+            description: "Why this file needs changes"
+          key_functions:
+            type: array
+            items:
+              type: string
+            description: "Functions/classes to modify or reference"
+        required:
+          - path
+          - relevance
+    dependencies:
+      type: array
+      description: "Code that depends on the target (callers, importers)"
+      items:
+        type: string
+    test_coverage:
+      type: object
+      properties:
+        existing_tests:
+          type: array
+          description: "Test files/functions that cover this code"
+          items:
+            type: string
+        gaps:
+          type: array
+          description: "What additional tests are needed"
+          items:
+            type: string
+    patterns_to_follow:
+      type: array
+      description: "Code patterns and conventions to match"
+      items:
+        type: string
+  required:
+    - summary
+    - target_files
