@@ -14,7 +14,11 @@ from langgraph.graph import END, StateGraph
 from yamlgraph.constants import NodeType
 from yamlgraph.map_compiler import compile_map_node
 from yamlgraph.models.state_builder import build_state_class
-from yamlgraph.node_factory import create_node_function, resolve_class
+from yamlgraph.node_factory import (
+    create_node_function,
+    create_tool_call_node,
+    resolve_class,
+)
 from yamlgraph.routing import make_expr_router_fn, make_router_fn
 from yamlgraph.tools.agent import create_agent_node
 from yamlgraph.tools.nodes import create_tool_node
@@ -177,10 +181,14 @@ def _compile_node(
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.MAP:
         map_edge_fn, sub_node_name = compile_map_node(
-            node_name, enriched_config, graph, config.defaults
+            node_name, enriched_config, graph, config.defaults, python_tools
         )
         logger.info(f"Added node: {node_name} (type={node_type})")
         return (node_name, (map_edge_fn, sub_node_name))
+    elif node_type == NodeType.TOOL_CALL:
+        # Dynamic tool call from state
+        node_fn = create_tool_call_node(node_name, enriched_config, python_tools)
+        graph.add_node(node_name, node_fn)
     else:
         # LLM and router nodes
         node_fn = create_node_function(node_name, enriched_config, config.defaults)

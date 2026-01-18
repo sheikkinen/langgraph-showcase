@@ -11,7 +11,8 @@ from typing import Any
 from langgraph.graph import StateGraph
 from langgraph.types import Send
 
-from yamlgraph.node_factory import create_node_function
+from yamlgraph.constants import NodeType
+from yamlgraph.node_factory import create_node_function, create_tool_call_node
 from yamlgraph.utils.expressions import resolve_state_expression
 
 logger = logging.getLogger(__name__)
@@ -88,6 +89,7 @@ def compile_map_node(
     config: dict[str, Any],
     builder: StateGraph,
     defaults: dict[str, Any],
+    tools_registry: dict[str, Any] | None = None,
 ) -> tuple[Callable[[dict], list[Send]], str]:
     """Compile type: map node using LangGraph Send.
 
@@ -99,6 +101,7 @@ def compile_map_node(
         config: Map node configuration with 'over', 'as', 'node', 'collect'
         builder: StateGraph builder to add sub-node to
         defaults: Default configuration for nodes
+        tools_registry: Optional tools registry for tool_call sub-nodes
 
     Returns:
         Tuple of (map_edge_function, sub_node_name)
@@ -109,6 +112,7 @@ def compile_map_node(
     collect_key = config["collect"]
     sub_node_config = dict(config["node"])  # Copy to avoid mutating original
     state_key = sub_node_config.get("state_key", "result")
+    sub_node_type = sub_node_config.get("type", "llm")
 
     # Auto-inject the 'as' variable into sub-node's variables
     # So the prompt can access it as {item_var}
@@ -116,8 +120,16 @@ def compile_map_node(
     sub_variables[item_var] = f"{{state.{item_var}}}"
     sub_node_config["variables"] = sub_variables
 
-    # Create sub-node from config
-    sub_node = create_node_function(sub_node_name, sub_node_config, defaults)
+    # Create sub-node based on type
+    if sub_node_type == NodeType.TOOL_CALL:
+        if tools_registry is None:
+            raise ValueError(
+                f"Map node '{name}' has tool_call sub-node but no tools_registry"
+            )
+        sub_node = create_tool_call_node(sub_node_name, sub_node_config, tools_registry)
+    else:
+        sub_node = create_node_function(sub_node_name, sub_node_config, defaults)
+
     wrapped_node = wrap_for_reducer(sub_node, collect_key, state_key)
     builder.add_node(sub_node_name, wrapped_node)
 
