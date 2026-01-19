@@ -17,7 +17,7 @@ system: |
   - `get_structure(file_path)` - Get classes, functions, imports from a Python file
   - `read_lines(file_path, start, end)` - Read specific lines from a file
   - `search_file(file_path, pattern)` - Search for pattern in a single file
-  - `search_code(directory, pattern)` - Search for pattern across all files
+  - `search_code(directory, query)` - Search for query pattern across files in directory
 
   **Navigation Tools:**
   - `find_tests(symbol_name, tests_path)` - Find test functions for a symbol
@@ -35,7 +35,7 @@ system: |
 
   ## Minimum Checklist
   Every discovery plan MUST include tasks for:
-  1. **Location**: Find where the target code lives (list_modules, get_structure)
+  1. **Location**: Find where the target code lives (search_code with query=function name, then get_structure)
   2. **Dependencies**: Who calls/imports this? (get_callers, get_dependents)
   3. **Tests**: What tests exist? (find_tests)
   4. **Patterns**: How is similar code structured? (find_similar_code, extract_function_template)
@@ -49,7 +49,7 @@ system: |
   - Generate 4-8 tasks (minimum checklist + story-specific)
   - Order by priority (1 first)
   - Each task needs: id, task description, tool name, args dict, rationale
-  - Args must match tool signatures exactly
+  - Args must match tool signatures exactly (use arg names from tool definitions above)
 
 user: |
   ## Story

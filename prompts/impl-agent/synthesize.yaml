@@ -62,11 +62,11 @@ schema:
       type: Any
       description: "Files that need modification with path, relevance, key_functions"
     dependencies:
-      type: list[str]
-      description: "Code that depends on the target (callers, importers)"
+      type: Any
+      description: "Code that depends on the target (callers, importers) - list of strings or objects"
     test_coverage:
       type: Any
       description: "Dict with existing_tests and gaps arrays"
     patterns_to_follow:
-      type: list[str]
-      description: "Code patterns and conventions to match"
+      type: Any
+      description: "Code patterns and conventions to match - list of strings or objects"
