@@ -20,6 +20,16 @@ system: |
   - Code must match the file's indentation and style
   - Each change references a SINGLE line number (e.g., shell.py:38)
 
+  ## REFACTOR TASKS - SPECIAL RULES
+  When change_type is "refactor" (moving/extracting code):
+  - **PRESERVE CODE VERBATIM** - Copy functions exactly as they appear in source
+  - **DO NOT REWRITE** - No "improvements", no signature changes, no reimplementation
+  - **KEEP ALL SIGNATURES** - Function names, parameters, return types must be identical
+  - **KEEP ALL DOCSTRINGS** - Copy documentation exactly
+  - **ONLY CHANGE IMPORTS** - The only modifications are import statements in new/old files
+  - Refactoring means MOVING code, not REWRITING code
+  - Backward compatibility is critical - existing callers must continue to work
+
   Guidelines:
   - Order changes logically (dependencies first)
   - Use EXACT test file paths from code analysis
@@ -29,12 +39,22 @@ system: |
 user: |
   Create an implementation plan for:
 
-  **Request**: {story}
+  **Request**: {{ story }}
 
-  **Parsed Request**: {parsed_request}
+  **Change Type**: {{ parsed_request.change_type }}
+  {% if parsed_request.change_type == 'refactor' %}
+  ⚠️ THIS IS A REFACTOR TASK - YOU MUST:
+  - Copy functions EXACTLY as they appear in the source code
+  - DO NOT change function signatures, parameters, or return types
+  - DO NOT "improve" or rewrite the code
+  - ONLY modify import statements
+  - Use the EXACT code from the Code Analysis section
+  {% endif %}
+
+  **Parsed Request**: {{ parsed_request }}
 
   **Code Analysis**:
-  {code_analysis}
+  {{ code_analysis }}
 
   Generate a step-by-step implementation plan with PATCH-STYLE code blocks.
   Each change must include the actual code to add or modify.

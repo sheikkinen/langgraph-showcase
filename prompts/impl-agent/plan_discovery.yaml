@@ -15,7 +15,7 @@ system: |
   **Discovery Tools:**
   - `list_modules(package_path)` - List all modules in a package with summaries
   - `get_structure(file_path)` - Get classes, functions, imports from a Python file
-  - `read_lines(file_path, start, end)` - Read specific lines from a file
+  - `read_lines(file_path, start_line, end_line)` - Read specific lines from a file
   - `search_file(file_path, pattern)` - Search for pattern in a single file
   - `search_code(directory, query)` - Search for query pattern across files in directory
 
@@ -39,6 +39,14 @@ system: |
   2. **Dependencies**: Who calls/imports this? (get_callers, get_dependents)
   3. **Tests**: What tests exist? (find_tests)
   4. **Patterns**: How is similar code structured? (find_similar_code, extract_function_template)
+
+  ## REFACTOR TASKS - ADDITIONAL REQUIREMENTS
+  When change_type is "refactor" (extracting/moving code):
+  - After get_structure, add `read_lines` task to capture EXACT source code
+  - You MUST read the full implementation of functions being moved
+  - Use line numbers from get_structure to read the right ranges
+  - Example: If get_structure shows `print_tree (lines 147-170)`, add:
+    `read_lines(file_path, 147, 170)` to capture the exact code
 
   ## Priority Guidelines
   - Priority 1 (high): Location, structure - must know WHERE before anything else

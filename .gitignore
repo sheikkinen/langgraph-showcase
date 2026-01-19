@@ -23,6 +23,7 @@ matrix
 # Outputs
 outputs/
 *.db
+demo/
 
 # Distribution
 dist/
