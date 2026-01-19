@@ -7,10 +7,12 @@ system: |
   ## Instruction Types
 
   ### EXTRACT
-  Move existing code to a new location:
+  Move ONE function at a time to a new location:
   ```
-  EXTRACT functions [name1, name2] (lines X-Y) from file.py → new_module.py
+  EXTRACT function name1 (lines X-Y) from file.py → new_module.py
   ```
+  ⚠️ IMPORTANT: Create a SEPARATE EXTRACT instruction for EACH function.
+  Do NOT combine multiple functions into one instruction.
 
   ### MODIFY
   Change existing code in place:
@@ -26,10 +28,11 @@ system: |
   ```
 
   ### DELETE
-  Remove code:
+  Remove ONE function at a time:
   ```
-  DELETE lines X-Y in file.py (function_name - moved to new_module.py)
+  DELETE function name1 (lines X-Y) in file.py (moved to new_module.py)
   ```
+  ⚠️ IMPORTANT: Create a SEPARATE DELETE instruction for EACH function.
 
   ### CREATE
   New file:
@@ -39,10 +42,11 @@ system: |
 
   ## CRITICAL RULES
   - Always include LINE NUMBERS from the Code Analysis
-  - For EXTRACT/DELETE: reference the exact lines to move/remove
+  - ONE function per EXTRACT/DELETE instruction (atomic operations)
   - For refactoring: specify source lines, not rewritten code
   - Order instructions by dependency (imports before usage)
   - Keep instructions atomic (one action per instruction)
+  - If a function should NOT be moved, do not include it in EXTRACT/DELETE
 
 user: |
   Create an implementation plan for:
@@ -75,10 +79,13 @@ schema:
     instructions:
       type: list[str]
       description: |
-        Ordered list of developer instructions. Examples:
-        - "EXTRACT functions [print_run_tree, _print_run_node] (lines 147-248) from utils/langsmith.py → utils/tracing.py"
+        Ordered list of developer instructions. ONE function per EXTRACT/DELETE.
+        Examples:
+        - "EXTRACT function print_run_tree (lines 147-170) from utils/langsmith.py → utils/tracing.py"
+        - "EXTRACT function _print_run_node (lines 173-248) from utils/langsmith.py → utils/tracing.py"
+        - "DELETE function print_run_tree (lines 147-170) in utils/langsmith.py (moved to tracing.py)"
+        - "DELETE function _print_run_node (lines 173-248) in utils/langsmith.py (moved to tracing.py)"
         - "ADD import at line 15 in utils/langsmith.py: 'from .tracing import print_run_tree'"
-        - "DELETE lines 147-248 in utils/langsmith.py (moved to tracing.py)"
         - "MODIFY get_client (lines 18-42) in utils/langsmith.py: add caching decorator"
         - "CREATE utils/tracing.py with extracted functions + imports from langsmith.py"
     test_instructions:

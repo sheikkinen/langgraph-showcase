@@ -18,7 +18,7 @@ def parse_instruction(instruction: str) -> dict[str, Any]:
     """Parse a single impl-agent instruction into structured data.
 
     Args:
-        instruction: Raw instruction string like "EXTRACT functions [a, b] (lines 70-92) from x.py → y.py"
+        instruction: Raw instruction string like "EXTRACT function name (lines 70-92) from x.py → y.py"
 
     Returns:
         Dict with action, details, and original instruction
@@ -28,7 +28,25 @@ def parse_instruction(instruction: str) -> dict[str, Any]:
     # Clean up: remove backticks from file paths
     clean_instr = re.sub(r"`([^`]+)`", r"\1", instruction)
 
-    # EXTRACT pattern: EXTRACT functions [name1, name2] (lines X-Y) from file.py → new_file.py
+    # EXTRACT single function: EXTRACT function name (lines X-Y) from file.py → new_file.py
+    extract_single = re.match(
+        r"EXTRACT\s+function\s+(\w+)\s+\(lines?\s+(\d+)-(\d+)\)\s+from\s+([^\s→]+)\s*→\s*(.+)",
+        clean_instr,
+        re.IGNORECASE,
+    )
+    if extract_single:
+        return {
+            "original": instruction,
+            "action": "EXTRACT",
+            "functions": [extract_single.group(1).strip()],
+            "start_line": int(extract_single.group(2)),
+            "end_line": int(extract_single.group(3)),
+            "source_file": extract_single.group(4).strip().rstrip("."),
+            "target_file": extract_single.group(5).strip().rstrip("."),
+            "valid": True,
+        }
+
+    # EXTRACT multiple functions (legacy): EXTRACT functions [name1, name2] (lines X-Y) from file.py → new_file.py
     extract_match = re.match(
         r"EXTRACT\s+functions?\s+\[([^\]]+)\]\s+\(lines?\s+(\d+)-(\d+)\)\s+from\s+([^\s→]+)\s*→\s*(.+)",
         clean_instr,
@@ -47,7 +65,25 @@ def parse_instruction(instruction: str) -> dict[str, Any]:
             "valid": True,
         }
 
-    # DELETE pattern: DELETE lines X-Y in file.py (reason)
+    # DELETE single function: DELETE function name (lines X-Y) in file.py (reason)
+    delete_func = re.match(
+        r"DELETE\s+function\s+(\w+)\s+\(lines?\s+(\d+)-(\d+)\)\s+in\s+([^\s(]+)(?:\s*\(([^)]+)\))?",
+        clean_instr,
+        re.IGNORECASE,
+    )
+    if delete_func:
+        return {
+            "original": instruction,
+            "action": "DELETE",
+            "function": delete_func.group(1).strip(),
+            "start_line": int(delete_func.group(2)),
+            "end_line": int(delete_func.group(3)),
+            "file": delete_func.group(4).strip().rstrip("."),
+            "reason": delete_func.group(5) if delete_func.group(5) else "",
+            "valid": True,
+        }
+
+    # DELETE lines (legacy): DELETE lines X-Y in file.py (reason)
     delete_match = re.match(
         r"DELETE\s+lines?\s+(\d+)-(\d+)\s+in\s+([^\s(]+)(?:\s*\(([^)]+)\))?",
         clean_instr,
@@ -309,7 +345,7 @@ def generate_refactor_script(
         "",
     ]
 
-    # Parse and convert each instruction
+    # Parse all instructions first
     parsed_instructions = []
     for i, instr in enumerate(instructions, 1):
         # Clean up instruction (remove markdown artifacts)
@@ -321,12 +357,41 @@ def generate_refactor_script(
         parsed["index"] = i
         parsed_instructions.append(parsed)
 
-        script_lines.append(f"# Step {i}/{len(instructions)}")
+    # CRITICAL: Reorder DELETEs to process highest line numbers first per file
+    # This prevents line number shifts from breaking subsequent deletes
+    delete_instructions = [
+        p for p in parsed_instructions if p.get("action") == "DELETE"
+    ]
+    non_delete_instructions = [
+        p for p in parsed_instructions if p.get("action") != "DELETE"
+    ]
+
+    # Sort DELETEs by (file, -start_line) so highest lines deleted first
+    delete_instructions.sort(
+        key=lambda x: (x.get("file", ""), -(x.get("start_line", 0)))
+    )
+
+    # Group: non-deletes first (in original order), then sorted deletes
+    reordered = non_delete_instructions + delete_instructions
+
+    # Add warning about reordering if we had deletes
+    if delete_instructions:
+        script_lines.append(
+            "# ⚠️  DELETE instructions reordered: highest line numbers first"
+        )
+        script_lines.append(
+            "#    This prevents line shift issues during multi-delete operations"
+        )
+        script_lines.append("")
+
+    # Convert to shell commands with new step numbers
+    for i, parsed in enumerate(reordered, 1):
+        script_lines.append(f"# Step {i}/{len(reordered)}")
         script_lines.append(instruction_to_shell(parsed, "$PROJECT_ROOT"))
 
     # Add summary
-    valid_count = sum(1 for p in parsed_instructions if p.get("valid"))
-    manual_count = len(parsed_instructions) - valid_count
+    valid_count = sum(1 for p in reordered if p.get("valid"))
+    manual_count = len(reordered) - valid_count
 
     script_lines.extend(
         [
