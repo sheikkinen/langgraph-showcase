@@ -2,9 +2,10 @@
 
 **ID:** 005  
 **Priority:** P3 - Medium  
-**Status:** Proposed  
+**Status:** ⏸️ Deferred  
 **Effort:** 1 week  
-**Requested:** 2026-01-19
+**Requested:** 2026-01-19  
+**Note:** With interrupt nodes (001), checkpointers (002), and async executor (003), the core primitives are available. A high-level session manager may not be needed—see `examples/fastapi_interview.py` for usage patterns.
 
 ## Summary
 

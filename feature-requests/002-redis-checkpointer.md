@@ -2,9 +2,12 @@
 
 **ID:** 002  
 **Priority:** P1 - Critical  
-**Status:** Proposed  
+**Status:** ✅ Implemented  
 **Effort:** 1 week  
-**Requested:** 2026-01-19
+**Requested:** 2026-01-19  
+**Implemented:** 2026-01-19  
+**Commit:** `3508b80`  
+**Docs:** [reference/checkpointers.md](../reference/checkpointers.md)
 
 ## Summary
 

@@ -2,9 +2,12 @@
 
 **ID:** 003  
 **Priority:** P2 - High  
-**Status:** Proposed  
+**Status:** ✅ Implemented  
 **Effort:** 3 days  
-**Requested:** 2026-01-19
+**Requested:** 2026-01-19  
+**Implemented:** 2026-01-19  
+**Commit:** `77d5747`  
+**Docs:** [reference/async-usage.md](../reference/async-usage.md)
 
 ## Summary
 
