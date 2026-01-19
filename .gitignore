@@ -43,3 +43,6 @@ htmlcov/
 
 # Custom graphs
 projects/docs/
+
+# System
+.DS_Store

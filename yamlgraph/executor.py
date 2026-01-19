@@ -158,19 +158,6 @@ def get_executor() -> "PromptExecutor":
     return _executor
 
 
-def set_executor(executor: "PromptExecutor | None") -> None:
-    """Set a custom executor instance for dependency injection (thread-safe).
-
-    Useful for testing or when you need different executor configurations.
-
-    Args:
-        executor: Custom PromptExecutor instance, or None to reset to default
-    """
-    global _executor
-    with _executor_lock:
-        _executor = executor
-
-
 class PromptExecutor:
     """Reusable executor with LLM caching and retry logic."""
 

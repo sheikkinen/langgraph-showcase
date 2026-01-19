@@ -160,7 +160,6 @@ def diff_preview(
     line: int,
     action: str,
     new_code: str,
-    context_lines: int = 3,
     validate_syntax: bool = False,
 ) -> dict:
     """Preview what a patch would look like applied.
@@ -170,7 +169,6 @@ def diff_preview(
         line: Line number (1-indexed)
         action: ADD, MODIFY, or DELETE
         new_code: New code to add/replace
-        context_lines: Lines of context around change
         validate_syntax: Whether to check syntax of result
 
     Returns:

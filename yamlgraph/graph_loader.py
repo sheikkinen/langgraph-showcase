@@ -21,7 +21,6 @@ from yamlgraph.node_factory import (
     resolve_class,
 )
 from yamlgraph.routing import make_expr_router_fn, make_router_fn
-from yamlgraph.storage.checkpointer_factory import get_checkpointer
 from yamlgraph.tools.agent import create_agent_node
 from yamlgraph.tools.nodes import create_tool_node
 from yamlgraph.tools.python_tool import (
@@ -388,16 +387,3 @@ def load_and_compile(path: str | Path) -> StateGraph:
     config = load_graph_config(path)
     logger.info(f"Loaded graph config: {config.name} v{config.version}")
     return compile_graph(config)
-
-
-def get_checkpointer_for_graph(config: GraphConfig, *, async_mode: bool = False):
-    """Get checkpointer from graph config.
-
-    Args:
-        config: Graph configuration
-        async_mode: If True, return async-compatible saver
-
-    Returns:
-        Configured checkpointer or None if not specified
-    """
-    return get_checkpointer(config.checkpointer, async_mode=async_mode)

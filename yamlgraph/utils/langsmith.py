@@ -7,10 +7,7 @@ printing execution trees, and logging run information.
 import logging
 import os
 from datetime import datetime
-from pathlib import Path
 from typing import Any
-
-from yamlgraph.config import WORKING_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -246,40 +243,6 @@ def _print_run_node(
             )
     except Exception as e:
         logger.debug("Could not fetch child runs for %s: %s", run.id, e)
-
-
-def log_execution(
-    step_name: str,
-    inputs: dict | None = None,
-    outputs: dict | None = None,
-    log_dir: str | Path | None = None,
-) -> None:
-    """Log execution details to a file.
-
-    Args:
-        step_name: Name of the pipeline step
-        inputs: Input data for the step
-        outputs: Output data from the step
-        log_dir: Directory for log files (default: outputs/logs)
-    """
-    import json
-
-    if log_dir is None:
-        log_dir = WORKING_DIR / "outputs" / "logs"
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-
-    log_file = log_path / f"{datetime.now().strftime('%Y%m%d')}_execution.jsonl"
-
-    entry = {
-        "timestamp": datetime.now().isoformat(),
-        "step": step_name,
-        "inputs": inputs or {},
-        "outputs": outputs or {},
-    }
-
-    with open(log_file, "a") as f:
-        f.write(json.dumps(entry, default=str) + "\n")
 
 
 def get_run_url(run_id: str | None = None) -> str | None:

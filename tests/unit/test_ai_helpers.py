@@ -110,20 +110,6 @@ class TestDiffPreview:
         assert "diff" in result
         assert "-" in result["diff"]  # Deleted line marker
 
-    def test_includes_context_lines(self):
-        """Includes context around the change."""
-        result = diff_preview(
-            file_path="yamlgraph/executor.py",
-            line=10,
-            action="ADD",
-            new_code="# Inserted line",
-            context_lines=3,
-        )
-
-        assert "error" not in result
-        # Should have multiple lines of context
-        assert result["diff"].count("\n") >= 5
-
     def test_returns_error_for_invalid_file(self):
         """Returns error for non-existent file."""
         result = diff_preview(

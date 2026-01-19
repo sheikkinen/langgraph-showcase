@@ -7,7 +7,6 @@ output for production environments.
 import logging
 import os
 import sys
-from typing import Any
 
 
 class StructuredFormatter(logging.Formatter):
@@ -99,28 +98,6 @@ def get_logger(name: str) -> logging.Logger:
         >>> logger.info("Processing started", extra={"topic": "AI"})
     """
     return logging.getLogger(name)
-
-
-def log_with_context(
-    logger: logging.Logger,
-    level: int,
-    message: str,
-    **context: Any,
-) -> None:
-    """Log a message with additional context fields.
-
-    Args:
-        logger: Logger instance
-        level: Log level (logging.INFO, etc.)
-        message: Log message
-        **context: Additional context fields
-
-    Example:
-        >>> log_with_context(logger, logging.INFO, "Node completed",
-        ...                  node="generate", duration=1.5)
-    """
-    extra = {"extra": context} if context else {}
-    logger.log(level, message, extra=extra)
 
 
 # Initialize logging on import
