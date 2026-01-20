@@ -23,6 +23,14 @@ defaults:
   provider: anthropic
   temperature: 0.7
 
+# Python tools for image generation
+tools:
+  generate_scene_image:
+    type: python
+    module: examples.npc.nodes.image_node
+    function: generate_scene_image_node
+    description: Generate an image of the current scene using Replicate API
+
 state:
   # NPC data (JSON string or dict)
   npc_name: str
@@ -45,6 +53,8 @@ state:
   perception: dict
   decision: dict
   narration: str
+  scene_prompt: str
+  scene_image: str
 
 nodes:
   # Wait for DM input
@@ -98,6 +108,25 @@ nodes:
       location: "{state.location}"
       decision: "{state.decision}"
 
+  # Generate image prompt from narration
+  describe_scene:
+    type: llm
+    prompt: examples/npc/image/describe_scene
+    state_key: scene_prompt
+    temperature: 0.6
+    skip_if_exists: false
+    variables:
+      location: "{state.location}"
+      location_description: "{state.location_description}"
+      narration: "{state.narration}"
+      npcs: []
+
+  # Generate scene image
+  generate_scene_image:
+    type: python
+    tool: generate_scene_image
+    state_key: scene_image
+
   # Increment turn counter
   next_turn:
     type: passthrough
@@ -125,6 +154,12 @@ edges:
     to: narrate
 
   - from: narrate
+    to: describe_scene
+
+  - from: describe_scene
+    to: generate_scene_image
+
+  - from: generate_scene_image
     to: next_turn
 
   # Loop back to await next DM input
