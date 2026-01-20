@@ -4,10 +4,11 @@ This module consolidates prompt loading logic used by executor.py
 and node_factory.py into a single, testable module.
 
 Search order for prompts:
-1. If prompts_dir specified: prompts_dir/{prompt_name}.yaml
-2. If prompts_relative + graph_path: graph_path.parent/{prompt_name}.yaml
-3. Default: PROMPTS_DIR/{prompt_name}.yaml
-4. Fallback: {parent}/prompts/{basename}.yaml (external examples)
+1. If prompts_relative + prompts_dir + graph_path: graph_path.parent/prompts_dir/{prompt_name}.yaml
+2. If prompts_dir specified: prompts_dir/{prompt_name}.yaml
+3. If prompts_relative + graph_path: graph_path.parent/{prompt_name}.yaml
+4. Default: PROMPTS_DIR/{prompt_name}.yaml
+5. Fallback: {parent}/prompts/{basename}.yaml (external examples)
 """
 
 from pathlib import Path
@@ -26,14 +27,15 @@ def resolve_prompt_path(
     """Resolve a prompt name to its full YAML file path.
 
     Resolution order:
-    1. If prompts_dir specified: prompts_dir/{prompt_name}.yaml
-    2. If prompts_relative and graph_path: graph_path.parent/{prompt_name}.yaml
-    3. Default: PROMPTS_DIR/{prompt_name}.yaml
-    4. Fallback: {parent}/prompts/{basename}.yaml (external examples)
+    1. If prompts_relative + prompts_dir + graph_path: graph_path.parent/prompts_dir/{prompt_name}.yaml
+    2. If prompts_dir specified: prompts_dir/{prompt_name}.yaml
+    3. If prompts_relative + graph_path: graph_path.parent/{prompt_name}.yaml
+    4. Default: PROMPTS_DIR/{prompt_name}.yaml
+    5. Fallback: {parent}/prompts/{basename}.yaml (external examples)
 
     Args:
         prompt_name: Prompt name like "greet" or "prompts/opening"
-        prompts_dir: Explicit prompts directory override (takes precedence)
+        prompts_dir: Explicit prompts directory (combined with graph_path if prompts_relative=True)
         graph_path: Path to the graph YAML file (for relative resolution)
         prompts_relative: If True, resolve relative to graph_path.parent
 
@@ -50,12 +52,23 @@ def resolve_prompt_path(
 
         >>> resolve_prompt_path("prompts/opening", graph_path=Path("graphs/demo.yaml"), prompts_relative=True)
         PosixPath('/path/to/graphs/prompts/opening.yaml')
+
+        >>> resolve_prompt_path("opening", prompts_dir="prompts", graph_path=Path("graphs/demo.yaml"), prompts_relative=True)
+        PosixPath('/path/to/graphs/prompts/opening.yaml')
     """
     # Validate prompts_relative requires graph_path
     if prompts_relative and graph_path is None and prompts_dir is None:
         raise ValueError("graph_path required when prompts_relative=True")
 
-    # 1. Explicit prompts_dir takes precedence
+    # 1. Graph-relative with explicit prompts_dir (combine them)
+    if prompts_relative and prompts_dir is not None and graph_path is not None:
+        graph_dir = Path(graph_path).parent
+        yaml_path = graph_dir / prompts_dir / f"{prompt_name}.yaml"
+        if yaml_path.exists():
+            return yaml_path
+        # Fall through if not found
+
+    # 2. Explicit prompts_dir (absolute path or CWD-relative)
     if prompts_dir is not None:
         prompts_dir = Path(prompts_dir)
         yaml_path = prompts_dir / f"{prompt_name}.yaml"
@@ -63,7 +76,7 @@ def resolve_prompt_path(
             return yaml_path
         # Fall through to other resolution methods
 
-    # 2. Graph-relative resolution
+    # 3. Graph-relative resolution (without explicit prompts_dir)
     if prompts_relative and graph_path is not None:
         graph_dir = Path(graph_path).parent
         yaml_path = graph_dir / f"{prompt_name}.yaml"
@@ -71,13 +84,13 @@ def resolve_prompt_path(
             return yaml_path
         # Fall through to default
 
-    # 3. Default: use global PROMPTS_DIR
+    # 4. Default: use global PROMPTS_DIR
     default_dir = PROMPTS_DIR if prompts_dir is None else prompts_dir
     yaml_path = Path(default_dir) / f"{prompt_name}.yaml"
     if yaml_path.exists():
         return yaml_path
 
-    # 4. Fallback: external example location {parent}/prompts/{basename}.yaml
+    # 5. Fallback: external example location {parent}/prompts/{basename}.yaml
     parts = prompt_name.rsplit("/", 1)
     if len(parts) == 2:
         parent_dir, basename = parts

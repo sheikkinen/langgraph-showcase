@@ -265,6 +265,46 @@ class TestGraphRelativePrompts:
 
         assert result == prompt_file
 
+    def test_prompts_relative_with_prompts_dir_combines_paths(self, tmp_path: Path):
+        """When BOTH prompts_relative and prompts_dir are set, combine them.
+
+        Bug: prompts_dir should be resolved RELATIVE to graph_path.parent
+        when prompts_relative=True, not as an absolute/CWD-relative path.
+
+        Structure:
+            questionnaires/audit/
+                graph.yaml (with prompts_relative: true, prompts_dir: prompts)
+                prompts/
+                    opening.yaml
+
+        Expected: "opening" resolves to questionnaires/audit/prompts/opening.yaml
+        """
+        from yamlgraph.utils.prompts import resolve_prompt_path
+
+        # Create the structure
+        graph_dir = tmp_path / "questionnaires" / "audit"
+        prompts_dir = graph_dir / "prompts"
+        prompts_dir.mkdir(parents=True)
+
+        graph_file = graph_dir / "graph.yaml"
+        graph_file.write_text("name: audit")
+
+        prompt_file = prompts_dir / "opening.yaml"
+        prompt_file.write_text("system: Welcome\nuser: Start audit")
+
+        # This should resolve to questionnaires/audit/prompts/opening.yaml
+        # Note: prompts_dir is a RELATIVE path "prompts", not an absolute path
+        result = resolve_prompt_path(
+            "opening",
+            prompts_dir="prompts",  # Relative path!
+            graph_path=graph_file,
+            prompts_relative=True,
+        )
+
+        # Should resolve to the prompt colocated with the graph
+        assert result == prompt_file
+        assert result.exists()
+
 
 class TestLoadPromptPath:
     """Tests for load_prompt_path (returns Path + parsed content)."""

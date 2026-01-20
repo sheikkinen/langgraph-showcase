@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2026-01-20
+
+### Fixed
+- **prompts_relative + prompts_dir** - When both are set, prompts_dir is now resolved relative to graph_path.parent
+  - Fixed `yamlgraph/utils/prompts.py` resolve_prompt_path() to combine graph_path.parent with prompts_dir
+  - New resolution order: graph-relative + prompts_dir takes precedence over standalone prompts_dir
+  - Added `test_prompts_relative_with_prompts_dir_combines_paths()` regression test
+  - All 16 unit tests and 2 integration tests pass
+
 ## [0.3.6] - 2026-01-20
 
 ### Fixed

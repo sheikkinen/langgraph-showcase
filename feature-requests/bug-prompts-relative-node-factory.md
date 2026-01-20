@@ -1,108 +1,113 @@
-# Bug: prompts_relative Not Passed to execute_prompt in node_factory
+# Bug: prompts_dir Not Combined with graph_path in prompts_relative Mode
 
-**Priority:** HIGH  
-**Type:** Bug  
-**Version:** 0.3.5  
-**Component:** node_factory.py  
-**Related:** bug-prompts-relative-executor.md (partially fixed)
+**Status:** ✅ RESOLVED (v0.3.7)
+**Priority:** HIGH
+**Type:** Bug
+**Version:** 0.3.6
+**Component:** utils/prompts.py - resolve_prompt_path()
+**Related:** bug-prompts-relative-executor.md (0.3.5 partial fix)
 
 ## Summary
 
-The 0.3.5 fix added `graph_path`, `prompts_dir`, and `prompts_relative` parameters to `execute_prompt()` and `PromptExecutor.execute()`, but `node_factory.py` doesn't pass these captured values when calling `execute_prompt()`.
+When `prompts_relative: true` and `prompts_dir: prompts` are both set, the resolution uses `prompts_dir` directly as the base path instead of combining it with `graph_path.parent`.
 
 ## Expected Behavior
 
-When graph is compiled with `prompts_relative: true`:
 ```yaml
+# Graph at questionnaires/audit/graph.yaml
 defaults:
   prompts_relative: true
   prompts_dir: prompts
 
 nodes:
   generate_opening:
-    type: llm
-    prompt: opening  # Should resolve to {graph_dir}/prompts/opening.yaml
+    prompt: opening  # Should resolve to questionnaires/audit/prompts/opening.yaml
 ```
 
-The runtime should resolve prompts relative to the graph file.
+When both prompts_relative and prompts_dir are set, prompts should resolve to:
+`{graph_path.parent}/{prompts_dir}/{prompt_name}.yaml`
 
 ## Actual Behavior
 
 ```
-Prompt not found: /path/to/project/prompts/opening.yaml
+Prompt not found: prompts/opening.yaml
 ```
 
-Still falls back to global `PROMPTS_DIR` because `execute_prompt()` is called without the prompts_relative params.
+The code resolves to just `{prompts_dir}/{prompt_name}.yaml` ignoring the graph_path.
 
 ## Root Cause
 
-In `node_factory.py`, the values are captured in the closure but not passed:
+In `utils/prompts.py` line 60-65:
 
 ```python
-# Line 218: Captured correctly
-prompts_relative = defaults.get("prompts_relative", False)
-
-# Line 303-310: NOT passed to execute_prompt
-result = execute_prompt(
-    prompt_name=prompt_name,
-    variables=variables,
-    output_model=output_model,
-    temperature=temperature,
-    provider=use_provider,
-    # MISSING: graph_path=graph_path,
-    # MISSING: prompts_dir=prompts_dir,
-    # MISSING: prompts_relative=prompts_relative,
-)
+# 1. Explicit prompts_dir takes precedence
+if prompts_dir is not None:
+    prompts_dir = Path(prompts_dir)
+    yaml_path = prompts_dir / f"{prompt_name}.yaml"  # BUG: should use graph_path.parent
+    if yaml_path.exists():
+        return yaml_path
 ```
 
-The executor.py signature was updated (lines 106-108, 238-240) but the call site in node_factory.py wasn't.
+The prompts_dir check (step 1) runs BEFORE the graph-relative check (step 2), and when prompts_dir is set, it doesn't combine with graph_path.parent.
 
-## Fix
+## Proposed Fix
 
-Update `node_factory.py` line ~303:
-
-```python
-result = execute_prompt(
-    prompt_name=prompt_name,
-    variables=variables,
-    output_model=output_model,
-    temperature=temperature,
-    provider=use_provider,
-    graph_path=graph_path,
-    prompts_dir=prompts_dir,
-    prompts_relative=prompts_relative,
-)
-```
-
-Also need to capture `prompts_dir` from defaults (currently only `prompts_relative` is captured):
+When both prompts_relative and prompts_dir are provided, combine them:
 
 ```python
-prompts_relative = defaults.get("prompts_relative", False)
-prompts_dir = defaults.get("prompts_dir")  # ADD THIS
-```
+# 1. Graph-relative with explicit prompts_dir
+if prompts_relative and prompts_dir is not None and graph_path is not None:
+    graph_dir = Path(graph_path).parent
+    yaml_path = graph_dir / prompts_dir / f"{prompt_name}.yaml"
+    if yaml_path.exists():
+        return yaml_path
+    # Fall through if not found
 
-## Verification
-
-```python
-# With fix applied:
-from yamlgraph.graph_loader import load_graph_config, compile_graph
-
-config = load_graph_config("questionnaires/audit/graph.yaml")
-# config.prompts_relative = True  ✓
-# config.prompts_dir = "prompts"  ✓
-
-graph = compile_graph(config)
-app = graph.compile()
-result = await app.ainvoke(...)  # Should work now
+# 2. Explicit prompts_dir (absolute path or CWD-relative)
+if prompts_dir is not None:
+    prompts_dir = Path(prompts_dir)
+    yaml_path = prompts_dir / f"{prompt_name}.yaml"
+    if yaml_path.exists():
+        return yaml_path
 ```
 
 ## Changelog Entry
 
 ```markdown
-## [0.3.6] - 2026-01-XX
+## [0.3.7] - 2026-01-XX
 
 ### Fixed
-- **prompts_relative passthrough** - node_factory now passes graph_path, 
-  prompts_dir, and prompts_relative to execute_prompt() calls
-  - Completes the fix started in 0.3.5
+- **prompts_relative + prompts_dir** - When both are set, prompts_dir is now
+  resolved relative to graph_path.parent, not the current working directory
 ```
+
+## Resolution (v0.3.7)
+
+**Fixed:** 2026-01-20
+
+### Changes Made
+
+1. **Updated `yamlgraph/utils/prompts.py`** (resolve_prompt_path:59-85)
+   - Added step 1: Graph-relative with explicit prompts_dir (combines both)
+   - Reordered steps so combination happens before individual checks
+   - Updated resolution order comments and docstrings
+
+2. **Added test** in `tests/unit/test_prompts.py:267-299`
+   - `test_prompts_relative_with_prompts_dir_combines_paths()`
+   - Verifies that `prompts_dir="prompts"` + `prompts_relative=True`
+     resolves to `{graph_path.parent}/prompts/{prompt_name}.yaml`
+
+### New Resolution Order
+
+1. Graph-relative + prompts_dir + graph_path: `graph_path.parent/prompts_dir/{prompt}.yaml`
+2. Explicit prompts_dir: `prompts_dir/{prompt}.yaml`
+3. Graph-relative + graph_path: `graph_path.parent/{prompt}.yaml`
+4. Default: `PROMPTS_DIR/{prompt}.yaml`
+5. Fallback: `{parent}/prompts/{basename}.yaml`
+
+### Tests
+
+All tests pass:
+- ✅ 16/16 unit tests in `test_prompts.py`
+- ✅ 2/2 integration tests in `test_colocated_prompts.py`
+- ✅ 30/30 related unit tests (executor, graph_loader)
