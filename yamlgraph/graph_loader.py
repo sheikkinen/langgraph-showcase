@@ -306,6 +306,11 @@ def _process_edge(
 
     if from_node == "START":
         graph.set_entry_point(to_node)
+    elif from_node in map_nodes and to_node in map_nodes:
+        # Edge from map node TO another map node: sub_node → map_edge_fn
+        _, from_sub = map_nodes[from_node]
+        to_map_edge_fn, to_sub = map_nodes[to_node]
+        graph.add_conditional_edges(from_sub, to_map_edge_fn, [to_sub])
     elif isinstance(to_node, str) and to_node in map_nodes:
         # Edge TO a map node: use conditional edge with Send function
         map_edge_fn, sub_node_name = map_nodes[to_node]
