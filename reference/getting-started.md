@@ -1,6 +1,7 @@
-# YAMLGraph - LLM Context Summary
+# YAMLGraph - AI Context Summary
 
-> Quick reference for AI assistants working with this codebase.
+> Quick reference for AI coding assistants (Copilot, Cursor, Claude) working with this codebase.
+> For human developers, start with [quickstart.md](quickstart.md).
 
 ## What This Is
 

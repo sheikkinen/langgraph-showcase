@@ -108,8 +108,8 @@ Each node in the `nodes` section defines a processing step.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `type` | `string` | `"llm"` | Node type: `llm`, `router`, `agent`, `tool` |
-| `prompt` | `string` | required | Prompt file path (without `.yaml`) |
+| `type` | `string` | `"llm"` | Node type: `llm`, `router`, `agent`, `python`, `map`, `interrupt`, `passthrough`, `tool_call`, `subgraph` |
+| `prompt` | `string` | varies | Prompt file path (without `.yaml`) |
 | `variables` | `object` | `{}` | Template variable mappings |
 | `state_key` | `string` | node name | State key to store result |
 | `requires` | `list[str]` | `[]` | Required state keys before execution |
@@ -246,6 +246,107 @@ node:
 ```
 
 See [Map Nodes Reference](map-nodes.md) for detailed examples and patterns.
+
+### `type: interrupt` - Human-in-the-Loop
+
+Pause execution to wait for human input. Requires a checkpointer.
+
+```yaml
+checkpointer:
+  type: memory
+
+nodes:
+  ask_name:
+    type: interrupt
+    message: "What is your name?"
+    resume_key: user_name
+```
+
+**Interrupt node properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `message` | `string/dict` | Yes* | Static interrupt payload |
+| `prompt` | `string` | Yes* | Prompt name for dynamic payload |
+| `state_key` | `string` | No | Where to store payload (default: `interrupt_message`) |
+| `resume_key` | `string` | No | Where to store resume value (default: `user_input`) |
+
+*Either `message` or `prompt` required.
+
+See [Interrupt Nodes Reference](interrupt-nodes.md) for resume flow and Python API.
+
+### `type: passthrough` - State Transformation
+
+Transform state without external calls. Useful for counters and accumulators.
+
+```yaml
+nodes:
+  increment_turn:
+    type: passthrough
+    output:
+      turn_number: "{state.turn_number + 1}"
+      history: "{state.history + [state.current_action]}"
+```
+
+**Passthrough node properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `output` | `dict` | Yes | Map of state keys to expressions |
+
+Supports arithmetic, list operations, and conditionals.
+
+See [Passthrough Nodes Reference](passthrough-nodes.md) for expression syntax.
+
+### `type: tool_call` - Dynamic Tool Execution
+
+Execute a tool where name and arguments come from state (LLM-driven orchestration).
+
+```yaml
+nodes:
+  execute_tool:
+    type: tool_call
+    tool_name: "{state.selected_tool}"
+    tool_args: "{state.tool_arguments}"
+    state_key: tool_result
+```
+
+**Tool call node properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `tool_name` | `string` | Yes | State expression resolving to tool name |
+| `tool_args` | `string` | Yes | State expression resolving to args dict |
+| `state_key` | `string` | No | Where to store result |
+
+See [Tool Call Nodes Reference](tool-call-nodes.md) for agent integration patterns.
+
+### `type: subgraph` - Nested Graph
+
+Embed and execute another graph as a node. Enables modular composition.
+
+```yaml
+nodes:
+  summarize:
+    type: subgraph
+    mode: invoke
+    graph: subgraphs/summarizer.yaml
+    input_mapping:
+      prepared_text: input_text      # parent → child
+    output_mapping:
+      summary: output_summary        # child → parent
+```
+
+**Subgraph node properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `graph` | `string` | Yes | Path to child graph YAML |
+| `mode` | `string` | No | `invoke` (default) or `stream` |
+| `input_mapping` | `dict` | No | Map parent state keys to child state keys |
+| `output_mapping` | `dict` | No | Map child state keys to parent state keys |
+
+See [Subgraph Nodes Reference](subgraph-nodes.md) for state mapping patterns and nesting.
 
 ### Error Handling Properties
 
@@ -464,6 +565,41 @@ tools:
     description: "Count lines in a file"
     parse: text
 ```
+
+### Web Search Tool
+
+Search the web using DuckDuckGo (no API key required):
+
+```yaml
+tools:
+  search_web:
+    type: websearch
+    provider: duckduckgo
+    max_results: 5
+    description: "Search the web for current information"
+```
+
+**Web search tool properties:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `type` | `string` | required | Must be `"websearch"` |
+| `provider` | `string` | `"duckduckgo"` | Search provider |
+| `max_results` | `int` | `5` | Max results per query |
+| `description` | `string` | - | Human-readable description |
+
+**Installation:**
+```bash
+pip install yamlgraph[websearch]
+```
+
+### Tool Type Summary
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `shell` | Execute shell commands | `git log`, `ruff check` |
+| `python` | Call Python functions | Custom processing |
+| `websearch` | Web search via DuckDuckGo | Research agents |
 
 ---
 

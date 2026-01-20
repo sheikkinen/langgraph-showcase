@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-01-20
+
+### Added
+- **ARCHITECTURE.md** - Internal architecture guide for core developers
+  - Design philosophy (YAML-first, dynamic state)
+  - Module architecture diagrams
+  - Extension points (adding node types, LLM providers, tool types)
+  - Testing strategy and code quality rules
+- **CLI Reference** - `reference/cli.md` with complete command documentation
+- **Subgraph Nodes Reference** - `reference/subgraph-nodes.md` with state mapping patterns
+- **Documentation Index** - Comprehensive reference/README.md with reading order
+- **Reading Order Guide** - Beginner → Intermediate → Advanced path in main README
+
+### Changed
+- Reorganized reference documentation with structured tables
+- Updated graph-yaml.md with all 9 node types documented
+- Added websearch tool documentation to graph-yaml.md
+- Fixed broken link: `docs/tools-langsmith.md` → `reference/langsmith-tools.md`
+- Fixed outdated path: `graphs/impl-agent.yaml` → `examples/codegen/impl-agent.yaml`
+- Renamed getting-started.md to clarify it's for AI coding assistants
+- Added link to ARCHITECTURE.md from main README
+
+### Fixed
+- Accurate line counts in ARCHITECTURE.md file reference table
+
 ## [0.3.0] - 2026-01-19
 
 ### Added

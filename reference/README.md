@@ -1,46 +1,55 @@
-# YAML Configuration Reference
+# YAMLGraph Reference Documentation
 
-Welcome to the YamlGraph reference documentation. This guide explains how to configure YAML-based LLM pipelines.
+Complete reference documentation for YAMLGraph v0.3.0+.
 
-## Documents
+## Index
 
-### [Quick Start](quickstart.md)
-Create your first pipeline in 5 minutes. Start here if you're new.
+### Getting Started
 
-### [Graph YAML Reference](graph-yaml.md)
-Complete reference for graph configuration files (`graphs/*.yaml`):
-- Top-level properties (version, name, defaults)
-- Node types (llm, router, map, python, agent)
-- Edge definitions and conditions
-- Tools for agents
-- Error handling
-- Loop limits
-- Dynamic state generation
+| Document | Description |
+|----------|-------------|
+| [Quick Start](quickstart.md) | Create your first pipeline in 5 minutes |
+| [AI Context](getting-started.md) | Quick reference for AI coding assistants |
 
-### [Prompt YAML Reference](prompt-yaml.md)
-Complete reference for prompt template files (`prompts/*.yaml`):
-- Inline schema definitions
-- System and user messages
-- Jinja2 templating
-- Field types and constraints
+### Core References
 
-### [Map Nodes Reference](map-nodes.md)
-Parallel fan-out/fan-in processing with LangGraph's `Send()` API:
-- Process lists in parallel
-- Automatic result collection
-- Sub-node types (llm, router, python)
-- Animated storyboard examples
+| Document | Description |
+|----------|-------------|
+| [Graph YAML](graph-yaml.md) | Graph configuration: nodes, edges, tools, state |
+| [Prompt YAML](prompt-yaml.md) | Prompt templates: schemas, messages, Jinja2 |
+| [CLI Reference](cli.md) | Command-line interface: run, lint, validate |
+| [Common Patterns](patterns.md) | Copy-paste patterns for pipelines |
 
-### [Common Patterns](patterns.md)
-Copy-paste patterns for common use cases:
-1. Linear pipeline
-2. Conditional routing
-3. Self-correction loops (Reflexion)
-4. Tool-using agents
-5. Error recovery
-6. Multi-input consolidation
-7. Stateful memory
-8. Parallel fan-out (Map)
+### Node Types
+
+| Node Type | In graph-yaml.md | Dedicated Reference |
+|-----------|------------------|---------------------|
+| `llm` | [§ LLM nodes](graph-yaml.md#type-llm---standard-llm-node) | - |
+| `router` | [§ Router nodes](graph-yaml.md#type-router---conditional-routing) | - |
+| `agent` | [§ Agent nodes](graph-yaml.md#type-agent---tool-using-agent) | [impl-agent.md](impl-agent.md) |
+| `python` | [§ Python nodes](graph-yaml.md#type-python---python-function-node) | - |
+| `map` | [§ Map nodes](graph-yaml.md#type-map---parallel-fan-out-node) | [map-nodes.md](map-nodes.md) |
+| `interrupt` | [§ Interrupt nodes](graph-yaml.md#type-interrupt---human-in-the-loop) | [interrupt-nodes.md](interrupt-nodes.md) |
+| `passthrough` | [§ Passthrough nodes](graph-yaml.md#type-passthrough---state-transformation) | [passthrough-nodes.md](passthrough-nodes.md) |
+| `tool_call` | [§ Tool call nodes](graph-yaml.md#type-tool_call---dynamic-tool-execution) | [tool-call-nodes.md](tool-call-nodes.md) |
+| `subgraph` | [§ Subgraph nodes](graph-yaml.md#type-subgraph---nested-graph) | [subgraph-nodes.md](subgraph-nodes.md) |
+
+### Advanced Features
+
+| Document | Description |
+|----------|-------------|
+| [Streaming](streaming.md) | Token-by-token LLM output |
+| [Async Usage](async-usage.md) | FastAPI integration & concurrent pipelines |
+| [Checkpointers](checkpointers.md) | State persistence (Memory, SQLite, Redis) |
+| [LangSmith Tools](langsmith-tools.md) | Observability and tracing tools |
+
+### Examples & Guides
+
+| Document | Description |
+|----------|-------------|
+| [Code Analysis](code-analysis.md) | Automated code quality analysis |
+| [Implementation Agent](impl-agent.md) | 14-tool agent for codebase analysis |
+| [Porting from Showcase](porting-from-showcase.md) | Migration guide: Python → YAML graphs |
 
 ---
 

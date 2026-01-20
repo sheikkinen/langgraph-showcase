@@ -19,12 +19,12 @@ The `impl-agent` graph provides automated code analysis with:
 
 ```bash
 # Simple feature request
-yamlgraph graph run graphs/impl-agent.yaml \
+yamlgraph graph run examples/codegen/impl-agent.yaml \
   -v 'story=Add a timeout parameter to the websearch tool' \
   -v 'scope=yamlgraph/tools'
 
 # Refactoring with cross-file analysis
-yamlgraph graph run graphs/impl-agent.yaml \
+yamlgraph graph run examples/codegen/impl-agent.yaml \
   -v 'story=Rename find_related_tests to find_test_files and update all callers' \
   -v 'scope=yamlgraph/tools'
 ```

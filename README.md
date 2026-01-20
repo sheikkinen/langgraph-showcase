@@ -122,8 +122,8 @@ yamlgraph graph run graphs/web-research.yaml --var topic="LangGraph tutorials"
 # Code quality analysis with shell tools
 yamlgraph graph run graphs/code-analysis.yaml --var path="yamlgraph" --var package="yamlgraph"
 
-# Implementation agent - analyze code and generate plans (14 tools)
-yamlgraph graph run graphs/impl-agent.yaml \
+# Implementation agent - analyze code and generate plans
+yamlgraph graph run examples/codegen/impl-agent.yaml \
   --var 'story=Add timeout to websearch' --var scope=yamlgraph/tools
 
 # Meta: YAMLGraph brainstorms its own features
@@ -209,20 +209,25 @@ yamlgraph mermaid                            # Show pipeline as Mermaid diagram
 
 ## Documentation
 
-See the [reference/](reference/) folder for comprehensive YAML configuration guides:
+📚 **Start here:** [reference/README.md](reference/README.md) - Complete index of all 18 reference docs
 
-- [Quick Start](reference/quickstart.md) - Create your first pipeline in 5 minutes
-- [Graph YAML Reference](reference/graph-yaml.md) - All graph configuration options
-- [Prompt YAML Reference](reference/prompt-yaml.md) - Schema and template syntax
-- [Interrupt Nodes](reference/interrupt-nodes.md) - Human-in-the-loop patterns
-- [Checkpointers](reference/checkpointers.md) - State persistence (Memory, SQLite, Redis)
-- [Async Usage](reference/async-usage.md) - FastAPI integration and async execution
-- [Streaming](reference/streaming.md) - Token-by-token LLM output
-- [Map Nodes](reference/map-nodes.md) - Parallel fan-out/fan-in processing
-- [Implementation Agent](reference/impl-agent.md) - Code analysis and planning
-- [Common Patterns](reference/patterns.md) - Router, loops, agents, and more
+### Reading Order
+
+| Level | Document | Description |
+|-------|----------|-------------|
+| 🟢 Beginner | [Quick Start](reference/quickstart.md) | Create your first pipeline in 5 minutes |
+| 🟢 Beginner | [Graph YAML](reference/graph-yaml.md) | Node types, edges, tools, state |
+| 🟢 Beginner | [Prompt YAML](reference/prompt-yaml.md) | Schema and template syntax |
+| 🟡 Intermediate | [Common Patterns](reference/patterns.md) | Router, loops, agents |
+| 🟡 Intermediate | [Map Nodes](reference/map-nodes.md) | Parallel fan-out processing |
+| 🟡 Intermediate | [Interrupt Nodes](reference/interrupt-nodes.md) | Human-in-the-loop |
+| 🔴 Advanced | [Subgraph Nodes](reference/subgraph-nodes.md) | Modular graph composition |
+| 🔴 Advanced | [Async Usage](reference/async-usage.md) | FastAPI integration |
+| 🔴 Advanced | [Checkpointers](reference/checkpointers.md) | State persistence |
 
 ## Architecture
+
+🏗️ **For core developers:** See [ARCHITECTURE.md](ARCHITECTURE.md) for internal design, extension points, and contribution guidelines.
 
 ### Data Flow
 
@@ -597,7 +602,7 @@ for e in errors:
 failures = get_failed_runs(limit=5)
 ```
 
-As agent tools (see [docs/tools-langsmith.md](docs/tools-langsmith.md)):
+As agent tools (see [reference/langsmith-tools.md](reference/langsmith-tools.md)):
 
 ```yaml
 tools:
