@@ -5,13 +5,22 @@ This document explains all configuration options for prompt YAML files in the `p
 ## File Structure
 
 ```yaml
-# Optional: Inline schema for structured output
+# Option 1: Native schema format
 schema:
   name: OutputModel
   fields:
     field_name:
       type: str
       description: "Field description"
+
+# Option 2: JSON Schema format (alternative)
+output_schema:
+  type: object
+  properties:
+    field_name:
+      type: string
+      description: "Field description"
+  required: [field_name]
 
 # System message (always required)
 system: |
@@ -33,7 +42,7 @@ template: |
 ## Prompt Sections
 
 ### `system`
-**Type:** `string` (multiline)  
+**Type:** `string` (multiline)
 **Required:** Yes
 
 The system message that sets the LLM's behavior and persona.
@@ -42,7 +51,7 @@ The system message that sets the LLM's behavior and persona.
 system: |
   You are a creative content writer. Generate engaging, informative content
   on the requested topic.
-  
+
   Your writing should be:
   - Clear and well-structured
   - Engaging and informative
@@ -50,7 +59,7 @@ system: |
 ```
 
 ### `user`
-**Type:** `string` (multiline)  
+**Type:** `string` (multiline)
 **Required:** Yes (unless `template` is used)
 
 The user message with simple `{variable}` placeholders.
@@ -58,7 +67,7 @@ The user message with simple `{variable}` placeholders.
 ```yaml
 user: |
   Write about: {topic}
-  
+
   Target length: approximately {word_count} words
   Style: {style}
 ```
@@ -68,7 +77,7 @@ user: |
 - Lists are automatically joined with `, `
 
 ### `template`
-**Type:** `string` (multiline)  
+**Type:** `string` (multiline)
 **Required:** No (alternative to `user`)
 
 Advanced template using Jinja2 syntax for loops, conditionals, and filters.
@@ -76,7 +85,7 @@ Advanced template using Jinja2 syntax for loops, conditionals, and filters.
 ```yaml
 template: |
   ## Items to Analyze
-  
+
   {% for item in items %}
   ### {{ loop.index }}. {{ item.title }}
   **Content**: {{ item.content[:200] }}...
@@ -128,7 +137,7 @@ schema:
     title:
       type: str
       description: "The document title"
-    
+
     # Float with constraints
     confidence:
       type: float
@@ -136,13 +145,13 @@ schema:
       constraints:
         ge: 0.0               # Greater than or equal
         le: 1.0               # Less than or equal
-    
+
     # Optional field with default
     tags:
       type: list[str]
       description: "Content tags"
       default: []             # Default value if not provided
-    
+
     # Optional nullable field
     notes:
       type: str
@@ -161,6 +170,107 @@ schema:
 | `min_length` | `str`/`list` | Minimum length |
 | `max_length` | `str`/`list` | Maximum length |
 | `pattern` | `str` | Regex pattern |
+
+---
+
+## JSON Schema Format (output_schema)
+
+Alternative to the native `schema:` format. Uses standard JSON Schema syntax, familiar to most developers.
+
+### Basic Structure
+
+```yaml
+output_schema:
+  type: object
+  properties:
+    field_name:
+      type: string
+      description: "Field description"
+  required: [field_name]
+```
+
+### Supported JSON Schema Types
+
+| JSON Schema Type | Python Type | Notes |
+|------------------|-------------|-------|
+| `string` | `str` | Basic string |
+| `integer` | `int` | Whole numbers |
+| `number` | `float` | Decimal numbers |
+| `boolean` | `bool` | True/false |
+| `array` | `list` | Use `items` for element type |
+| `object` | `dict` | Nested objects |
+
+### Array Types
+
+```yaml
+output_schema:
+  type: object
+  properties:
+    tags:
+      type: array
+      items:
+        type: string
+      description: "List of tags"
+    scores:
+      type: array
+      items:
+        type: number
+      description: "List of scores"
+```
+
+### Enum Values
+
+```yaml
+output_schema:
+  type: object
+  properties:
+    action_type:
+      type: string
+      enum: [speak, move, attack, defend, wait]
+      description: "Type of action to take"
+    priority:
+      type: string
+      enum: [low, medium, high, critical]
+```
+
+### Complete Example
+
+```yaml
+system: |
+  You are analyzing customer feedback.
+
+user: |
+  Analyze this feedback: {{ feedback }}
+
+output_schema:
+  type: object
+  properties:
+    sentiment:
+      type: string
+      enum: [positive, negative, neutral]
+      description: "Overall sentiment"
+    confidence:
+      type: number
+      description: "Confidence score 0-1"
+    themes:
+      type: array
+      items:
+        type: string
+      description: "Key themes identified"
+    summary:
+      type: string
+      description: "Brief summary"
+  required: [sentiment, confidence, themes, summary]
+```
+
+### When to Use Which Format
+
+| Format | Best For |
+|--------|----------|
+| `schema:` | Type constraints (ge, le), Python-native syntax |
+| `output_schema:` | JSON Schema familiarity, enum values, required fields |
+
+Both formats produce identical Pydantic models at runtime.
 
 ---
 
@@ -300,7 +410,7 @@ schema:
 
 system: |
   You are a tone classifier. Analyze the user's message and classify its tone.
-  
+
   Respond with exactly one of these tones:
   - positive: Happy, grateful, excited, satisfied
   - negative: Frustrated, angry, disappointed, upset
@@ -308,7 +418,7 @@ system: |
 
 user: |
   Classify the tone of this message:
-  
+
   "{message}"
 ```
 
@@ -321,14 +431,14 @@ system: |
 
 template: |
   Please analyze the following {{ items|length }} items:
-  
+
   {% for item in items %}
   ### {{ loop.index }}. {{ item.title }}
   **Topic**: {{ item.topic }}
   {% if item.tags %}
   **Tags**: {{ item.tags | join(", ") }}
   {% endif %}
-  
+
   {% if item.content|length > 200 %}
   **Preview**: {{ item.content[:200] }}...
   {% else %}
@@ -336,7 +446,7 @@ template: |
   {% endif %}
   ---
   {% endfor %}
-  
+
   {% if min_confidence %}
   Note: Only include insights with confidence >= {{ min_confidence }}
   {% endif %}
@@ -376,7 +486,7 @@ system: |
 
 user: |
   Please critique this essay draft (iteration {iteration}):
-  
+
   ---
   {content}
   ---
@@ -388,16 +498,16 @@ user: |
 # prompts/code_review.yaml
 system: |
   You are a code review assistant. You can:
-  
+
   1. **git_log**: View recent commits
      - count: Number of commits to show
-  
+
   2. **git_diff**: See file changes
      - commits: How many commits back to diff
-  
+
   3. **git_show**: View commit details
      - commit: The commit hash
-  
+
   Analyze the repository and provide insights about:
   - Recent development activity
   - Code quality patterns
@@ -449,9 +559,9 @@ fields:
 ```yaml
 system: |
   You are a [specific role].
-  
+
   Your task is to [specific task].
-  
+
   Guidelines:
   - [Guideline 1]
   - [Guideline 2]
