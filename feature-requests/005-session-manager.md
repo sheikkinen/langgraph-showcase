@@ -2,10 +2,57 @@
 
 **ID:** 005  
 **Priority:** P3 - Medium  
-**Status:** ⏸️ Deferred  
-**Effort:** 1 week  
+**Status:** ⏸️ Deferred (Optional)  
+**Effort:** 3 days  
 **Requested:** 2026-01-19  
-**Note:** With interrupt nodes (001), checkpointers (002), and async executor (003), the core primitives are available. A high-level session manager may not be needed—see `examples/fastapi_interview.py` for usage patterns.
+**Updated:** 2026-01-20 (v0.2.0 analysis)
+
+## v0.2.0 Status Update
+
+With YamlGraph v0.2.0, all foundational features are implemented:
+- ✅ Interrupt nodes (001)
+- ✅ Redis checkpointer (002)  
+- ✅ Async executor (003)
+- ✅ Streaming support (004)
+
+**The `examples/fastapi_interview.py` demonstrates the complete pattern** for multi-turn conversations without requiring a formal session manager abstraction.
+
+### Current Alternative (Recommended)
+
+```python
+# Copy pattern from examples/fastapi_interview.py
+from yamlgraph.executor_async import load_and_compile_async, run_graph_async
+from langgraph.types import Command
+
+_app = await load_and_compile_async("graphs/interview.yaml")
+
+async def process_message(thread_id: str, message: str, is_resume: bool):
+    config = {"configurable": {"thread_id": thread_id}}
+    
+    if is_resume:
+        result = await run_graph_async(_app, Command(resume=message), config)
+    else:
+        result = await run_graph_async(_app, {"user_message": message}, config)
+    
+    if "__interrupt__" in result:
+        return {"status": "waiting", "question": result["__interrupt__"][0].value}
+    return {"status": "complete", "response": result.get("response")}
+```
+
+This is ~15 lines of code. A formal `GraphSessionManager` class adds abstraction but may be over-engineering for most use cases.
+
+### Decision
+
+**Defer until there's clear demand.** Applications can:
+1. Copy the FastAPI example pattern
+2. Build their own thin wrapper
+3. Request this feature if the pattern proves insufficient
+
+---
+
+## Original Proposal (Reference)
+
+The below specification is preserved for reference if this feature is needed later.
 
 ## Summary
 
