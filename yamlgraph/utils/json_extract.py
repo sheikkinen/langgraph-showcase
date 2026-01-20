@@ -8,7 +8,6 @@ FR-B: JSON Extraction feature.
 
 import json
 import re
-from typing import Any
 
 
 def extract_json(text: str) -> dict | list | str:
@@ -83,7 +82,7 @@ def extract_json(text: str) -> dict | list | str:
         start_idx = text.find(start_char)
         if start_idx == -1:
             continue
-        
+
         # Find matching closing bracket
         depth = 0
         for i, c in enumerate(text[start_idx:], start=start_idx):

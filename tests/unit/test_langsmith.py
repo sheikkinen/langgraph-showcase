@@ -110,11 +110,10 @@ class TestGetClient:
             os.environ,
             {"LANGCHAIN_API_KEY": "lsv2_test_key"},
             clear=True,
-        ):
-            with patch("langsmith.Client") as mock_client:
-                result = get_client()
-                mock_client.assert_called_once()
-                assert result is not None
+        ), patch("langsmith.Client") as mock_client:
+            result = get_client()
+            mock_client.assert_called_once()
+            assert result is not None
 
     def test_creates_client_with_langsmith_key(self):
         """Creates client with LANGSMITH_API_KEY."""
@@ -122,11 +121,10 @@ class TestGetClient:
             os.environ,
             {"LANGSMITH_API_KEY": "lsv2_test_key"},
             clear=True,
-        ):
-            with patch("langsmith.Client") as mock_client:
-                result = get_client()
-                mock_client.assert_called_once()
-                assert result is not None
+        ), patch("langsmith.Client") as mock_client:
+            result = get_client()
+            mock_client.assert_called_once()
+            assert result is not None
 
     def test_uses_custom_endpoint(self):
         """Uses LANGSMITH_ENDPOINT if set."""
@@ -137,22 +135,23 @@ class TestGetClient:
                 "LANGSMITH_ENDPOINT": "https://eu.smith.langchain.com",
             },
             clear=True,
-        ):
-            with patch("langsmith.Client") as mock_client:
-                get_client()
-                mock_client.assert_called_with(
-                    api_url="https://eu.smith.langchain.com",
-                    api_key="key",
-                )
+        ), patch("langsmith.Client") as mock_client:
+            get_client()
+            mock_client.assert_called_with(
+                api_url="https://eu.smith.langchain.com",
+                api_key="key",
+            )
 
     def test_returns_none_on_import_error(self):
         """Returns None if langsmith not installed."""
         # Verify graceful handling when Client constructor fails
-        with patch.dict(os.environ, {"LANGSMITH_API_KEY": "key"}, clear=True):
-            with patch("langsmith.Client", side_effect=ImportError("No module")):
-                # Should catch ImportError and return None
-                result = get_client()
-                assert result is None
+        with (
+            patch.dict(os.environ, {"LANGSMITH_API_KEY": "key"}, clear=True),
+            patch("langsmith.Client", side_effect=ImportError("No module")),
+        ):
+            # Should catch ImportError and return None
+            result = get_client()
+            assert result is None
 
 
 # =============================================================================
@@ -185,27 +184,31 @@ class TestShareRun:
         mock_client = MagicMock()
         mock_client.share_run.return_value = "https://share.url"
 
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_latest_run_id",
                 return_value="latest-id",
-            ):
-                result = share_run()
+            ),
+        ):
+            result = share_run()
 
-                mock_client.share_run.assert_called_once_with("latest-id")
-                assert result == "https://share.url"
+            mock_client.share_run.assert_called_once_with("latest-id")
+            assert result == "https://share.url"
 
     def test_returns_none_when_no_latest_run(self):
         """Returns None when no latest run found."""
         mock_client = MagicMock()
 
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_latest_run_id",
                 return_value=None,
-            ):
-                result = share_run()
-                assert result is None
+            ),
+        ):
+            result = share_run()
+            assert result is None
 
     def test_handles_exception_gracefully(self):
         """Returns None on error (logs warning to stderr)."""
@@ -274,17 +277,19 @@ class TestGetLatestRunId:
         mock_client = MagicMock()
         mock_client.list_runs.return_value = [mock_run]
 
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_project_name",
                 return_value="test-project",
-            ):
-                result = get_latest_run_id()
+            ),
+        ):
+            result = get_latest_run_id()
 
-                mock_client.list_runs.assert_called_once_with(
-                    project_name="test-project", limit=1
-                )
-                assert result == "abc-123"
+            mock_client.list_runs.assert_called_once_with(
+                project_name="test-project", limit=1
+            )
+            assert result == "abc-123"
 
     def test_returns_none_when_no_runs(self):
         """Returns None when no runs found."""
@@ -340,12 +345,14 @@ class TestGetRunDetails:
         from yamlgraph.utils.langsmith import get_run_details
 
         mock_client = MagicMock()
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
-            ):
-                result = get_run_details()
-                assert result is None
+            ),
+        ):
+            result = get_run_details()
+            assert result is None
 
     def test_returns_run_details(self):
         """Returns detailed run information."""
@@ -396,15 +403,17 @@ class TestGetRunDetails:
         mock_client = MagicMock()
         mock_client.read_run.return_value = mock_run
 
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_latest_run_id",
                 return_value="latest-run",
-            ):
-                result = get_run_details()
+            ),
+        ):
+            result = get_run_details()
 
-                mock_client.read_run.assert_called_once_with("latest-run")
-                assert result["id"] == "latest-run"
+            mock_client.read_run.assert_called_once_with("latest-run")
+            assert result["id"] == "latest-run"
 
     def test_handles_exception_gracefully(self):
         """Returns None on error."""
@@ -439,12 +448,14 @@ class TestGetRunErrors:
         from yamlgraph.utils.langsmith import get_run_errors
 
         mock_client = MagicMock()
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
-            ):
-                result = get_run_errors()
-                assert result == []
+            ),
+        ):
+            result = get_run_errors()
+            assert result == []
 
     def test_returns_parent_run_error(self):
         """Returns error from parent run."""
@@ -543,21 +554,23 @@ class TestGetFailedRuns:
         mock_client = MagicMock()
         mock_client.list_runs.return_value = [mock_run1, mock_run2]
 
-        with patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client):
-            with patch(
+        with (
+            patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
+            patch(
                 "yamlgraph.utils.langsmith.get_project_name",
                 return_value="test-project",
-            ):
-                result = get_failed_runs(limit=5)
+            ),
+        ):
+            result = get_failed_runs(limit=5)
 
-                mock_client.list_runs.assert_called_once_with(
-                    project_name="test-project",
-                    error=True,
-                    limit=5,
-                )
-                assert len(result) == 2
-                assert result[0]["id"] == "run-1"
-                assert result[0]["error"] == "Error 1"
+            mock_client.list_runs.assert_called_once_with(
+                project_name="test-project",
+                error=True,
+                limit=5,
+            )
+            assert len(result) == 2
+            assert result[0]["id"] == "run-1"
+            assert result[0]["error"] == "Error 1"
 
     def test_uses_provided_project_name(self):
         """Uses provided project name."""

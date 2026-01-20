@@ -226,7 +226,6 @@ class TestCreateNodeFunction:
 
     def test_node_uses_graph_relative_prompts(self, sample_state, tmp_path):
         """Node uses graph_path for relative prompt resolution."""
-        from pathlib import Path
 
         # Create colocated graph+prompts structure
         graph_dir = tmp_path / "questionnaires" / "audit"
@@ -268,7 +267,6 @@ class TestCreateNodeFunction:
 
     def test_node_uses_explicit_prompts_dir(self, sample_state, tmp_path):
         """Node uses explicit prompts_dir from defaults."""
-        from pathlib import Path
 
         # Create explicit prompts directory
         shared_prompts = tmp_path / "shared" / "prompts"

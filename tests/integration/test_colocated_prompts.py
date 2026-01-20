@@ -3,9 +3,6 @@
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
-from tests.conftest import FixtureGeneratedContent
 from yamlgraph.graph_loader import load_and_compile
 
 
@@ -50,7 +47,7 @@ edges:
         prompt_yaml = """
 system: |
   You are a helpful audit assistant.
-  
+
 user: |
   Generate an opening statement for the audit questionnaire.
 """

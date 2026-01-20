@@ -3,12 +3,9 @@
 TDD: RED phase - write tests first.
 """
 
-import asyncio
-from typing import AsyncIterator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-
 
 # ==============================================================================
 # execute_prompt_streaming tests
@@ -281,10 +278,10 @@ def test_node_config_stream_true_creates_streaming_node():
 
     with patch("yamlgraph.node_factory.create_streaming_node") as mock_create:
         mock_create.return_value = MagicMock()
-        
+
         # This should detect stream: true and use create_streaming_node
-        result = create_node_function("generate", node_config, defaults={})
-        
+        _result = create_node_function("generate", node_config, defaults={})
+
         mock_create.assert_called_once_with("generate", node_config)
 
 
@@ -303,8 +300,8 @@ def test_node_config_stream_false_creates_regular_node():
         patch("yamlgraph.node_factory.execute_prompt") as mock_execute,
     ):
         mock_execute.return_value = "result"
-        
-        result = create_node_function("generate", node_config, defaults={})
-        
+
+        _result = create_node_function("generate", node_config, defaults={})
+
         # Should NOT call create_streaming_node
         mock_streaming.assert_not_called()

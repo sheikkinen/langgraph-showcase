@@ -53,7 +53,7 @@ class TestSanitizeVariables:
         result = sanitize_variables({"name": "$(rm -rf /)"})
         assert "$" not in result["name"] or result["name"].startswith("'")
         # The result should be a quoted string
-        assert "'$(rm -rf /)'" == result["name"]
+        assert result["name"] == "'$(rm -rf /)'"
 
     def test_sanitizes_semicolon_injection(self):
         """Semicolon command chaining is prevented."""
@@ -73,7 +73,7 @@ class TestSanitizeVariables:
     def test_handles_list_values(self):
         """List values are JSON encoded and quoted."""
         result = sanitize_variables({"items": [1, 2, 3]})
-        assert "[1, 2, 3]" in result["items"] or "'[1, 2, 3]'" == result["items"]
+        assert "[1, 2, 3]" in result["items"] or result["items"] == "'[1, 2, 3]'"
 
 
 class TestExecuteShellTool:

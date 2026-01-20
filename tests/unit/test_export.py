@@ -143,8 +143,7 @@ class TestExportSummaryGeneric:
         }
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module and "schemas" in node.module:
-                    imported_names = {alias.name for alias in node.names}
-                    overlap = imported_names & demo_models
-                    assert not overlap, f"export.py imports demo models: {overlap}"
+            if isinstance(node, ast.ImportFrom) and node.module and "schemas" in node.module:
+                imported_names = {alias.name for alias in node.names}
+                overlap = imported_names & demo_models
+                assert not overlap, f"export.py imports demo models: {overlap}"

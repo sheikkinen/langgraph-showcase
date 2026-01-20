@@ -1,6 +1,5 @@
 """Tests for JSON extraction from LLM output (FR-B)."""
 
-import pytest
 
 from yamlgraph.utils.json_extract import extract_json
 

@@ -227,22 +227,24 @@ class TestMemoryDemoEndToEnd:
             description="Get recent commits",
         )
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
-            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
-                mock_exec.return_value = MagicMock(
-                    success=True, output="abc123 First commit\ndef456 Second commit"
-                )
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec,
+        ):
+            mock_exec.return_value = MagicMock(
+                success=True, output="abc123 First commit\ndef456 Second commit"
+            )
 
-                node_fn = create_agent_node(
-                    "review",
-                    {
-                        "tools": ["git_log"],
-                        "state_key": "response",
-                        "tool_results_key": "_tool_results",
-                    },
-                    {"git_log": tool_config},
-                )
-                result = node_fn({"input": "Show commits"})
+            node_fn = create_agent_node(
+                "review",
+                {
+                    "tools": ["git_log"],
+                    "state_key": "response",
+                    "tool_results_key": "_tool_results",
+                },
+                {"git_log": tool_config},
+            )
+            result = node_fn({"input": "Show commits"})
 
         assert "_tool_results" in result
         assert len(result["_tool_results"]) == 1

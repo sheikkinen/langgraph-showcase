@@ -67,16 +67,18 @@ class TestAgentReturnsMessages:
             description="Test tool",
         )
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
-            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
-                mock_exec.return_value = MagicMock(success=True, output="tool output")
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec,
+        ):
+            mock_exec.return_value = MagicMock(success=True, output="tool output")
 
-                node_fn = create_agent_node(
-                    "agent",
-                    {"tools": ["test_tool"], "state_key": "result"},
-                    {"test_tool": tool_config},
-                )
-                result = node_fn({"input": "test"})
+            node_fn = create_agent_node(
+                "agent",
+                {"tools": ["test_tool"], "state_key": "result"},
+                {"test_tool": tool_config},
+            )
+            result = node_fn({"input": "test"})
 
         messages = result["messages"]
         types = [type(m).__name__ for m in messages]
@@ -114,22 +116,24 @@ class TestToolResultsPersistence:
             description="Get git log",
         )
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
-            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
-                mock_exec.return_value = MagicMock(
-                    success=True, output="commit abc123\nAuthor: Test"
-                )
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec,
+        ):
+            mock_exec.return_value = MagicMock(
+                success=True, output="commit abc123\nAuthor: Test"
+            )
 
-                node_fn = create_agent_node(
-                    "agent",
-                    {
-                        "tools": ["git_log"],
-                        "state_key": "report",
-                        "tool_results_key": "_tool_results",
-                    },
-                    {"git_log": tool_config},
-                )
-                result = node_fn({"input": "analyze"})
+            node_fn = create_agent_node(
+                "agent",
+                {
+                    "tools": ["git_log"],
+                    "state_key": "report",
+                    "tool_results_key": "_tool_results",
+                },
+                {"git_log": tool_config},
+            )
+            result = node_fn({"input": "analyze"})
 
         assert "_tool_results" in result, "Should include tool_results in state"
         assert len(result["_tool_results"]) == 1, "Should have one tool result"
@@ -188,20 +192,22 @@ class TestToolResultsPersistence:
             "tool_b": ShellToolConfig(command="echo b", description="B"),
         }
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
-            with patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec:
-                mock_exec.return_value = MagicMock(success=True, output="output")
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec,
+        ):
+            mock_exec.return_value = MagicMock(success=True, output="output")
 
-                node_fn = create_agent_node(
-                    "agent",
-                    {
-                        "tools": ["tool_a", "tool_b"],
-                        "state_key": "result",
-                        "tool_results_key": "_tool_results",
-                    },
-                    tools,
-                )
-                result = node_fn({"input": "test"})
+            node_fn = create_agent_node(
+                "agent",
+                {
+                    "tools": ["tool_a", "tool_b"],
+                    "state_key": "result",
+                    "tool_results_key": "_tool_results",
+                },
+                tools,
+            )
+            result = node_fn({"input": "test"})
 
         assert len(result["_tool_results"]) == 2
         tool_names = [r["tool"] for r in result["_tool_results"]]
