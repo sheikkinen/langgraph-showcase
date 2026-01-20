@@ -53,6 +53,7 @@ state:
   perception: dict
   decision: dict
   narration: str
+  turn_summary: str
   scene_prompt: str
   scene_image: str
 
@@ -127,11 +128,30 @@ nodes:
     tool: generate_scene_image
     state_key: scene_image
 
-  # Increment turn counter
+  # Summarize the turn for history
+  summarize:
+    type: llm
+    prompt: examples/npc/encounter_summarize
+    state_key: turn_summary
+    temperature: 0.5
+    skip_if_exists: false
+    variables:
+      turn_number: "{state.turn_number}"
+      location: "{state.location}"
+      location_description: "{state.location_description}"
+      dm_input: "{state.dm_input}"
+      actions:
+        - npc_name: "{state.npc_name}"
+          action_type: "{state.decision.action_type}"
+          description: "{state.decision.action_description}"
+          dialogue: "{state.decision.dialogue}"
+
+  # Increment turn counter and append to history
   next_turn:
     type: passthrough
     output:
       turn_number: "{state.turn_number + 1}"
+      encounter_history: "{state.encounter_history + [state.turn_summary]}"
 
 edges:
   - from: START
@@ -160,6 +180,9 @@ edges:
     to: generate_scene_image
 
   - from: generate_scene_image
+    to: summarize
+
+  - from: summarize
     to: next_turn
 
   # Loop back to await next DM input

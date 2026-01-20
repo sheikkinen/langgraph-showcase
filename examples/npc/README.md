@@ -14,21 +14,8 @@ yamlgraph graph run examples/npc/npc-creation.yaml \
 ```
 
 **Pipeline flow:**
-```mermaid
-flowchart TD
-    identity["identity"]
-    personality["personality"]
-    knowledge["knowledge"]
-    behavior["behavior"]
-    stats["stats"]
-
-    __start__ --> identity
-    identity --> personality
-    personality --> knowledge
-    knowledge --> behavior
-    behavior -.-> stats
-    behavior --> __end__
-    stats --> __end__
+```
+START → identity → personality → knowledge → behavior → [stats] → END
 ```
 
 **Options:**
@@ -39,7 +26,7 @@ flowchart TD
 
 ### Encounter Turn (`encounter-turn.yaml`)
 
-Process NPC actions in an encounter:
+Process a single NPC turn in an encounter:
 
 ```bash
 yamlgraph graph run examples/npc/encounter-turn.yaml \
@@ -49,30 +36,66 @@ yamlgraph graph run examples/npc/encounter-turn.yaml \
 ```
 
 **Pipeline flow:**
-```mermaid
-flowchart TD
-    perceive["perceive"]
-    decide["decide"]
-    narrate["narrate"]
-
-    __start__ --> perceive
-    perceive --> decide
-    decide --> narrate
-    narrate --> __end__
 ```
+START → perceive → decide → narrate → END
+```
+
+### Encounter Loop (`encounter-loop.yaml`)
+
+Multi-turn interactive encounter with DM interrupts and image generation:
+
+```bash
+python examples/npc/run_encounter.py
+```
+
+**Features:**
+- Human-in-the-loop: pauses for DM input each turn
+- Image generation: creates scene images via Replicate API
+- Turn history: accumulates narrative summaries
+- Loop: continues until DM types 'end'
+
+**Pipeline flow:**
+```
+START → await_dm ──(end)→ END
+            │
+            └→ perceive → decide → narrate → describe_scene
+                                                   │
+                                                   ↓
+                 generate_scene_image → summarize → next_turn → await_dm
+```
+
+**Node types used:**
+- `interrupt` - await_dm (pauses for human input)
+- `llm` - perceive, decide, narrate, describe_scene, summarize
+- `python` - generate_scene_image (Replicate API)
+- `passthrough` - next_turn (increment counter, append history)
+
+**Requirements:**
+- `REPLICATE_API_TOKEN` environment variable for image generation
 
 ## Prompts
 
-All prompts use Jinja2 templates with inline schemas for structured output:
+All prompts are in `prompts/` using Jinja2 templates with inline schemas:
 
-- `prompts/npc/identity.yaml` - Name, race, appearance, voice
-- `prompts/npc/personality.yaml` - Traits, ideals, bonds, flaws
-- `prompts/npc/knowledge.yaml` - World, local, and secret knowledge
-- `prompts/npc/behavior.yaml` - Goals, triggers, combat style
-- `prompts/npc/stats.yaml` - D&D 5e ability scores
-- `prompts/encounter/perceive.yaml` - What the NPC notices
-- `prompts/encounter/decide.yaml` - What action to take
-- `prompts/encounter/narrate.yaml` - Scene description
+**NPC Creation:**
+- `npc_identity.yaml` - Name, race, appearance, voice
+- `npc_personality.yaml` - Traits, ideals, bonds, flaws
+- `npc_knowledge.yaml` - World, local, and secret knowledge
+- `npc_behavior.yaml` - Goals, triggers, combat style
+- `npc_stats.yaml` - D&D 5e ability scores
+
+**Encounter:**
+- `encounter_perceive.yaml` - What the NPC notices
+- `encounter_decide.yaml` - What action to take
+- `encounter_narrate.yaml` - Scene description
+- `encounter_summarize.yaml` - Turn summary for history
+
+**Image:**
+- `scene_describe.yaml` - Convert narration to image prompt
+
+## Shared Dependencies
+
+Uses `examples/shared/replicate_tool.py` for image generation (shared with storyboard example).
 
 ## Example Output
 
@@ -108,4 +131,4 @@ Originally implemented in Python:
 - `npc/showcase/npc_builder.py` (~250 LOC)
 - `npc/showcase/nodes/npc_nodes.py`
 
-Now pure YAML: ~150 lines total.
+Now pure YAML: ~200 lines across 3 graphs.
