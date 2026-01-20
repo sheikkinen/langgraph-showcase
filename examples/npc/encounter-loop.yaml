@@ -1,0 +1,123 @@
+# Multi-Turn NPC Encounter with Human-in-the-Loop
+#
+# This graph runs a turn-by-turn encounter where the DM provides input each round.
+# Uses interrupt nodes to pause for DM narration.
+#
+# Usage:
+#   python examples/npc/run_encounter.py
+#
+# Or programmatically:
+#   1. Create NPCs with npc-creation.yaml
+#   2. Run this graph with NPC data as input
+#   3. Loop: invoke → interrupt → user input → resume
+#
+version: "1.0"
+name: encounter-loop
+description: Multi-turn NPC encounter with DM interrupts
+
+checkpointer:
+  type: sqlite
+  path: ":memory:"
+
+defaults:
+  provider: anthropic
+  temperature: 0.7
+
+state:
+  # NPC data (JSON string or dict)
+  npc_name: str
+  npc_appearance: str
+  npc_voice: str
+  npc_personality: str
+  npc_behavior: str
+  npc_goals: str
+
+  # Location context
+  location: str
+  location_description: str
+
+  # Turn state
+  turn_number: int
+  dm_input: str
+  encounter_history: list
+
+  # Turn outputs
+  perception: dict
+  decision: dict
+  narration: str
+
+nodes:
+  # Wait for DM input
+  await_dm:
+    type: interrupt
+    message: |
+      🎲 Turn {state.turn_number} - What happens next?
+      (Type 'end' to finish the encounter)
+    resume_key: dm_input
+
+  # NPC perceives the situation
+  perceive:
+    type: llm
+    prompt: examples/npc/encounter/perceive
+    state_key: perception
+    temperature: 0.5
+    skip_if_exists: false
+    variables:
+      npc_name: "{state.npc_name}"
+      npc_personality: "{state.npc_personality}"
+      npc_goals: "{state.npc_goals}"
+      location: "{state.location}"
+      recent_events: "{state.dm_input}"
+      other_npcs: ""
+
+  # NPC decides what to do
+  decide:
+    type: llm
+    prompt: examples/npc/encounter/decide
+    state_key: decision
+    temperature: 0.7
+    skip_if_exists: false
+    variables:
+      npc_name: "{state.npc_name}"
+      npc_voice: "{state.npc_voice}"
+      npc_personality: "{state.npc_personality}"
+      npc_behavior: "{state.npc_behavior}"
+      perception: "{state.perception}"
+      encounter_type: "social"
+
+  # Generate narration
+  narrate:
+    type: llm
+    prompt: examples/npc/encounter/narrate
+    state_key: narration
+    temperature: 0.8
+    skip_if_exists: false
+    variables:
+      npc_name: "{state.npc_name}"
+      npc_appearance: "{state.npc_appearance}"
+      location: "{state.location}"
+      decision: "{state.decision}"
+
+edges:
+  - from: START
+    to: await_dm
+
+  # Check if user wants to end
+  - from: await_dm
+    to: END
+    condition: "dm_input == 'end'"
+
+  # Otherwise process the turn
+  - from: await_dm
+    to: perceive
+    condition: "dm_input != 'end'"
+
+  - from: perceive
+    to: decide
+
+  - from: decide
+    to: narrate
+
+  # Loop back to await next DM input
+  - from: narrate
+    to: await_dm
