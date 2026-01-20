@@ -98,6 +98,12 @@ nodes:
       location: "{state.location}"
       decision: "{state.decision}"
 
+  # Increment turn counter
+  next_turn:
+    type: passthrough
+    output:
+      turn_number: "{state.turn_number + 1}"
+
 edges:
   - from: START
     to: await_dm
@@ -118,6 +124,9 @@ edges:
   - from: decide
     to: narrate
 
-  # Loop back to await next DM input
   - from: narrate
+    to: next_turn
+
+  # Loop back to await next DM input
+  - from: next_turn
     to: await_dm

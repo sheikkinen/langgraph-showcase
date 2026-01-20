@@ -18,6 +18,7 @@ from yamlgraph.models.state_builder import build_state_class
 from yamlgraph.node_factory import (
     create_interrupt_node,
     create_node_function,
+    create_passthrough_node,
     create_subgraph_node,
     create_tool_call_node,
     resolve_class,
@@ -215,6 +216,10 @@ def _compile_node(
     elif node_type == NodeType.INTERRUPT:
         # Human-in-the-loop interrupt node
         node_fn = create_interrupt_node(node_name, enriched_config)
+        graph.add_node(node_name, node_fn)
+    elif node_type == NodeType.PASSTHROUGH:
+        # Simple state transformation node
+        node_fn = create_passthrough_node(node_name, enriched_config)
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.SUBGRAPH:
         # Subgraph node - compose graphs from YAML

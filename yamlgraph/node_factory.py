@@ -398,6 +398,68 @@ def create_interrupt_node(
     return interrupt_fn
 
 
+def create_passthrough_node(
+    node_name: str,
+    config: dict[str, Any],
+) -> Callable[[GraphState], dict]:
+    """Create a passthrough node that transforms state without external calls.
+
+    Useful for:
+    - Loop counters (increment values)
+    - State accumulation (append to lists)
+    - Simple data transformations
+    - Clean transition points in graphs
+
+    Args:
+        node_name: Name of the node
+        config: Node configuration with:
+            - output: Dict of state_key -> expression mappings
+                      Expressions use {state.field} syntax
+                      Supports arithmetic: {state.count + 1}
+                      Supports list append: {state.history + [state.current]}
+
+    Returns:
+        Node function compatible with LangGraph
+
+    Example:
+        ```yaml
+        next_turn:
+          type: passthrough
+          output:
+            turn_number: "{state.turn_number + 1}"
+            history: "{state.history + [state.narration]}"
+        ```
+    """
+    from yamlgraph.utils.expressions import resolve_template
+
+    output_templates = config.get("output", {})
+
+    def passthrough_fn(state: dict) -> dict:
+        result = {"current_step": node_name}
+
+        for key, template in output_templates.items():
+            try:
+                resolved = resolve_template(template, state)
+                # If resolution failed (None) and key exists in state, keep original
+                if resolved is None and key in state:
+                    result[key] = state[key]
+                else:
+                    result[key] = resolved
+            except Exception as e:
+                logger.warning(
+                    f"Passthrough node {node_name}: failed to resolve {key}: {e}"
+                )
+                # Keep original value on error
+                if key in state:
+                    result[key] = state[key]
+
+        logger.info(f"Node {node_name} completed successfully")
+        return result
+
+    passthrough_fn.__name__ = f"{node_name}_passthrough"
+    return passthrough_fn
+
+
 def create_streaming_node(
     node_name: str,
     node_config: dict[str, Any],

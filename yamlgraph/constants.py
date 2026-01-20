@@ -19,6 +19,7 @@ class NodeType(StrEnum):
     TOOL_CALL = "tool_call"
     INTERRUPT = "interrupt"
     SUBGRAPH = "subgraph"
+    PASSTHROUGH = "passthrough"
 
     @classmethod
     def requires_prompt(cls, node_type: str) -> bool:
