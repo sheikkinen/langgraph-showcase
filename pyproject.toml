@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yamlgraph"
-version = "0.3.9"
+version = "0.3.10"
 description = "YAML-first framework for building LLM pipelines with LangGraph"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -40,6 +40,10 @@ storyboard = [
 ]
 redis = [
     "langgraph-checkpoint-redis>=0.3.0",
+]
+redis-simple = [
+    "redis>=5.0.0",
+    "orjson>=3.9.0",
 ]
 
 [project.scripts]

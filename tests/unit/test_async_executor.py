@@ -207,8 +207,10 @@ async def test_compile_graph_async_with_memory_checkpointer():
     """compile_graph_async compiles graph with memory checkpointer."""
     from yamlgraph.executor_async import compile_graph_async
 
-    # Use minimal test graph
-    with patch("yamlgraph.storage.checkpointer_factory.get_checkpointer") as mock_cp:
+    # Use minimal test graph - now uses get_checkpointer_async
+    with patch(
+        "yamlgraph.storage.checkpointer_factory.get_checkpointer_async"
+    ) as mock_cp:
         from langgraph.checkpoint.memory import MemorySaver
 
         mock_cp.return_value = MemorySaver()
@@ -220,18 +222,20 @@ async def test_compile_graph_async_with_memory_checkpointer():
         mock_compiled = MagicMock()
         mock_graph.compile.return_value = mock_compiled
 
-        result = compile_graph_async(mock_graph, config)
+        result = await compile_graph_async(mock_graph, config)
 
         mock_graph.compile.assert_called_once()
         assert result == mock_compiled
 
 
 @pytest.mark.asyncio
-async def test_compile_graph_async_sets_async_mode():
-    """compile_graph_async passes async_mode=True to get_checkpointer."""
+async def test_compile_graph_async_uses_async_factory():
+    """compile_graph_async uses get_checkpointer_async."""
     from yamlgraph.executor_async import compile_graph_async
 
-    with patch("yamlgraph.storage.checkpointer_factory.get_checkpointer") as mock_cp:
+    with patch(
+        "yamlgraph.storage.checkpointer_factory.get_checkpointer_async"
+    ) as mock_cp:
         mock_cp.return_value = MagicMock()
 
         mock_graph = MagicMock()
@@ -240,9 +244,9 @@ async def test_compile_graph_async_sets_async_mode():
         config = MagicMock()
         config.checkpointer = {"type": "redis", "url": "redis://localhost"}
 
-        compile_graph_async(mock_graph, config)
+        await compile_graph_async(mock_graph, config)
 
-        mock_cp.assert_called_once_with(config.checkpointer, async_mode=True)
+        mock_cp.assert_called_once_with(config.checkpointer)
 
 
 # ==============================================================================
@@ -338,9 +342,10 @@ async def test_compile_graph_async_without_checkpointer():
     config.checkpointer = None
 
     with patch(
-        "yamlgraph.storage.checkpointer_factory.get_checkpointer", return_value=None
+        "yamlgraph.storage.checkpointer_factory.get_checkpointer_async",
+        return_value=None,
     ):
-        result = compile_graph_async(mock_graph, config)
+        result = await compile_graph_async(mock_graph, config)
 
     mock_graph.compile.assert_called_once_with(checkpointer=None)
     assert result == mock_compiled

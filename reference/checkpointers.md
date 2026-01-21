@@ -40,7 +40,7 @@ checkpointer:
 
 ### Redis
 
-Distributed persistence. Required for multi-server deployments.
+Distributed persistence. Required for multi-server deployments. Requires Redis Stack (RediSearch + RedisJSON).
 
 ```yaml
 checkpointer:
@@ -53,6 +53,35 @@ checkpointer:
 ```bash
 pip install yamlgraph[redis]
 ```
+
+> **Note**: Requires Redis Stack. For Upstash, Fly.io, or plain Redis, use `redis-simple` instead.
+
+### Redis Simple (v0.3.10+)
+
+Plain Redis support for Upstash, Fly.io, and Redis deployments without Redis Stack modules.
+
+```yaml
+checkpointer:
+  type: redis-simple
+  url: "${REDIS_URL}"
+  ttl: 60                    # TTL in minutes (default: 60)
+  prefix: "yamlgraph"        # Key prefix (default: "yamlgraph")
+  max_connections: 10        # Connection pool size (default: 10)
+```
+
+**Installation:**
+```bash
+pip install yamlgraph[redis-simple]
+```
+
+**Limitations vs `redis` type:**
+| Feature | redis | redis-simple |
+|---------|-------|--------------|
+| Full checkpoint history | ✅ | ❌ (latest only) |
+| Checkpoint listing | ✅ | ❌ |
+| Redis Stack required | ✅ | ❌ |
+| Upstash/Fly.io compatible | ❌ | ✅ |
+| Serialization | pickle | orjson (safer) |
 
 ## Environment Variables
 
@@ -111,12 +140,22 @@ checkpointer = get_checkpointer({
     "ttl": 120,
 })
 
-# Async checkpointer (for FastAPI, etc.)
-async_checkpointer = get_checkpointer(
-    {"type": "redis", "url": "redis://localhost:6379"},
-    async_mode=True,
-)
+# Async checkpointer (v0.3.10+)
+from yamlgraph.storage.checkpointer_factory import get_checkpointer_async, shutdown_checkpointers
+
+async def main():
+    checkpointer = await get_checkpointer_async({
+        "type": "redis",
+        "url": "redis://localhost:6379"
+    })
+    
+    # ... use checkpointer ...
+    
+    # Cleanup on shutdown
+    await shutdown_checkpointers()
 ```
+
+> **Deprecated**: `get_checkpointer(..., async_mode=True)` is deprecated. Use `get_checkpointer_async()` instead.
 
 ## Async Mode
 
@@ -127,6 +166,7 @@ When using async graph execution, the factory automatically selects async-compat
 | memory | `MemorySaver` | `MemorySaver` (supports both) |
 | sqlite | `SqliteSaver` | `MemorySaver` (fallback) |
 | redis | `RedisSaver` | `AsyncRedisSaver` |
+| redis-simple | `SimpleRedisCheckpointer` | `SimpleRedisCheckpointer` (supports both) |
 
 > **Note**: SQLite async requires `aiosqlite` package. If not installed, falls back to `MemorySaver`.
 

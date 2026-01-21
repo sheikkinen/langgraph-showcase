@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2026-01-21
+
+### Added
+- **redis-simple checkpointer type** - Plain Redis support for Upstash/Fly.io (FR add-simple-redis-checkpointer)
+  - New `SimpleRedisCheckpointer` class using standard Redis commands (GET, SET, SCAN, DEL)
+  - No Redis Stack (RediSearch, RedisJSON) requirement
+  - Uses `orjson` for secure JSON serialization (no pickle)
+  - Supports both sync and async Redis operations
+  - Stores only latest checkpoint per thread (no history)
+  - New optional dependency: `pip install yamlgraph[redis-simple]`
+
+- **Async checkpointer factory** - New `get_checkpointer_async()` function
+  - Properly initializes async checkpointers with `await saver.asetup()`
+  - Deprecated `async_mode=True` parameter on `get_checkpointer()`
+  - Added `shutdown_checkpointers()` for graceful cleanup
+
+### Fixed
+- **Async Redis checkpointer bug** (FR fix-async-redis-checkpointer)
+  - `AsyncRedisSaver.from_conn_string()` returns context manager, not saver instance
+  - Sync Redis now uses direct instantiation: `RedisSaver(redis_url=url)`
+  - Async Redis uses `get_checkpointer_async()` for proper initialization
+  - `compile_graph_async()` is now properly async
+
+### Changed
+- `compile_graph_async()` changed from sync to async function
+- `load_and_compile_async()` now awaits `compile_graph_async()`
+
 ## [0.3.8] - 2026-01-20
 
 ### Added

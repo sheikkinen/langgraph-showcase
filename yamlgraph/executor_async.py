@@ -229,14 +229,13 @@ async def run_graph_async(
     return await app.ainvoke(initial_state, config)
 
 
-def compile_graph_async(
+async def compile_graph_async(
     graph,
     config,
 ) -> CompiledStateGraph:
     """Compile a StateGraph with async-compatible checkpointer.
 
-    Uses async_mode=True when fetching checkpointer to get
-    AsyncRedisSaver instead of RedisSaver.
+    Uses get_checkpointer_async() to properly initialize async Redis savers.
 
     Args:
         graph: StateGraph instance
@@ -245,10 +244,10 @@ def compile_graph_async(
     Returns:
         Compiled graph ready for ainvoke()
     """
-    from yamlgraph.storage.checkpointer_factory import get_checkpointer
+    from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
 
     checkpointer_config = getattr(config, "checkpointer", None)
-    checkpointer = get_checkpointer(checkpointer_config, async_mode=True)
+    checkpointer = await get_checkpointer_async(checkpointer_config)
 
     return graph.compile(checkpointer=checkpointer)
 
@@ -275,7 +274,7 @@ async def load_and_compile_async(path: str) -> CompiledStateGraph:
     logger.info(f"Loaded graph config: {config.name} v{config.version}")
 
     state_graph = compile_graph(config)
-    return compile_graph_async(state_graph, config)
+    return await compile_graph_async(state_graph, config)
 
 
 __all__ = [
