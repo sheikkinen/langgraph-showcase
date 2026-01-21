@@ -87,6 +87,11 @@ demo_codegen() {
         --var scope="yamlgraph/tools"
 }
 
+demo_subgraph() {
+    run_demo "Subgraph Composition" "graphs/subgraph-demo.yaml" \
+        --var raw_text="LangGraph is a library for building stateful, multi-actor applications with LLMs. It allows developers to create complex AI workflows using a graph-based approach."
+}
+
 print_usage() {
     echo -e "${YELLOW}YamlGraph Demos${NC}"
     echo ""
@@ -105,6 +110,7 @@ print_usage() {
     echo "  brainstorm  - Feature brainstorm (YAMLGraph analyzes itself)"
     echo "  webresearch - Web research agent"
     echo "  codegen     - Impl-agent code analysis (from examples/codegen)"
+    echo "  subgraph    - Subgraph composition demo"
     echo "  all         - Run all demos (default)"
     echo ""
 }
@@ -148,6 +154,9 @@ case "${1:-all}" in
         ;;
     codegen)
         demo_codegen
+        ;;
+    subgraph)
+        demo_subgraph
         ;;
     all)
         echo -e "${YELLOW}🚀 Running all YamlGraph demos...${NC}"

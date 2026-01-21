@@ -4,7 +4,7 @@ TDD tests for add-simple-redis-checkpointer feature.
 Tests the plain Redis checkpointer that works without Redis Stack.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
