@@ -1,11 +1,11 @@
 # Feature Request: Subgraph State Exposure During Interrupts
 
-**ID:** 006  
-**Priority:** P2 - Nice to Have  
-**Status:** ✅ Implemented (v0.3.8)  
-**Effort:** 2-3 days  
-**Requested:** 2026-01-20  
-**Implemented:** 2026-01-20  
+**ID:** 006
+**Priority:** P2 - Nice to Have
+**Status:** ✅ Implemented (v0.3.8)
+**Effort:** 2-3 days
+**Requested:** 2026-01-20
+**Implemented:** 2026-01-20
 
 ## Summary
 
@@ -60,7 +60,7 @@ nodes:
     type: subgraph
     graph: demographics/graph.yaml
     output_mapping:
-      demographics_complete: 
+      demographics_complete:
         from: complete
         on: complete           # Only on completion
       demographics_extracted:
@@ -139,12 +139,12 @@ except GraphInterrupt as e:
         # Get child state from checkpointer
         child_state = compiled.get_state(child_config)
         parent_updates = _map_output_state(child_state.values, interrupt_output_mapping)
-        
+
         # Use Pregel's internal send to inject updates
         send = config.get("configurable", {}).get("__pregel_send")
         if send:
             send([(k, v) for k, v in parent_updates.items()])
-    
+
     raise  # Re-raise to pause the graph
 ```
 
@@ -156,11 +156,98 @@ There is no official way to update state when a node raises an exception. This s
 
 ### References
 
+**LangGraph Source Code:**
+- [CONFIG_KEY_SEND constant](https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/_internal/_constants.py#L29) - `__pregel_send` definition
+- [Pregel.bulk_update_state](https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/pregel/main.py#L1429) - How `CONFIG_KEY_SEND` is used internally
+- [PregelProtocol](https://github.com/langchain-ai/langgraph/blob/main/libs/langgraph/langgraph/pregel/protocol.py) - Abstract interface for Pregel graphs
+
+**LangGraph Documentation:**
 - [Google Pregel Paper](https://research.google/pubs/pub36726/) - Original distributed graph processing model
-- [LangGraph Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) - Official interrupt documentation
-- [LangGraph Subgraphs with Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts#using-with-subgraphs-called-as-functions) - Subgraph interrupt behavior
-- [LangGraph Errors Reference](https://reference.langchain.com/python/langgraph/errors/) - `GraphInterrupt` exception docs
-- [LangGraph Types Reference](https://reference.langchain.com/python/langgraph/types/) - `interrupt()` function docs
+- [LangGraph Interrupts](https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/) - Official interrupt documentation
+- [LangGraph Subgraphs](https://langchain-ai.github.io/langgraph/how-tos/subgraph/) - Subgraph patterns
+- [LangGraph Errors Reference](https://langchain-ai.github.io/langgraph/reference/errors/) - `GraphInterrupt` exception docs
+
+## Recommended Pattern: Pre-Interrupt Snapshot
+
+While FR-006 handles the **parent-side injection**, the child graph can prepare its state for export using a pre-interrupt node:
+
+```
+Child Graph Flow:
+  [analyze] → [prepare_snapshot] → [interrupt]
+                      ↑
+              Explicitly formats what
+              parent should see
+```
+
+### Child Graph
+
+```yaml
+# demographics/graph.yaml
+state:
+  phase: str
+  extracted: object
+  gaps: list
+  export: object        # ← Published state for parent
+
+nodes:
+  analyze:
+    type: llm
+    output: analysis
+
+  prepare_for_interrupt:
+    type: python
+    tool: build_export_snapshot
+    # Copies selected fields to export
+
+  wait_for_user:
+    type: interrupt
+```
+
+### Parent Graph
+
+```yaml
+nodes:
+  run_demographics:
+    type: subgraph
+    graph: demographics/graph.yaml
+    interrupt_output_mapping:
+      current_phase: export.phase        # Read from prepared snapshot
+      current_extracted: export.extracted
+      current_gaps: export.gaps
+```
+
+### Benefits
+
+- ✅ Child explicitly controls what gets exposed
+- ✅ Clean separation — child prepares, parent maps
+- ✅ No parent knowledge of child's internal structure needed
+- ✅ Easy to add computed/formatted fields for export
+
+### Caveat: Still Requires Pregel Internal API
+
+⚠️ **This pattern does NOT remove the dependency on `__pregel_send`.**
+
+The pre-interrupt snapshot only prepares data in the child's state. The parent still needs FR-006's exception-handler mechanism to inject that data before re-raising `GraphInterrupt`:
+
+```python
+# node_factory.py - FR-006 implementation
+except GraphInterrupt:
+    child_state = compiled.get_state(child_config)
+    parent_updates = _map_output_state(child_state.values, interrupt_output_mapping)
+
+    # STILL REQUIRED: Pregel internal API to inject state
+    send = config.get("configurable", {}).get("__pregel_send")
+    if send:
+        send([(k, v) for k, v in parent_updates.items()])
+
+    raise  # Graph pauses here
+```
+
+Without `__pregel_send`, the mapped state cannot be injected before the graph pauses. There is no official LangGraph API for updating state when a node raises an exception.
+
+**Risk:** If LangGraph changes `__pregel_send` in a future version, this feature will break.
+
+---
 
 ## Alternatives Considered
 
@@ -172,6 +259,9 @@ There is no official way to update state when a node raises an exception. This s
 
 ### 3. Debug mode that logs subgraph state
 **Partial:** Useful for logging but doesn't help API responses.
+
+### 4. Separate state-capture node in parent graph
+**Rejected:** When subgraph raises `GraphInterrupt`, the parent graph pauses immediately. No post-interrupt node can run — there's no "between interrupt and pause" hook in LangGraph's exception model.
 
 ## Acceptance Criteria
 
