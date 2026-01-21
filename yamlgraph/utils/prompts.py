@@ -11,11 +11,14 @@ Search order for prompts:
 5. Fallback: {parent}/prompts/{basename}.yaml (external examples)
 """
 
+import logging
 from pathlib import Path
 
 import yaml
 
 from yamlgraph.config import PROMPTS_DIR
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_prompt_path(
@@ -60,11 +63,15 @@ def resolve_prompt_path(
     if prompts_relative and graph_path is None and prompts_dir is None:
         raise ValueError("graph_path required when prompts_relative=True")
 
+    tried_paths: list[str] = []  # Track for debug logging
+
     # 1. Graph-relative with explicit prompts_dir (combine them)
     if prompts_relative and prompts_dir is not None and graph_path is not None:
         graph_dir = Path(graph_path).parent
         yaml_path = graph_dir / prompts_dir / f"{prompt_name}.yaml"
+        tried_paths.append(f"1:graph-relative+prompts_dir:{yaml_path}")
         if yaml_path.exists():
+            logger.debug(f"Prompt resolved via graph-relative+prompts_dir: {yaml_path}")
             return yaml_path
         # Fall through if not found
 
@@ -72,7 +79,9 @@ def resolve_prompt_path(
     if prompts_dir is not None:
         prompts_dir = Path(prompts_dir)
         yaml_path = prompts_dir / f"{prompt_name}.yaml"
+        tried_paths.append(f"2:explicit_prompts_dir:{yaml_path}")
         if yaml_path.exists():
+            logger.debug(f"Prompt resolved via explicit prompts_dir: {yaml_path}")
             return yaml_path
         # Fall through to other resolution methods
 
@@ -80,14 +89,18 @@ def resolve_prompt_path(
     if prompts_relative and graph_path is not None:
         graph_dir = Path(graph_path).parent
         yaml_path = graph_dir / f"{prompt_name}.yaml"
+        tried_paths.append(f"3:graph-relative:{yaml_path}")
         if yaml_path.exists():
+            logger.debug(f"Prompt resolved via graph-relative: {yaml_path}")
             return yaml_path
         # Fall through to default
 
     # 4. Default: use global PROMPTS_DIR
     default_dir = PROMPTS_DIR if prompts_dir is None else prompts_dir
     yaml_path = Path(default_dir) / f"{prompt_name}.yaml"
+    tried_paths.append(f"4:default_PROMPTS_DIR:{yaml_path}")
     if yaml_path.exists():
+        logger.debug(f"Prompt resolved via default PROMPTS_DIR: {yaml_path}")
         return yaml_path
 
     # 5. Fallback: external example location {parent}/prompts/{basename}.yaml
@@ -95,9 +108,13 @@ def resolve_prompt_path(
     if len(parts) == 2:
         parent_dir, basename = parts
         alt_path = Path(parent_dir) / "prompts" / f"{basename}.yaml"
+        tried_paths.append(f"5:external_fallback:{alt_path}")
         if alt_path.exists():
+            logger.debug(f"Prompt resolved via external fallback: {alt_path}")
             return alt_path
 
+    # Log all tried paths for debugging
+    logger.debug(f"Prompt '{prompt_name}' not found. Tried: {tried_paths}")
     raise FileNotFoundError(f"Prompt not found: {yaml_path}")
 
 

@@ -161,6 +161,24 @@ See [docs/plan-api-yamlgraph.md](docs/plan-api-yamlgraph.md) for detailed API de
 └─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
+### Sync/Async Design Pattern
+
+The codebase uses a **sync-first with async wrappers** pattern:
+
+| Sync Module | Async Module | Relationship |
+|-------------|--------------|--------------|
+| `executor.py` | `executor_async.py` | Both use `executor_base.py` for shared logic |
+| `llm_factory.py` | `llm_factory_async.py` | Async wraps sync via `run_in_executor` |
+
+**Why this pattern?**
+- **No duplication**: Async modules import from sync, adding only async-specific logic
+- **Clean sync API**: Users not needing async get a simple, direct API
+- **Async-specific features**: Streaming (`async for`), concurrent execution (`asyncio.gather`)
+- **LangChain reality**: Underlying LLM clients are sync; async wrapping is appropriate
+
+This is the idiomatic Python approach. An "async-first with `asyncio.run()` sync wrappers"
+would add complexity and introduce event loop issues for sync users.
+
 ---
 
 ## Key Data Flows

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.13] - 2026-01-21
+
+### Changed
+- **Refactored graph_commands.py into modules** - Split 541-line file into focused modules
+  - `graph_commands.py` (243 lines) - Core commands: run, list, info, dispatch
+  - `graph_mermaid.py` (107 lines) - Mermaid diagram generation
+  - `graph_validate.py` (230 lines) - Validation and linting commands
+  - All modules under 250 lines (limit: 400)
+
+- **Added debug logging to prompt resolution** - `resolve_prompt_path()` now logs:
+  - Which resolution path was chosen (graph-relative, prompts_dir, default, fallback)
+  - All tried paths on failure for easier debugging
+
+- **Documented sync/async design pattern** in ARCHITECTURE.md
+  - Explains sync-first with async wrappers approach
+  - Rationale for current structure vs async-first alternative
+
+### Fixed
+- Ruff B904/B905 lint errors in examples (raise from err, zip strict)
+
+### Removed
+- Redundant `scripts/test_interrupt_fix.py` (covered by integration tests)
+
 ## [0.3.12] - 2026-01-21
 
 ### Changed

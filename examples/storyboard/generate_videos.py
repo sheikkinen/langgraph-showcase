@@ -260,7 +260,7 @@ def main():
         videos_folder.mkdir(exist_ok=True)
 
     # Generate videos for consecutive pairs
-    pairs = list(zip(images[:-1], images[1:]))
+    pairs = list(zip(images[:-1], images[1:], strict=False))
     logger.info(f"\n🎬 Generating {len(pairs)} video clips (parallel):")
 
     # Build list of jobs

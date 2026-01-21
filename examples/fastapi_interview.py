@@ -94,7 +94,7 @@ async def chat(thread_id: str, request: ChatRequest) -> ChatResponse:
         )
     except Exception as e:
         logger.error(f"Graph execution error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
     # Check for interrupt
     if "__interrupt__" in result:
@@ -134,7 +134,7 @@ async def resume(thread_id: str, request: ResumeRequest) -> ChatResponse:
         )
     except Exception as e:
         logger.error(f"Graph resume error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
     # Check for another interrupt
     if "__interrupt__" in result:
