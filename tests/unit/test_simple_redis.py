@@ -5,6 +5,7 @@ Tests the plain Redis checkpointer that works without Redis Stack.
 """
 
 import base64
+from collections import ChainMap
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID
@@ -526,3 +527,55 @@ class TestAsyncMethodsWithTTL:
 
         saver = SimpleRedisCheckpointer(redis_url="redis://localhost:6379")
         await saver.aclose()  # Should not raise
+
+
+class TestChainMapSerialization:
+    """Test ChainMap serialization/deserialization."""
+
+    @pytest.mark.asyncio
+    async def test_chainmap_serialization(self):
+        """Should serialize and deserialize ChainMap correctly."""
+        from yamlgraph.storage.simple_redis import (
+            _serialize_value,
+            _deserialize_value,
+        )
+
+        chainmap = ChainMap({"a": 1}, {"b": 2})
+        serialized = _serialize_value(chainmap)
+
+        assert serialized == {"__type__": "chainmap", "value": {"a": 1, "b": 2}}
+
+        deserialized = _deserialize_value(serialized)
+        assert isinstance(deserialized, ChainMap)
+        assert dict(deserialized) == {"a": 1, "b": 2}
+
+    @pytest.mark.asyncio
+    async def test_chainmap_in_checkpoint(self):
+        """Should handle ChainMap in checkpoint state."""
+        import orjson
+        from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
+
+        mock_client = AsyncMock()
+        saver = SimpleRedisCheckpointer(redis_url="redis://localhost:6379", ttl=60)
+        saver._client = mock_client
+
+        # Checkpoint with ChainMap
+        checkpoint = {
+            "v": 1,
+            "ts": "2024-01-01T00:00:00Z",
+            "id": "test",
+            "channel_values": {"config": ChainMap({"key": "value"})},
+        }
+        metadata = {"source": "test"}
+        config = {"configurable": {"thread_id": "test"}}
+
+        await saver.aput(config, checkpoint, metadata, {})
+
+        # Verify setex was called and data contains ChainMap
+        mock_client.setex.assert_called_once()
+        call_args = mock_client.setex.call_args[0]  # positional args
+        stored_data = call_args[2]  # third arg is data
+        decoded = orjson.loads(stored_data)
+
+        assert decoded["checkpoint"]["channel_values"]["config"]["__type__"] == "chainmap"
+        assert decoded["checkpoint"]["channel_values"]["config"]["value"] == {"key": "value"}

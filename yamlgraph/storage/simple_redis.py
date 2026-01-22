@@ -18,6 +18,7 @@ Limitations:
 from __future__ import annotations
 
 import base64
+from collections import ChainMap
 from collections.abc import Iterator
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
@@ -45,6 +46,8 @@ def _serialize_value(obj: Any) -> Any:
         return {"__type__": "datetime", "value": obj.isoformat()}
     if isinstance(obj, bytes):
         return {"__type__": "bytes", "value": base64.b64encode(obj).decode()}
+    if isinstance(obj, ChainMap):
+        return {"__type__": "chainmap", "value": dict(obj)}
     raise TypeError(f"Cannot serialize {type(obj)}")
 
 
@@ -59,6 +62,8 @@ def _deserialize_value(obj: dict) -> Any:
             return datetime.fromisoformat(value)
         if type_name == "bytes":
             return base64.b64decode(value)
+        if type_name == "chainmap":
+            return ChainMap(value)
     return obj
 
 
