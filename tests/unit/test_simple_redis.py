@@ -579,3 +579,36 @@ class TestChainMapSerialization:
 
         assert decoded["checkpoint"]["channel_values"]["config"]["__type__"] == "chainmap"
         assert decoded["checkpoint"]["channel_values"]["config"]["value"] == {"key": "value"}
+
+
+class TestFunctionSerialization:
+    """Test function/callable serialization handling."""
+
+    def test_function_serialization_returns_marker(self):
+        """Should serialize functions as null marker."""
+        from yamlgraph.storage.simple_redis import _serialize_value
+
+        def my_func():
+            pass
+
+        serialized = _serialize_value(my_func)
+        assert serialized == {"__type__": "function", "value": None}
+
+    def test_lambda_serialization(self):
+        """Should serialize lambdas as null marker."""
+        from yamlgraph.storage.simple_redis import _serialize_value
+
+        serialized = _serialize_value(lambda x: x)
+        assert serialized == {"__type__": "function", "value": None}
+
+    def test_class_not_treated_as_function(self):
+        """Classes should not be treated as functions."""
+        from yamlgraph.storage.simple_redis import _serialize_value
+
+        class MyClass:
+            pass
+
+        # Classes should raise TypeError (not treated as callable to skip)
+        import pytest
+        with pytest.raises(TypeError):
+            _serialize_value(MyClass)

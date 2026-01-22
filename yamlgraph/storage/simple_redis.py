@@ -48,6 +48,9 @@ def _serialize_value(obj: Any) -> Any:
         return {"__type__": "bytes", "value": base64.b64encode(obj).decode()}
     if isinstance(obj, ChainMap):
         return {"__type__": "chainmap", "value": dict(obj)}
+    # Skip functions/callables - LangGraph internals may include these
+    if callable(obj) and not isinstance(obj, type):
+        return {"__type__": "function", "value": None}
     raise TypeError(f"Cannot serialize {type(obj)}")
 
 
