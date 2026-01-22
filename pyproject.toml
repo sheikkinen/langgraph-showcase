@@ -38,6 +38,10 @@ websearch = [
 storyboard = [
     "replicate>=0.25.0",
 ]
+replicate = [
+    "langchain-litellm>=0.3.0",
+    "litellm>=1.65.0",
+]
 redis = [
     "langgraph-checkpoint-redis>=0.3.0",
 ]

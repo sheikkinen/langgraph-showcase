@@ -37,6 +37,7 @@ DEFAULT_MODELS = {
     "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
     "mistral": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
     "openai": os.getenv("OPENAI_MODEL", "gpt-4o"),
+    "replicate": os.getenv("REPLICATE_MODEL", "ibm-granite/granite-4.0-h-small"),
 }
 
 # Retry Configuration

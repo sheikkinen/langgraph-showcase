@@ -1,7 +1,7 @@
 """LLM Factory - Multi-provider abstraction for language models.
 
 This module provides a simple factory pattern for creating LLM instances
-across different providers (Anthropic, Mistral, OpenAI).
+across different providers (Anthropic, Mistral, OpenAI, Replicate).
 """
 
 import logging
@@ -16,7 +16,7 @@ from yamlgraph.config import DEFAULT_MODELS
 logger = logging.getLogger(__name__)
 
 # Type alias for supported providers
-ProviderType = Literal["anthropic", "mistral", "openai"]
+ProviderType = Literal["anthropic", "mistral", "openai", "replicate"]
 
 # Thread-safe cache for LLM instances
 _llm_cache: dict[tuple, BaseChatModel] = {}
@@ -97,6 +97,8 @@ def create_llm(
             from langchain_openai import ChatOpenAI
 
             llm = ChatOpenAI(model=selected_model, temperature=temperature)
+        elif selected_provider == "replicate":
+            llm = _create_replicate_llm(selected_model, temperature)
         else:  # anthropic (default)
             from langchain_anthropic import ChatAnthropic
 
@@ -106,6 +108,33 @@ def create_llm(
         _llm_cache[cache_key] = llm
 
         return llm
+
+
+def _create_replicate_llm(model: str, temperature: float) -> BaseChatModel:
+    """Create a Replicate-hosted model via LangChain wrapper.
+
+    Uses langchain-litellm for unified interface.
+
+    Args:
+        model: Model name (e.g., "ibm-granite/granite-4.0-h-small")
+        temperature: Temperature for generation
+
+    Returns:
+        LangChain-compatible chat model
+    """
+    import litellm
+    from langchain_litellm import ChatLiteLLM
+
+    # Drop unsupported params (like response_format) for Replicate
+    litellm.drop_params = True
+
+    # LiteLLM format: replicate/owner/model
+    litellm_model = f"replicate/{model}"
+
+    return ChatLiteLLM(
+        model=litellm_model,
+        temperature=temperature,
+    )
 
 
 def clear_cache() -> None:

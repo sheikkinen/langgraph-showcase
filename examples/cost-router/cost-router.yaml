@@ -1,0 +1,108 @@
+name: cost-router
+description: Route queries to cost-appropriate LLM providers based on complexity
+version: "1.0"
+
+defaults:
+  prompts_dir: examples/cost-router/prompts
+
+state:
+  query: str
+  classification: dict
+  result: str
+  provider_used: str
+
+nodes:
+  # Classify query complexity using cheap model
+  classify:
+    type: llm
+    prompt: classify_complexity
+    provider: replicate
+    model: ibm-granite/granite-4.0-h-small
+    temperature: 0.3
+    parse_json: true
+    variables:
+      query: "{state.query}"
+    state_key: classification
+
+  # Route simple queries to cheap model
+  route_simple:
+    type: llm
+    prompt: execute_query
+    provider: replicate
+    model: ibm-granite/granite-4.0-h-small
+    temperature: 0.7
+    variables:
+      query: "{state.query}"
+    state_key: result
+
+  # Route medium queries to mid-tier model
+  route_medium:
+    type: llm
+    prompt: execute_query
+    provider: mistral
+    model: mistral-small-latest
+    temperature: 0.7
+    variables:
+      query: "{state.query}"
+    state_key: result
+
+  # Route complex queries to top-tier model
+  route_complex:
+    type: llm
+    prompt: execute_query
+    provider: anthropic
+    model: claude-haiku-4-5
+    temperature: 0.7
+    variables:
+      query: "{state.query}"
+    state_key: result
+
+  # Track which provider was used
+  log_simple:
+    type: passthrough
+    set:
+      provider_used: "replicate/granite-4.0-h-small"
+
+  log_medium:
+    type: passthrough
+    set:
+      provider_used: "mistral/mistral-small-latest"
+
+  log_complex:
+    type: passthrough
+    set:
+      provider_used: "anthropic/claude-haiku-4-5"
+
+edges:
+  - from: START
+    to: classify
+
+  - from: classify
+    to: route_simple
+    condition: "classification.complexity == 'simple'"
+
+  - from: classify
+    to: route_medium
+    condition: "classification.complexity == 'medium'"
+
+  - from: classify
+    to: route_complex
+    condition: "classification.complexity == 'complex'"
+
+  - from: route_simple
+    to: log_simple
+
+  - from: route_medium
+    to: log_medium
+
+  - from: route_complex
+    to: log_complex
+
+  - from: log_simple
+    to: END
+
+  - from: log_medium
+    to: END
+
+  - from: log_complex
+    to: END

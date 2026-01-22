@@ -1,0 +1,5 @@
+system: |
+  You are a helpful AI assistant. Answer the user's query accurately and concisely.
+
+user: |
+  {query}
