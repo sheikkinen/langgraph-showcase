@@ -93,7 +93,7 @@ def _resolve_prompts_dir(graph: dict, graph_path: Path, project_root: Path) -> P
     """Resolve the prompts directory based on graph config.
 
     Logic mirrors yamlgraph.utils.prompts.resolve_prompt_path():
-    1. If prompts_dir is set in graph: use it relative to project_root
+    1. If prompts_dir is set in graph defaults: use it relative to project_root
     2. Otherwise: project_root/prompts (default)
 
     Args:
@@ -104,7 +104,9 @@ def _resolve_prompts_dir(graph: dict, graph_path: Path, project_root: Path) -> P
     Returns:
         Resolved prompts directory path
     """
-    prompts_dir_config = graph.get("prompts_dir")
+    # Check both top-level and defaults section
+    defaults = graph.get("defaults", {})
+    prompts_dir_config = graph.get("prompts_dir") or defaults.get("prompts_dir")
     if prompts_dir_config:
         # prompts_dir from graph config - resolve relative to project_root
         return project_root / prompts_dir_config
@@ -261,7 +263,10 @@ def check_prompt_files(
 
     prompts_dir = _resolve_prompts_dir(graph, graph_path, project_root)
     # Use relative path for fix suggestion
-    prompts_dir_config = graph.get("prompts_dir", "prompts")
+    defaults = graph.get("defaults", {})
+    prompts_dir_config = graph.get("prompts_dir") or defaults.get(
+        "prompts_dir", "prompts"
+    )
 
     for node_name, node_config in graph.get("nodes", {}).items():
         prompt_name = node_config.get("prompt")

@@ -42,7 +42,7 @@ htmlcov/
 .mypy_cache/
 
 # Custom graphs
-projects/docs/
+projects/
 
 # System
 .DS_Store

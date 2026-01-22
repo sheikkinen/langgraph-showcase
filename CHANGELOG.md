@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.15] - 2026-01-22
+
+### Fixed
+- **Graph linter now supports `defaults.prompts_dir`** - Previously only checked top-level `prompts_dir`, now also checks `defaults.prompts_dir` section for custom prompt directories
+
+### Removed
+- **Innovation Matrix example** - Moved to separate [innovation-matrix](https://github.com/sheikki/innovation-matrix) repository
+
 ## [0.3.14] - 2026-01-22
 
 ### Added
-- **Innovation Matrix graph** - Example recursive ideation pipeline in `innovation/`
-  - Uses Capability × Constraint ideation with recursive deepening
-  - 5 Jinja2 prompts for domain analysis, matrix generation, selection, expansion, and compilation
 - **Demo script now lints all graphs first** - `scripts/demo.sh` runs `graph lint` on all core graphs before executing demos
 
 ### Fixed
