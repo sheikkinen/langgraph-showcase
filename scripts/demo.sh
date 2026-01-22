@@ -118,6 +118,14 @@ print_usage() {
 # Main
 cd "$(dirname "$0")/.."
 
+# Lint all graphs first
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}▶ Linting all graphs...${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+.venv/bin/python -m yamlgraph.cli graph lint graphs/*.yaml innovation/*.yaml
+echo -e "${GREEN}✓ All graphs passed linting${NC}"
+echo ""
+
 case "${1:-all}" in
     router)
         demo_router

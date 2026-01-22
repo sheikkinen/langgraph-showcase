@@ -21,7 +21,16 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 # Valid node types
-VALID_NODE_TYPES = {"llm", "router", "agent", "map", "python"}
+VALID_NODE_TYPES = {
+    "agent",
+    "interrupt",
+    "llm",
+    "map",
+    "passthrough",
+    "python",
+    "router",
+    "subgraph",
+}
 
 # Built-in state fields that don't need declaration
 BUILTIN_STATE_FIELDS = {
@@ -80,6 +89,28 @@ def _get_prompt_path(prompt_name: str, prompts_dir: Path) -> Path:
     return prompts_dir / f"{prompt_name}.yaml"
 
 
+def _resolve_prompts_dir(graph: dict, graph_path: Path, project_root: Path) -> Path:
+    """Resolve the prompts directory based on graph config.
+
+    Logic mirrors yamlgraph.utils.prompts.resolve_prompt_path():
+    1. If prompts_dir is set in graph: use it relative to project_root
+    2. Otherwise: project_root/prompts (default)
+
+    Args:
+        graph: Parsed graph config
+        graph_path: Path to the graph YAML file
+        project_root: Project root directory
+
+    Returns:
+        Resolved prompts directory path
+    """
+    prompts_dir_config = graph.get("prompts_dir")
+    if prompts_dir_config:
+        # prompts_dir from graph config - resolve relative to project_root
+        return project_root / prompts_dir_config
+    return project_root / "prompts"
+
+
 def check_state_declarations(
     graph_path: Path, project_root: Path | None = None
 ) -> list[LintIssue]:
@@ -98,7 +129,7 @@ def check_state_declarations(
     if project_root is None:
         project_root = graph_path.parent
 
-    prompts_dir = project_root / "prompts"
+    prompts_dir = _resolve_prompts_dir(graph, graph_path, project_root)
 
     # Get declared state variables
     declared_state = set(graph.get("state", {}).keys())
@@ -228,7 +259,9 @@ def check_prompt_files(
     if project_root is None:
         project_root = graph_path.parent
 
-    prompts_dir = project_root / "prompts"
+    prompts_dir = _resolve_prompts_dir(graph, graph_path, project_root)
+    # Use relative path for fix suggestion
+    prompts_dir_config = graph.get("prompts_dir", "prompts")
 
     for node_name, node_config in graph.get("nodes", {}).items():
         prompt_name = node_config.get("prompt")
@@ -241,7 +274,7 @@ def check_prompt_files(
                         code="E004",
                         message=f"Prompt file '{prompt_name}.yaml' not found "
                         f"for node '{node_name}'",
-                        fix=f"Create file: prompts/{prompt_name}.yaml",
+                        fix=f"Create file: {prompts_dir_config}/{prompt_name}.yaml",
                     )
                 )
 

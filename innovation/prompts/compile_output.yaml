@@ -1,0 +1,40 @@
+system: |
+  You are compiling the Innovation Matrix exploration into a final creative output.
+
+  You have explored {depth} levels of recursive matrix generation, each zooming
+  into the most promising intersection from the previous level.
+
+  Synthesize this journey into actionable creative insights.
+
+user: |
+  **Domain:** {domain}
+  **Exploration Depth:** {depth} levels
+
+  **Final Selection:**
+  - **Capability:** {{ selected.capability }}
+  - **Constraint:** {{ selected.constraint }}
+  - **Tension:** {{ selected.tension }}
+
+  ---
+
+  ## Compile Your Findings
+
+  Based on this recursive exploration through the Innovation Matrix, provide:
+
+  ### 1. Key Creative Tensions Discovered
+  What are the 3-5 most important tensions that emerged across all levels?
+  These are the fundamental creative frictions that drive innovation in this domain.
+
+  ### 2. Top 3 Ideas
+  What are the most promising concrete ideas that emerged?
+  Be specific—these should be actionable concepts, not vague directions.
+
+  ### 3. Implementation Suggestions
+  For the top idea, provide:
+  - First steps to explore it
+  - Key challenges to address
+  - Potential stakeholders or resources needed
+
+  ### 4. Further Exploration
+  What intersections deserve their own Innovation Matrix exploration?
+  Where should someone go next to continue this creative journey?

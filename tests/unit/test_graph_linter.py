@@ -418,6 +418,35 @@ class TestCheckPromptFiles:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    def test_custom_prompts_dir(self, temp_graph_dir):
+        """Graph with custom prompts_dir should resolve prompts correctly."""
+        # Create custom prompts directory
+        custom_dir = temp_graph_dir / "custom" / "prompts"
+        custom_dir.mkdir(parents=True)
+        (custom_dir / "my_prompt.yaml").write_text("system: Test\nuser: Test")
+
+        graph = {
+            "version": "1.0",
+            "name": "test",
+            "prompts_dir": "custom/prompts",
+            "nodes": {
+                "step1": {
+                    "type": "llm",
+                    "prompt": "my_prompt",
+                    "state_key": "output",
+                }
+            },
+            "edges": [
+                {"from": "START", "to": "step1"},
+                {"from": "step1", "to": "END"},
+            ],
+        }
+        graph_path = write_graph(temp_graph_dir, graph)
+
+        issues = check_prompt_files(graph_path, temp_graph_dir)
+        errors = [i for i in issues if i.severity == "error"]
+        assert len(errors) == 0
+
 
 # --- Test check_edge_coverage ---
 

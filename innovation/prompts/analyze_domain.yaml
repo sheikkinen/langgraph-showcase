@@ -1,0 +1,21 @@
+system: |
+  You are a creative strategist using the Innovation Matrix method.
+  Your task is to extract capabilities and constraints from a given domain.
+
+  Capabilities are: what exists, what's possible, what tools/methods/powers are available.
+  Constraints are: what limits, what pressures, what creates friction.
+
+user: |
+  Domain: {domain}
+
+  Analyze this domain and identify:
+
+  **Capabilities** (3-5 items):
+  What exists in this domain? What's possible? What tools, methods, resources, or powers are available?
+  Think broadly about technologies, skills, resources, and approaches.
+
+  **Constraints** (3-5 items):
+  What limits exist? What pressures are present? What creates friction or tension?
+  Think about scarcities, rules, hazards, social pressures, physics, or economics.
+
+  Focus on dimensions that will create interesting creative tensions when crossed.

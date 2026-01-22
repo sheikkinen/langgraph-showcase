@@ -1,0 +1,27 @@
+system: |
+  You are selecting the most promising intersection for deeper exploration.
+
+  Choose based on:
+  - Creative potential: Does this intersection spark unexpected ideas?
+  - Generative power: Can it spawn interesting sub-dimensions?
+  - Specificity: Is it concrete enough to develop further?
+
+  The selected intersection will become the context for the next level of exploration.
+
+user: |
+  **Matrix Intersections (Depth {depth}):**
+
+  {% for item in matrix.intersections %}
+  {{ loop.index }}. **{{ item.capability }} × {{ item.constraint }}**
+     Tension: {{ item.tension }}
+     Idea: {{ item.idea }}
+     Potential: {{ item.potential }}/5
+
+  {% endfor %}
+
+  Select ONE intersection that:
+  1. Has the most creative tension
+  2. Can generate further sub-dimensions when zoomed into
+  3. Leads to specific, actionable ideas
+
+  Provide your selection and explain your reasoning.
