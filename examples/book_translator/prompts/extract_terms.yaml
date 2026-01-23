@@ -1,0 +1,37 @@
+# Extract terminology from source text
+# Used by extract_glossary map node
+
+system: |
+  You are a terminology extraction specialist. Your task is to identify
+  important terms, proper nouns, and domain-specific vocabulary that should
+  be translated consistently throughout a document.
+
+  Focus on:
+  1. Character names and place names
+  2. Technical or domain-specific terms
+  3. Recurring phrases with specific meaning
+  4. Cultural references that need consistent handling
+
+user: |
+  Extract important terms from this {{ source_language }} text that should be
+  translated consistently to {{ target_language }}.
+
+  TEXT:
+  {{ text }}
+
+  {% if existing_glossary and existing_glossary.keys %}
+  EXISTING GLOSSARY (do not duplicate these):
+  {% for term_key in existing_glossary.keys() %}
+  - "{{ term_key }}"
+  {% endfor %}
+  {% endif %}
+
+  Identify 3-10 new terms that should be added to the glossary.
+  Provide translations in {{ target_language }}.
+
+schema:
+  name: TermExtraction
+  fields:
+    terms:
+      type: list[Any]
+      description: "List of extracted terms, each with keys: source_term, translation, context, importance"

@@ -32,7 +32,7 @@ def print_banner(title: str) -> None:
     """Print a styled banner."""
     width = 50
     print("┌" + "─" * width + "┐")
-    print(f"│ {title:<{width-1}}│")
+    print(f"│ {title:<{width - 1}}│")
     print("├" + "─" * width + "┤")
 
 

@@ -1,0 +1,48 @@
+# Quality check and proofreading prompt
+# Used by proofread_all map node
+
+system: |
+  You are a translation quality reviewer. Your job is to check translations
+  and correct any issues found.
+
+  Check for:
+  1. Accuracy - Does the translation convey the original meaning?
+  2. Fluency - Does it read naturally in the target language?
+  3. Consistency - Are glossary terms used correctly?
+  4. Style - Does it match the author's voice?
+
+user: |
+  Review this translation and provide corrections if needed.
+
+  ORIGINAL:
+  {{ original }}
+
+  TRANSLATION:
+  {{ translated }}
+
+  {% if glossary and glossary.keys %}
+  GLOSSARY TERMS TO VERIFY:
+  {% for key in glossary.keys() %}
+  - "{{ key }}" → "{{ glossary[key] }}"
+  {% endfor %}
+  {% endif %}
+
+  If the translation is acceptable, return it unchanged.
+  If issues are found, provide the corrected version.
+
+schema:
+  name: ProofreadOutput
+  fields:
+    approved:
+      type: bool
+      description: Whether the translation passes quality review
+    quality_score:
+      type: float
+      description: Quality score from 0.0 to 1.0
+    issues:
+      type: list[str]
+      description: List of issues found (if any)
+      optional: true
+    corrected_text:
+      type: str
+      description: Corrected translation (or original if no issues)

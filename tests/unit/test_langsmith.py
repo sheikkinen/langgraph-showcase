@@ -106,36 +106,45 @@ class TestGetClient:
 
     def test_creates_client_with_langchain_key(self):
         """Creates client with LANGCHAIN_API_KEY."""
-        with patch.dict(
-            os.environ,
-            {"LANGCHAIN_API_KEY": "lsv2_test_key"},
-            clear=True,
-        ), patch("langsmith.Client") as mock_client:
+        with (
+            patch.dict(
+                os.environ,
+                {"LANGCHAIN_API_KEY": "lsv2_test_key"},
+                clear=True,
+            ),
+            patch("langsmith.Client") as mock_client,
+        ):
             result = get_client()
             mock_client.assert_called_once()
             assert result is not None
 
     def test_creates_client_with_langsmith_key(self):
         """Creates client with LANGSMITH_API_KEY."""
-        with patch.dict(
-            os.environ,
-            {"LANGSMITH_API_KEY": "lsv2_test_key"},
-            clear=True,
-        ), patch("langsmith.Client") as mock_client:
+        with (
+            patch.dict(
+                os.environ,
+                {"LANGSMITH_API_KEY": "lsv2_test_key"},
+                clear=True,
+            ),
+            patch("langsmith.Client") as mock_client,
+        ):
             result = get_client()
             mock_client.assert_called_once()
             assert result is not None
 
     def test_uses_custom_endpoint(self):
         """Uses LANGSMITH_ENDPOINT if set."""
-        with patch.dict(
-            os.environ,
-            {
-                "LANGSMITH_API_KEY": "key",
-                "LANGSMITH_ENDPOINT": "https://eu.smith.langchain.com",
-            },
-            clear=True,
-        ), patch("langsmith.Client") as mock_client:
+        with (
+            patch.dict(
+                os.environ,
+                {
+                    "LANGSMITH_API_KEY": "key",
+                    "LANGSMITH_ENDPOINT": "https://eu.smith.langchain.com",
+                },
+                clear=True,
+            ),
+            patch("langsmith.Client") as mock_client,
+        ):
             get_client()
             mock_client.assert_called_with(
                 api_url="https://eu.smith.langchain.com",
@@ -347,9 +356,7 @@ class TestGetRunDetails:
         mock_client = MagicMock()
         with (
             patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
-            patch(
-                "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
-            ),
+            patch("yamlgraph.utils.langsmith.get_latest_run_id", return_value=None),
         ):
             result = get_run_details()
             assert result is None
@@ -450,9 +457,7 @@ class TestGetRunErrors:
         mock_client = MagicMock()
         with (
             patch("yamlgraph.utils.langsmith.get_client", return_value=mock_client),
-            patch(
-                "yamlgraph.utils.langsmith.get_latest_run_id", return_value=None
-            ),
+            patch("yamlgraph.utils.langsmith.get_latest_run_id", return_value=None),
         ):
             result = get_run_errors()
             assert result == []

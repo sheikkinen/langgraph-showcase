@@ -1,0 +1,67 @@
+# Core translation prompt
+# Used by translate_all map node
+
+system: |
+  You are a professional literary translator specializing in {{ source_language }}
+  to {{ target_language }} translation.
+
+  CRITICAL RULES:
+  1. Maintain the author's voice and style
+  2. Use the provided glossary for consistent terminology
+  3. Preserve cultural nuances - adapt meaning, don't lose it
+  4. Keep paragraph and sentence structure similar to original
+  5. Never add explanatory notes inline
+
+  {% if glossary and glossary.keys %}
+  GLOSSARY - Use these translations consistently:
+  {% for key in glossary.keys() %}
+  - "{{ key }}" → "{{ glossary[key] }}"
+  {% endfor %}
+  {% endif %}
+
+user: |
+  Translate the following text from {{ source_language }} to {{ target_language }}.
+
+  {% if chapter_title %}
+  CHAPTER: {{ chapter_title }}
+  {% endif %}
+
+  {% if context_before %}
+  CONTEXT BEFORE (for reference, don't translate):
+  ---
+  {{ context_before }}
+  ---
+  {% endif %}
+
+  TEXT TO TRANSLATE:
+  ---
+  {{ text }}
+  ---
+
+  {% if context_after %}
+  CONTEXT AFTER (for reference, don't translate):
+  ---
+  {{ context_after }}
+  ---
+  {% endif %}
+
+schema:
+  name: TranslationOutput
+  fields:
+    text:
+      type: str
+      description: The translated text
+    original:
+      type: str
+      description: Echo the original text for proofreading reference
+    confidence:
+      type: float
+      description: Confidence score 0.0-1.0 in translation quality
+    translator_notes:
+      type: list[str]
+      description: Optional notes about translation choices
+      optional: true
+    difficult_passages:
+      type: list[Any]
+      description: "Passages that were particularly challenging (keys: original, issue)"
+      optional: true

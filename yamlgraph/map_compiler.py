@@ -90,6 +90,7 @@ def compile_map_node(
     builder: StateGraph,
     defaults: dict[str, Any],
     tools_registry: dict[str, Any] | None = None,
+    graph_path: Any | None = None,
 ) -> tuple[Callable[[dict], list[Send]], str]:
     """Compile type: map node using LangGraph Send.
 
@@ -102,6 +103,7 @@ def compile_map_node(
         builder: StateGraph builder to add sub-node to
         defaults: Default configuration for nodes
         tools_registry: Optional tools registry for tool_call sub-nodes
+        graph_path: Path to graph YAML file (for relative prompt resolution)
 
     Returns:
         Tuple of (map_edge_function, sub_node_name)
@@ -128,7 +130,9 @@ def compile_map_node(
             )
         sub_node = create_tool_call_node(sub_node_name, sub_node_config, tools_registry)
     else:
-        sub_node = create_node_function(sub_node_name, sub_node_config, defaults)
+        sub_node = create_node_function(
+            sub_node_name, sub_node_config, defaults, graph_path=graph_path
+        )
 
     wrapped_node = wrap_for_reducer(sub_node, collect_key, state_key)
     builder.add_node(sub_node_name, wrapped_node)

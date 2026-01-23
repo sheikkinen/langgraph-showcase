@@ -232,24 +232,24 @@ class EncounterSession:
                     or str(narration)
                 )
                 npc_name = (
-                    npcs[map_index].get("name", f"NPC {map_index+1}")
+                    npcs[map_index].get("name", f"NPC {map_index + 1}")
                     if map_index < len(npcs)
-                    else f"NPC {map_index+1}"
+                    else f"NPC {map_index + 1}"
                 )
             elif isinstance(narration, str):
                 npc_index = len(formatted_narrations)
                 npc_name = (
-                    npcs[npc_index].get("name", f"NPC {npc_index+1}")
+                    npcs[npc_index].get("name", f"NPC {npc_index + 1}")
                     if npc_index < len(npcs)
-                    else f"NPC {npc_index+1}"
+                    else f"NPC {npc_index + 1}"
                 )
                 text = narration
             else:
                 npc_index = len(formatted_narrations)
                 npc_name = (
-                    npcs[npc_index].get("name", f"NPC {npc_index+1}")
+                    npcs[npc_index].get("name", f"NPC {npc_index + 1}")
                     if npc_index < len(npcs)
-                    else f"NPC {npc_index+1}"
+                    else f"NPC {npc_index + 1}"
                 )
                 text = str(narration)
 

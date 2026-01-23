@@ -1,0 +1,183 @@
+# Book Translation Pipeline
+# Two-phase splitting: LLM identifies markers, Python splits reliably
+
+version: "1.0"
+name: book-translator
+description: |
+  Translate books/documents with:
+  - LLM-identified chapter boundaries
+  - Reliable Python splitting
+  - Parallel chunk translation
+  - Glossary consistency
+  - Quality-based human review
+
+checkpointer:
+  type: sqlite
+
+defaults:
+  provider: anthropic
+  temperature: 0.3
+  prompts_relative: true
+  prompts_dir: prompts
+
+state:
+  source_text: str
+  source_language: str
+  target_language: str
+  glossary: dict
+  quality_threshold: float
+  needs_review: bool
+
+# Python tools - minimal data transforms only
+tools:
+  split_by_markers:
+    type: python
+    module: examples.book_translator.nodes.tools
+    function: split_by_markers
+    description: "Split text using LLM-identified markers"
+
+  merge_terms:
+    type: python
+    module: examples.book_translator.nodes.tools
+    function: merge_terms
+    description: "Merge extracted glossary terms"
+
+  check_scores:
+    type: python
+    module: examples.book_translator.nodes.tools
+    function: check_scores
+    description: "Check quality scores and flag chunks"
+
+  join_chunks:
+    type: python
+    module: examples.book_translator.nodes.tools
+    function: join_chunks
+    description: "Assemble final translated text"
+
+nodes:
+  # Phase 1a: LLM identifies chapter boundary markers
+  identify_chapters:
+    type: llm
+    prompt: identify_chapters
+    variables:
+      source_text: "{state.source_text}"
+      source_language: "{state.source_language}"
+    state_key: chapter_markers
+
+  # Phase 1b: Python splits using those markers
+  split_book:
+    type: python
+    tool: split_by_markers
+    state_key: chunks
+
+  # Phase 2: Extract glossary terms (parallel)
+  extract_glossary:
+    type: map
+    over: "{state.chunks}"
+    as: chunk
+    node:
+      type: llm
+      prompt: extract_terms
+      variables:
+        text: "{state.chunk.text}"
+        existing_glossary: "{state.glossary}"
+        source_language: "{state.source_language}"
+        target_language: "{state.target_language}"
+    collect: term_extractions
+    on_error: skip
+
+  # Phase 2b: Merge extracted terms
+  merge_glossary:
+    type: python
+    tool: merge_terms
+    state_key: glossary
+
+  # Phase 3: Translate all chunks in parallel
+  translate_all:
+    type: map
+    over: "{state.chunks}"
+    as: chunk
+    node:
+      type: llm
+      prompt: translate_chunk
+      variables:
+        text: "{state.chunk.text}"
+        source_language: "{state.source_language}"
+        target_language: "{state.target_language}"
+        glossary: "{state.glossary}"
+        chapter_title: "{state.chunk.title}"
+        context_before: "{state.chunk.context_before}"
+        context_after: "{state.chunk.context_after}"
+    collect: translations
+    on_error: retry
+    max_retries: 2
+
+  # Phase 4: Proofread translations
+  proofread_all:
+    type: map
+    over: "{state.translations}"
+    as: translation
+    node:
+      type: llm
+      prompt: proofread
+      variables:
+        original: "{state.translation._map_translate_all_sub.original}"
+        translated: "{state.translation._map_translate_all_sub.text}"
+        glossary: "{state.glossary}"
+    collect: proofread_chunks
+    on_error: skip
+
+  # Phase 5: Quality gate
+  quality_check:
+    type: python
+    tool: check_scores
+    state_key: flagged_chunks
+
+  # Phase 5b: Human review (if quality issues)
+  human_review:
+    type: interrupt
+    message: |
+      🔍 Review needed. Check flagged_chunks for issues.
+    resume_key: reviewed_chunks
+
+  # Phase 6: Reassemble final text
+  reassemble:
+    type: python
+    tool: join_chunks
+    state_key: final_text
+
+edges:
+  - from: START
+    to: identify_chapters
+
+  - from: identify_chapters
+    to: split_book
+
+  - from: split_book
+    to: extract_glossary
+
+  - from: extract_glossary
+    to: merge_glossary
+
+  - from: merge_glossary
+    to: translate_all
+
+  - from: translate_all
+    to: proofread_all
+
+  - from: proofread_all
+    to: quality_check
+
+  - from: quality_check
+    to: human_review
+    condition: "needs_review == true"
+
+  - from: quality_check
+    to: reassemble
+    condition: "needs_review == false"
+
+  - from: human_review
+    to: reassemble
+
+  - from: reassemble
+    to: END

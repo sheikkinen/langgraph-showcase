@@ -578,8 +578,12 @@ class TestChainMapSerialization:
         stored_data = call_args[2]  # third arg is data
         decoded = orjson.loads(stored_data)
 
-        assert decoded["checkpoint"]["channel_values"]["config"]["__type__"] == "chainmap"
-        assert decoded["checkpoint"]["channel_values"]["config"]["value"] == {"key": "value"}
+        assert (
+            decoded["checkpoint"]["channel_values"]["config"]["__type__"] == "chainmap"
+        )
+        assert decoded["checkpoint"]["channel_values"]["config"]["value"] == {
+            "key": "value"
+        }
 
 
 class TestFunctionSerialization:
@@ -611,6 +615,7 @@ class TestFunctionSerialization:
 
         # Classes should raise TypeError (not treated as callable to skip)
         import pytest
+
         with pytest.raises(TypeError):
             _serialize_value(MyClass)
 
@@ -651,11 +656,7 @@ class TestTupleKeySerialization:
                 ("node1", "task1"): 1,
                 ("node2", "task2"): 2,
             },
-            "nested": {
-                "list": [
-                    {("key1", "key2"): "value"}
-                ]
-            },
+            "nested": {"list": [{("key1", "key2"): "value"}]},
         }
 
         stringified = _stringify_keys(data)
@@ -719,10 +720,14 @@ class TestDeleteThread:
 
         mock_client = AsyncMock()
         # Mock scan_iter to return async iterator directly (not a coroutine)
-        mock_client.scan_iter = MagicMock(return_value=AsyncIteratorMock([
-            b"lg:test-thread:ns1",
-            b"lg:test-thread:ns2",
-        ]))
+        mock_client.scan_iter = MagicMock(
+            return_value=AsyncIteratorMock(
+                [
+                    b"lg:test-thread:ns1",
+                    b"lg:test-thread:ns2",
+                ]
+            )
+        )
         mock_client.exists = AsyncMock(return_value=True)
         mock_client.delete = AsyncMock()
 
@@ -759,9 +764,11 @@ class TestDeleteThread:
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
 
         mock_client = MagicMock()
-        mock_client.scan_iter = MagicMock(return_value=[
-            b"lg:test-thread:ns1",
-        ])
+        mock_client.scan_iter = MagicMock(
+            return_value=[
+                b"lg:test-thread:ns1",
+            ]
+        )
         mock_client.exists = MagicMock(return_value=True)
         mock_client.delete = MagicMock()
 

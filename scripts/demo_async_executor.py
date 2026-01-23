@@ -35,7 +35,7 @@ def print_banner(title: str) -> None:
     """Print a styled banner."""
     width = 50
     print("┌" + "─" * width + "┐")
-    print(f"│ {title:<{width-1}}│")
+    print(f"│ {title:<{width - 1}}│")
     print("├" + "─" * width + "┤")
 
 
@@ -100,7 +100,7 @@ async def run_demo(
     # Show welcome if present
     if welcome := result.get("welcome_message"):
         preview = welcome[:40] + "..." if len(welcome) > 40 else welcome
-        print(f"│ 💬 Welcome: \"{preview}\"│")
+        print(f'│ 💬 Welcome: "{preview}"│')
 
     # Interrupt loop
     interrupt_count = 0
@@ -115,7 +115,9 @@ async def run_demo(
             print("│" + " " * 50 + "│")
             user_input = input("│ > ")
         else:
-            user_input = mock_inputs[mock_index] if mock_index < len(mock_inputs) else "default"
+            user_input = (
+                mock_inputs[mock_index] if mock_index < len(mock_inputs) else "default"
+            )
             mock_index += 1
             print(f"│ > {user_input:<47}│")
 
@@ -133,7 +135,7 @@ async def run_demo(
     if response:
         # Truncate for display
         preview = response[:38] + "..." if len(response) > 38 else response
-        print(f"│ 📝 Response: \"{preview}\"│")
+        print(f'│ 📝 Response: "{preview}"│')
 
     print_footer()
 

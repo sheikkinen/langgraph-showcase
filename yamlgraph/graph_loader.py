@@ -214,7 +214,12 @@ def _compile_node(
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.MAP:
         map_edge_fn, sub_node_name = compile_map_node(
-            node_name, enriched_config, graph, config.defaults, callable_registry
+            node_name,
+            enriched_config,
+            graph,
+            config.defaults,
+            callable_registry,
+            graph_path=config.source_path,
         )
         logger.info(f"Added node: {node_name} (type={node_type})")
         return (node_name, (map_edge_fn, sub_node_name))

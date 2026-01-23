@@ -1,0 +1,49 @@
+# Identify chapter/section boundary markers in text
+# Returns exact strings that can be used to split the document
+
+model: claude-haiku-4-5
+temperature: 0.1
+max_tokens: 1500
+
+system: |
+  You are a document structure analyzer. Your task is to identify the EXACT
+  text strings that mark chapter or section boundaries in a document.
+
+  Return the precise text that appears at the START of each new section.
+  These strings will be used for reliable text splitting.
+
+  Rules:
+  - Each marker must be an EXACT substring from the document (copy-paste)
+  - Include 20-50 characters to ensure uniqueness
+  - Skip the very first section (document starts there naturally)
+  - Aim for 3-8 sections of roughly equal size (2000-6000 chars each)
+  - Look for: chapter headings, date entries, "Report"/"Description" headers
+
+user: |
+  Analyze this {{ source_language }} document and identify section boundaries.
+
+  Document ({{ source_text|length }} characters):
+  {{ source_text[:12000] }}
+  {% if source_text|length > 12000 %}
+  ... [truncated, {{ source_text|length }} total characters]
+  {% endif %}
+
+  Return the EXACT text strings that mark the START of each new section.
+  Copy the text precisely - these will be used for string matching.
+
+schema:
+  name: ChapterMarkers
+  fields:
+    markers:
+      type: list[Any]
+      description: |
+        List of section boundary markers. Each item should have:
+        - marker: exact text string (20-50 chars) from document
+        - title: short description of this section
+        - estimated_size: approximate character count
+    total_sections:
+      type: int
+      description: Total sections including the first unmarked one
+    document_type:
+      type: str
+      description: Type of document (e.g., "war diary", "novel", "manual")

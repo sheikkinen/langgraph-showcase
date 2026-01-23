@@ -55,7 +55,7 @@ def _serialize_key(key: Any) -> str:
 def _deserialize_key(key: str) -> Any:
     """Deserialize a stringified key back to its original type."""
     if key.startswith("__tuple__:"):
-        json_part = key[len("__tuple__:"):]
+        json_part = key[len("__tuple__:") :]
         return tuple(orjson.loads(json_part))
     return key
 
@@ -206,7 +206,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         config: RunnableConfig,
         checkpoint: Checkpoint,
         metadata: CheckpointMetadata,
-        new_versions: dict[str, Any],
+        _new_versions: dict[str, Any],
     ) -> RunnableConfig:
         """Save a checkpoint."""
         thread_id = config["configurable"]["thread_id"]
@@ -237,7 +237,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         config: RunnableConfig | None,
         *,
         filter: dict[str, Any] | None = None,
-        before: RunnableConfig | None = None,
+        _before: RunnableConfig | None = None,
         limit: int | None = None,
     ) -> AsyncIterator[CheckpointTuple]:
         """List checkpoints. Uses SCAN for key discovery.
@@ -271,7 +271,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
     async def aput_writes(
         self,
         config: RunnableConfig,
-        writes: list[tuple[str, Any]],
+        _writes: list[tuple[str, Any]],
         task_id: str,
     ) -> None:
         """Store pending writes. Not fully implemented for simple version."""
@@ -334,7 +334,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         config: RunnableConfig,
         checkpoint: Checkpoint,
         metadata: CheckpointMetadata,
-        new_versions: dict[str, Any],
+        _new_versions: dict[str, Any],
     ) -> RunnableConfig:
         """Save a checkpoint (sync version)."""
         thread_id = config["configurable"]["thread_id"]
@@ -365,7 +365,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         config: RunnableConfig | None,
         *,
         filter: dict[str, Any] | None = None,
-        before: RunnableConfig | None = None,
+        _before: RunnableConfig | None = None,
         limit: int | None = None,
     ) -> Iterator[CheckpointTuple]:
         """List checkpoints (sync version)."""
@@ -396,7 +396,7 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
     def put_writes(
         self,
         config: RunnableConfig,
-        writes: list[tuple[str, Any]],
+        _writes: list[tuple[str, Any]],
         task_id: str,
     ) -> None:
         """Store pending writes (sync version)."""

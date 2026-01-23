@@ -512,11 +512,10 @@ edges:
             "__interrupt__": (MagicMock(value={"question": "What?"}),),
         }
 
-        with patch(
-            "yamlgraph.graph_loader.compile_graph"
-        ) as mock_compile_graph, patch(
-            "yamlgraph.graph_loader.load_graph_config"
-        ) as mock_load:
+        with (
+            patch("yamlgraph.graph_loader.compile_graph") as mock_compile_graph,
+            patch("yamlgraph.graph_loader.load_graph_config") as mock_load,
+        ):
             mock_load.return_value = MagicMock()
             mock_state_graph = MagicMock()
             mock_state_graph.compile.return_value = mock_compiled
@@ -576,11 +575,10 @@ edges:
             # No __interrupt__ key
         }
 
-        with patch(
-            "yamlgraph.graph_loader.compile_graph"
-        ) as mock_compile_graph, patch(
-            "yamlgraph.graph_loader.load_graph_config"
-        ) as mock_load:
+        with (
+            patch("yamlgraph.graph_loader.compile_graph") as mock_compile_graph,
+            patch("yamlgraph.graph_loader.load_graph_config") as mock_load,
+        ):
             mock_load.return_value = MagicMock()
             mock_state_graph = MagicMock()
             mock_state_graph.compile.return_value = mock_compiled
