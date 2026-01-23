@@ -1,6 +1,8 @@
 """Tests for SQLite database layer - TDD: Red phase."""
+
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timedelta
 
 
 @pytest.fixture
@@ -99,8 +101,12 @@ class TestSlotDB:
     def test_list_slots_by_calendar(self, db):
         """Should list slots for a calendar."""
         cal = db.create_calendar(name="Test", type="provider")
-        db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
-        db.create_slot(cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0))
+        db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
+        db.create_slot(
+            cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0)
+        )
 
         slots = db.list_slots(calendar_id=cal.id)
 
@@ -109,8 +115,12 @@ class TestSlotDB:
     def test_list_slots_available_only(self, db):
         """Should filter available slots."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot1 = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
-        db.create_slot(cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0))
+        slot1 = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
+        db.create_slot(
+            cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0)
+        )
         db.mark_slot_unavailable(slot1.id)
 
         available = db.list_slots(calendar_id=cal.id, available_only=True)
@@ -120,7 +130,9 @@ class TestSlotDB:
     def test_delete_slot(self, db):
         """Should delete slot."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
 
         deleted = db.delete_slot(slot.id)
 
@@ -134,7 +146,9 @@ class TestAppointmentDB:
     def test_create_appointment(self, db):
         """Should create appointment and mark slot unavailable."""
         cal = db.create_calendar(name="Dr. Smith", type="provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
 
         appt = db.create_appointment(
             slot_id=slot.id,
@@ -153,7 +167,9 @@ class TestAppointmentDB:
     def test_get_appointment(self, db):
         """Should retrieve appointment by ID."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
         created = db.create_appointment(slot.id, "Bob", None)
 
         retrieved = db.get_appointment(created.id)
@@ -164,8 +180,12 @@ class TestAppointmentDB:
     def test_list_appointments(self, db):
         """Should list appointments."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot1 = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
-        slot2 = db.create_slot(cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0))
+        slot1 = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
+        slot2 = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 11, 0), datetime(2026, 1, 24, 12, 0)
+        )
         db.create_appointment(slot1.id, "Alice", None)
         db.create_appointment(slot2.id, "Bob", None)
 
@@ -176,7 +196,9 @@ class TestAppointmentDB:
     def test_cancel_appointment(self, db):
         """Should cancel appointment and free slot."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
         appt = db.create_appointment(slot.id, "Alice", None)
 
         cancelled = db.cancel_appointment(appt.id)
@@ -192,7 +214,9 @@ class TestAppointmentDB:
     def test_delete_appointment(self, db):
         """Should delete appointment and free slot."""
         cal = db.create_calendar(name="Test", type="provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 24, 9, 0), datetime(2026, 1, 24, 10, 0)
+        )
         appt = db.create_appointment(slot.id, "Alice", None)
 
         deleted = db.delete_appointment(appt.id)

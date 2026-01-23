@@ -47,7 +47,7 @@ class TestChatRoutesWithMockGraph:
     @pytest.fixture
     def mock_client(self):
         """Create test client with mock graph that returns interrupt."""
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import MagicMock
 
         from examples.booking.api.app import create_app
         from examples.booking.api.db import BookingDB

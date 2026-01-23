@@ -20,9 +20,7 @@ def client():
 @pytest.fixture
 def client_with_slot(client):
     """Create client with a calendar and slot already created."""
-    cal_resp = client.post(
-        "/calendars", json={"name": "Dr. Smith", "type": "provider"}
-    )
+    cal_resp = client.post("/calendars", json={"name": "Dr. Smith", "type": "provider"})
     calendar_id = cal_resp.json()["id"]
     slot_resp = client.post(
         f"/calendars/{calendar_id}/slots",

@@ -68,13 +68,12 @@ def create_interrupt_node(
         elif message is not None:
             # Static message - check for template syntax and interpolate
             # Jinja2: {{ or {% | Simple: {word}
-            has_template = "{{" in message or "{%" in message or (
-                "{" in message and "}" in message
+            has_template = (
+                "{{" in message
+                or "{%" in message
+                or ("{" in message and "}" in message)
             )
-            if has_template:
-                payload = format_prompt(message, state, state)
-            else:
-                payload = message
+            payload = format_prompt(message, state, state) if has_template else message
         else:
             # Fallback: use node name as payload
             payload = {"node": node_name}

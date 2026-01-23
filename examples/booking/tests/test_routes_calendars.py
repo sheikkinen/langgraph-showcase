@@ -1,4 +1,5 @@
 """Tests for Calendar routes - TDD: Red phase."""
+
 import pytest
 from fastapi.testclient import TestClient
 

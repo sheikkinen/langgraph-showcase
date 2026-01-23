@@ -59,9 +59,7 @@ class TestBookingE2EFlow:
         slot2_id = slot2_resp.json()["id"]
 
         # 3. List available slots
-        slots_resp = api_client.get(
-            f"/calendars/{calendar_id}/slots?available=true"
-        )
+        slots_resp = api_client.get(f"/calendars/{calendar_id}/slots?available=true")
         assert slots_resp.status_code == 200
         assert len(slots_resp.json()) == 2
 
@@ -79,9 +77,7 @@ class TestBookingE2EFlow:
         assert appt_resp.json()["status"] == "booked"
 
         # 5. Verify slot is now unavailable
-        slots_resp = api_client.get(
-            f"/calendars/{calendar_id}/slots?available=true"
-        )
+        slots_resp = api_client.get(f"/calendars/{calendar_id}/slots?available=true")
         assert len(slots_resp.json()) == 1  # Only slot2 available
         assert slots_resp.json()[0]["id"] == slot2_id
 
@@ -96,9 +92,7 @@ class TestBookingE2EFlow:
         assert cancel_resp.json()["status"] == "cancelled"
 
         # 8. Verify slot is available again
-        slots_resp = api_client.get(
-            f"/calendars/{calendar_id}/slots?available=true"
-        )
+        slots_resp = api_client.get(f"/calendars/{calendar_id}/slots?available=true")
         assert len(slots_resp.json()) == 2  # Both available again
 
     def test_prepopulated_calendars(self, api_client):
@@ -115,9 +109,7 @@ class TestBookingE2EFlow:
     def test_double_booking_prevented(self, api_client):
         """Test that double-booking the same slot fails."""
         # Create calendar and slot
-        cal = api_client.post(
-            "/calendars", json={"name": "Test", "type": "provider"}
-        )
+        cal = api_client.post("/calendars", json={"name": "Test", "type": "provider"})
         cal_id = cal.json()["id"]
         slot = api_client.post(
             f"/calendars/{cal_id}/slots",

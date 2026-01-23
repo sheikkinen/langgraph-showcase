@@ -1,5 +1,5 @@
 """Unit tests for booking example."""
-import pytest
+
 from datetime import datetime
 
 

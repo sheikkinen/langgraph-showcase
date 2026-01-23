@@ -16,7 +16,6 @@ from examples.booking.api.models import (
     Slot,
 )
 
-
 # --- Chat Request/Response Models ---
 
 

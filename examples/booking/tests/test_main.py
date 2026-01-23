@@ -1,6 +1,5 @@
 """Tests for booking API main entry point."""
 
-import pytest
 from fastapi.testclient import TestClient
 
 

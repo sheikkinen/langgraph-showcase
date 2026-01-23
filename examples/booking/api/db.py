@@ -49,7 +49,7 @@ class BookingDB:
                 end_time TEXT NOT NULL,
                 available INTEGER DEFAULT 1
             );
-            CREATE INDEX IF NOT EXISTS idx_slots_calendar_date 
+            CREATE INDEX IF NOT EXISTS idx_slots_calendar_date
                 ON slots(calendar_id, start_time);
 
             -- Appointments
@@ -122,9 +122,7 @@ class BookingDB:
 
     def delete_calendar(self, calendar_id: str) -> bool:
         """Delete calendar by ID. Returns True if deleted."""
-        cursor = self.conn.execute(
-            "DELETE FROM calendars WHERE id = ?", (calendar_id,)
-        )
+        cursor = self.conn.execute("DELETE FROM calendars WHERE id = ?", (calendar_id,))
         self.conn.commit()
         return cursor.rowcount > 0
 
@@ -240,7 +238,7 @@ class BookingDB:
         now = datetime.now().isoformat()
 
         self.conn.execute(
-            """INSERT INTO appointments 
+            """INSERT INTO appointments
                (id, slot_id, patient_name, patient_phone, status, created_at)
                VALUES (?, ?, ?, ?, 'booked', ?)""",
             (appt_id, slot_id, patient_name, patient_phone, now),

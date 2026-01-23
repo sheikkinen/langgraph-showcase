@@ -1,6 +1,8 @@
 """Tests for API models - TDD: Red phase."""
-import pytest
+
 from datetime import datetime
+
+import pytest
 
 
 class TestCalendarModel:
@@ -23,8 +25,9 @@ class TestCalendarModel:
 
     def test_calendar_type_validation(self):
         """Should only allow 'provider' or 'service' types."""
-        from examples.booking.api.models import Calendar
         from pydantic import ValidationError
+
+        from examples.booking.api.models import Calendar
 
         with pytest.raises(ValidationError):
             Calendar(id="cal_1", name="Test", type="invalid")
@@ -131,8 +134,9 @@ class TestAppointmentModel:
 
     def test_appointment_invalid_status(self):
         """Should reject invalid status."""
-        from examples.booking.api.models import Appointment
         from pydantic import ValidationError
+
+        from examples.booking.api.models import Appointment
 
         with pytest.raises(ValidationError):
             Appointment(
