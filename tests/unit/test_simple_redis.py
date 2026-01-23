@@ -237,14 +237,14 @@ class TestSimpleRedisCheckpointerSerialization:
 
 
 class TestSerializationHelpers:
-    """Test _serialize_value and _deserialize_value functions."""
+    """Test serialize_value and deserialize_value functions."""
 
     def test_serialize_uuid(self):
         """Should serialize UUID to dict with __type__."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         uuid = UUID("12345678-1234-5678-1234-567812345678")
-        result = _serialize_value(uuid)
+        result = serialize_value(uuid)
         assert result == {
             "__type__": "uuid",
             "value": "12345678-1234-5678-1234-567812345678",
@@ -252,71 +252,71 @@ class TestSerializationHelpers:
 
     def test_serialize_datetime(self):
         """Should serialize datetime to ISO format."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         dt = datetime(2026, 1, 21, 12, 30, 45)
-        result = _serialize_value(dt)
+        result = serialize_value(dt)
         assert result == {"__type__": "datetime", "value": "2026-01-21T12:30:45"}
 
     def test_serialize_bytes(self):
         """Should serialize bytes to base64."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         data = b"hello world"
-        result = _serialize_value(data)
+        result = serialize_value(data)
         assert result["__type__"] == "bytes"
         assert base64.b64decode(result["value"]) == b"hello world"
 
     def test_serialize_unknown_type_raises(self):
         """Should raise TypeError for unknown types."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         class CustomClass:
             pass
 
         with pytest.raises(TypeError, match="Cannot serialize"):
-            _serialize_value(CustomClass())
+            serialize_value(CustomClass())
 
     def test_deserialize_uuid(self):
         """Should deserialize UUID from dict."""
-        from yamlgraph.storage.simple_redis import _deserialize_value
+        from yamlgraph.storage.serializers import deserialize_value
 
         data = {"__type__": "uuid", "value": "12345678-1234-5678-1234-567812345678"}
-        result = _deserialize_value(data)
+        result = deserialize_value(data)
         assert result == UUID("12345678-1234-5678-1234-567812345678")
 
     def test_deserialize_datetime(self):
         """Should deserialize datetime from ISO format."""
-        from yamlgraph.storage.simple_redis import _deserialize_value
+        from yamlgraph.storage.serializers import deserialize_value
 
         data = {"__type__": "datetime", "value": "2026-01-21T12:30:45"}
-        result = _deserialize_value(data)
+        result = deserialize_value(data)
         assert result == datetime(2026, 1, 21, 12, 30, 45)
 
     def test_deserialize_bytes(self):
         """Should deserialize bytes from base64."""
-        from yamlgraph.storage.simple_redis import _deserialize_value
+        from yamlgraph.storage.serializers import deserialize_value
 
         encoded = base64.b64encode(b"hello world").decode()
         data = {"__type__": "bytes", "value": encoded}
-        result = _deserialize_value(data)
+        result = deserialize_value(data)
         assert result == b"hello world"
 
     def test_deserialize_regular_dict_unchanged(self):
         """Should return regular dicts unchanged."""
-        from yamlgraph.storage.simple_redis import _deserialize_value
+        from yamlgraph.storage.serializers import deserialize_value
 
         data = {"name": "test", "value": 123}
-        result = _deserialize_value(data)
+        result = deserialize_value(data)
         assert result == {"name": "test", "value": 123}
 
 
 class TestDeepDeserialize:
-    """Test _deep_deserialize function."""
+    """Test deep_deserialize function."""
 
-    def test_deep_deserialize_nested_uuid(self):
+    def testdeep_deserialize_nested_uuid(self):
         """Should deserialize nested UUIDs."""
-        from yamlgraph.storage.simple_redis import _deep_deserialize
+        from yamlgraph.storage.serializers import deep_deserialize
 
         data = {
             "checkpoint": {
@@ -327,31 +327,31 @@ class TestDeepDeserialize:
                 "name": "test",
             }
         }
-        result = _deep_deserialize(data)
+        result = deep_deserialize(data)
         assert result["checkpoint"]["id"] == UUID(
             "12345678-1234-5678-1234-567812345678"
         )
         assert result["checkpoint"]["name"] == "test"
 
-    def test_deep_deserialize_list_with_uuids(self):
+    def testdeep_deserialize_list_with_uuids(self):
         """Should deserialize UUIDs in lists."""
-        from yamlgraph.storage.simple_redis import _deep_deserialize
+        from yamlgraph.storage.serializers import deep_deserialize
 
         data = [
             {"__type__": "uuid", "value": "12345678-1234-5678-1234-567812345678"},
             {"__type__": "datetime", "value": "2026-01-21T12:00:00"},
         ]
-        result = _deep_deserialize(data)
+        result = deep_deserialize(data)
         assert result[0] == UUID("12345678-1234-5678-1234-567812345678")
         assert result[1] == datetime(2026, 1, 21, 12, 0, 0)
 
-    def test_deep_deserialize_primitive(self):
+    def testdeep_deserialize_primitive(self):
         """Should return primitives unchanged."""
-        from yamlgraph.storage.simple_redis import _deep_deserialize
+        from yamlgraph.storage.serializers import deep_deserialize
 
-        assert _deep_deserialize("hello") == "hello"
-        assert _deep_deserialize(123) == 123
-        assert _deep_deserialize(None) is None
+        assert deep_deserialize("hello") == "hello"
+        assert deep_deserialize(123) == 123
+        assert deep_deserialize(None) is None
 
 
 class TestSyncMethods:
@@ -535,17 +535,17 @@ class TestChainMapSerialization:
     @pytest.mark.asyncio
     async def test_chainmap_serialization(self):
         """Should serialize and deserialize ChainMap correctly."""
-        from yamlgraph.storage.simple_redis import (
-            _deserialize_value,
-            _serialize_value,
+        from yamlgraph.storage.serializers import (
+            deserialize_value,
+            serialize_value,
         )
 
         chainmap = ChainMap({"a": 1}, {"b": 2})
-        serialized = _serialize_value(chainmap)
+        serialized = serialize_value(chainmap)
 
         assert serialized == {"__type__": "chainmap", "value": {"a": 1, "b": 2}}
 
-        deserialized = _deserialize_value(serialized)
+        deserialized = deserialize_value(serialized)
         assert isinstance(deserialized, ChainMap)
         assert dict(deserialized) == {"a": 1, "b": 2}
 
@@ -591,24 +591,24 @@ class TestFunctionSerialization:
 
     def test_function_serialization_returns_marker(self):
         """Should serialize functions as null marker."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         def my_func():
             pass
 
-        serialized = _serialize_value(my_func)
+        serialized = serialize_value(my_func)
         assert serialized == {"__type__": "function", "value": None}
 
     def test_lambda_serialization(self):
         """Should serialize lambdas as null marker."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
-        serialized = _serialize_value(lambda x: x)
+        serialized = serialize_value(lambda x: x)
         assert serialized == {"__type__": "function", "value": None}
 
     def test_class_not_treated_as_function(self):
         """Classes should not be treated as functions."""
-        from yamlgraph.storage.simple_redis import _serialize_value
+        from yamlgraph.storage.serializers import serialize_value
 
         class MyClass:
             pass
@@ -617,7 +617,7 @@ class TestFunctionSerialization:
         import pytest
 
         with pytest.raises(TypeError):
-            _serialize_value(MyClass)
+            serialize_value(MyClass)
 
 
 class TestTupleKeySerialization:
@@ -625,31 +625,31 @@ class TestTupleKeySerialization:
 
     def test_tuple_key_serialization(self):
         """Should serialize tuple keys to strings."""
-        from yamlgraph.storage.simple_redis import _deserialize_key, _serialize_key
+        from yamlgraph.storage.serializers import deserialize_key, serialize_key
 
         key = ("node_name", "task_id_123")
-        serialized = _serialize_key(key)
+        serialized = serialize_key(key)
 
         assert isinstance(serialized, str)
         assert serialized.startswith("__tuple__:")
 
-        deserialized = _deserialize_key(serialized)
+        deserialized = deserialize_key(serialized)
         assert deserialized == key
 
     def test_string_key_passthrough(self):
         """String keys should pass through unchanged."""
-        from yamlgraph.storage.simple_redis import _deserialize_key, _serialize_key
+        from yamlgraph.storage.serializers import deserialize_key, serialize_key
 
         key = "normal_key"
-        serialized = _serialize_key(key)
+        serialized = serialize_key(key)
         assert serialized == key
 
-        deserialized = _deserialize_key(key)
+        deserialized = deserialize_key(key)
         assert deserialized == key
 
-    def test_stringify_keys_recursive(self):
+    def teststringify_keys_recursive(self):
         """Should recursively convert tuple keys in nested dicts."""
-        from yamlgraph.storage.simple_redis import _stringify_keys, _unstringify_keys
+        from yamlgraph.storage.serializers import stringify_keys, unstringify_keys
 
         data = {
             "channel_versions": {
@@ -659,7 +659,7 @@ class TestTupleKeySerialization:
             "nested": {"list": [{("key1", "key2"): "value"}]},
         }
 
-        stringified = _stringify_keys(data)
+        stringified = stringify_keys(data)
 
         # Check structure is preserved but keys are strings
         assert isinstance(stringified, dict)
@@ -669,7 +669,7 @@ class TestTupleKeySerialization:
             assert k.startswith("__tuple__:")
 
         # Round-trip should restore original
-        restored = _unstringify_keys(stringified)
+        restored = unstringify_keys(stringified)
         assert restored == data
 
     def test_tuple_key_in_checkpoint(self):
@@ -677,9 +677,9 @@ class TestTupleKeySerialization:
         import orjson
 
         from yamlgraph.storage.simple_redis import (
-            _serialize_value,
-            _stringify_keys,
-            _unstringify_keys,
+            serialize_value,
+            stringify_keys,
+            unstringify_keys,
         )
 
         # Simulate LangGraph checkpoint structure
@@ -701,10 +701,10 @@ class TestTupleKeySerialization:
         stored = {"checkpoint": checkpoint}
 
         # Stringify, serialize, deserialize, unstringify
-        stringified = _stringify_keys(stored)
-        data = orjson.dumps(stringified, default=_serialize_value)
+        stringified = stringify_keys(stored)
+        data = orjson.dumps(stringified, default=serialize_value)
         loaded = orjson.loads(data)
-        restored = _unstringify_keys(loaded)
+        restored = unstringify_keys(loaded)
 
         assert restored == stored
         assert ("__start__", "task1") in restored["checkpoint"]["channel_versions"]

@@ -6,7 +6,6 @@ printing execution trees, and logging run information.
 
 import logging
 import os
-from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -148,6 +147,8 @@ def print_run_tree(run_id: str | None = None, verbose: bool = False) -> None:
         run_id: Specific run ID (uses latest if not provided)
         verbose: Include timing and status details
     """
+    from yamlgraph.utils.langsmith_trace import print_run_node
+
     client = get_client()
     if not client:
         logger.warning("LangSmith client not available")
@@ -162,87 +163,9 @@ def print_run_tree(run_id: str | None = None, verbose: bool = False) -> None:
 
     try:
         run = client.read_run(run_id)
-        _print_run_node(run, client, verbose=verbose, indent=0)
+        print_run_node(run, client, verbose=verbose, indent=0)
     except Exception as e:
         logger.warning("Error reading run: %s", e)
-
-
-def _print_run_node(
-    run,
-    client,
-    verbose: bool = False,
-    indent: int = 0,
-    is_last: bool = True,
-    prefix: str = "",
-):
-    """Recursively print a run node and its children in tree format.
-
-    Args:
-        run: The LangSmith run object
-        client: LangSmith client
-        verbose: Include timing details
-        indent: Current indentation level
-        is_last: Whether this is the last sibling
-        prefix: Prefix string for tree drawing
-    """
-    # Status emoji
-    if run.status == "success":
-        status = "✅"
-    elif run.status == "error":
-        status = "❌"
-    else:
-        status = "⏳"
-
-    # Timing
-    timing = ""
-    if run.end_time and run.start_time:
-        duration = (run.end_time - run.start_time).total_seconds()
-        timing = f" ({duration:.1f}s)"
-
-    # Tree connectors
-    if indent == 0:
-        connector = "📊 "
-        new_prefix = ""
-    else:
-        connector = "└─ " if is_last else "├─ "
-        new_prefix = prefix + ("   " if is_last else "│  ")
-
-    # Clean up run name for display
-    display_name = run.name
-    if display_name.startswith("Chat"):
-        display_name = f"🤖 {display_name}"
-    elif "generate" in display_name.lower():
-        display_name = f"📝 {display_name}"
-    elif "analyze" in display_name.lower():
-        display_name = f"🔍 {display_name}"
-    elif "summarize" in display_name.lower():
-        display_name = f"📊 {display_name}"
-
-    logger.info("%s%s%s%s %s", prefix, connector, display_name, timing, status)
-
-    # Get child runs
-    try:
-        children = list(
-            client.list_runs(
-                parent_run_id=run.id,
-                limit=50,
-            )
-        )
-        # Sort by start time to show in execution order
-        children.sort(key=lambda r: r.start_time or datetime.min)
-
-        for i, child in enumerate(children):
-            child_is_last = i == len(children) - 1
-            _print_run_node(
-                child,
-                client,
-                verbose=verbose,
-                indent=indent + 1,
-                is_last=child_is_last,
-                prefix=new_prefix,
-            )
-    except Exception as e:
-        logger.debug("Could not fetch child runs for %s: %s", run.id, e)
 
 
 def get_run_url(run_id: str | None = None) -> str | None:

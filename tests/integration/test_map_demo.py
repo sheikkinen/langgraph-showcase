@@ -20,7 +20,7 @@ class TestMapDemoGraph:
         config = load_graph_config("graphs/map-demo.yaml")
 
         # Mock compile_map_node to avoid needing prompt execution
-        with patch("yamlgraph.graph_loader.compile_map_node") as mock_compile_map:
+        with patch("yamlgraph.node_compiler.compile_map_node") as mock_compile_map:
             mock_map_edge_fn = MagicMock()
             mock_compile_map.return_value = (mock_map_edge_fn, "_map_expand_sub")
 

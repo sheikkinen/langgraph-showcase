@@ -17,12 +17,8 @@ Limitations:
 
 from __future__ import annotations
 
-import base64
-from collections import ChainMap
 from collections.abc import Iterator
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
 import orjson
 from langgraph.checkpoint.base import (
@@ -32,93 +28,17 @@ from langgraph.checkpoint.base import (
     CheckpointTuple,
 )
 
+from yamlgraph.storage.serializers import (
+    deep_deserialize,
+    serialize_value,
+    stringify_keys,
+    unstringify_keys,
+)
+
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from langchain_core.runnables import RunnableConfig
-
-
-def _serialize_key(key: Any) -> str:
-    """Serialize a dict key to a JSON-safe string.
-
-    Handles tuple keys from LangGraph's channel_versions and versions_seen.
-    """
-    if isinstance(key, str):
-        return key
-    if isinstance(key, tuple):
-        # Mark as tuple for deserialization
-        return f"__tuple__:{orjson.dumps(key).decode()}"
-    # Fallback: convert to string
-    return str(key)
-
-
-def _deserialize_key(key: str) -> Any:
-    """Deserialize a stringified key back to its original type."""
-    if key.startswith("__tuple__:"):
-        json_part = key[len("__tuple__:") :]
-        return tuple(orjson.loads(json_part))
-    return key
-
-
-def _stringify_keys(obj: Any) -> Any:
-    """Recursively convert non-string dict keys to JSON-safe strings."""
-    if isinstance(obj, dict):
-        return {_serialize_key(k): _stringify_keys(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_stringify_keys(item) for item in obj]
-    return obj
-
-
-def _unstringify_keys(obj: Any) -> Any:
-    """Recursively convert stringified keys back to original types."""
-    if isinstance(obj, dict):
-        return {_deserialize_key(k): _unstringify_keys(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_unstringify_keys(item) for item in obj]
-    return obj
-
-
-def _serialize_value(obj: Any) -> Any:
-    """Serialize non-JSON types for orjson."""
-    if isinstance(obj, UUID):
-        return {"__type__": "uuid", "value": str(obj)}
-    if isinstance(obj, datetime):
-        return {"__type__": "datetime", "value": obj.isoformat()}
-    if isinstance(obj, bytes):
-        return {"__type__": "bytes", "value": base64.b64encode(obj).decode()}
-    if isinstance(obj, ChainMap):
-        return {"__type__": "chainmap", "value": dict(obj)}
-    # Skip functions/callables - LangGraph internals may include these
-    if callable(obj) and not isinstance(obj, type):
-        return {"__type__": "function", "value": None}
-    raise TypeError(f"Cannot serialize {type(obj)}")
-
-
-def _deserialize_value(obj: dict) -> Any:
-    """Deserialize custom types from JSON."""
-    if isinstance(obj, dict) and "__type__" in obj:
-        type_name = obj["__type__"]
-        value = obj["value"]
-        if type_name == "uuid":
-            return UUID(value)
-        if type_name == "datetime":
-            return datetime.fromisoformat(value)
-        if type_name == "bytes":
-            return base64.b64decode(value)
-        if type_name == "chainmap":
-            return ChainMap(value)
-    return obj
-
-
-def _deep_deserialize(obj: Any) -> Any:
-    """Recursively deserialize custom types."""
-    if isinstance(obj, dict):
-        if "__type__" in obj:
-            return _deserialize_value(obj)
-        return {k: _deep_deserialize(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_deep_deserialize(item) for item in obj]
-    return obj
 
 
 class SimpleRedisCheckpointer(BaseCheckpointSaver):
@@ -191,8 +111,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
             return None
 
         stored = orjson.loads(data)
-        stored = _unstringify_keys(stored)
-        stored = _deep_deserialize(stored)
+        stored = unstringify_keys(stored)
+        stored = deep_deserialize(stored)
 
         return CheckpointTuple(
             config=config,
@@ -222,8 +142,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         }
 
         # Convert tuple keys to strings for orjson compatibility
-        stored = _stringify_keys(stored)
-        data = orjson.dumps(stored, default=_serialize_value)
+        stored = stringify_keys(stored)
+        data = orjson.dumps(stored, default=serialize_value)
 
         if self.ttl:
             await client.setex(key, self.ttl, data)
@@ -259,8 +179,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
             data = await client.get(key)
             if data:
                 stored = orjson.loads(data)
-                stored = _unstringify_keys(stored)
-                stored = _deep_deserialize(stored)
+                stored = unstringify_keys(stored)
+                stored = deep_deserialize(stored)
                 yield CheckpointTuple(
                     config=stored.get("parent_config", {}),
                     checkpoint=stored["checkpoint"],
@@ -319,8 +239,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
             return None
 
         stored = orjson.loads(data)
-        stored = _unstringify_keys(stored)
-        stored = _deep_deserialize(stored)
+        stored = unstringify_keys(stored)
+        stored = deep_deserialize(stored)
 
         return CheckpointTuple(
             config=config,
@@ -350,8 +270,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
         }
 
         # Convert tuple keys to strings for orjson compatibility
-        stored = _stringify_keys(stored)
-        data = orjson.dumps(stored, default=_serialize_value)
+        stored = stringify_keys(stored)
+        data = orjson.dumps(stored, default=serialize_value)
 
         if self.ttl:
             client.setex(key, self.ttl, data)
@@ -384,8 +304,8 @@ class SimpleRedisCheckpointer(BaseCheckpointSaver):
             data = client.get(key)
             if data:
                 stored = orjson.loads(data)
-                stored = _unstringify_keys(stored)
-                stored = _deep_deserialize(stored)
+                stored = unstringify_keys(stored)
+                stored = deep_deserialize(stored)
                 yield CheckpointTuple(
                     config=stored.get("parent_config", {}),
                     checkpoint=stored["checkpoint"],

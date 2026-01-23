@@ -6,8 +6,9 @@ TDD Phase 3b: Wire tool_call node into graph compilation.
 import pytest
 from langgraph.graph import StateGraph
 
-from yamlgraph.graph_loader import GraphConfig, _compile_node
+from yamlgraph.graph_loader import GraphConfig
 from yamlgraph.map_compiler import compile_map_node
+from yamlgraph.node_compiler import compile_node
 
 
 # Sample tools for testing
@@ -63,7 +64,7 @@ def minimal_config() -> GraphConfig:
 
 
 class TestCompileToolCallNode:
-    """Test _compile_node with type: tool_call."""
+    """Test compile_node with type: tool_call."""
 
     def test_compiles_tool_call_node(self, minimal_config, tools_registry):
         """Should compile tool_call node and add to graph."""
@@ -83,7 +84,7 @@ class TestCompileToolCallNode:
             "state_key": "result",
         }
 
-        result = _compile_node(
+        result = compile_node(
             "test_tool_call",
             node_config,
             graph,
