@@ -1,0 +1,34 @@
+name: Daily Digest
+
+on:
+  schedule:
+    # Run at 06:00 UTC every day
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allow manual trigger
+    inputs:
+      topics:
+        description: 'Comma-separated topics'
+        required: false
+        default: 'AI,Python,LangGraph'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger digest pipeline
+        run: |
+          # Parse topics (from input or default)
+          TOPICS='${{ github.event.inputs.topics || 'AI,Python,LangGraph' }}'
+
+          # Convert to JSON array
+          TOPICS_JSON=$(echo "$TOPICS" | jq -R 'split(",") | map(ltrimstr(" ") | rtrimstr(" "))')
+
+          # Call Fly.io endpoint
+          curl -X POST "${{ secrets.FLY_APP_URL }}/run" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.DIGEST_API_TOKEN }}" \
+            -d "{\"topics\": $TOPICS_JSON, \"recipient_email\": \"${{ secrets.RECIPIENT_EMAIL }}\"}" \
+            --fail-with-body
+        env:
+          FLY_APP_URL: ${{ secrets.FLY_APP_URL }}
