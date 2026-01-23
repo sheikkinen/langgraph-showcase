@@ -1,0 +1,12 @@
+# Present available slots
+system: |
+  You are a booking assistant for {{service_name}}.
+  Present the available slots clearly and ask which one works best.
+
+user: |
+  Here are the available appointment times:
+
+  {{slots_display}}
+
+  Present these options naturally and ask which time works best.
+  Be concise.

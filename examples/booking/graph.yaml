@@ -1,0 +1,106 @@
+# Booking Assistant Graph
+# Test: yamlgraph graph run examples/booking/graph.yaml --interactive
+#
+# Demonstrates: interrupt nodes, tool nodes, multi-turn conversation
+
+version: "1.0"
+name: booking-assistant
+description: Appointment booking with tool integration
+
+# Checkpointer required for interrupt nodes
+checkpointer:
+  type: sqlite
+  path: ":memory:"
+
+defaults:
+  prompts_relative: true
+  prompts_dir: prompts
+  provider: mistral
+
+# State fields
+state:
+  service_name: str
+  available_slots: list
+  slots_display: str
+  selected_slot: str
+  patient_name: str
+  patient_phone: str
+  booking: dict
+  booking_display: str
+  booking_id: str
+  greeting: str
+  slots_response: str
+  confirmation: str
+
+# Python tools for booking operations
+tools:
+  check_availability:
+    type: python
+    module: examples.booking.nodes.slots_handler
+    function: check_availability
+    description: "Check available appointment slots"
+
+  book_slot:
+    type: python
+    module: examples.booking.nodes.slots_handler
+    function: book_slot
+    description: "Book the selected slot"
+
+nodes:
+  # Step 1: Greet and ask what they need
+  greet:
+    type: llm
+    prompt: greeting
+    state_key: greeting
+
+  # Step 2: Wait for user request
+  await_request:
+    type: interrupt
+    message: "{{greeting}}"
+    resume_key: patient_name
+
+  # Step 3: Check available slots
+  check_slots:
+    type: python
+    tool: check_availability
+
+  # Step 4: Present available slots
+  present_slots:
+    type: llm
+    prompt: present_slots
+    state_key: slots_response
+
+  # Step 5: Wait for slot selection
+  await_selection:
+    type: interrupt
+    message: "{{slots_response}}"
+    resume_key: selected_slot
+
+  # Step 6: Book the selected slot
+  confirm_booking:
+    type: python
+    tool: book_slot
+
+  # Step 7: Confirm and farewell
+  farewell:
+    type: llm
+    prompt: confirmation
+    state_key: confirmation
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: await_request
+  - from: await_request
+    to: check_slots
+  - from: check_slots
+    to: present_slots
+  - from: present_slots
+    to: await_selection
+  - from: await_selection
+    to: confirm_booking
+  - from: confirm_booking
+    to: farewell
+  - from: farewell
+    to: END

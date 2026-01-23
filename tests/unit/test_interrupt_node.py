@@ -180,3 +180,50 @@ class TestInterruptNodeEdgeCases:
 
         # Should use {"node": "approval_gate"} as fallback
         mock_interrupt.assert_called_once_with({"node": "approval_gate"})
+
+    @patch("langgraph.types.interrupt")
+    def test_interrupt_node_message_with_jinja2_template(self, mock_interrupt):
+        """Message with Jinja2 {{var}} should interpolate from state."""
+        mock_interrupt.return_value = "user response"
+
+        config = {
+            "message": "{{greeting}}",
+            "resume_key": "user_input",
+        }
+        node_fn = create_interrupt_node("show_greeting", config)
+
+        state = {"greeting": "Hello! How can I help you today?"}
+        _result = node_fn(state)
+
+        mock_interrupt.assert_called_once_with("Hello! How can I help you today?")
+
+    @patch("langgraph.types.interrupt")
+    def test_interrupt_node_message_with_simple_template(self, mock_interrupt):
+        """Message with simple {var} should interpolate from state."""
+        mock_interrupt.return_value = "user response"
+
+        config = {
+            "message": "Welcome to {service_name}!",
+            "resume_key": "user_input",
+        }
+        node_fn = create_interrupt_node("welcome", config)
+
+        state = {"service_name": "Health Clinic"}
+        _result = node_fn(state)
+
+        mock_interrupt.assert_called_once_with("Welcome to Health Clinic!")
+
+    @patch("langgraph.types.interrupt")
+    def test_interrupt_node_message_without_template(self, mock_interrupt):
+        """Message without template syntax should pass through unchanged."""
+        mock_interrupt.return_value = "response"
+
+        config = {
+            "message": "Enter your name:",
+            "resume_key": "name",
+        }
+        node_fn = create_interrupt_node("ask_name", config)
+
+        _result = node_fn({})
+
+        mock_interrupt.assert_called_once_with("Enter your name:")

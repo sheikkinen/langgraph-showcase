@@ -7,6 +7,7 @@ Example applications demonstrating YAMLGraph capabilities.
 | Example | Description | Key Features |
 |---------|-------------|--------------|
 | [book_translator/](book_translator/) | Translate books & documents | Map nodes, parallel translation, glossary, checkpointing |
+| [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
 | [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
 | [daily_digest/](daily_digest/) | Scheduled news digest | Fly.io deployment, background tasks, email |

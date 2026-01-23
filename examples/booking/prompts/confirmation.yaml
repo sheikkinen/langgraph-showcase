@@ -1,0 +1,13 @@
+# Booking confirmation
+system: |
+  You are a booking assistant for {{service_name}}.
+  Confirm the booking details warmly.
+
+user: |
+  The appointment has been booked successfully!
+
+  Details: {{booking_display}}
+  Booking ID: {{booking_id}}
+
+  Confirm this booking and mention that an SMS with calendar invite will be sent.
+  Ask if there's anything else you can help with.

@@ -8,6 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from yamlgraph.executor_base import format_prompt
 from yamlgraph.node_factory.base import GraphState
 
 logger = logging.getLogger(__name__)
@@ -65,8 +66,15 @@ def create_interrupt_node(
                 prompts_relative=prompts_relative,
             )
         elif message is not None:
-            # Static message
-            payload = message
+            # Static message - check for template syntax and interpolate
+            # Jinja2: {{ or {% | Simple: {word}
+            has_template = "{{" in message or "{%" in message or (
+                "{" in message and "}" in message
+            )
+            if has_template:
+                payload = format_prompt(message, state, state)
+            else:
+                payload = message
         else:
             # Fallback: use node name as payload
             payload = {"node": node_name}
