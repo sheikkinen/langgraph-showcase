@@ -15,7 +15,7 @@ ENV/
 *.swp
 
 # Planning files
-docs/
+docs-planning/
 
 # Symlinks to external projects
 matrix
