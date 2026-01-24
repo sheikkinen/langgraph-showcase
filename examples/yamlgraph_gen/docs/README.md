@@ -75,7 +75,16 @@ python examples/yamlgraph_gen/run_generator.py --lint-only -o ./my-graph
 ## Open Items
 
 - [ ] How to handle graphs that need external APIs (e.g., websearch)? → Implement python tool stubs
-- [ ] Generate README.md for output? → Phase 4
-- [ ] Include example test inputs in generated output? → Phase 4
+- [x] Generate README.md for output? → Done (Phase 4)
+- [x] Include example test inputs in generated output? → Done (in README.md)
 - [x] Fix prompt path resolution (prompts_relative: true)
 - [x] Fix linter path doubling issue
+
+## Existing Examples
+
+For working pattern examples, see:
+- `graphs/router-demo.yaml` - Router pattern
+- `graphs/map-demo.yaml` - Map pattern
+- `graphs/interrupt-parent.yaml` - Interrupt pattern
+- `examples/cost-router/` - Cost-based routing
+- `examples/book_translator/` - Linear pipeline

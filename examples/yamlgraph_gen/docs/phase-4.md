@@ -20,7 +20,7 @@ Final polish to make generated graphs production-ready.
 | README.md generation | For generated output |
 | Example test inputs | Sample data for testing |
 | Usage documentation | How to use the generator |
-| Example gallery | Showcase of generated graphs |
+| ~~Example gallery~~ | Redundant - see `graphs/` and `examples/` |
 
 ## README.md Template
 
@@ -76,7 +76,7 @@ For each pattern type, generate appropriate test inputs:
 - [x] Documentation explains each file
 - [x] Helper script created (`run_generator.py`)
 - [x] Planning documentation updated
-- [x] Gallery has 5+ example outputs
+- [N/A] ~~Gallery~~ - Redundant with existing `graphs/` and `examples/`
 
 ## Completed Items
 
