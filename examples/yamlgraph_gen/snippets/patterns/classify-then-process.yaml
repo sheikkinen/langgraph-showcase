@@ -1,0 +1,39 @@
+# Classify Then Process Pattern
+# Router → handlers (complete mini-graph)
+
+description: Classification followed by category-specific processing
+
+nodes:
+  classify:
+    type: router
+    prompt: prompts/classify.yaml
+    state_key: classification
+    routes:
+      - name: category_a
+        condition: "category == 'a'"
+      - name: category_b
+        condition: "category == 'b'"
+
+  handle_a:
+    type: llm
+    prompt: prompts/handle_a.yaml
+    state_key: result
+
+  handle_b:
+    type: llm
+    prompt: prompts/handle_b.yaml
+    state_key: result
+
+edges:
+  - from: START
+    to: classify
+  - from: classify
+    conditions:
+      - if: "classification.category == 'a'"
+        to: handle_a
+      - if: "classification.category == 'b'"
+        to: handle_b
+  - from: handle_a
+    to: END
+  - from: handle_b
+    to: END

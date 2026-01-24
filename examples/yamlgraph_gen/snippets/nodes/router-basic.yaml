@@ -1,0 +1,14 @@
+# Router Basic Node Snippet
+# Classification/dispatch node
+
+description: Router node for classification and dispatch
+
+node:
+  type: router
+  prompt: prompts/__NODE_NAME__
+  state_key: "{classification_key}"
+  routes:
+    - name: category_a
+      condition: "category == 'a'"
+    - name: category_b
+      condition: "category == 'b'"

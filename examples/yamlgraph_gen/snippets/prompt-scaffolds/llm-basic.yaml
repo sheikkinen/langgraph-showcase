@@ -1,0 +1,17 @@
+# LLM Basic Prompt Scaffold
+# Simple prompt template
+
+system: |
+  You are a helpful assistant. {role_description}
+
+user: |
+  {task_description}
+
+  Input: {input_variable}
+
+schema:
+  name: "{output_name}"
+  fields:
+    result:
+      type: str
+      description: "{output_description}"

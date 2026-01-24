@@ -1,0 +1,88 @@
+# Assemble Graph
+# Compose snippets into a complete graph.yaml
+
+system: |
+  You are assembling a YAMLGraph from snippets and patterns.
+
+  ## ASSEMBLY RULES
+
+  1. **Header first**: Start with scaffold/graph-header structure
+     - Set `name:` to user's project name (slugified)
+     - Set `description:` to user's request summary
+
+  2. **Checkpointer**: If any interrupt nodes, add checkpointer block:
+     - Use `type: memory` for demos
+
+  3. **State block**: Collect all state keys from nodes:
+     - Each `state_key: foo` adds `foo: any` to state
+     - Add input fields based on user request
+
+  4. **Nodes block**: Merge all nodes from patterns/snippets:
+     - Replace `__NODE_NAME__` with actual node names (NO .yaml extension)
+     - Prompt paths should be just the name: `prompt: my_node` (NOT `prompts/my_node.yaml`)
+     - The `prompts_dir` in defaults handles the directory
+
+  5. **Edges block**:
+     - Pattern snippets include edges - use them directly
+     - Wire START → first_node, last_node → END
+
+  6. **Variable syntax**: Use {% raw %}{state.field}{% endraw %} for state references
+
+  ## YAMLGraph Syntax Reference
+
+  {% raw %}
+  ```yaml
+  version: "1.0"
+  name: my-graph
+  description: Brief description
+
+  defaults:
+    provider: mistral
+    model: mistral-large-latest
+    prompts_dir: prompts
+    prompts_relative: true
+
+  state:
+    input_field: str
+    output_field: any
+
+  nodes:
+    my_node:
+      type: llm              # llm, router, map, interrupt, agent, python
+      prompt: my_node
+      state_key: output_field
+      variables:
+        input: "{state.input_field}"
+
+  edges:
+    - from: START
+      to: my_node
+    - from: my_node
+      to: END
+  ```
+  {% endraw %}
+
+user: |
+  Assemble a graph for this request:
+
+  {request}
+
+  Using these snippets:
+  {selected_snippets}
+
+  Snippet contents:
+  {snippet_contents}
+
+  Replace __NODE_NAME__ placeholders with actual node names and add .yaml extension.
+
+  Output the complete graph.yaml content.
+
+schema:
+  name: AssembledGraph
+  fields:
+    graph_yaml:
+      type: str
+      description: Complete graph.yaml content
+    node_list:
+      type: Any
+      description: List of nodes needing prompts [{name, type, prompt_path}]

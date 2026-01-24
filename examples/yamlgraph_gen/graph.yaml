@@ -1,0 +1,167 @@
+# YAMLGraph Generator - Phase 1
+# Generate YAMLGraph pipelines from natural language
+
+version: "1.0"
+name: yamlgraph-generator
+description: Generate YAMLGraph pipelines from natural language descriptions
+
+defaults:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+  prompts_dir: prompts
+  prompts_relative: true
+
+state:
+  request: str
+  output_dir: str
+  patterns: list
+  confidence: float
+  clarification: str
+  selected_snippets: dict
+  snippet_contents: dict
+  assembled_graph: str
+  node_list: list
+  generated_graph: str
+  generated_prompts: list
+  structure_valid: bool
+  structure_errors: list
+  lint_result: dict
+  files_written: list
+  status: str
+  report: str
+
+# Python tools
+tools:
+  load_snippets_for_patterns:
+    type: python
+    module: examples.yamlgraph_gen.tools.snippet_loader
+    function: load_snippets_for_patterns_node
+    description: "Load snippet contents for detected patterns"
+
+  write_generated_files:
+    type: python
+    module: examples.yamlgraph_gen.tools.file_ops
+    function: write_generated_files_node
+    description: "Write generated graph and prompt files to disk"
+
+  validate_prompt_directory:
+    type: python
+    module: examples.yamlgraph_gen.tools.prompt_validator
+    function: validate_prompt_directory_node
+    description: "Validate prompt files in a directory"
+
+  lint_generated_graph:
+    type: python
+    module: examples.yamlgraph_gen.tools.linter
+    function: lint_graph_node
+    description: "Lint the generated graph YAML"
+
+nodes:
+  classify_patterns:
+    type: router
+    prompt: classify_patterns
+    state_key: classification
+    routes:
+      clear: load_snippets
+      unclear: clarify_request
+    default_route: clarify_request
+
+  clarify_request:
+    type: interrupt
+    prompt: clarify_request
+    resume_key: clarification
+
+  load_snippets:
+    type: python
+    tool: load_snippets_for_patterns
+    variables:
+      patterns: "{state.patterns}"
+
+  select_snippets:
+    type: llm
+    prompt: select_snippets
+    state_key: selected_snippets
+    variables:
+      patterns: "{state.patterns}"
+      snippet_contents: "{state.snippet_contents}"
+
+  assemble_graph:
+    type: llm
+    prompt: assemble_graph
+    state_key: assembled_graph
+    variables:
+      request: "{state.request}"
+      selected_snippets: "{state.selected_snippets}"
+      snippet_contents: "{state.snippet_contents}"
+
+  generate_prompts:
+    type: llm
+    prompt: generate_prompts
+    state_key: generated_prompts
+    variables:
+      assembled_graph: "{state.assembled_graph}"
+      node_list: "{state.node_list}"
+
+  write_files:
+    type: python
+    tool: write_generated_files
+    variables:
+      output_dir: "{state.output_dir}"
+      graph_content: "{state.assembled_graph}"
+      prompts: "{state.generated_prompts}"
+
+  validate_structure:
+    type: python
+    tool: validate_prompt_directory
+    variables:
+      directory: "{state.output_dir}/prompts"
+
+  lint_graph:
+    type: python
+    tool: lint_generated_graph
+    variables:
+      graph_path: "{state.output_dir}/graph.yaml"
+
+  report_result:
+    type: llm
+    prompt: report_result
+    state_key: report
+    variables:
+      files_written: "{state.files_written}"
+      lint_result: "{state.lint_result}"
+      status: "{state.status}"
+
+edges:
+  - from: START
+    to: classify_patterns
+
+  - from: classify_patterns
+    to: [load_snippets, clarify_request]
+    type: conditional
+
+  - from: clarify_request
+    to: classify_patterns
+
+  - from: load_snippets
+    to: select_snippets
+
+  - from: select_snippets
+    to: assemble_graph
+
+  - from: assemble_graph
+    to: generate_prompts
+
+  - from: generate_prompts
+    to: write_files
+
+  - from: write_files
+    to: validate_structure
+
+  - from: validate_structure
+    to: lint_graph
+
+  - from: lint_graph
+    to: report_result
+
+  - from: report_result
+    to: END

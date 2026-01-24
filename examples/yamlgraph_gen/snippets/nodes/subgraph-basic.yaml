@@ -1,0 +1,12 @@
+# Subgraph Basic Node Snippet
+# Nested graph execution
+
+description: Subgraph node for reusable pipelines
+
+node:
+  type: subgraph
+  graph: "{subgraph_path}"
+  input_mapping:
+    subgraph_input: "{state.input_field}"
+  output_mapping:
+    "{output_key}": subgraph_output

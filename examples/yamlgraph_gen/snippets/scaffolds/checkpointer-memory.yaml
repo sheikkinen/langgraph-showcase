@@ -1,0 +1,5 @@
+# Memory Checkpointer Scaffold
+# In-memory checkpointer for demos
+
+checkpointer:
+  type: memory

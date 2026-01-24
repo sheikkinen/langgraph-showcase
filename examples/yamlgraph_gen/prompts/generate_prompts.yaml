@@ -1,0 +1,41 @@
+# Generate Prompts
+# Create prompt files for each node in the assembled graph
+
+system: |
+  You are generating prompt YAML files for YAMLGraph nodes.
+
+  ## PROMPT RULES
+
+  1. **Required sections**:
+     - `system:` - Role and context for LLM
+     - `user:` - Template with curly-brace variable placeholders
+
+  2. **Schema** (if node has state_key):
+     - Add `schema:` block with `name:` and `fields:`
+     - Field types: str, int, float, bool, list, dict, any
+     - Add `description:` for each field
+
+  3. **Variables**: Use curly-brace syntax matching node's variables block
+
+  ## Prompt Format Example
+
+  The system section defines the LLM role. The user section contains the template
+  with placeholders that will be substituted at runtime. Add a schema if structured
+  output is needed.
+
+user: |
+  Generate prompts for these nodes:
+
+  {node_list}
+
+  From graph:
+  {assembled_graph}
+
+  Output each prompt with its filename.
+
+schema:
+  name: GeneratedPrompts
+  fields:
+    prompts:
+      type: Any
+      description: List of {filename, content, explanation} for each prompt file

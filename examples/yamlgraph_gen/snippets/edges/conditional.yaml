@@ -1,0 +1,18 @@
+# Conditional Edge Pattern
+# Router dispatch with conditions
+
+description: Conditional routing based on classification
+
+edges:
+  - from: START
+    to: "{router_node}"
+  - from: "{router_node}"
+    conditions:
+      - if: "{condition_a}"
+        to: "{handler_a}"
+      - if: "{condition_b}"
+        to: "{handler_b}"
+  - from: "{handler_a}"
+    to: END
+  - from: "{handler_b}"
+    to: END

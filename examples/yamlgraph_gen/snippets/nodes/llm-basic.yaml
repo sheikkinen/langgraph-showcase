@@ -1,0 +1,11 @@
+# LLM Basic Node Snippet
+# Simple LLM node for text generation
+
+description: Basic LLM node for text processing
+
+node:
+  type: llm
+  prompt: prompts/__NODE_NAME__
+  state_key: "{output_key}"
+  variables:
+    input: "{state.input_field}"

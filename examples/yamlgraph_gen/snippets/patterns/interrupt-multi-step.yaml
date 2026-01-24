@@ -1,0 +1,45 @@
+# Interrupt Multi-Step Pattern
+# Chained human-in-the-loop steps
+
+description: Multiple interrupt points for wizard-style flow
+
+checkpointer:
+  type: memory
+
+nodes:
+  step_1:
+    type: interrupt
+    prompt: prompts/step_1.yaml
+    resume_key: step_1_input
+
+  process_1:
+    type: llm
+    prompt: prompts/process_1.yaml
+    state_key: step_1_result
+    variables:
+      input: "{state.step_1_input}"
+
+  step_2:
+    type: interrupt
+    prompt: prompts/step_2.yaml
+    resume_key: step_2_input
+
+  process_2:
+    type: llm
+    prompt: prompts/process_2.yaml
+    state_key: final_result
+    variables:
+      input: "{state.step_2_input}"
+      previous: "{state.step_1_result}"
+
+edges:
+  - from: START
+    to: step_1
+  - from: step_1
+    to: process_1
+  - from: process_1
+    to: step_2
+  - from: step_2
+    to: process_2
+  - from: process_2
+    to: END

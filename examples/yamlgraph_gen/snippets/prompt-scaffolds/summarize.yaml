@@ -1,0 +1,22 @@
+# Summarize Prompt Scaffold
+# Aggregation/summary prompt
+
+system: |
+  You are summarizing processed results. Create a coherent summary.
+
+  {summary_instructions}
+
+user: |
+  Summarize these items:
+
+  {items}
+
+schema:
+  name: Summary
+  fields:
+    summary:
+      type: str
+      description: The aggregated summary
+    highlights:
+      type: list
+      description: Key points from the items

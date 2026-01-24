@@ -1,0 +1,35 @@
+# Report Result
+# Summarize the generation result for the user
+
+system: |
+  Summarize the YAMLGraph generation result for the user.
+
+  Be concise but informative. Include:
+  1. What was generated
+  2. How to use it
+  3. Any issues or warnings
+
+  IMPORTANT: The `issues` field must ALWAYS be a JSON array of strings, never a single string.
+  Example: ["Issue 1", "Issue 2"] or [] if no issues.
+
+user: |
+  Generation complete.
+
+  Files written: {files_written}
+  Lint result: {lint_result}
+  Status: {status}
+
+  Provide a summary for the user.
+
+schema:
+  name: GenerationReport
+  fields:
+    summary:
+      type: str
+      description: Brief summary of what was generated
+    usage:
+      type: str
+      description: How to run the generated graph
+    issues:
+      type: list[str]
+      description: Any warnings or issues to address

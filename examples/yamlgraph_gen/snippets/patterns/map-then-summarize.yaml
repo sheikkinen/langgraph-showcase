@@ -1,0 +1,29 @@
+# Map Then Summarize Pattern
+# Parallel processing → aggregation
+
+description: Process items in parallel then aggregate results
+
+nodes:
+  process_items:
+    type: map
+    prompt: prompts/process_item.yaml
+    state_key: processed_items
+    input_key: items
+    sub_node: process_single
+    variables:
+      item: "{item}"
+
+  summarize:
+    type: llm
+    prompt: prompts/summarize.yaml
+    state_key: summary
+    variables:
+      items: "{state.processed_items}"
+
+edges:
+  - from: START
+    to: process_items
+  - from: process_items
+    to: summarize
+  - from: summarize
+    to: END

@@ -1,0 +1,9 @@
+# Interrupt Basic Node Snippet
+# Human-in-the-loop pause point
+
+description: Interrupt node for human input
+
+node:
+  type: interrupt
+  prompt: prompts/__NODE_NAME__
+  resume_key: "{user_input_key}"

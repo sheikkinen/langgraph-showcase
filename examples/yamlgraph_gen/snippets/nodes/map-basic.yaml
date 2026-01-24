@@ -1,0 +1,13 @@
+# Map Basic Node Snippet
+# Parallel processing over a list
+
+description: Map node for parallel processing
+
+node:
+  type: map
+  prompt: prompts/__NODE_NAME__
+  state_key: "{output_key}"
+  input_key: "{items_key}"
+  sub_node: process_item
+  variables:
+    item: "{item}"

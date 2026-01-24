@@ -1,0 +1,26 @@
+# Router Classify Prompt Scaffold
+# Classification prompt with categories
+
+system: |
+  You are a classifier. Analyze the input and determine its category.
+
+  Categories:
+  {category_list}
+
+user: |
+  Classify this input:
+
+  {input_variable}
+
+schema:
+  name: Classification
+  fields:
+    category:
+      type: str
+      description: The identified category
+    confidence:
+      type: float
+      description: Confidence level (0.0-1.0)
+    reasoning:
+      type: str
+      description: Brief explanation

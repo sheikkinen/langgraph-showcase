@@ -1,0 +1,29 @@
+# Generate Then Map Pattern
+# LLM generates list → map processes each
+
+description: Generate a list then process each item
+
+nodes:
+  generate_list:
+    type: llm
+    prompt: prompts/generate_list.yaml
+    state_key: items
+    variables:
+      topic: "{state.topic}"
+
+  process_items:
+    type: map
+    prompt: prompts/process_item.yaml
+    state_key: results
+    input_key: items
+    sub_node: process_single
+    variables:
+      item: "{item}"
+
+edges:
+  - from: START
+    to: generate_list
+  - from: generate_list
+    to: process_items
+  - from: process_items
+    to: END

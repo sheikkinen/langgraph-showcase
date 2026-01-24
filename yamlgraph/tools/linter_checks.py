@@ -71,6 +71,12 @@ def extract_variables(text: str) -> set[str]:
 
 def get_prompt_path(prompt_name: str, prompts_dir: Path) -> Path:
     """Get the full path to a prompt file."""
+    # Strip 'prompts/' prefix if present (avoids path doubling)
+    if prompt_name.startswith("prompts/"):
+        prompt_name = prompt_name[8:]
+    # Handle case where prompt_name already has .yaml extension
+    if prompt_name.endswith(".yaml"):
+        return prompts_dir / prompt_name
     return prompts_dir / f"{prompt_name}.yaml"
 
 
@@ -214,13 +220,19 @@ def check_prompt_files(
         if prompt_name:
             prompt_path = get_prompt_path(prompt_name, prompts_dir)
             if not prompt_path.exists():
+                # Normalize the filename for error message
+                display_name = (
+                    prompt_name
+                    if prompt_name.endswith(".yaml")
+                    else f"{prompt_name}.yaml"
+                )
                 issues.append(
                     LintIssue(
                         severity="error",
                         code="E004",
-                        message=f"Prompt file '{prompt_name}.yaml' not found "
+                        message=f"Prompt file '{display_name}' not found "
                         f"for node '{node_name}'",
-                        fix=f"Create file: {prompts_dir_config}/{prompt_name}.yaml",
+                        fix=f"Create file: {prompts_dir_config}/{display_name}",
                     )
                 )
 

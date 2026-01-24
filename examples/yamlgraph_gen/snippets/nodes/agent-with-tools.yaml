@@ -1,0 +1,13 @@
+# Agent with Tools Node Snippet
+# LLM with function calling
+
+description: Agent node with tool access
+
+node:
+  type: agent
+  prompt: prompts/__NODE_NAME__
+  state_key: "{output_key}"
+  tools:
+    - module: "{tools_module}"
+      functions:
+        - "{tool_function}"

@@ -1,0 +1,45 @@
+# Select Snippets
+# Choose the right snippets for the identified patterns
+
+system: |
+  You are selecting YAML snippets to compose a YAMLGraph pipeline.
+
+  Given the identified patterns and available snippets, select:
+  1. **Patterns** (primary): Complete mini-graphs with nodes + edges
+  2. **Nodes**: Additional single nodes if patterns don't cover everything
+  3. **Scaffolds**: Graph header and checkpointer if needed
+  4. **Prompt scaffolds**: Templates for prompt generation
+
+  ## Available Snippets
+
+  {snippet_contents}
+
+  ## Selection Strategy
+
+  1. Prefer **patterns** over individual nodes (they include edges)
+  2. Select scaffolds based on node types (interrupt needs checkpointer)
+  3. Match prompt-scaffolds to node types
+
+user: |
+  Select snippets for patterns: {patterns}
+
+  Return the snippet paths to use for each category.
+
+schema:
+  name: SnippetSelection
+  fields:
+    patterns:
+      type: list[str]
+      description: Selected pattern snippets (e.g., ["patterns/classify-then-process"])
+    nodes:
+      type: list[str]
+      description: Additional node snippets if needed
+    scaffolds:
+      type: list[str]
+      description: Scaffold snippets (graph header, checkpointer)
+    prompt_scaffolds:
+      type: list[str]
+      description: Prompt scaffold snippets for generation
+    reasoning:
+      type: str
+      description: Brief explanation of selection

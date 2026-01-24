@@ -1,0 +1,10 @@
+# Graph Header Scaffold
+# Standard graph header structure
+
+version: "1.0"
+name: "{graph_name}"
+description: "{graph_description}"
+
+defaults:
+  provider: anthropic
+  model: claude-sonnet-4-20250514

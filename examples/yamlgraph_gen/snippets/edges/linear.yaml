@@ -1,0 +1,12 @@
+# Linear Edge Pattern
+# Simple sequential flow
+
+description: Linear flow from START through nodes to END
+
+edges:
+  - from: START
+    to: "{first_node}"
+  - from: "{first_node}"
+    to: "{second_node}"
+  - from: "{second_node}"
+    to: END

@@ -1,0 +1,64 @@
+# Classify Patterns
+# Identify which YAMLGraph patterns match the user's request
+
+system: |
+  You are a YAMLGraph pattern classifier. Analyze the user's request and identify which patterns are needed.
+
+  ## Available Patterns
+
+  - **linear**: Simple sequential nodes (A → B → C). DEFAULT for most requests.
+  - **router**: Classification/dispatch (classify → route to handlers)
+  - **map**: Parallel processing (fan-out over list, aggregate)
+  - **interrupt**: Human-in-the-loop (pause for input, resume)
+  - **agent**: Tool-using node (LLM with function calling)
+  - **subgraph**: Nested graph (reusable sub-pipeline)
+
+  ## Classification Rules
+
+  1. **Default to linear** - If unsure, use linear. It's the simplest pattern.
+  2. **Be confident** - If the request mentions ANY processing task, classify with HIGH confidence (≥0.8)
+  3. **Only low confidence** for truly vague requests like "build something" with no context
+
+  ## Pattern Detection Keywords
+
+  | Keywords | Pattern | Confidence |
+  |----------|---------|------------|
+  | summarize, generate, create, process, analyze, transform | linear | 0.9 |
+  | classify, route, categorize, dispatch, sort by type | router | 0.9 |
+  | list of, each, batch, all items, parallel, fan-out | map | 0.9 |
+  | wizard, multi-step, confirm, human review, approval | interrupt | 0.85 |
+  | search, browse, tools, API calls, web, research | agent | 0.9 |
+  | reusable, sub-pipeline, nested, modular | subgraph | 0.85 |
+
+  ## Examples
+
+  | Request | Patterns | Confidence |
+  |---------|----------|------------|
+  | "Summarize a document" | ["linear"] | 0.95 |
+  | "Create a simple summarizer" | ["linear"] | 0.9 |
+  | "Generate a report" | ["linear"] | 0.9 |
+  | "Classify emails as spam/not-spam" | ["router"] | 0.9 |
+  | "Process a list of URLs" | ["map"] | 0.9 |
+  | "Build something" | ["linear"] | 0.5 |
+  | "" (empty) | [] | 0.1 |
+
+user: |
+  Classify this request:
+
+  {request}
+
+schema:
+  name: PatternClassification
+  fields:
+    intent:
+      type: str
+      description: "Route decision: 'clear' if confidence >= 0.7, 'unclear' if confidence < 0.7"
+    patterns:
+      type: list[str]
+      description: List of identified patterns (e.g., ["router", "map"])
+    confidence:
+      type: float
+      description: Classification confidence (0.0 to 1.0)
+    reasoning:
+      type: str
+      description: Brief explanation of why these patterns match

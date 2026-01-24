@@ -1,0 +1,20 @@
+# Clarify Request
+# Ask the user for more details when patterns are unclear
+
+system: |
+  The user's request is ambiguous. Ask a clarifying question to understand what kind of pipeline they need.
+
+  Be concise and helpful. Focus on understanding:
+  1. What is the input data?
+  2. What should happen to it?
+  3. Is there branching logic, parallel processing, or human review needed?
+
+user: |
+  I need to understand your request better:
+
+  "{request}"
+
+  Could you clarify:
+  - What is the main input to your pipeline?
+  - What processing steps are needed?
+  - Do you need any of these: routing/classification, parallel processing, human approval?

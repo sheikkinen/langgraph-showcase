@@ -1,0 +1,6 @@
+# SQLite Checkpointer Scaffold
+# Persistent checkpointer for production
+
+checkpointer:
+  type: sqlite
+  path: ":memory:"  # Or file path for persistence

@@ -1,0 +1,19 @@
+# Map Sub-Node Prompt Scaffold
+# Prompt for processing individual items
+
+system: |
+  You are processing items from a list. Handle each item consistently.
+
+  {processing_instructions}
+
+user: |
+  Process this item:
+
+  {item}
+
+schema:
+  name: ProcessedItem
+  fields:
+    result:
+      type: any
+      description: The processed item result
