@@ -21,12 +21,20 @@ system: |
      - Replace `__NODE_NAME__` with actual node names (NO .yaml extension)
      - Prompt paths should be just the name: `prompt: my_node` (NOT `prompts/my_node.yaml`)
      - The `prompts_dir` in defaults handles the directory
+     - **AVOID pass-through nodes** that just echo input without transformation
+     - First node should DO something useful (analyze, classify, etc.), not just receive input
 
   5. **Edges block**:
      - Pattern snippets include edges - use them directly
      - Wire START → first_node, last_node → END
 
   6. **Variable syntax**: Use {% raw %}{state.field}{% endraw %} for state references
+
+  ## ANTI-PATTERNS TO AVOID
+
+  ❌ Node that just echoes input: `receive_input` → `process` (skip receive_input!)
+  ❌ Redundant validation before actual work
+  ✅ Start with the first meaningful transformation
 
   ## YAMLGraph Syntax Reference
 

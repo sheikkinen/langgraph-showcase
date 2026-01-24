@@ -1,5 +1,6 @@
 """Snippet loader for yamlgraph-generator."""
 
+import contextlib
 from pathlib import Path
 
 import yaml
@@ -90,8 +91,6 @@ def load_snippets(paths: list[str]) -> dict[str, dict]:
 
     Returns dict: {snippet_path: snippet_data}
     """
-    import contextlib
-
     result = {}
     for path in paths:
         with contextlib.suppress(FileNotFoundError):
