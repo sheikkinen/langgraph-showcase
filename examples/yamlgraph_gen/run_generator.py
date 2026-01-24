@@ -17,8 +17,13 @@ from pathlib import Path
 # Add parent to path for yamlgraph imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from yamlgraph import build_graph
-from yamlgraph.tools.graph_linter import lint_graph
+# Load .env from project root (before yamlgraph imports)
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
+
+from yamlgraph import build_graph  # noqa: E402
+from yamlgraph.tools.graph_linter import lint_graph  # noqa: E402
 
 
 def generate(request: str, output_dir: str) -> dict:

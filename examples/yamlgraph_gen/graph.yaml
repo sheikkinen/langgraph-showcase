@@ -112,7 +112,7 @@ nodes:
     state_key: generated_tools
     variables:
       request: "{state.request}"
-      tool_hints: "{state.tool_hints}"
+      tool_hints: "{state.classification.tool_hints}"
       assembled_graph: "{state.assembled_graph}"
 
   generate_readme:

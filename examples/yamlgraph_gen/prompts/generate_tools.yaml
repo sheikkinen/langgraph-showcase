@@ -13,7 +13,7 @@ system: |
       """Tool description."""
       input_val = state.get("input", "")
       # Process...
-      return {"result": processed_value}
+      return dict(result=processed_value)
   ```
 
   ## Built-in Tools (don't generate stubs for these)
