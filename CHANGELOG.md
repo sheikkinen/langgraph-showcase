@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.22] - 2026-01-24
+
+### Added
+- **YAMLGraph Generator** (`examples/yamlgraph_gen/`)
+  - Generate complete YAMLGraph pipelines from natural language descriptions
+  - Pattern classification: linear, router, map, interrupt, agent, subgraph
+  - Snippet-based assembly with 15+ reusable YAML templates
+  - Prompt generation for all nodes in the graph
+  - Tool stub generation for agent patterns (websearch, python tools)
+  - README generation with usage instructions
+  - Built-in linting and validation
+  - 64 unit tests + 5 E2E tests
+  - Helper script `run_generator.py` for CLI usage
+
+### Fixed
+- **Template escaping** in prompts with code examples
+  - Use `dict()` syntax instead of `{}` to avoid conflicts with Jinja2/format templates
+- **`.env` loading** in `run_generator.py`
+  - Load `.env` from project root before yamlgraph imports
+
 ## [0.3.21] - 2026-01-23
 
 ### Added
