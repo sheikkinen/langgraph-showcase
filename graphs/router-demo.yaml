@@ -6,7 +6,7 @@ name: tone-router-demo
 description: Route responses based on detected message tone
 
 defaults:
-  provider: mistral
+  provider: xai
   temperature: 0.7
 
 nodes:

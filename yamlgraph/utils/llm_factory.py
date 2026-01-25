@@ -16,7 +16,7 @@ from yamlgraph.config import DEFAULT_MODELS
 logger = logging.getLogger(__name__)
 
 # Type alias for supported providers
-ProviderType = Literal["anthropic", "mistral", "openai", "replicate"]
+ProviderType = Literal["anthropic", "mistral", "openai", "replicate", "xai"]
 
 # Thread-safe cache for LLM instances
 _llm_cache: dict[tuple, BaseChatModel] = {}
@@ -30,14 +30,14 @@ def create_llm(
 ) -> BaseChatModel:
     """Create an LLM instance with multi-provider support.
 
-    Supports Anthropic (default), Mistral, and OpenAI providers.
+    Supports Anthropic (default), Mistral, OpenAI, Replicate, and xAI providers.
     Provider can be specified via parameter or PROVIDER environment variable.
     Model can be specified via parameter or {PROVIDER}_MODEL environment variable.
 
     LLM instances are cached by (provider, model, temperature) to improve performance.
 
     Args:
-        provider: LLM provider ("anthropic", "mistral", "openai").
+        provider: LLM provider ("anthropic", "mistral", "openai", "replicate", "xai").
                  Defaults to PROVIDER env var or "anthropic".
         model: Model name. Defaults to {PROVIDER}_MODEL env var or provider default.
         temperature: Temperature for generation (0.0-1.0).
@@ -57,6 +57,9 @@ def create_llm(
 
         >>> # Custom model
         >>> llm = create_llm(provider="openai", model="gpt-4o-mini")
+
+        >>> # Use xAI Grok
+        >>> llm = create_llm(provider="xai", model="grok-beta")
     """
     # Determine provider (parameter > env var > default)
     selected_provider = provider or os.getenv("PROVIDER") or "anthropic"
@@ -99,6 +102,15 @@ def create_llm(
             llm = ChatOpenAI(model=selected_model, temperature=temperature)
         elif selected_provider == "replicate":
             llm = _create_replicate_llm(selected_model, temperature)
+        elif selected_provider == "xai":
+            from langchain_openai import ChatOpenAI
+
+            llm = ChatOpenAI(
+                model=selected_model,
+                temperature=temperature,
+                base_url="https://api.x.ai/v1",
+                api_key=os.getenv("XAI_API_KEY"),
+            )
         else:  # anthropic (default)
             from langchain_anthropic import ChatAnthropic
 

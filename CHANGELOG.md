@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.23] - 2026-01-25
+
+### Added
+- **xAI/Grok LLM Provider Support**
+  - Added `xai` provider to multi-provider LLM factory
+  - Uses OpenAI-compatible API with `base_url="https://api.x.ai/v1"`
+  - Default model: `grok-beta` (configurable via `XAI_MODEL` env var)
+  - Updated router demo to use xAI instead of Mistral
+  - Added comprehensive tests for xAI provider
+
+### Fixed
+- **Interview Demo Linting**
+  - Fixed missing state declarations for interrupt node `state_key` fields
+  - Added `name_question` and `topic_question` to state section
+
 ## [0.3.22] - 2026-01-24
 
 ### Added

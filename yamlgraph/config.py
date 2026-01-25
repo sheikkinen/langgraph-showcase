@@ -34,12 +34,13 @@ DEFAULT_MAX_TOKENS = 4096
 
 # Default models per provider (override with {PROVIDER}_MODEL env var)
 # API keys expected in .env:
-#   ANTHROPIC_API_KEY, MISTRAL_API_KEY, OPENAI_API_KEY, REPLICATE_API_TOKEN
+#   ANTHROPIC_API_KEY, MISTRAL_API_KEY, OPENAI_API_KEY, REPLICATE_API_TOKEN, XAI_API_KEY
 DEFAULT_MODELS = {
     "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
     "mistral": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
     "openai": os.getenv("OPENAI_MODEL", "gpt-4o"),
     "replicate": os.getenv("REPLICATE_MODEL", "ibm-granite/granite-4.0-h-small"),
+    "xai": os.getenv("XAI_MODEL", "grok-4-1-fast-reasoning"),
 }
 
 # Retry Configuration

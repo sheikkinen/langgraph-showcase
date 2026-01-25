@@ -20,6 +20,8 @@ state:
   user_name: str
   user_topic: str
   welcome_message: str
+  name_question: str
+  topic_question: str
 
 nodes:
   # Step 0: LLM generates welcome message

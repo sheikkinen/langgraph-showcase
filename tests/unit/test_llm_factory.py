@@ -45,6 +45,14 @@ class TestCreateLLM:
             assert llm.__class__.__name__ == "ChatOpenAI"
             assert llm.temperature == 0.6
 
+    def test_xai_provider(self):
+        """Should create xAI LLM when provider='xai'."""
+        with patch.dict(os.environ, {"XAI_API_KEY": "test-key"}):
+            llm = create_llm(provider="xai", temperature=0.6)
+            assert llm.__class__.__name__ == "ChatOpenAI"
+            assert llm.temperature == 0.6
+            assert llm.openai_api_base == "https://api.x.ai/v1"
+
     def test_provider_from_environment(self):
         """Should use PROVIDER env var when no provider specified."""
         with patch.dict(
