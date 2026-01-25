@@ -23,6 +23,13 @@ from yamlgraph.tools.linter_checks import (
     check_state_declarations,
     check_tool_references,
 )
+from yamlgraph.tools.linter_patterns import (
+    check_agent_patterns,
+    check_interrupt_patterns,
+    check_map_patterns,
+    check_router_patterns,
+    check_subgraph_patterns,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +67,13 @@ def lint_graph(
     all_issues.extend(check_edge_coverage(graph_path))
     all_issues.extend(check_node_types(graph_path))
 
+    # Pattern-specific checks
+    all_issues.extend(check_router_patterns(graph_path, project_root))
+    all_issues.extend(check_map_patterns(graph_path, project_root))
+    all_issues.extend(check_interrupt_patterns(graph_path, project_root))
+    all_issues.extend(check_agent_patterns(graph_path, project_root))
+    all_issues.extend(check_subgraph_patterns(graph_path, project_root))
+
     # Determine validity (no errors)
     has_errors = any(issue.severity == "error" for issue in all_issues)
 
@@ -81,4 +95,9 @@ __all__ = [
     "check_prompt_files",
     "check_edge_coverage",
     "check_node_types",
+    "check_router_patterns",
+    "check_map_patterns",
+    "check_interrupt_patterns",
+    "check_agent_patterns",
+    "check_subgraph_patterns",
 ]
