@@ -1067,6 +1067,13 @@ For production deployments, consider:
 - Restricting available tools to read-only operations
 - Implementing approval workflows for sensitive operations
 
+## Documentation
+
+- **[Reference Documentation](reference/)** - Complete guides for YAMLGraph features, node types, and advanced usage
+- **[Analyzing YAML-Driven LangGraph Repositories](docs/Analyzing YAML-Driven LangGraph Repositories.md)** - Comprehensive technical analysis of YAMLGraph's architecture, LangGraph fundamentals, and strategic positioning in the AI orchestration landscape
+
+For examples and tutorials, see the [examples/](examples/) directory.
+
 ## License
 
 MIT
