@@ -1,5 +1,11 @@
 # Map Basic Node Snippet
 # Parallel processing over a list
+#
+# ASSEMBLY INSTRUCTIONS:
+# - Map node has nested structure: over, as, node (sub-node), collect
+# - DO NOT flatten or restructure the nesting
+# - Sub-node is nested under `node:` key
+# - Keep all fields exactly as defined
 
 description: Map node for parallel processing
 

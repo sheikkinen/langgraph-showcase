@@ -1,7 +1,13 @@
 # Interrupt Basic Node Snippet
 # Human-in-the-loop pause point
+#
+# ASSEMBLY INSTRUCTIONS:
+# - Interrupt node pauses execution for human input
+# - Requires checkpointer (add from scaffolds/checkpointer-memory.yaml)
+# - DO NOT add extra validation nodes before/after interrupt
+# - Keep resume_key field exactly as defined
 
-description: Interrupt node for human input
+description: Interrupt node for user input
 
 node:
   type: interrupt

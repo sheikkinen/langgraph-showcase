@@ -8,7 +8,7 @@ Testing the yamlgraph-generator's ability to produce working graphs for each pat
 |---------|-----------|-------|------|-------|
 | Linear | ✅ | ✅ | ✅ | [Test case](00-linear.md) |
 | Agent + Websearch | ✅ | ✅ | ✅ | [Test case](05-agent-tools.md) |
-| Router | ⬜ | ⬜ | ⬜ | [Test case](01-router.md) |
+| Router | ✅ | ✅ | ✅ | [Test case](01-router.md) - Generator fixed |
 | Map | ⬜ | ⬜ | ⬜ | [Test case](02-map.md) |
 | Interrupt | ⬜ | ⬜ | ⬜ | [Test case](03-interrupt.md) |
 | Subgraph | ⬜ | ⬜ | ⬜ | [Test case](04-subgraph.md) |
@@ -18,7 +18,7 @@ Testing the yamlgraph-generator's ability to produce working graphs for each pat
 | Capability | Status | Notes |
 |------------|--------|-------|
 | Linear nodes | ✅ | Fully supported |
-| Router nodes | ✅ | Routes + conditional edges |
+| Router nodes | ✅ | Single combined node, dict routes, intent field |
 | Agent + websearch | ✅ | Built-in DuckDuckGo |
 | Map nodes | ⚠️ | Snippet exists, untested |
 | Interrupt nodes | ⚠️ | Snippet exists, no checkpointer config |
@@ -44,8 +44,18 @@ Testing the yamlgraph-generator's ability to produce working graphs for each pat
 
 ## Execution Checklist
 
-1. [ ] Run router test → update status
+1. [x] Run router test → ✅ **PASSED** (generator fixed)
 2. [ ] Run map test → update status
 3. [ ] Run interrupt test → update status
-4. [ ] Update generator based on findings
-5. [ ] Re-run failed tests after fixes
+4. [x] Update generator based on findings → ✅ **Complete**
+5. [ ] Re-run remaining tests after fixes
+
+## Generator Improvements Made
+
+| Improvement | Files Changed | Impact |
+|-------------|---------------|--------|
+| Router snippet structure | `snippets/patterns/classify-then-process.yaml` | Single combined node, dict routes |
+| Router prompt scaffold | `snippets/prompt-scaffolds/router-classify.yaml` | Uses `intent` field (framework requirement) |
+| Assembly dict/list preservation | `prompts/assemble_graph.yaml` | Explicit examples prevent format changes |
+| Self-documenting snippets | All snippet files | Pattern-specific guidance in comments |
+| Prompt schema validation | `prompts/generate_prompts.yaml` | Router schema field requirements |

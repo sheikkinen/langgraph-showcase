@@ -1,14 +1,21 @@
 # Router Basic Node Snippet
-# Classification/dispatch node
+# Classification/dispatch node that combines LLM classification with routing
 
-description: Router node for classification and dispatch
+description: Router node for classification and dispatch (single combined node)
 
 node:
-  type: router
-  prompt: prompts/__NODE_NAME__
-  state_key: "{classification_key}"
-  routes:
-    - name: category_a
-      condition: "category == 'a'"
-    - name: category_b
-      condition: "category == 'b'"
+  __NODE_NAME__:
+    type: router
+    prompt: __NODE_NAME__
+    routes:
+      __ROUTE_A__: handle___ROUTE_A__
+      __ROUTE_B__: handle___ROUTE_B__
+      __ROUTE_C__: handle___ROUTE_C__
+    default_route: handle___ROUTE_C__
+    variables:
+      input: "{state.__INPUT_FIELD__}"
+    state_key: classification
+
+# Note: Router node includes the prompt field - it calls the LLM to classify,
+# then routes based on the result. The prompt must return an object with
+# 'tone' or 'intent' field (hardcoded in framework).

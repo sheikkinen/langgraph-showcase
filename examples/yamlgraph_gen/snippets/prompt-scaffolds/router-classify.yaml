@@ -1,5 +1,6 @@
 # Router Classify Prompt Scaffold
 # Classification prompt with categories
+# IMPORTANT: Field must be 'intent' or 'tone' (hardcoded in router framework)
 
 system: |
   You are a classifier. Analyze the input and determine its category.
@@ -15,12 +16,15 @@ user: |
 schema:
   name: Classification
   fields:
-    category:
+    intent:
       type: str
-      description: The identified category
+      description: "The identified category: exactly one of the listed categories"
     confidence:
       type: float
       description: Confidence level (0.0-1.0)
     reasoning:
       type: str
       description: Brief explanation
+
+# Note: The field MUST be named 'intent' or 'tone' for router nodes to work.
+# This is hardcoded in yamlgraph/node_factory/llm_nodes.py:170-172

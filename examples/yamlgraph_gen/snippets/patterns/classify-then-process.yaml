@@ -1,39 +1,60 @@
 # Classify Then Process Pattern
 # Router → handlers (complete mini-graph)
+#
+# ASSEMBLY INSTRUCTIONS:
+# - This is a single combined router node (type: router with prompt field)
+# - Routes use dict format {key: target_node}, not list format
+# - DO NOT split into separate classification + routing nodes
+# - Edge to handlers uses list syntax: to: [handler1, handler2, handler3]
+# - DO NOT split list edge into multiple individual edges
 
 description: Classification followed by category-specific processing
 
 nodes:
   classify:
     type: router
-    prompt: prompts/classify.yaml
-    state_key: classification
+    prompt: classify
     routes:
-      - name: category_a
-        condition: "category == 'a'"
-      - name: category_b
-        condition: "category == 'b'"
+      positive: handle_positive
+      negative: handle_negative
+      neutral: handle_neutral
+    default_route: handle_neutral
+    variables:
+      input: "{state.input}"
+    state_key: classification
 
-  handle_a:
+  handle_positive:
     type: llm
-    prompt: prompts/handle_a.yaml
+    prompt: handle_positive
+    variables:
+      input: "{state.input}"
     state_key: result
 
-  handle_b:
+  handle_negative:
     type: llm
-    prompt: prompts/handle_b.yaml
+    prompt: handle_negative
+    variables:
+      input: "{state.input}"
+    state_key: result
+
+  handle_neutral:
+    type: llm
+    prompt: handle_neutral
+    variables:
+      input: "{state.input}"
     state_key: result
 
 edges:
   - from: START
     to: classify
+
   - from: classify
-    conditions:
-      - if: "classification.category == 'a'"
-        to: handle_a
-      - if: "classification.category == 'b'"
-        to: handle_b
-  - from: handle_a
+    to: [handle_positive, handle_negative, handle_neutral]
+    type: conditional
+
+  - from: handle_positive
     to: END
-  - from: handle_b
+  - from: handle_negative
+    to: END
+  - from: handle_neutral
     to: END

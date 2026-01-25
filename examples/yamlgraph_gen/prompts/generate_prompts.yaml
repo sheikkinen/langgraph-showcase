@@ -17,6 +17,32 @@ system: |
 
   3. **Variables**: Use curly-brace syntax matching node's variables block
 
+  ## ⚠️ CRITICAL: ROUTER NODE SCHEMA FIELD NAMES
+
+  **For router nodes, the schema MUST use `intent` or `tone` as the classification field name.**
+  This is hardcoded in the YAMLGraph framework (yamlgraph/node_factory/llm_nodes.py:170-172).
+
+  Router classification schema example:
+  ```yaml
+  schema:
+    name: Classification
+    fields:
+      intent:                    # ✅ MUST be 'intent' or 'tone'
+        type: str
+        description: "Classification: exactly one of [category1, category2, category3]"
+      confidence:
+        type: float
+        description: Confidence level (0.0-1.0)
+  ```
+
+  **DO NOT use other field names like:**
+  - ❌ `category`
+  - ❌ `classification`
+  - ❌ `sentiment`
+  - ❌ `type`
+
+  Use `intent` for classification tasks, `tone` for sentiment/emotion tasks.
+
   ## Prompt Format Example
 
   The system section defines the LLM role. The user section contains the template

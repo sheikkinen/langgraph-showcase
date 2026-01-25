@@ -4,6 +4,68 @@
 system: |
   You are assembling a YAMLGraph from snippets and patterns.
 
+  ## ⚠️ CRITICAL: SNIPPET ASSEMBLY PROCESS
+
+  **Snippets are battle-tested production templates.** Your job is template substitution, not restructuring.
+
+  ### How Snippets Work
+
+  **Patterns** (`snippets/patterns/*.yaml`): Complete mini-graphs with nodes + edges
+  - Example: `classify-then-process.yaml` includes router node + handler nodes + edges
+  - Copy the ENTIRE pattern structure as-is
+  - Only replace placeholder tokens
+
+  **Nodes** (`snippets/nodes/*.yaml`): Individual node definitions
+  - Used when patterns don't provide all needed nodes
+  - Copy node structure exactly as defined
+  - Only replace placeholder tokens
+
+  **Scaffolds** (`snippets/scaffolds/*.yaml`): Graph headers, checkpointer config
+  - Provide version, defaults, checkpointer blocks
+  - Use as template for graph structure
+
+  ### Your Assembly Task
+
+  1. **Load pattern snippet** → Copy nodes block + edges block verbatim
+  2. **Replace placeholders** → Substitute tokens only:
+     - `__NODE_NAME__` → descriptive_name
+     - `__ROUTE_A__`, `__ROUTE_B__` → route_values
+     - `__INPUT_FIELD__` → state_field
+  3. **Preserve everything else** → Keep all syntax: routes format, edge types, node structure
+
+  ### Assembly Best Practices
+
+  - ✅ Copy pattern nodes block verbatim
+  - ✅ Copy pattern edges block verbatim (including list syntax for `to:` field)
+  - ✅ Replace only __PLACEHOLDER__ tokens
+  - ✅ **CRITICAL**: Preserve YAML data structures exactly:
+    - Dict mapping: `routes: {positive: handler}` → Keep as dict, not list
+    - List: `to: [node1, node2]` → Keep as list, not multiple entries
+  - ✅ Maintain single-node structures (don't split router, map, etc.)
+
+  ### Example: Preserve Dict Format
+
+  Snippet has:
+  ```yaml
+  routes:
+    positive: handle_positive
+    negative: handle_negative
+  ```
+
+  Your output MUST be:
+  ```yaml
+  routes:
+    positive: respond_positive  # ✅ Dict mapping preserved
+    negative: respond_negative
+  ```
+
+  NOT:
+  ```yaml
+  routes:  # ❌ WRONG - changed dict to list
+    - positive
+    - negative
+  ```
+
   ## ASSEMBLY RULES
 
   1. **Header first**: Start with scaffold/graph-header structure
@@ -17,16 +79,20 @@ system: |
      - Each `state_key: foo` adds `foo: any` to state
      - Add input fields based on user request
 
-  4. **Nodes block**: Merge all nodes from patterns/snippets:
+  4. **Nodes block**: Copy nodes from patterns/snippets EXACTLY AS-IS
      - Replace `__NODE_NAME__` with actual node names (NO .yaml extension)
+     - Replace `__ROUTE_A__`, `__ROUTE_B__`, `__ROUTE_C__` with route values (e.g., positive, negative, neutral)
+     - Replace `__INPUT_FIELD__` with actual state field name
      - Prompt paths should be just the name: `prompt: my_node` (NOT `prompts/my_node.yaml`)
      - The `prompts_dir` in defaults handles the directory
-     - **AVOID pass-through nodes** that just echo input without transformation
-     - First node should DO something useful (analyze, classify, etc.), not just receive input
+     - **PRESERVE all other syntax exactly as in snippet**
 
-  5. **Edges block**:
+  5. **Edges block**: Copy edges from pattern snippets EXACTLY AS-IS
      - Pattern snippets include edges - use them directly
      - Wire START → first_node, last_node → END
+     - **Preserve list syntax**: If edge has `to: [node1, node2, node3]`, keep the list format
+     - **DO NOT split** list edges into multiple individual edges
+     - **DO NOT change edge syntax** (e.g., keep `type: conditional` if present)
 
   6. **Variable syntax**: Use {% raw %}{state.field}{% endraw %} for state references
 
@@ -117,9 +183,18 @@ user: |
   Snippet contents:
   {snippet_contents}
 
-  Replace __NODE_NAME__ placeholders with actual node names and add .yaml extension.
+  **IMPORTANT INSTRUCTIONS:**
 
-  Output the complete graph.yaml content.
+  1. Copy snippet node structures EXACTLY as provided
+  2. Only replace placeholders:
+     - `__NODE_NAME__` → descriptive_node_name (NO .yaml extension)
+     - `__ROUTE_A__`, `__ROUTE_B__`, `__ROUTE_C__` → route_key_names (e.g., positive, negative, neutral)
+     - `__INPUT_FIELD__` → input_field_name
+  3. DO NOT restructure, reformat, or "improve" the snippet syntax
+  4. For router patterns: Keep single combined router node (type: router with prompt field)
+  5. For edges: Preserve exact edge syntax from snippets (including `type: conditional`)
+
+  Output the complete graph.yaml content with snippet structures preserved verbatim.
 
 schema:
   name: AssembledGraph
