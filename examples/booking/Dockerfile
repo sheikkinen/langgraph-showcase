@@ -25,7 +25,7 @@ WORKDIR /app
 
 # Install runtime dependencies
 COPY --from=builder /app/dist/*.whl /tmp/
-RUN pip install --no-cache-dir /tmp/*.whl[booking,redis-simple]
+RUN pip install --no-cache-dir /tmp/*.whl && pip install --no-cache-dir redis orjson httpx uvicorn[standard] fastapi
 
 # Copy application code
 COPY examples/booking/ ./examples/booking/
