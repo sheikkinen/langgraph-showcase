@@ -26,6 +26,11 @@ run_demo() {
     echo -e "${GREEN}✓ ${name} completed${NC}"
 }
 
+demo_hello() {
+    run_demo "Hello World" "graphs/hello.yaml" \
+        --var name="World" --var style="enthusiastic"
+}
+
 demo_router() {
     run_demo "Router Demo" "graphs/router-demo.yaml" \
         --var message="I absolutely love this product"
@@ -109,6 +114,7 @@ print_usage() {
     echo "Usage: ./demo.sh [demo_name]"
     echo ""
     echo "Available demos:"
+    echo "  hello       - Hello World (minimal example)"
     echo "  router      - Tone-based routing (positive/negative/neutral)"
     echo "  yamlgraph   - Content generation pipeline (generate → analyze → summarize)"
     echo "  reflexion   - Self-refinement loop (draft → critique → refine)"
@@ -139,6 +145,9 @@ echo -e "${GREEN}✓ All graphs passed linting${NC}"
 echo ""
 
 case "${1:-all}" in
+    hello)
+        demo_hello
+        ;;
     router)
         demo_router
         ;;
@@ -183,6 +192,7 @@ case "${1:-all}" in
         ;;
     all)
         echo -e "${YELLOW}🚀 Running all YamlGraph demos...${NC}"
+        demo_hello
         demo_router
         demo_yamlgraph
         demo_reflexion

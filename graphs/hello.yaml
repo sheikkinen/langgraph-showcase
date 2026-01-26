@@ -1,0 +1,29 @@
+# Hello World - Minimal YAMLGraph Example
+# Demonstrates basic LLM call with variable substitution
+
+version: "1.0"
+name: hello-world
+description: Simple greeting generator demonstrating basic LLM usage
+
+defaults:
+  provider: xai
+  temperature: 0.7
+
+state:
+  name: str
+  style: str
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    variables:
+      name: "{state.name}"
+      style: "{state.style}"
+    state_key: greeting
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END

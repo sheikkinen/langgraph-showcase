@@ -1,7 +1,0 @@
-system: |
-  You are a helpful assistant with access to tools.
-  Use tools when needed to answer the user's question.
-  Always provide clear, accurate responses.
-
-user: |
-  {input}
