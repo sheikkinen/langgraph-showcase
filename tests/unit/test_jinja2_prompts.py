@@ -1,13 +1,34 @@
-"""Integration test for Jinja2 prompt templates."""
+"""Unit tests for Jinja2 prompt template formatting.
+
+Tests the format_prompt function's Jinja2 rendering capabilities
+without requiring external prompt files.
+"""
 
 from yamlgraph.executor_base import format_prompt
-from yamlgraph.utils.prompts import load_prompt
+
+# Jinja2 template for testing - matches what analyze_list.yaml would contain
+ANALYZE_LIST_TEMPLATE = """Analyze the following {{ items|length }} items:
+
+{% for item in items %}
+### {{ loop.index }}. {{ item.title }}
+
+**Topic**: {{ item.topic }}
+**Word Count**: {{ item.word_count }}
+{% if item.tags %}**Tags**: {{ item.tags | join(", ") }}{% endif %}
+{% if item.content %}
+**Content**:
+{{ item.content[:200] }}{% if item.content|length > 200 %}...{% endif %}
+{% endif %}
+
+{% endfor %}
+{% if min_confidence %}
+Only include results with confidence >= {{ min_confidence }}.
+{% endif %}
+"""
 
 
 def test_jinja2_analyze_list_prompt():
-    """Test the analyze_list prompt with Jinja2 features."""
-    prompt = load_prompt("analyze_list")
-
+    """Test Jinja2 template with loops, filters, and conditionals."""
     # Test data
     variables = {
         "items": [
@@ -29,8 +50,7 @@ def test_jinja2_analyze_list_prompt():
         "min_confidence": 0.8,
     }
 
-    # Format the template field
-    result = format_prompt(prompt["template"], variables)
+    result = format_prompt(ANALYZE_LIST_TEMPLATE, variables)
 
     # Verify Jinja2 features are working
     assert "2 items" in result  # {{ items|length }} filter
@@ -47,12 +67,10 @@ def test_jinja2_analyze_list_prompt():
 
 
 def test_jinja2_prompt_with_empty_list():
-    """Test analyze_list prompt with empty items."""
-    prompt = load_prompt("analyze_list")
-
+    """Test Jinja2 template with empty items."""
     variables = {"items": [], "min_confidence": None}
 
-    result = format_prompt(prompt["template"], variables)
+    result = format_prompt(ANALYZE_LIST_TEMPLATE, variables)
 
     # Should handle empty list gracefully
     assert "0 items" in result
@@ -60,9 +78,7 @@ def test_jinja2_prompt_with_empty_list():
 
 
 def test_jinja2_prompt_without_optional_fields():
-    """Test analyze_list prompt without optional fields."""
-    prompt = load_prompt("analyze_list")
-
+    """Test Jinja2 template without optional fields."""
     variables = {
         "items": [
             {
@@ -75,7 +91,7 @@ def test_jinja2_prompt_without_optional_fields():
         ],
     }
 
-    result = format_prompt(prompt["template"], variables)
+    result = format_prompt(ANALYZE_LIST_TEMPLATE, variables)
 
     # Should handle missing/empty optional fields
     assert "1 items" in result

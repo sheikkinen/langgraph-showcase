@@ -6,6 +6,8 @@ in a loop until it has enough information to respond.
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from yamlgraph.tools.agent import (
     build_langchain_tool,
     build_python_tool,
@@ -13,6 +15,19 @@ from yamlgraph.tools.agent import (
 )
 from yamlgraph.tools.python_tool import PythonToolConfig
 from yamlgraph.tools.shell import ShellToolConfig
+
+# Mock prompt config returned by load_prompt
+MOCK_AGENT_PROMPT = {
+    "system": "You are a helpful assistant.",
+    "user": "{input}",
+}
+
+
+@pytest.fixture(autouse=True)
+def mock_load_prompt():
+    """Auto-mock load_prompt for all tests in this module."""
+    with patch("yamlgraph.tools.agent.load_prompt", return_value=MOCK_AGENT_PROMPT):
+        yield
 
 
 class TestBuildLangchainTool:
