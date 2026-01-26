@@ -182,10 +182,11 @@ class TestCancelAppointment:
 
     def test_cancels_existing_appointment(self):
         """Should cancel an existing appointment."""
-        from examples.booking.nodes.slots_handler import cancel_appointment
-
         # First create a booking
-        from examples.booking.nodes.slots_handler import book_appointment
+        from examples.booking.nodes.slots_handler import (
+            book_appointment,
+            cancel_appointment,
+        )
         booking_result = book_appointment({
             "selected_slot": "slot_1",
             "patient_name": "Alice",
@@ -267,7 +268,9 @@ class TestDBIntegration:
     def test_cancel_appointment_with_db(self, tmp_path):
         """Should cancel using DB."""
         from examples.booking.api.db import BookingDB
-        from examples.booking.nodes.slots_handler import book_appointment, cancel_appointment
+        from examples.booking.nodes.slots_handler import (
+            cancel_appointment,
+        )
 
         # Create test DB
         db_path = tmp_path / "test.db"

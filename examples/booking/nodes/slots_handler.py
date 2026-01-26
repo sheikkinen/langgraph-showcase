@@ -64,7 +64,7 @@ def check_availability(state: dict[str, Any]) -> dict[str, Any]:
                 )
                 for s in slots_db
             ]
-    
+
     return {
         "available_slots": [s.model_dump() for s in slots],
         "slots_display": "\n".join(f"- {s.display}" for s in slots) if slots else "No slots available",

@@ -9,12 +9,12 @@ SCENARIO A: Child WITHOUT checkpointer config (memory parent)
 
 SCENARIO B: Child WITH its own checkpointer config (memory parent)
     - Expected: ✅ PASS with memory (runtime propagation works)
-    - Graph: interrupt-parent-with-checkpointer-child.yaml 
+    - Graph: interrupt-parent-with-checkpointer-child.yaml
              → interrupt-child-with-checkpointer.yaml
 
 SCENARIO C: Redis checkpointer (reproduces the actual FR-006 bug)
     - Expected: ❌ FAIL before fix, ✅ PASS after fix
-    - Graph: interrupt-parent-redis.yaml 
+    - Graph: interrupt-parent-redis.yaml
              → interrupt-child-with-checkpointer-redis.yaml
     - Bug: Subgraph restarts from init instead of resuming
 
@@ -94,13 +94,13 @@ def print_result(key: str, value: str, max_len: int = 80) -> None:
 
 def run_scenario(scenario: dict) -> tuple[bool, str]:
     """Run a single test scenario.
-    
+
     Returns:
         Tuple of (success: bool, error_message: str or None)
     """
     print_subheader(f"Scenario {scenario['name']}")
     print(f"   {scenario['description']}")
-    
+
     graph_path = scenario["graph_path"]
     thread_id = scenario["thread_id"]
 
@@ -260,7 +260,7 @@ def main():
             all_passed = False
 
     print("\n" + "-" * 70)
-    
+
     if all_passed:
         print("\n🎉 ALL TESTS PASSED!")
         print("\n   FR-006 behavior:")
