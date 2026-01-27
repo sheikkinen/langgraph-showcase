@@ -8,6 +8,7 @@ from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 from yamlgraph.node_factory.base import GraphState
+from yamlgraph.utils.expressions import resolve_node_variables
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,6 @@ def create_streaming_node(
         Async generator function compatible with streaming execution
     """
     from yamlgraph.executor_async import execute_prompt_streaming
-    from yamlgraph.utils.expressions import resolve_template
 
     prompt_name = node_config.get("prompt")
     variable_templates = node_config.get("variables", {})
@@ -44,19 +44,7 @@ def create_streaming_node(
 
     async def streaming_node(state: dict) -> AsyncIterator[str]:
         # Resolve variables from templates OR use state directly
-        if variable_templates:
-            variables = {}
-            for key, template in variable_templates.items():
-                resolved = resolve_template(template, state)
-                # Preserve original types (lists, dicts) for Jinja2 templates
-                variables[key] = resolved
-        else:
-            # No explicit variable mapping - pass state as variables
-            variables = {
-                k: v
-                for k, v in state.items()
-                if not k.startswith("_") and v is not None
-            }
+        variables = resolve_node_variables(variable_templates, state)
 
         async for token in execute_prompt_streaming(
             prompt_name,

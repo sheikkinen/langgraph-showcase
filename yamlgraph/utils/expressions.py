@@ -211,3 +211,34 @@ def resolve_template(template: str | Any, state: dict[str, Any]) -> Any:
         return resolve_state_path(path, state)
 
     return template
+
+
+def resolve_node_variables(
+    variable_templates: dict[str, str] | None,
+    state: dict[str, Any],
+) -> dict[str, Any]:
+    """Resolve node variables from templates or state.
+
+    Shared utility for LLM nodes and streaming nodes.
+
+    When templates are provided, resolves each template against state.
+    When templates are empty/None, returns filtered state (no _ keys, no None values).
+
+    Args:
+        variable_templates: Dict of {var_name: template_string} or None
+        state: Current graph state
+
+    Returns:
+        Dict of resolved variables for prompt execution
+    """
+    if variable_templates:
+        variables = {}
+        for key, template in variable_templates.items():
+            resolved = resolve_template(template, state)
+            # Preserve original types (lists, dicts) for Jinja2 templates
+            variables[key] = resolved
+        return variables
+
+    # No explicit variable mapping - pass state as variables
+    # Filter out internal keys and None values
+    return {k: v for k, v in state.items() if not k.startswith("_") and v is not None}

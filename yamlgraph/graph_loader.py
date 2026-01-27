@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 
 from yamlgraph.models.state_builder import build_state_class
@@ -274,7 +275,9 @@ def load_and_compile(path: str | Path) -> StateGraph:
     return compile_graph(config)
 
 
-def get_checkpointer_for_graph(config: GraphConfig, *, async_mode: bool = False):
+def get_checkpointer_for_graph(
+    config: GraphConfig, *, async_mode: bool = False
+) -> BaseCheckpointSaver | None:
     """Get checkpointer from graph config.
 
     Args:

@@ -20,7 +20,7 @@ from yamlgraph.error_handlers import (
 )
 from yamlgraph.executor import execute_prompt
 from yamlgraph.node_factory.base import GraphState, get_output_model_for_node
-from yamlgraph.utils.expressions import resolve_template
+from yamlgraph.utils.expressions import resolve_node_variables
 from yamlgraph.utils.json_extract import extract_json
 
 logger = logging.getLogger(__name__)
@@ -120,20 +120,7 @@ def create_node_function(
             }
 
         # Resolve variables from templates OR use state directly
-        if variable_templates:
-            variables = {}
-            for key, template in variable_templates.items():
-                resolved = resolve_template(template, state)
-                # Preserve original types (lists, dicts) for Jinja2 templates
-                variables[key] = resolved
-        else:
-            # No explicit variable mapping - pass state as variables
-            # Filter out internal keys and None values
-            variables = {
-                k: v
-                for k, v in state.items()
-                if not k.startswith("_") and v is not None
-            }
+        variables = resolve_node_variables(variable_templates, state)
 
         def attempt_execute(use_provider: str | None) -> tuple[Any, Exception | None]:
             try:
