@@ -9,6 +9,8 @@ Example applications demonstrating YAMLGraph capabilities.
 | [book_translator/](book_translator/) | Translate books & documents | Map nodes, parallel translation, glossary, checkpointing |
 | [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
+| [rag/](rag/) | RAG pipeline | LanceDB vectorstore, document indexing, retrieval |
+| [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
 | [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
 | [daily_digest/](daily_digest/) | Scheduled news digest | Fly.io deployment, background tasks, email |
 | [npc/](npc/) | D&D NPC generator | Multi-graph, map nodes, parallel NPCs |
@@ -42,9 +44,13 @@ yamlgraph graph run examples/npc/npc-creation.yaml \
 
 ### Tool Nodes
 - **codegen/** - 24 code analysis tools (AST, grep, jedi)
+- **yamlgraph_gen/** - Meta-generation with validation tools
 
 ### Interrupt Nodes (Human-in-the-Loop)
 - **fastapi_interview.py** - Web-based multi-turn conversations
+
+### RAG (Retrieval-Augmented Generation)
+- **rag/** - LanceDB vectorstore with document chunking
 
 ### External APIs
 - **storyboard/** - Replicate image generation
@@ -69,6 +75,9 @@ pip install -e .
 
 # With Replicate support (storyboard, cost-router)
 pip install -e ".[replicate]"
+
+# With RAG support (rag)
+pip install -e ".[rag]"
 
 # With digest extras (daily_digest)
 pip install -e ".[digest]"
