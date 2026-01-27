@@ -201,7 +201,9 @@ def create_app(db: BookingDB | None = None, graph: Any | None = None) -> FastAPI
         if "__interrupt__" in result:
             interrupt_value = result["__interrupt__"][0].value
             if isinstance(interrupt_value, dict):
-                question = interrupt_value.get("question") or interrupt_value.get("prompt", str(interrupt_value))
+                question = interrupt_value.get("question") or interrupt_value.get(
+                    "prompt", str(interrupt_value)
+                )
             else:
                 question = str(interrupt_value)
             return ChatResponse(
@@ -241,7 +243,9 @@ def create_app(db: BookingDB | None = None, graph: Any | None = None) -> FastAPI
         if "__interrupt__" in result:
             interrupt_value = result["__interrupt__"][0].value
             if isinstance(interrupt_value, dict):
-                question = interrupt_value.get("question") or interrupt_value.get("prompt", str(interrupt_value))
+                question = interrupt_value.get("question") or interrupt_value.get(
+                    "prompt", str(interrupt_value)
+                )
             else:
                 question = str(interrupt_value)
             return ChatResponse(

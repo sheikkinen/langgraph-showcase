@@ -9,10 +9,12 @@ from .schema import Booking, Slot
 # Global DB instance (set by main.py)
 _db = None
 
+
 def set_global_db(db):
     """Set the global DB instance for tool handlers."""
     global _db
     _db = db
+
 
 # In-memory store (replace with DB in production)
 BOOKINGS: dict[str, Booking] = {}
@@ -67,7 +69,9 @@ def check_availability(state: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "available_slots": [s.model_dump() for s in slots],
-        "slots_display": "\n".join(f"- {s.display}" for s in slots) if slots else "No slots available",
+        "slots_display": "\n".join(f"- {s.display}" for s in slots)
+        if slots
+        else "No slots available",
     }
 
 

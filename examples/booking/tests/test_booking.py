@@ -187,10 +187,13 @@ class TestCancelAppointment:
             book_appointment,
             cancel_appointment,
         )
-        booking_result = book_appointment({
-            "selected_slot": "slot_1",
-            "patient_name": "Alice",
-        })
+
+        booking_result = book_appointment(
+            {
+                "selected_slot": "slot_1",
+                "patient_name": "Alice",
+            }
+        )
         booking_id = booking_result["booking_id"]
 
         # Now cancel it
@@ -226,8 +229,12 @@ class TestDBIntegration:
 
         # Create calendar and slots
         cal = db.create_calendar("Test Clinic", "provider")
-        db.create_slot(cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0))
-        db.create_slot(cal.id, datetime(2026, 1, 26, 11, 0), datetime(2026, 1, 26, 12, 0))
+        db.create_slot(
+            cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0)
+        )
+        db.create_slot(
+            cal.id, datetime(2026, 1, 26, 11, 0), datetime(2026, 1, 26, 12, 0)
+        )
 
         state = {"db": db}
         result = check_availability(state)
@@ -247,7 +254,9 @@ class TestDBIntegration:
 
         # Create calendar and slot
         cal = db.create_calendar("Test Clinic", "provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0)
+        )
 
         state = {
             "db": db,
@@ -279,7 +288,9 @@ class TestDBIntegration:
 
         # Create calendar, slot, and appointment
         cal = db.create_calendar("Test Clinic", "provider")
-        slot = db.create_slot(cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0))
+        slot = db.create_slot(
+            cal.id, datetime(2026, 1, 26, 9, 0), datetime(2026, 1, 26, 10, 0)
+        )
         appointment = db.create_appointment(slot.id, "Alice", "+358401234567")
 
         state = {"db": db, "appointment_id": appointment.id}

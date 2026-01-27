@@ -55,9 +55,9 @@ class TestAgentReturnsMessages:
 
         # Should include messages in output
         assert "messages" in result, "Agent should return messages for accumulation"
-        assert (
-            len(result["messages"]) >= 2
-        ), "Should have at least system + user + AI messages"
+        assert len(result["messages"]) >= 2, (
+            "Should have at least system + user + AI messages"
+        )
 
     def test_agent_messages_include_all_types(self):
         """Agent should include system, user, AI, and tool messages."""
@@ -285,6 +285,6 @@ class TestMultiTurnConversation:
 
         # The Annotated type should have add as metadata
         if hasattr(messages_hint, "__metadata__"):
-            assert (
-                add_op in messages_hint.__metadata__
-            ), "messages should use add reducer"
+            assert add_op in messages_hint.__metadata__, (
+                "messages should use add reducer"
+            )

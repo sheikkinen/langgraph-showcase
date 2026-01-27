@@ -109,9 +109,9 @@ class TestConditionsFromYAML:
         config = load_graph_config(DEFAULT_GRAPH)
 
         # conditions attribute should not exist
-        assert not hasattr(
-            config, "conditions"
-        ), "GraphConfig should not have 'conditions' attribute - it's dead config"
+        assert not hasattr(config, "conditions"), (
+            "GraphConfig should not have 'conditions' attribute - it's dead config"
+        )
 
 
 # =============================================================================

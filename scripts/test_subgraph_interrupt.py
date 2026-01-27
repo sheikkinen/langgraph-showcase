@@ -265,9 +265,13 @@ def main():
         print("\n🎉 ALL TESTS PASSED!")
         print("\n   FR-006 behavior:")
         if "A" in results:
-            print("   - Scenario A: Child without checkpointer works (runtime propagation)")
+            print(
+                "   - Scenario A: Child without checkpointer works (runtime propagation)"
+            )
         if "B" in results:
-            print("   - Scenario B: Child with memory checkpointer works (runtime propagation)")
+            print(
+                "   - Scenario B: Child with memory checkpointer works (runtime propagation)"
+            )
         if "C" in results:
             print("   - Scenario C: Redis checkpointer works (fix applied!)")
         sys.exit(0)

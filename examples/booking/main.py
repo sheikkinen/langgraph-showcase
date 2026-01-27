@@ -39,6 +39,7 @@ async def lifespan(app):
 
     # Set global DB for tool handlers
     from examples.booking.nodes.slots_handler import set_global_db
+
     set_global_db(_db)
 
     # Try to load graph (optional - works without for REST-only mode)

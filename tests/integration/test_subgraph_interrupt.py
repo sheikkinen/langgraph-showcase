@@ -55,12 +55,12 @@ class TestSubgraphInterruptMapping:
             "interrupt_output_mapping is bypassed by LangGraph's exception mechanism. "
             "See docs/subgraph-interrupt-bug.md"
         )
-        assert (
-            result.get("child_phase") == "processing"
-        ), "Expected child_phase='processing' from child graph"
-        assert (
-            result.get("child_data") == "partial result from child"
-        ), "Expected child_data from interrupt_output_mapping"
+        assert result.get("child_phase") == "processing", (
+            "Expected child_phase='processing' from child graph"
+        )
+        assert result.get("child_data") == "partial result from child", (
+            "Expected child_data from interrupt_output_mapping"
+        )
 
     def test_output_mapping_works_on_completion(self, compiled_graph):
         """Verify output_mapping works when subgraph completes normally.
@@ -80,9 +80,9 @@ class TestSubgraphInterruptMapping:
 
         # After completion, output_mapping should work
         # Note: The 'done' node sets final_result to 'all done'
-        assert (
-            result.get("final_result") == "all done"
-        ), "Expected final_result from 'done' passthrough node"
+        assert result.get("final_result") == "all done", (
+            "Expected final_result from 'done' passthrough node"
+        )
 
     def test_get_state_can_access_child_state(self, compiled_graph):
         """Workaround: Use get_state() to access child state after interrupt.

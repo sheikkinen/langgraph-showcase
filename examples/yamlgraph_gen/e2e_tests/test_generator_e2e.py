@@ -177,8 +177,8 @@ class TestGeneratorPatternCombos:
             ]
 
             # Should have both router and map
-            assert (
-                "router" in node_types or "map" in node_types
-            ), "Expected router or map node for this request"
+            assert "router" in node_types or "map" in node_types, (
+                "Expected router or map node for this request"
+            )
         else:
             pytest.skip("Pipeline requested clarification")

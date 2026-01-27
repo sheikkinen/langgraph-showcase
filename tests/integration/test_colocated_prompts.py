@@ -72,12 +72,12 @@ user: |
             call_kwargs = mock.call_args[1]
             assert call_kwargs["prompt_name"] == "prompts/opening"
             # BUG FIX: These params must be passed to execute_prompt
-            assert (
-                call_kwargs.get("prompts_relative") is True
-            ), "prompts_relative should be True"
-            assert (
-                call_kwargs.get("graph_path") is not None
-            ), "graph_path should be passed"
+            assert call_kwargs.get("prompts_relative") is True, (
+                "prompts_relative should be True"
+            )
+            assert call_kwargs.get("graph_path") is not None, (
+                "graph_path should be passed"
+            )
 
         # Verify result
         assert result["opening"] == mock_result

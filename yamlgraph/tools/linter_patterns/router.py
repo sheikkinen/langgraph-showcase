@@ -154,7 +154,7 @@ def check_router_edge_targets(node_name: str, graph: dict[str, Any]) -> list[Lin
                 LintIssue(
                     severity="error",
                     code="E103",
-                    message=f"Conditional edge {i+1} targets router '{node_name}' with single node",
+                    message=f"Conditional edge {i + 1} targets router '{node_name}' with single node",
                     fix=f"Change 'to' to list: [{node_name}] for conditional router edges",
                 )
             )

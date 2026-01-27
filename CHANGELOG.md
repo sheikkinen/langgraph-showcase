@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.27] - 2026-01-27
+
+### Fixed
+- **FR-007: JSON Key Type Coercion for Schema Coding Dicts**
+  - Root cause: JSON serialization (Redis checkpointer) converts integer dict keys to strings, causing silent Jinja2 lookup failures
+  - Fix: Added `normalize_coding_keys()` to convert integer keys to strings during schema loading
+  - Applied in both `build_pydantic_model()` and `build_pydantic_model_from_json_schema()`
+  - Ensures coding dicts survive checkpoint round-trips consistently
+
+## [0.3.26] - 2026-01-26
+
+### Fixed
+- **CI Test Fixes**
+  - Fixed 15 failing unit tests in CI by mocking `load_prompt` instead of requiring external prompt files
+  - `test_agent_nodes.py`: Added autouse fixture to mock load_prompt
+  - `test_conversation_memory.py`: Added autouse fixture to mock load_prompt
+  - `test_jinja2_prompts.py`: Use inline template constant instead of loading from file
+
 ## [0.3.25] - 2026-01-26
 
 ### Fixed

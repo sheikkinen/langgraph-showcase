@@ -36,6 +36,28 @@ TYPE_MAP: dict[str, type] = {
 }
 
 
+def normalize_coding_keys(field: dict) -> None:
+    """Normalize coding dict keys to strings for JSON serialization safety.
+
+    JSON only supports string keys, so integer keys like {0: "A", 1: "B"}
+    become {"0": "A", "1": "B"} after serialization. This function normalizes
+    upfront to ensure consistent behavior before and after checkpointer
+    round-trips (e.g., Redis).
+
+    Args:
+        field: Field definition dict, modified in-place if 'coding' exists
+
+    Example:
+        >>> field = {"coding": {0: "Zero", 1: "One"}}
+        >>> normalize_coding_keys(field)
+        >>> field["coding"]
+        {"0": "Zero", "1": "One"}
+    """
+    coding = field.get("coding")
+    if coding is not None and isinstance(coding, dict):
+        field["coding"] = {str(k): v for k, v in coding.items()}
+
+
 def resolve_type(type_str: str, field_name: str | None = None) -> type:
     """Resolve a type string to a Python type.
 
@@ -105,6 +127,9 @@ def build_pydantic_model(schema: dict) -> type:
     field_definitions = {}
 
     for field_name, field_def in schema["fields"].items():
+        # Normalize coding keys for JSON serialization safety (FR-007)
+        normalize_coding_keys(field_def)
+
         # Resolve the type - pass field_name for better error messages
         field_type = resolve_type(field_def["type"], field_name)
 
@@ -169,6 +194,9 @@ def build_pydantic_model_from_json_schema(
     field_definitions = {}
 
     for field_name, field_def in properties.items():
+        # Normalize coding keys for JSON serialization safety (FR-007)
+        normalize_coding_keys(field_def)
+
         json_type = field_def.get("type", "string")
         description = field_def.get("description", "")
 
