@@ -159,7 +159,12 @@ class TestMemoryDemoEndToEnd:
             description="Get recent commits",
         )
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+        mock_prompt = {"system": "You are an assistant.", "user": "{input}"}
+
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.load_prompt", return_value=mock_prompt),
+        ):
             node_fn = create_agent_node(
                 "review",
                 {
@@ -191,7 +196,12 @@ class TestMemoryDemoEndToEnd:
             AIMessage(content="Here are 5 commits..."),
         ]
 
-        with patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm):
+        mock_prompt = {"system": "You are an assistant.", "user": "{input}"}
+
+        with (
+            patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.load_prompt", return_value=mock_prompt),
+        ):
             node_fn = create_agent_node(
                 "review",
                 {"tools": [], "state_key": "response"},
@@ -227,8 +237,11 @@ class TestMemoryDemoEndToEnd:
             description="Get recent commits",
         )
 
+        mock_prompt = {"system": "You are an assistant.", "user": "{input}"}
+
         with (
             patch("yamlgraph.tools.agent.create_llm", return_value=mock_llm),
+            patch("yamlgraph.tools.agent.load_prompt", return_value=mock_prompt),
             patch("yamlgraph.tools.agent.execute_shell_tool") as mock_exec,
         ):
             mock_exec.return_value = MagicMock(

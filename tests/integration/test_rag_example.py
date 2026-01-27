@@ -15,6 +15,14 @@ import pytest
 # Path to examples/rag
 RAG_EXAMPLE_PATH = Path(__file__).parent.parent.parent / "examples" / "rag"
 
+# Check if lancedb is available for RAG tests
+try:
+    import importlib.util
+
+    HAS_LANCEDB = importlib.util.find_spec("lancedb") is not None
+except ImportError:
+    HAS_LANCEDB = False
+
 
 class TestIndexDocsScript:
     """Test the index_docs.py script."""
@@ -23,6 +31,7 @@ class TestIndexDocsScript:
         """Index script should exist."""
         assert (RAG_EXAMPLE_PATH / "index_docs.py").exists()
 
+    @pytest.mark.skipif(not HAS_LANCEDB, reason="lancedb not installed")
     def test_list_empty_vectorstore(self):
         """Should handle empty/nonexistent vectorstore."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -100,9 +109,10 @@ class TestRagGraphFiles:
         content = graph_path.read_text()
         data = yaml.safe_load(content)
 
-        assert "graph" in data
-        assert "nodes" in data["graph"]
-        assert "edges" in data["graph"]
+        # YAMLGraph format uses top-level name, nodes, edges
+        assert "name" in data
+        assert "nodes" in data
+        assert "edges" in data
 
 
 class TestRagRetrieveInGraph:
