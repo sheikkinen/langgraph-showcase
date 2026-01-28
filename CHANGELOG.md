@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-01-28
+
+### Fixed
+- Agent nodes now respect `prompts_relative` and `prompts_dir` config
+- Map nodes now respect `prompts_relative` for sub-node prompts
+- LLM nodes properly inherit top-level prompt settings
+- GraphConfig checks top-level `prompts_relative`/`prompts_dir` before `defaults` block
+
+### Changed
+- Refactored `create_agent_node` to use `defaults` dict pattern (consistent with other factories)
+- `effective_defaults` now built once at top of `compile_node()` for all node types
+
+### Added
+- `tests/unit/test_prompts_relative.py` - 6 tests for prompt config propagation
+
 ## [0.4.2] - 2026-01-28
 
 ### Breaking Changes
