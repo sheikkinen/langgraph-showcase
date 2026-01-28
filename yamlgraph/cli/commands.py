@@ -81,54 +81,21 @@ def _format_result(result: dict[str, Any]) -> None:
             print(f"   {formatted}")
 
 
-def cmd_run(args: Namespace) -> None:
-    """Run the yamlgraph pipeline."""
-    if not validate_run_args(args):
-        sys.exit(1)
-
-    from yamlgraph.builder import run_pipeline
-    from yamlgraph.storage import YamlGraphDB, export_state
-    from yamlgraph.utils import get_run_url, is_tracing_enabled
-
-    print("\n🚀 Running yamlgraph pipeline")
-    print(f"   Topic: {args.topic}")
-    print(f"   Style: {args.style}")
-    print(f"   Words: {args.word_count}")
-    print()
-
-    # Run pipeline
-    result = run_pipeline(
-        topic=args.topic,
-        style=args.style,
-        word_count=args.word_count,
-    )
-
-    # Save to database
-    db = YamlGraphDB()
-    db.save_state(result["thread_id"], result, status="completed")
-    print(f"\n💾 Saved to database: thread_id={result['thread_id']}")
-
-    # Export to JSON
-    if args.export:
-        filepath = export_state(result)
-        print(f"📄 Exported to: {filepath}")
-
-    # Show results
-    print("\n" + "=" * 60)
-    print("RESULTS")
-    print("=" * 60)
-
-    _format_result(result)
-
-    # Show LangSmith link
-    if is_tracing_enabled() and (url := get_run_url()):
-        print(f"\n🔗 LangSmith: {url}")
-
-    print()
-
-
 def cmd_list_runs(args: Namespace) -> None:
-    """List recent pipeline runs."""
+    """List recent pipeline runs.
+
+    .. deprecated:: 0.4.0
+        Use LangSmith UI to browse runs instead.
+    """
+    import warnings
+
+    warnings.warn(
+        "yamlgraph list-runs is deprecated. Use LangSmith UI instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    print("⚠️  DEPRECATED: Use LangSmith UI to browse runs instead")
+
     from yamlgraph.storage import YamlGraphDB
 
     db = YamlGraphDB()
@@ -212,7 +179,20 @@ def cmd_resume(args: Namespace) -> None:
 
 
 def cmd_trace(args: Namespace) -> None:
-    """Show execution trace for a run."""
+    """Show execution trace for a run.
+
+    .. deprecated:: 0.4.0
+        Use LangSmith UI directly to view traces.
+    """
+    import warnings
+
+    warnings.warn(
+        "yamlgraph trace is deprecated. Use LangSmith UI directly.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    print("⚠️  DEPRECATED: Use LangSmith UI directly to view traces")
+
     from yamlgraph.utils import get_latest_run_id, get_run_url, print_run_tree
 
     run_id = args.run_id or get_latest_run_id()
@@ -233,7 +213,20 @@ def cmd_trace(args: Namespace) -> None:
 
 
 def cmd_export(args: Namespace) -> None:
-    """Export a run to JSON."""
+    """Export a run to JSON.
+
+    .. deprecated:: 0.4.0
+        Use `yamlgraph graph run <graph.yaml> --export` instead.
+    """
+    import warnings
+
+    warnings.warn(
+        "yamlgraph export is deprecated. Use: yamlgraph graph run <graph.yaml> --export",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    print("⚠️  DEPRECATED: Use 'yamlgraph graph run <graph.yaml> --export' instead")
+
     from yamlgraph.storage import YamlGraphDB, export_state
 
     db = YamlGraphDB()
