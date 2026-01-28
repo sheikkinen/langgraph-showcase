@@ -138,6 +138,20 @@ def create_parser() -> argparse.ArgumentParser:
         "--output", "-o", type=str, help="Output file (default: stdout)"
     )
 
+    # graph codegen (FR-008)
+    graph_codegen_parser = graph_subparsers.add_parser(
+        "codegen", help="Generate TypedDict Python code for IDE support"
+    )
+    graph_codegen_parser.add_argument("graph_path", help="Path to graph YAML file")
+    graph_codegen_parser.add_argument(
+        "--output", "-o", type=str, help="Output file (default: stdout)"
+    )
+    graph_codegen_parser.add_argument(
+        "--include-base",
+        action="store_true",
+        help="Include infrastructure fields (thread_id, errors, etc.)",
+    )
+
     graph_parser.set_defaults(func=cmd_graph_dispatch)
 
     return parser

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.31] - 2026-01-28
+
+### Added
+- **FR-008: TypedDict Code Generation for IDE Support**
+  - New `yamlgraph graph codegen <graph.yaml>` CLI command
+  - Generates TypedDict Python code from graph state configuration
+  - Options: `--output/-o FILE` to write to file, `--include-base` to include base fields
+  - Auto-generates class name from graph name (e.g., `hello-world` → `HelloWorldState`)
+  - Includes docstrings and generation comments
+  - 13 unit tests for codegen functionality
+
 ## [0.3.30] - 2026-01-27
 
 ### Changed

@@ -7,6 +7,7 @@ Implements:
 - graph lint <path>
 - graph mermaid <path>
 - graph validate <path>
+- graph codegen <path> [--output FILE] [--include-base]
 """
 
 import sys
@@ -22,6 +23,7 @@ from yamlgraph.cli.helpers import (
     load_graph_config,
     require_graph_config,
 )
+from yamlgraph.models.state_builder import generate_typeddict_code
 
 
 def parse_vars(var_list: list[str] | None) -> dict[str, str]:
@@ -223,6 +225,34 @@ def cmd_graph_info(args: Namespace) -> None:
         sys.exit(1)
 
 
+def cmd_graph_codegen(args: Namespace) -> None:
+    """Generate TypedDict Python code for IDE support (FR-008).
+
+    Reads graph YAML, generates TypedDict code with proper type hints,
+    and writes to file or stdout.
+    """
+    try:
+        config = load_graph_config(args.graph_path)
+        source_path = str(args.graph_path)
+        include_base = getattr(args, "include_base", False)
+
+        code = generate_typeddict_code(config, source_path, include_base)
+
+        output_path = getattr(args, "output", None)
+        if output_path:
+            Path(output_path).write_text(code)
+            print(f"✓ Generated TypedDict code: {output_path}")
+        else:
+            print(code)
+
+    except GraphLoadError as e:
+        print(f"❌ {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Error generating TypedDict code: {e}")
+        sys.exit(1)
+
+
 def cmd_graph_dispatch(args: Namespace) -> None:
     """Dispatch to graph subcommands."""
     if args.graph_command == "run":
@@ -237,6 +267,8 @@ def cmd_graph_dispatch(args: Namespace) -> None:
         cmd_graph_lint(args)
     elif args.graph_command == "mermaid":
         cmd_graph_mermaid(args)
+    elif args.graph_command == "codegen":
+        cmd_graph_codegen(args)
     else:
         print(f"Unknown graph command: {args.graph_command}")
         sys.exit(1)

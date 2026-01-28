@@ -8,6 +8,8 @@ Open feature requests and enhancement ideas.
 |---------|----------|--------|
 | [Session Manager](005-session-manager.md) | P3 | ⏸️ Deferred |
 | [Runtime prompt interpolation](runtime-prompt-interpolation.md) | LOW | Proposed |
+| [TypedDict Code Generation](008-typeddict-codegen.md) | MEDIUM | Proposed |
+| [JSON Schema Export](009-json-schema-export.md) | LOW | Proposed |
 
 ## Creating a New Request
 

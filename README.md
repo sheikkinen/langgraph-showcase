@@ -232,6 +232,7 @@ yamlgraph graph list                         # List available graphs
 yamlgraph graph info graphs/router-demo.yaml # Show graph structure
 yamlgraph graph validate graphs/*.yaml       # Validate graph schemas
 yamlgraph graph lint graphs/*.yaml           # Lint graphs for common issues
+yamlgraph graph codegen graphs/my-graph.yaml # Generate TypedDict for IDE support
 yamlgraph list-runs                          # View recent runs
 yamlgraph resume --thread-id abc123          # Resume a run
 yamlgraph export --thread-id abc123          # Export run to JSON
@@ -239,6 +240,30 @@ yamlgraph export --thread-id abc123          # Export run to JSON
 # Observability (requires LangSmith)
 yamlgraph trace --verbose                    # View execution trace
 yamlgraph mermaid                            # Show pipeline as Mermaid diagram
+```
+
+### IDE Type Support
+
+Generate TypedDict code from your graph for IDE autocomplete and type checking:
+
+```bash
+# Generate to stdout
+yamlgraph graph codegen graphs/interview-demo.yaml
+
+# Write to file
+yamlgraph graph codegen graphs/interview-demo.yaml -o interview_state.py
+
+# Include base fields (thread_id, errors, etc.)
+yamlgraph graph codegen graphs/interview-demo.yaml --include-base
+```
+
+Use the generated types in your Python code:
+
+```python
+from interview_state import InterviewDemoState
+
+def process_result(state: InterviewDemoState) -> None:
+    print(state["questions"])  # IDE autocomplete works!
 ```
 
 ## Documentation
