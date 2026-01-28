@@ -1,15 +1,28 @@
 #!/bin/bash
 # E2E Booking Assistant Test Script
 # Tests the complete booking flow: API + Chat + Database
+#
+# Usage:
+#   ./e2e_booking.sh                    # Local mode: starts server on port 8001
+#   ./e2e_booking.sh https://example.com  # Remote mode: tests against URL
 
 set -e  # Exit on any error
 
 # Configuration
-PORT=8001
-BASE_URL="http://localhost:$PORT"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 YAMLGRAPH_ROOT="$(dirname "$(dirname "$PROJECT_ROOT")")"
+
+# Check if URL provided as argument
+if [ -n "$1" ]; then
+    BASE_URL="$1"
+    REMOTE_MODE=true
+    PORT=""
+else
+    PORT=8001
+    BASE_URL="http://localhost:$PORT"
+    REMOTE_MODE=false
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -37,6 +50,9 @@ log_error() {
 
 # Cleanup function
 cleanup() {
+    if [ "$REMOTE_MODE" = true ]; then
+        return
+    fi
     log_info "Cleaning up..."
     pkill -f "uvicorn.*examples.booking.main" 2>/dev/null || true
     sleep 1
@@ -97,7 +113,7 @@ test_health() {
 seed_calendar() {
     log_info "Seeding calendar data..."
     chmod +x "$SCRIPT_DIR/seed_calendar.sh"
-    "$SCRIPT_DIR/seed_calendar.sh"
+    "$SCRIPT_DIR/seed_calendar.sh" "$BASE_URL"
     log_success "Calendar seeded successfully"
 }
 
@@ -255,31 +271,45 @@ run_tests() {
 main() {
     log_info "Starting E2E Booking Assistant Test"
     log_info "=================================="
+    log_info "Target: $BASE_URL"
+    log_info "Mode: $([ "$REMOTE_MODE" = true ] && echo "REMOTE" || echo "LOCAL")"
 
-    check_venv
-    clean_database
+    if [ "$REMOTE_MODE" = true ]; then
+        # Remote mode: just run tests against existing server
+        test_health
+        seed_calendar
+        show_calendar_status "Calendar status after seeding:"
+        test_api_endpoints
+        test_chat_flow
+        show_calendar_status "Calendar status after booking:"
+        log_success "E2E test completed successfully! 🎉"
+    else
+        # Local mode: start server, run tests, cleanup
+        check_venv
+        clean_database
 
-    # Start server in background
-    log_info "Starting server..."
-    cd "$YAMLGRAPH_ROOT"
-    .venv/bin/uvicorn examples.booking.main:app --reload --port $PORT &
-    SERVER_PID=$!
+        # Start server in background
+        log_info "Starting server..."
+        cd "$YAMLGRAPH_ROOT"
+        .venv/bin/uvicorn examples.booking.main:app --reload --port $PORT &
+        SERVER_PID=$!
 
-    # Wait for server
-    wait_for_server
+        # Wait for server
+        wait_for_server
 
-    # Run tests
-    test_health
-    seed_calendar
-    show_calendar_status "Calendar status after seeding:"
-    test_api_endpoints
-    test_chat_flow
-    show_calendar_status "Calendar status after booking:"
-    run_tests
+        # Run tests
+        test_health
+        seed_calendar
+        show_calendar_status "Calendar status after seeding:"
+        test_api_endpoints
+        test_chat_flow
+        show_calendar_status "Calendar status after booking:"
+        run_tests
 
-    log_success "E2E test completed successfully! 🎉"
+        log_success "E2E test completed successfully! 🎉"
 
-    # Server will be cleaned up by trap
+        # Server will be cleaned up by trap
+    fi
 }
 
 # Allow script to be sourced for individual functions
