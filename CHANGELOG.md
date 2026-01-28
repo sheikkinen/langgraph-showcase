@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.33] - 2026-01-28
+
+### Added
+- **FR-010: Auto-detect Loop Nodes for skip_if_exists**
+  - Automatically detect nodes in graph cycles at load time
+  - Auto-apply `skip_if_exists: false` to loop nodes (eliminates common footgun)
+  - Explicit `skip_if_exists` in YAML overrides auto-detection
+  - New `detect_loop_nodes()` and `apply_loop_node_defaults()` functions
+  - 16 unit tests for loop detection and auto-application
+
 ## [0.3.32] - 2026-01-28
 
 ### Added
