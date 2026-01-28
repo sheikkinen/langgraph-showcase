@@ -72,7 +72,6 @@ nodes:
     prompt: examples/npc/encounter_perceive
     state_key: perception
     temperature: 0.5
-    skip_if_exists: false
     variables:
       npc_name: "{state.npc_name}"
       npc_personality: "{state.npc_personality}"
@@ -87,7 +86,6 @@ nodes:
     prompt: examples/npc/encounter_decide
     state_key: decision
     temperature: 0.7
-    skip_if_exists: false
     variables:
       npc_name: "{state.npc_name}"
       npc_voice: "{state.npc_voice}"
@@ -102,7 +100,6 @@ nodes:
     prompt: examples/npc/encounter_narrate
     state_key: narration
     temperature: 0.8
-    skip_if_exists: false
     variables:
       npc_name: "{state.npc_name}"
       npc_appearance: "{state.npc_appearance}"
@@ -115,7 +112,6 @@ nodes:
     prompt: examples/npc/scene_describe
     state_key: scene_prompt
     temperature: 0.6
-    skip_if_exists: false
     variables:
       location: "{state.location}"
       location_description: "{state.location_description}"
@@ -134,7 +130,6 @@ nodes:
     prompt: examples/npc/encounter_summarize
     state_key: turn_summary
     temperature: 0.5
-    skip_if_exists: false
     variables:
       turn_number: "{state.turn_number}"
       location: "{state.location}"

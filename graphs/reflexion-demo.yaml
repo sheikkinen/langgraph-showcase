@@ -24,7 +24,6 @@ nodes:
       content: "{state.current_draft.content}"
       iteration: "{state._loop_counts.critique}"
     state_key: critique
-    skip_if_exists: false
 
   refine:
     type: llm
@@ -33,7 +32,6 @@ nodes:
       content: "{state.current_draft.content}"
       feedback: "{state.critique.feedback}"
     state_key: current_draft
-    skip_if_exists: false
 
 edges:
   - from: START
