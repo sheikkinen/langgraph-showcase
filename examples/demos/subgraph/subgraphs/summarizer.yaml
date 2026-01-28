@@ -1,6 +1,8 @@
 version: "1.0"
 name: summarizer
 description: Reusable text summarization subgraph
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: mistral
@@ -13,7 +15,7 @@ state:
 nodes:
   summarize:
     type: llm
-    prompt: summarizer/summarize
+    prompt: summarize
     state_key: output_summary
 
 edges:
