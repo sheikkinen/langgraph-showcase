@@ -179,7 +179,7 @@ def _get_embedding(text: str, model: str) -> list[float]:
         from openai import OpenAI
     except ImportError as e:
         raise ImportError(
-            "openai is required for embeddings. " "Install with: pip install openai"
+            "openai is required for embeddings. Install with: pip install openai"
         ) from e
 
     client = OpenAI()

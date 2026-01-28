@@ -147,8 +147,11 @@ class GraphConfig:
         # Store source path for subgraph resolution
         self.source_path = source_path
         # Prompt resolution options (FR-A: graph-relative prompts)
-        self.prompts_relative = self.defaults.get("prompts_relative", False)
-        self.prompts_dir = self.defaults.get("prompts_dir")
+        # Check top-level first, then defaults
+        self.prompts_relative = config.get(
+            "prompts_relative", self.defaults.get("prompts_relative", False)
+        )
+        self.prompts_dir = config.get("prompts_dir", self.defaults.get("prompts_dir"))
 
 
 def load_graph_config(path: str | Path) -> GraphConfig:

@@ -127,9 +127,7 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # schema path
-    schema_subparsers.add_parser(
-        "path", help="Print path to bundled JSON Schema"
-    )
+    schema_subparsers.add_parser("path", help="Print path to bundled JSON Schema")
 
     schema_parser.set_defaults(func=cmd_schema_dispatch)
 

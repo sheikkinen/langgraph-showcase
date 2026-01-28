@@ -10,6 +10,7 @@ from __future__ import annotations
 import inspect
 import logging
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
@@ -127,6 +128,10 @@ def create_agent_node(
     tools: dict[str, ShellToolConfig],
     websearch_tools: dict[str, Any] | None = None,
     python_tools: dict[str, PythonToolConfig] | None = None,
+    *,
+    graph_path: Path | None = None,
+    prompts_dir: Path | None = None,
+    prompts_relative: bool = False,
 ) -> Callable[[dict], dict]:
     """Create an agent node that loops with tool calls.
 
@@ -141,6 +146,9 @@ def create_agent_node(
         tools: Registry of available shell tools
         websearch_tools: Registry of web search tools (LangChain StructuredTool)
         python_tools: Registry of Python tools (PythonToolConfig)
+        graph_path: Path to graph YAML file (for relative prompt resolution)
+        prompts_dir: Base prompts directory
+        prompts_relative: If True, resolve prompts relative to graph_path
 
     Returns:
         Node function that runs the agent loop
@@ -188,7 +196,12 @@ def create_agent_node(
     def node_fn(state: dict) -> dict:
         """Execute the agent loop."""
         # Load prompts - fail fast if missing
-        prompt_config = load_prompt(prompt_name)
+        prompt_config = load_prompt(
+            prompt_name,
+            prompts_dir=prompts_dir,
+            graph_path=graph_path,
+            prompts_relative=prompts_relative,
+        )
         system_prompt = prompt_config.get("system", "")
         user_template = prompt_config.get("user", "{input}")
 

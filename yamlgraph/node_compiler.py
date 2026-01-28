@@ -59,9 +59,10 @@ def compile_node(
     if node_name in config.loop_limits:
         enriched_config["loop_limit"] = config.loop_limits[node_name]
 
-    # Extract prompts path config from defaults (FR-A)
-    prompts_relative = config.defaults.get("prompts_relative", False)
-    prompts_dir = config.defaults.get("prompts_dir")
+    # Extract prompts path config (FR-A)
+    # Use config attributes which check top-level then defaults
+    prompts_relative = config.prompts_relative
+    prompts_dir = config.prompts_dir
     if prompts_dir:
         prompts_dir = Path(prompts_dir)
 
@@ -75,7 +76,14 @@ def compile_node(
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.AGENT:
         node_fn = create_agent_node(
-            node_name, enriched_config, tools, websearch_tools, python_tools
+            node_name,
+            enriched_config,
+            tools,
+            websearch_tools,
+            python_tools,
+            graph_path=config.source_path,
+            prompts_dir=prompts_dir,
+            prompts_relative=prompts_relative,
         )
         graph.add_node(node_name, node_fn)
     elif node_type == NodeType.MAP:
