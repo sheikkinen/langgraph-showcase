@@ -117,6 +117,22 @@ python examples/npc/demo.py -n 4 -r 5 -i
 5. Explosion rocks the building
 6. And more dramatic events...
 
+### Web UI (`api/`)
+
+HTMX-powered web interface for running NPC encounters interactively:
+
+```bash
+uvicorn examples.npc.api.app:app --reload --port 8000
+```
+
+Then open http://localhost:8000 in your browser.
+
+**Features:**
+- Create NPCs from text concepts
+- Interactive encounter turns with DM input
+- Real-time NPC responses via HTMX
+- Session persistence with checkpointer
+
 ## Prompts
 
 All prompts are in `prompts/` using Jinja2 templates with inline schemas:
