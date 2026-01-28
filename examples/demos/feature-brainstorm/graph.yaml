@@ -1,6 +1,8 @@
 version: "1.0"
 name: feature-brainstorm
 description: YAMLGraph proposes improvements to itself by analyzing its own codebase
+prompts_relative: true
+prompts_dir: prompts
 
 state:
   focus: str  # Optional: area to focus on (e.g., "tools", "patterns", "cli")
@@ -50,7 +52,7 @@ tools:
 nodes:
   gather_context:
     type: agent
-    prompt: feature-brainstorm/gather
+    prompt: gather
     tools:
       - read_patterns
       - read_readme
@@ -64,7 +66,7 @@ nodes:
 
   research_alternatives:
     type: agent
-    prompt: feature-brainstorm/research
+    prompt: research
     tools:
       - search_web
     max_iterations: 5
@@ -72,7 +74,7 @@ nodes:
 
   brainstorm:
     type: llm
-    prompt: feature-brainstorm/ideate
+    prompt: ideate
     state_key: ideas
     variables:
       current_state: current_state
@@ -81,7 +83,7 @@ nodes:
 
   prioritize:
     type: llm
-    prompt: feature-brainstorm/prioritize
+    prompt: prioritize
     state_key: roadmap
     variables:
       ideas: ideas

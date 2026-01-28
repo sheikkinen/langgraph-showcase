@@ -4,6 +4,8 @@
 version: "1.0"
 name: tone-router-demo
 description: Route responses based on detected message tone
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: xai
@@ -12,7 +14,7 @@ defaults:
 nodes:
   classify:
     type: router
-    prompt: router-demo/classify_tone
+    prompt: classify_tone
     routes:
       positive: respond_positive
       negative: respond_negative
@@ -24,21 +26,21 @@ nodes:
 
   respond_positive:
     type: llm
-    prompt: router-demo/respond_positive
+    prompt: respond_positive
     variables:
       message: "{state.message}"
     state_key: response
 
   respond_negative:
     type: llm
-    prompt: router-demo/respond_negative
+    prompt: respond_negative
     variables:
       message: "{state.message}"
     state_key: response
 
   respond_neutral:
     type: llm
-    prompt: router-demo/respond_neutral
+    prompt: respond_neutral
     variables:
       message: "{state.message}"
     state_key: response

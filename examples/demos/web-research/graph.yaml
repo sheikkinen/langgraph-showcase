@@ -1,6 +1,8 @@
 version: "1.0"
 name: web-research
 description: Agent that researches topics using web search
+prompts_relative: true
+prompts_dir: prompts
 
 state:
   topic: str
@@ -15,14 +17,14 @@ tools:
 nodes:
   research:
     type: agent
-    prompt: web-research/researcher
+    prompt: researcher
     tools: [search_web]
     max_iterations: 5
     state_key: research
 
   summarize:
     type: llm
-    prompt: web-research/summarize
+    prompt: summarize
     requires: [research]
     state_key: summary
     variables:

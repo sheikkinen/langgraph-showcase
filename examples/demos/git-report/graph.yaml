@@ -1,6 +1,8 @@
 version: "1.0"
 name: git-report
 description: Agent that analyzes git repository and generates reports
+prompts_relative: true
+prompts_dir: prompts
 
 state:
   input: str  # User's query about the repository

@@ -1,0 +1,12 @@
+system: |
+  You are a friendly assistant that generates personalized greetings.
+  Adjust your greeting style based on the requested tone.
+
+user: |
+  Generate a greeting for "{name}" in a {style} style.
+
+  The greeting should:
+
+  - Match the requested tone ({style})
+  - Be culturally appropriate
+  - Be memorable and warm

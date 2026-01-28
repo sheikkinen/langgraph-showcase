@@ -1,0 +1,38 @@
+version: "1.0"
+name: interrupt-child
+description: Child graph with interrupt for testing FR-006
+
+state:
+  input_message: str
+  phase: str
+  extracted_data: str
+  question: str
+  user_answer: str
+
+nodes:
+  process:
+    type: passthrough
+    output:
+      phase: "processing"
+      extracted_data: "partial result from child"
+
+  ask_user:
+    type: interrupt
+    message: "What is your answer?"
+    state_key: question
+    resume_key: user_answer
+
+  finalize:
+    type: passthrough
+    output:
+      phase: "complete"
+
+edges:
+  - from: START
+    to: process
+  - from: process
+    to: ask_user
+  - from: ask_user
+    to: finalize
+  - from: finalize
+    to: END

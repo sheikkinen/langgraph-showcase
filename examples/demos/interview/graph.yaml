@@ -9,6 +9,8 @@
 version: "1.0"
 name: interview-demo
 description: Interactive interview with human-in-the-loop
+prompts_relative: true
+prompts_dir: prompts
 
 # Checkpointer required for interrupt nodes
 checkpointer:
@@ -27,14 +29,14 @@ nodes:
   # Step 0: LLM generates welcome message
   generate_welcome:
     type: llm
-    prompt: interview/welcome
+    prompt: welcome
     state_key: welcome_message
     provider: mistral
 
   # Step 1: Ask for user's name (uses LLM-generated welcome)
   ask_name:
     type: interrupt
-    prompt: interview/ask_name
+    prompt: ask_name
     state_key: name_question
     resume_key: user_name
 
@@ -48,7 +50,7 @@ nodes:
   # Step 3: Generate personalized response
   generate_response:
     type: llm
-    prompt: interview/personalized_greeting
+    prompt: personalized_greeting
     state_key: greeting
     provider: mistral
 

@@ -1,0 +1,40 @@
+# Content Analysis Prompt
+# Analyzes content and extracts structured insights
+
+schema:
+  name: Analysis
+  fields:
+    summary:
+      type: str
+      description: "Brief summary of the content"
+    key_points:
+      type: list[str]
+      description: "Main points extracted"
+    sentiment:
+      type: str
+      description: "Overall sentiment: positive, neutral, or negative"
+    confidence:
+      type: float
+      description: "Confidence score 0-1"
+      constraints:
+        ge: 0.0
+        le: 1.0
+
+system: |
+  You are an expert content analyst. Analyze the provided text
+  and extract structured insights.
+  
+  Always be objective and provide confidence scores for your analysis.
+
+user: |
+  Analyze the following content:
+  
+  ---
+  {content}
+  ---
+  
+  Provide:
+  1. A brief summary (2-3 sentences)
+  2. Key points (bullet list)
+  3. Overall sentiment (positive/neutral/negative)
+  4. Your confidence level (0-1)

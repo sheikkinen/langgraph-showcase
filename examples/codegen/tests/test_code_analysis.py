@@ -8,21 +8,21 @@ class TestCodeAnalysisGraphStructure:
 
     def test_graph_file_exists(self):
         """Graph file should exist."""
-        graph_path = Path("graphs/code-analysis.yaml")
-        assert graph_path.exists(), "graphs/code-analysis.yaml not found"
+        graph_path = Path("examples/demos/code-analysis/graph.yaml")
+        assert graph_path.exists(), "examples/demos/code-analysis/graph.yaml not found"
 
     def test_graph_loads_successfully(self):
         """Graph should load without errors."""
         from yamlgraph.graph_loader import load_and_compile
 
-        graph = load_and_compile("graphs/code-analysis.yaml")
+        graph = load_and_compile("examples/demos/code-analysis/graph.yaml")
         assert graph is not None
 
     def test_graph_has_required_nodes(self):
         """Graph should have run_analysis and generate_recommendations nodes."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
         assert "run_analysis" in config.nodes
         assert "generate_recommendations" in config.nodes
 
@@ -30,7 +30,7 @@ class TestCodeAnalysisGraphStructure:
         """Graph should define analysis tools."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
         tools = config.tools
 
         # Should have at least these tools
@@ -44,19 +44,19 @@ class TestCodeAnalysisPrompts:
 
     def test_analyzer_prompt_exists(self):
         """Analyzer prompt should exist."""
-        prompt_path = Path("prompts/code-analysis/analyzer.yaml")
-        assert prompt_path.exists(), "prompts/code-analysis/analyzer.yaml not found"
+        prompt_path = Path("examples/demos/code-analysis/prompts/analyzer.yaml")
+        assert prompt_path.exists(), "examples/demos/code-analysis/prompts/analyzer.yaml not found"
 
     def test_recommend_prompt_exists(self):
         """Recommend prompt should exist."""
-        prompt_path = Path("prompts/code-analysis/recommend.yaml")
-        assert prompt_path.exists(), "prompts/code-analysis/recommend.yaml not found"
+        prompt_path = Path("examples/demos/code-analysis/prompts/recommend.yaml")
+        assert prompt_path.exists(), "examples/demos/code-analysis/prompts/recommend.yaml not found"
 
     def test_analyzer_prompt_has_system_and_user(self):
         """Analyzer prompt should have system and user sections."""
         import yaml
 
-        with open("prompts/code-analysis/analyzer.yaml") as f:
+        with open("examples/demos/code-analysis/prompts/analyzer.yaml") as f:
             prompt = yaml.safe_load(f)
 
         assert "system" in prompt, "Missing system prompt"
@@ -66,7 +66,7 @@ class TestCodeAnalysisPrompts:
         """Recommend prompt should have system and user sections."""
         import yaml
 
-        with open("prompts/code-analysis/recommend.yaml") as f:
+        with open("examples/demos/code-analysis/prompts/recommend.yaml") as f:
             prompt = yaml.safe_load(f)
 
         assert "system" in prompt, "Missing system prompt"
@@ -80,7 +80,7 @@ class TestCodeAnalysisTools:
         """Ruff tool should have valid command structure."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
         ruff_tool = config.tools.get("run_ruff", {})
 
         assert "command" in ruff_tool
@@ -90,7 +90,7 @@ class TestCodeAnalysisTools:
         """Tests tool should have valid command structure."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
         tests_tool = config.tools.get("run_tests", {})
 
         assert "command" in tests_tool
@@ -100,7 +100,7 @@ class TestCodeAnalysisTools:
         """Bandit tool should have valid command structure."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
         bandit_tool = config.tools.get("run_bandit", {})
 
         assert "command" in bandit_tool
@@ -116,7 +116,7 @@ class TestCodeAnalysisCompilation:
 
         from yamlgraph.graph_loader import load_and_compile
 
-        graph = load_and_compile("graphs/code-analysis.yaml")
+        graph = load_and_compile("examples/demos/code-analysis/graph.yaml")
 
         with SqliteSaver.from_conn_string(":memory:") as checkpointer:
             compiled = graph.compile(checkpointer=checkpointer)
@@ -126,7 +126,7 @@ class TestCodeAnalysisCompilation:
         """Graph should have START -> run_analysis edge."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/code-analysis.yaml")
+        config = load_graph_config("examples/demos/code-analysis/graph.yaml")
 
         # Find edge from START
         start_edges = [e for e in config.edges if e.get("from") == "START"]

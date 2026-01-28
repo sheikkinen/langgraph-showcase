@@ -19,21 +19,21 @@ class TestMemoryDemoGraphConfig:
 
     def test_graph_config_exists(self):
         """Graph config file exists."""
-        config_path = Path("graphs/memory-demo.yaml")
-        assert config_path.exists(), "graphs/memory-demo.yaml should exist"
+        config_path = Path("examples/demos/memory/graph.yaml")
+        assert config_path.exists(), "examples/demos/memory/graph.yaml should exist"
 
     def test_graph_config_loads(self):
         """Graph config loads without errors."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/memory-demo.yaml")
+        config = load_graph_config("examples/demos/memory/graph.yaml")
         assert config.name == "memory_demo"
 
     def test_graph_has_agent_node(self):
         """Graph includes an agent node."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/memory-demo.yaml")
+        config = load_graph_config("examples/demos/memory/graph.yaml")
         assert "review" in config.nodes
         assert config.nodes["review"]["type"] == "agent"
 
@@ -41,7 +41,7 @@ class TestMemoryDemoGraphConfig:
         """Graph defines git tools."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/memory-demo.yaml")
+        config = load_graph_config("examples/demos/memory/graph.yaml")
         tools = config.tools or {}
         assert "git_log" in tools
         assert "git_diff" in tools
@@ -52,14 +52,21 @@ class TestCodeReviewPrompt:
 
     def test_prompt_file_exists(self):
         """Prompt file exists."""
-        prompt_path = Path("prompts/code_review.yaml")
-        assert prompt_path.exists(), "prompts/code_review.yaml should exist"
+        prompt_path = Path("examples/demos/memory/prompts/code_review.yaml")
+        assert prompt_path.exists(), "examples/demos/memory/prompts/code_review.yaml should exist"
 
     def test_prompt_loads(self):
         """Prompt loads with system and user templates."""
+        from pathlib import Path
+
         from yamlgraph.utils.prompts import load_prompt
 
-        prompt = load_prompt("code_review")
+        prompt = load_prompt(
+            "code_review",
+            prompts_dir=Path("prompts"),
+            graph_path=Path("examples/demos/memory/graph.yaml"),
+            prompts_relative=True,
+        )
         assert "system" in prompt
         assert "user" in prompt
 
@@ -71,7 +78,7 @@ class TestCheckpointerIntegration:
         """load_and_compile returns a valid graph."""
         from yamlgraph.graph_loader import load_and_compile
 
-        graph = load_and_compile("graphs/memory-demo.yaml")
+        graph = load_and_compile("examples/demos/memory/graph.yaml")
         assert graph is not None
         compiled = graph.compile()
         assert compiled is not None
@@ -85,7 +92,7 @@ class TestCheckpointerIntegration:
 
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
-            graph = load_and_compile("graphs/memory-demo.yaml")
+            graph = load_and_compile("examples/demos/memory/graph.yaml")
             compiled = graph.compile(checkpointer=checkpointer)
 
             # Should accept configurable with thread_id

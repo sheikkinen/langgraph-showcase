@@ -4,6 +4,8 @@
 version: "1.0"
 name: yamlgraph-demo
 description: Content generation pipeline (generate → analyze → summarize)
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: mistral

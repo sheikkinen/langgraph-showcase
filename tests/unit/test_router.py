@@ -284,13 +284,13 @@ class TestRouterDemoGraph:
 
     def test_demo_graph_loads(self):
         """router-demo.yaml loads without error."""
-        config = load_graph_config("graphs/router-demo.yaml")
+        config = load_graph_config("examples/demos/router/graph.yaml")
         assert config.name == "tone-router-demo"
         assert "classify" in config.nodes
         assert config.nodes["classify"]["type"] == "router"
 
     def test_demo_graph_compiles(self):
         """router-demo.yaml compiles to StateGraph."""
-        config = load_graph_config("graphs/router-demo.yaml")
+        config = load_graph_config("examples/demos/router/graph.yaml")
         graph = compile_graph(config)
         assert graph is not None

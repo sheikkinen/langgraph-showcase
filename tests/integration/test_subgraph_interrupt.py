@@ -18,7 +18,13 @@ class TestSubgraphInterruptMapping:
     @pytest.fixture
     def parent_graph_path(self) -> Path:
         """Path to the parent graph with interrupt_output_mapping."""
-        return Path(__file__).parent.parent.parent / "graphs" / "interrupt-parent.yaml"
+        return (
+            Path(__file__).parent.parent.parent
+            / "examples"
+            / "demos"
+            / "interrupt"
+            / "interrupt-parent.yaml"
+        )
 
     @pytest.fixture
     def compiled_graph(self, parent_graph_path: Path):

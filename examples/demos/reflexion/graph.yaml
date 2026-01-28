@@ -4,6 +4,8 @@
 version: "1.0"
 name: reflexion-demo
 description: Self-improving essay with critique loop
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: mistral
@@ -12,14 +14,14 @@ defaults:
 nodes:
   draft:
     type: llm
-    prompt: reflexion-demo/draft
+    prompt: draft
     variables:
       topic: "{state.topic}"
     state_key: current_draft
 
   critique:
     type: llm
-    prompt: reflexion-demo/critique
+    prompt: critique
     variables:
       content: "{state.current_draft.content}"
       iteration: "{state._loop_counts.critique}"
@@ -27,7 +29,7 @@ nodes:
 
   refine:
     type: llm
-    prompt: reflexion-demo/refine
+    prompt: refine
     variables:
       content: "{state.current_draft.content}"
       feedback: "{state.critique.feedback}"

@@ -1,0 +1,36 @@
+# Content Generation Prompt
+# Generates creative content with structured output
+
+schema:
+  name: GeneratedContent
+  fields:
+    title:
+      type: str
+      description: "Title of the generated content"
+    content:
+      type: str
+      description: "The main generated text"
+    word_count:
+      type: int
+      description: "Approximate word count"
+    tags:
+      type: list[str]
+      description: "Relevant tags"
+      default: []
+
+system: |
+  You are a creative content writer. Generate engaging, informative content
+  on the requested topic.
+  
+  Your writing should be:
+  - Clear and well-structured
+  - Engaging and informative
+  - Appropriate for a general audience
+
+user: |
+  Write about: {topic}
+  
+  Target length: approximately {word_count} words
+  Style: {style}
+  
+  Include a compelling title and relevant tags for the content.

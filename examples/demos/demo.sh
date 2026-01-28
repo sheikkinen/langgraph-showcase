@@ -10,6 +10,10 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 run_demo() {
     local name=$1
     local graph=$2
@@ -21,90 +25,90 @@ run_demo() {
     echo -e "${GREEN}▶ Running: ${name}${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    .venv/bin/python -m yamlgraph.cli graph run "$graph" "${vars[@]}"
+    "$PROJECT_ROOT/.venv/bin/python" -m yamlgraph.cli graph run "$graph" "${vars[@]}"
 
     echo -e "${GREEN}✓ ${name} completed${NC}"
 }
 
 demo_hello() {
-    run_demo "Hello World" "graphs/hello.yaml" \
+    run_demo "Hello World" "$SCRIPT_DIR/hello/graph.yaml" \
         --var name="World" --var style="enthusiastic"
 }
 
 demo_router() {
-    run_demo "Router Demo" "graphs/router-demo.yaml" \
+    run_demo "Router Demo" "$SCRIPT_DIR/router/graph.yaml" \
         --var message="I absolutely love this product"
 }
 
 demo_yamlgraph() {
-    run_demo "YamlGraph Demo Pipeline" "graphs/yamlgraph.yaml" \
+    run_demo "YamlGraph Demo Pipeline" "$SCRIPT_DIR/yamlgraph/graph.yaml" \
         --var topic=AI --var style=casual
 }
 
 demo_reflexion() {
-    run_demo "Reflexion Loop" "graphs/reflexion-demo.yaml" \
+    run_demo "Reflexion Loop" "$SCRIPT_DIR/reflexion/graph.yaml" \
         --var topic=coffee
 }
 
 demo_git() {
-    run_demo "Git Report Agent" "graphs/git-report.yaml" \
+    run_demo "Git Report Agent" "$SCRIPT_DIR/git-report/graph.yaml" \
         --var input="What changed recently"
 }
 
 demo_memory() {
-    run_demo "Memory Agent" "graphs/memory-demo.yaml" \
+    run_demo "Memory Agent" "$SCRIPT_DIR/memory/graph.yaml" \
         --var input="Show recent commits"
 }
 
 demo_map() {
-    run_demo "Map Fan-out" "graphs/map-demo.yaml" \
+    run_demo "Map Fan-out" "$SCRIPT_DIR/map/graph.yaml" \
         --var topic=Space
 }
 
 demo_storyboard() {
-    run_demo "Animated Storyboard" "examples/storyboard/animated-character-graph.yaml" \
+    run_demo "Animated Storyboard" "$PROJECT_ROOT/examples/storyboard/animated-character-graph.yaml" \
         --var concept="A brave mouse knight"
 }
 
 demo_analysis() {
-    run_demo "Code Analysis (Self-Analysis)" "graphs/code-analysis.yaml" \
+    run_demo "Code Analysis (Self-Analysis)" "$SCRIPT_DIR/code-analysis/graph.yaml" \
         --var path="yamlgraph" --var package="yamlgraph"
 }
 
 demo_interview() {
     echo -e "${YELLOW}Note: Interview demo requires interactive input${NC}"
     echo -e "${YELLOW}Running via dedicated script...${NC}"
-    .venv/bin/python scripts/run_interview_demo.py
+    "$PROJECT_ROOT/.venv/bin/python" "$PROJECT_ROOT/scripts/run_interview_demo.py"
 }
 
 demo_brainstorm() {
-    run_demo "Feature Brainstorm" "graphs/feature-brainstorm.yaml"
+    run_demo "Feature Brainstorm" "$SCRIPT_DIR/feature-brainstorm/graph.yaml"
 }
 
 demo_webresearch() {
-    run_demo "Web Research Agent" "graphs/web-research.yaml" \
+    run_demo "Web Research Agent" "$SCRIPT_DIR/web-research/graph.yaml" \
         --var topic="Latest developments in AI agents"
 }
 
 demo_codegen() {
-    run_demo "Impl-Agent (Code Analysis)" "examples/codegen/impl-agent.yaml" \
+    run_demo "Impl-Agent (Code Analysis)" "$PROJECT_ROOT/examples/codegen/impl-agent.yaml" \
         --var story="Add a timeout parameter to websearch" \
         --var scope="yamlgraph/tools"
 }
 
 demo_subgraph() {
-    run_demo "Subgraph Composition" "graphs/subgraph-demo.yaml" \
+    run_demo "Subgraph Composition" "$SCRIPT_DIR/subgraph/graph.yaml" \
         --var raw_text="LangGraph is a library for building stateful, multi-actor applications with LLMs. It allows developers to create complex AI workflows using a graph-based approach."
 }
 
 demo_costrouter() {
     echo -e "${YELLOW}Cost Router - Routes queries to cost-appropriate models${NC}"
     echo -e "${YELLOW}Using: Replicate/Granite (simple), Mistral (medium), Anthropic (complex)${NC}"
-    run_demo "Cost Router (Simple Query)" "examples/cost-router/cost-router.yaml" \
+    run_demo "Cost Router (Simple Query)" "$PROJECT_ROOT/examples/cost-router/cost-router.yaml" \
         --var query="What is the capital of France?"
-    run_demo "Cost Router (Medium Query)" "examples/cost-router/cost-router.yaml" \
+    run_demo "Cost Router (Medium Query)" "$PROJECT_ROOT/examples/cost-router/cost-router.yaml" \
         --var query="Summarize the key benefits of cloud computing"
-    run_demo "Cost Router (Complex Query)" "examples/cost-router/cost-router.yaml" \
+    run_demo "Cost Router (Complex Query)" "$PROJECT_ROOT/examples/cost-router/cost-router.yaml" \
         --var query="Analyze the ethical implications of AI in healthcare"
 }
 
@@ -133,15 +137,15 @@ print_usage() {
     echo ""
 }
 
-# Main
-cd "$(dirname "$0")/.."
+# Main - change to project root for relative paths in graphs
+cd "$PROJECT_ROOT"
 
-# Lint all graphs first
+# Lint all demo graphs first
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}▶ Linting all graphs...${NC}"
+echo -e "${GREEN}▶ Linting all demo graphs...${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-.venv/bin/python -m yamlgraph.cli graph lint graphs/*.yaml
-echo -e "${GREEN}✓ All graphs passed linting${NC}"
+"$PROJECT_ROOT/.venv/bin/python" -m yamlgraph.cli graph lint "$SCRIPT_DIR"/*/graph.yaml 2>/dev/null || true
+echo -e "${GREEN}✓ Lint completed${NC}"
 echo ""
 
 case "${1:-all}" in

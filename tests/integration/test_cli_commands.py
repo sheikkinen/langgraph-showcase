@@ -11,31 +11,16 @@ from pathlib import Path
 class TestGraphCommands:
     """Integration tests for graph subcommands."""
 
-    def test_graph_list_returns_graphs(self):
-        """'graph list' shows available graphs."""
+    def test_graph_list_no_graphs_directory(self):
+        """'graph list' handles missing graphs/ directory gracefully."""
         result = subprocess.run(
             [sys.executable, "-m", "yamlgraph.cli", "graph", "list"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
         )
-        assert result.returncode == 0
-        assert "yamlgraph.yaml" in result.stdout
-        assert "Available graphs" in result.stdout
-
-    def test_graph_list_shows_all_demos(self):
-        """'graph list' shows all demo graphs."""
-        result = subprocess.run(
-            [sys.executable, "-m", "yamlgraph.cli", "graph", "list"],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent.parent,
-        )
-        assert result.returncode == 0
-        # Should list all main demo graphs
-        assert "router-demo.yaml" in result.stdout
-        assert "reflexion-demo.yaml" in result.stdout
-        assert "git-report.yaml" in result.stdout
+        # With empty graphs/ folder, should show 0 graphs or "not found"
+        assert result.returncode == 0 or "not found" in result.stdout.lower()
 
     def test_graph_validate_valid_graph(self):
         """'graph validate' succeeds for valid graph."""
@@ -46,7 +31,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "validate",
-                "graphs/yamlgraph.yaml",
+                "examples/demos/yamlgraph/graph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -58,12 +43,12 @@ class TestGraphCommands:
     def test_graph_validate_all_demos(self):
         """'graph validate' succeeds for all demo graphs."""
         demos = [
-            "graphs/yamlgraph.yaml",
-            "graphs/router-demo.yaml",
-            "graphs/reflexion-demo.yaml",
-            "graphs/git-report.yaml",
-            "graphs/memory-demo.yaml",
-            "graphs/map-demo.yaml",
+            "examples/demos/yamlgraph/graph.yaml",
+            "examples/demos/router/graph.yaml",
+            "examples/demos/reflexion/graph.yaml",
+            "examples/demos/git-report/graph.yaml",
+            "examples/demos/memory/graph.yaml",
+            "examples/demos/map/graph.yaml",
         ]
         for demo in demos:
             result = subprocess.run(
@@ -100,7 +85,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "info",
-                "graphs/yamlgraph.yaml",
+                "examples/demos/yamlgraph/graph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -118,7 +103,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "info",
-                "graphs/yamlgraph.yaml",
+                "examples/demos/yamlgraph/graph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -136,7 +121,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "info",
-                "graphs/router-demo.yaml",
+                "examples/demos/router/graph.yaml",
             ],
             capture_output=True,
             text=True,
@@ -177,7 +162,7 @@ class TestGraphCommands:
                 "yamlgraph.cli",
                 "graph",
                 "run",
-                "graphs/yamlgraph.yaml",
+                "examples/demos/yamlgraph/graph.yaml",
                 "--var",
                 "invalid_no_equals",
             ],

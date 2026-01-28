@@ -380,7 +380,7 @@ class TestReflexionDemoGraph:
         """reflexion-demo.yaml loads without error."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/reflexion-demo.yaml")
+        config = load_graph_config("examples/demos/reflexion/graph.yaml")
         assert config.name == "reflexion-demo"
         assert "draft" in config.nodes
         assert "critique" in config.nodes
@@ -390,7 +390,7 @@ class TestReflexionDemoGraph:
         """reflexion-demo.yaml has loop_limits configured."""
         from yamlgraph.graph_loader import load_graph_config
 
-        config = load_graph_config("graphs/reflexion-demo.yaml")
+        config = load_graph_config("examples/demos/reflexion/graph.yaml")
         assert "critique" in config.loop_limits
         assert config.loop_limits["critique"] >= 3
 
@@ -398,6 +398,6 @@ class TestReflexionDemoGraph:
         """reflexion-demo.yaml compiles to StateGraph."""
         from yamlgraph.graph_loader import compile_graph, load_graph_config
 
-        config = load_graph_config("graphs/reflexion-demo.yaml")
+        config = load_graph_config("examples/demos/reflexion/graph.yaml")
         graph = compile_graph(config)
         assert graph is not None

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-01-28
+
+### Breaking Changes
+- **FR-013: Demo reorganization** - Demo graphs and prompts moved to `examples/demos/`
+  - `graphs/*.yaml` → `examples/demos/{name}/graph.yaml`
+  - `prompts/{demo}/` → `examples/demos/{demo}/prompts/`
+  - `scripts/demo.sh` → `examples/demos/demo.sh`
+  - `DEFAULT_GRAPH` now points to `examples/demos/yamlgraph/graph.yaml`
+
+### Changed
+- Demo graphs now use `prompts_relative: true` with co-located prompts
+- Updated all tests to use new demo paths
+- Linter now correctly resolves `prompts_relative` paths
+
+### Added
+- `examples/demos/` directory structure with 14 self-contained demos
+- TDD tests in `tests/integration/test_demo_structure.py`
+
+### Removed
+- Empty `graphs/` directory (demos moved to `examples/demos/`)
+- Demo prompts from global `prompts/` directory
+
 ## [0.4.1] - 2026-01-28
 
 ### Breaking Changes

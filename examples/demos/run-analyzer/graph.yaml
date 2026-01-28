@@ -19,6 +19,8 @@
 version: "1.0"
 name: run-analyzer
 description: Analyze a previous run for issues and provide recommendations
+prompts_relative: true
+prompts_dir: prompts
 
 # Input state
 state:
@@ -49,7 +51,7 @@ nodes:
   # Step 1: Fetch run information using agent with tools
   fetch_run_info:
     type: agent
-    prompt: run-analyzer/fetch_info
+    prompt: fetch_info
     tools: [get_run_details, get_run_errors, get_failed_runs]
     max_iterations: 5
     state_key: run_info
@@ -60,7 +62,7 @@ nodes:
   # Step 2: Analyze the run for issues
   analyze_issues:
     type: llm
-    prompt: run-analyzer/analyze
+    prompt: analyze
     state_key: analysis
     requires: [run_info]
     variables:
@@ -69,7 +71,7 @@ nodes:
   # Step 3: Generate recommendations
   recommend:
     type: llm
-    prompt: run-analyzer/recommend
+    prompt: recommend
     state_key: recommendations
     requires: [run_info, analysis]
     variables:

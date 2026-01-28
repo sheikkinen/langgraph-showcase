@@ -5,6 +5,9 @@ version: "1.0"
 name: hello-world
 description: Simple greeting generator demonstrating basic LLM usage
 
+prompts_relative: true
+prompts_dir: prompts
+
 defaults:
   temperature: 0.7
 

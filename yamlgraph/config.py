@@ -25,8 +25,8 @@ GRAPHS_DIR = WORKING_DIR / "graphs"
 OUTPUTS_DIR = WORKING_DIR / "outputs"
 DATABASE_PATH = OUTPUTS_DIR / "yamlgraph.db"
 
-# Default graph configuration
-DEFAULT_GRAPH = GRAPHS_DIR / "yamlgraph.yaml"
+# Default graph configuration (demo location)
+DEFAULT_GRAPH = WORKING_DIR / "examples" / "demos" / "yamlgraph" / "graph.yaml"
 
 # LLM Configuration
 DEFAULT_TEMPERATURE = 0.7

@@ -1,6 +1,8 @@
 version: "1.0"
 name: code-analysis
 description: Run code analysis tools and generate improvement recommendations
+prompts_relative: true
+prompts_dir: prompts
 
 # Input state - variables passed from CLI
 state:
@@ -59,14 +61,14 @@ tools:
 nodes:
   run_analysis:
     type: agent
-    prompt: code-analysis/analyzer
+    prompt: analyzer
     tools: [run_ruff, run_tests, run_coverage, run_bandit, run_radon, run_vulture, count_lines, find_todos]
     max_iterations: 12
     state_key: analysis_results
 
   generate_recommendations:
     type: llm
-    prompt: code-analysis/recommend
+    prompt: recommend
     requires: [analysis_results]
     state_key: recommendations
     variables:

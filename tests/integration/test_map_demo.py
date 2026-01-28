@@ -10,14 +10,14 @@ class TestMapDemoGraph:
 
     def test_map_demo_config_loads(self) -> None:
         """Map demo graph config loads successfully."""
-        config = load_graph_config("graphs/map-demo.yaml")
+        config = load_graph_config("examples/demos/map/graph.yaml")
         assert config.name == "map-demo"
         assert "expand" in config.nodes
         assert config.nodes["expand"]["type"] == "map"
 
     def test_map_demo_graph_compiles(self) -> None:
         """Map demo graph compiles to StateGraph."""
-        config = load_graph_config("graphs/map-demo.yaml")
+        config = load_graph_config("examples/demos/map/graph.yaml")
 
         # Mock compile_map_node to avoid needing prompt execution
         with patch("yamlgraph.node_compiler.compile_map_node") as mock_compile_map:
@@ -37,7 +37,7 @@ class TestMapDemoGraph:
 
         from yamlgraph.models.state_builder import build_state_class, sorted_add
 
-        config = load_graph_config("graphs/map-demo.yaml")
+        config = load_graph_config("examples/demos/map/graph.yaml")
         state_class = build_state_class(config.raw_config)
 
         annotations = state_class.__annotations__

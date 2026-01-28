@@ -4,13 +4,15 @@
 name: map-demo
 version: "1.0"
 description: "Demonstrates parallel fan-out with type: map"
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: mistral
 
 nodes:
   generate:
-    prompt: map-demo/generate_ideas
+    prompt: generate_ideas
     state_key: ideas
     variables:
       topic: "{state.topic}"
@@ -20,14 +22,14 @@ nodes:
     over: "{state.ideas.ideas}"
     as: idea
     node:
-      prompt: map-demo/expand_idea
+      prompt: expand_idea
       state_key: expansion
       variables:
         idea: "{state.idea}"
     collect: expansions
 
   summarize:
-    prompt: map-demo/summarize_ideas
+    prompt: summarize_ideas
     state_key: summary
     variables:
       expansions: "{state.expansions}"

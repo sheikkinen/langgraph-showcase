@@ -81,10 +81,18 @@ def get_prompt_path(prompt_name: str, prompts_dir: Path) -> Path:
 
 
 def resolve_prompts_dir(graph: dict, graph_path: Path, project_root: Path) -> Path:
-    """Resolve the prompts directory based on graph config."""
+    """Resolve the prompts directory based on graph config.
+
+    Respects prompts_relative setting to resolve relative to graph file.
+    """
     defaults = graph.get("defaults", {})
+    prompts_relative = graph.get("prompts_relative", False)
     prompts_dir_config = graph.get("prompts_dir") or defaults.get("prompts_dir")
-    if prompts_dir_config:
+
+    if prompts_relative and prompts_dir_config:
+        # Resolve relative to graph file location
+        return graph_path.parent / prompts_dir_config
+    elif prompts_dir_config:
         return project_root / prompts_dir_config
     return project_root / "prompts"
 

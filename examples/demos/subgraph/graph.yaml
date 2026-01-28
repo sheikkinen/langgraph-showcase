@@ -1,6 +1,8 @@
 version: "1.0"
 name: subgraph-demo
 description: Demo of subgraph composition - parent graph calls a summarizer subgraph
+prompts_relative: true
+prompts_dir: prompts
 
 defaults:
   provider: mistral
@@ -15,7 +17,7 @@ state:
 nodes:
   prepare:
     type: llm
-    prompt: subgraph-demo/prepare
+    prompt: prepare
     state_key: prepared_text
 
   summarize:
@@ -29,7 +31,7 @@ nodes:
 
   format:
     type: llm
-    prompt: subgraph-demo/format
+    prompt: format
     state_key: final_output
 
 edges:

@@ -1,5 +1,7 @@
 name: memory_demo
 description: Multi-turn code review assistant with memory
+prompts_relative: true
+prompts_dir: prompts
 
 state:
   input: str

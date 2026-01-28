@@ -11,8 +11,8 @@ from yamlgraph.tools.graph_linter import lint_graph
 
 # Use absolute paths relative to project root
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-GRAPH_PATH = PROJECT_ROOT / "graphs/feature-brainstorm.yaml"
-PROMPTS_DIR = PROJECT_ROOT / "prompts/feature-brainstorm"
+GRAPH_PATH = PROJECT_ROOT / "examples/demos/feature-brainstorm/graph.yaml"
+PROMPTS_DIR = PROJECT_ROOT / "examples/demos/feature-brainstorm/prompts"
 
 
 class TestFeatureBrainstormStructure:
