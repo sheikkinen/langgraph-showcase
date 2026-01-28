@@ -38,33 +38,32 @@ class TestYamlGraphDBRemoved:
             from yamlgraph.storage import database  # noqa: F401
 
 
-class TestBuildResumeGraphRemoved:
-    """Verify build_resume_graph has been removed."""
+class TestBuilderModuleRemoved:
+    """Verify builder module has been removed."""
 
-    def test_build_resume_graph_not_in_builder(self) -> None:
-        """build_resume_graph should not be in builder module."""
-        from yamlgraph import builder
+    def test_builder_module_not_importable(self) -> None:
+        """builder module should not be importable."""
+        with pytest.raises(ImportError):
+            from yamlgraph import builder  # noqa: F401
 
-        assert not hasattr(builder, "build_resume_graph")
-
-    def test_build_resume_graph_not_exported(self) -> None:
-        """build_resume_graph should not be exported from yamlgraph."""
+    def test_build_graph_not_exported(self) -> None:
+        """build_graph should not be exported from yamlgraph."""
         import yamlgraph
 
-        assert not hasattr(yamlgraph, "build_resume_graph")
+        assert not hasattr(yamlgraph, "build_graph")
 
 
 class TestModernAPIPreserved:
     """Verify modern API is still available."""
 
-    def test_build_graph_still_exported(self) -> None:
-        """build_graph should still be available (as alias)."""
-        from yamlgraph import build_graph
+    def test_load_and_compile_exported(self) -> None:
+        """load_and_compile should be exported from yamlgraph."""
+        from yamlgraph import load_and_compile
 
-        assert callable(build_graph)
+        assert callable(load_and_compile)
 
-    def test_load_and_compile_available(self) -> None:
-        """load_and_compile should be the primary API."""
+    def test_load_and_compile_from_graph_loader(self) -> None:
+        """load_and_compile should be available from graph_loader."""
         from yamlgraph.graph_loader import load_and_compile
 
         assert callable(load_and_compile)

@@ -6,8 +6,8 @@ State is generated dynamically from graph config.
 
 from pathlib import Path
 
-from yamlgraph.builder import build_graph
 from yamlgraph.executor import execute_prompt, get_executor
+from yamlgraph.graph_loader import load_and_compile
 from yamlgraph.models import (
     ErrorType,
     GenericReport,
@@ -27,8 +27,8 @@ def get_schema_path() -> Path:
 
 
 __all__ = [
-    # Builder
-    "build_graph",
+    # Graph loader
+    "load_and_compile",
     # Executor
     "execute_prompt",
     "get_executor",

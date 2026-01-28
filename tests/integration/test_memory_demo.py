@@ -67,33 +67,30 @@ class TestCodeReviewPrompt:
 class TestCheckpointerIntegration:
     """Tests for checkpointer integration with graph builder."""
 
-    def test_build_graph_accepts_checkpointer(self):
-        """build_graph accepts optional checkpointer parameter."""
-        import tempfile
+    def test_load_and_compile_works(self):
+        """load_and_compile returns a valid graph."""
+        from yamlgraph.graph_loader import load_and_compile
 
-        from yamlgraph.builder import build_graph
-        from yamlgraph.storage.checkpointer import get_checkpointer
-
-        with tempfile.NamedTemporaryFile(suffix=".db") as f:
-            checkpointer = get_checkpointer(f.name)
-            # Should not raise
-            graph = build_graph(checkpointer=checkpointer)
-            assert graph is not None
+        graph = load_and_compile("graphs/memory-demo.yaml")
+        assert graph is not None
+        compiled = graph.compile()
+        assert compiled is not None
 
     def test_graph_with_checkpointer_accepts_thread_id(self):
         """Graph with checkpointer can be invoked with thread_id."""
         import tempfile
 
-        from yamlgraph.builder import build_graph
+        from yamlgraph.graph_loader import load_and_compile
         from yamlgraph.storage.checkpointer import get_checkpointer
 
         with tempfile.NamedTemporaryFile(suffix=".db") as f:
             checkpointer = get_checkpointer(f.name)
-            _graph = build_graph(checkpointer=checkpointer)  # noqa: F841
+            graph = load_and_compile("graphs/memory-demo.yaml")
+            compiled = graph.compile(checkpointer=checkpointer)
 
             # Should accept configurable with thread_id
             config = {"configurable": {"thread_id": "test-123"}}
-            # Just verify config structure is valid
+            assert compiled is not None
             assert "thread_id" in config["configurable"]
 
 

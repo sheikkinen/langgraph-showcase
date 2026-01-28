@@ -1,20 +1,20 @@
 """Integration tests for the complete pipeline flow."""
 
-from yamlgraph.builder import build_graph
+from yamlgraph.graph_loader import load_and_compile
 
 
-class TestBuildGraph:
-    """Tests for build_graph function."""
+class TestLoadAndCompile:
+    """Tests for load_and_compile function."""
 
     def test_graph_compiles(self):
         """Graph should compile without errors."""
-        graph = build_graph()
+        graph = load_and_compile("graphs/yamlgraph.yaml")
         compiled = graph.compile()
         assert compiled is not None
 
     def test_graph_has_expected_nodes(self):
         """Graph should have generate, analyze, summarize nodes."""
-        graph = build_graph()
+        graph = load_and_compile("graphs/yamlgraph.yaml")
         # StateGraph stores nodes internally
         assert "generate" in graph.nodes
         assert "analyze" in graph.nodes
