@@ -192,29 +192,6 @@ class TestGraphCommands:
         )
 
 
-class TestListRunsCommand:
-    """Integration tests for list-runs command."""
-
-    def test_list_runs_with_empty_db(self, tmp_path, monkeypatch):
-        """'list-runs' handles empty database gracefully."""
-        # Use temp db
-        monkeypatch.setenv("SHOWCASE_DB_PATH", str(tmp_path / "test.db"))
-
-        result = subprocess.run(
-            [sys.executable, "-m", "yamlgraph.cli", "list-runs"],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent.parent,
-            env={
-                **subprocess.os.environ,
-                "SHOWCASE_DB_PATH": str(tmp_path / "test.db"),
-            },
-        )
-        # Should succeed even with no runs
-        assert result.returncode == 0
-        assert "No runs found" in result.stdout or "runs" in result.stdout.lower()
-
-
 class TestHelpOutput:
     """Test help messages work correctly."""
 
@@ -227,7 +204,7 @@ class TestHelpOutput:
         )
         assert result.returncode == 0
         assert "graph" in result.stdout
-        assert "list-runs" in result.stdout
+        assert "schema" in result.stdout
 
     def test_graph_help(self):
         """'graph --help' shows subcommands."""

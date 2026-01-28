@@ -1,7 +1,7 @@
 # FR-012-3: Remove Legacy CLI Code (Phase 2)
 
 **Priority:** MEDIUM  
-**Status:** Proposed  
+**Status:** IMPLEMENTED  
 **Parent:** FR-012 (Deprecate Legacy CLI)  
 **Target:** v0.5.0
 
@@ -16,73 +16,29 @@ All completed in v0.4.0:
 - ✅ FR-012-1: Deprecate legacy resume
 - ✅ FR-012-2: Deprecate list-runs, trace, export; delete dead cmd_run
 
-## Code to Remove
+## Code Removed
 
 | Item | Lines | Location |
 |------|-------|----------|
-| `cmd_list_runs` | ~30 | `yamlgraph/cli/commands.py` |
-| `cmd_trace` | ~20 | `yamlgraph/cli/commands.py` |
-| `cmd_export` | ~20 | `yamlgraph/cli/commands.py` |
-| `cmd_resume` | ~50 | `yamlgraph/cli/commands.py` |
-| CLI parser entries | ~40 | `yamlgraph/cli/__init__.py` |
-| `YamlGraphDB` | ~320 | `yamlgraph/storage/database.py` |
-| `build_resume_graph` | ~20 | `yamlgraph/builder.py` |
-| Dead checkpointer code | ~10 | `yamlgraph/builder.py` |
-| `test_database.py` | ~145 | `tests/unit/` |
-| `test_resume.py` | ~75 | `tests/integration/` |
-| CLI docs | ~40 | `reference/cli.md` |
-| **Total** | **~770** | |
-
-## Exports to Update
-
-```python
-# yamlgraph/__init__.py - REMOVE
-from yamlgraph.builder import build_graph, run_pipeline, build_resume_graph
-from yamlgraph.storage import YamlGraphDB
-
-# yamlgraph/__init__.py - ADD (alias for backward compat)
-from yamlgraph.graph_loader import load_and_compile as build_graph
-
-# __all__ - REMOVE
-"run_pipeline",
-"build_resume_graph", 
-"YamlGraphDB",
-```
-
-## Implementation Plan
-
-### Step 1: Remove CLI Commands
-- Delete `cmd_list_runs`, `cmd_trace`, `cmd_export`, `cmd_resume` from `commands.py`
-- Delete CLI parser entries from `__init__.py`
-
-### Step 2: Remove YamlGraphDB
-- Delete `yamlgraph/storage/database.py`
-- Update `yamlgraph/storage/__init__.py` exports
-
-### Step 3: Clean up builder.py
-- Delete `build_resume_graph()`
-- Delete dead `graph._checkpointer` line
-- Consider deleting entire file if only `run_pipeline` remains
-
-### Step 4: Remove Tests
-- Delete `tests/unit/test_database.py`
-- Delete `tests/integration/test_resume.py`
-- Update `tests/unit/test_issues.py` if it uses legacy functions
-
-### Step 5: Update Documentation
-- Remove legacy commands from `reference/cli.md`
-- Update README.md if needed
+| `commands.py` | ~250 | `yamlgraph/cli/` - DELETED |
+| `validators.py` | ~40 | `yamlgraph/cli/` - DELETED |
+| `database.py` | ~320 | `yamlgraph/storage/` - DELETED |
+| `build_resume_graph` | ~30 | `yamlgraph/builder.py` - DELETED |
+| `run_pipeline` | ~20 | `yamlgraph/builder.py` - DELETED |
+| `test_database.py` | ~145 | `tests/unit/` - DELETED |
+| `test_resume.py` | ~75 | `tests/integration/` - DELETED |
+| `test_cli.py` | ~130 | `tests/unit/` - DELETED |
+| `test_legacy_cli_deprecation.py` | ~130 | `tests/unit/` - DELETED |
+| Legacy CLI parser entries | ~50 | `yamlgraph/cli/__init__.py` |
+| **Total Removed** | **~1,190** | |
 
 ## Validation Checklist
 
-- [ ] All deprecated commands removed
-- [ ] YamlGraphDB deleted
-- [ ] build_resume_graph deleted
-- [ ] Legacy tests deleted
-- [ ] No import errors
-- [ ] All remaining tests pass
-- [ ] Documentation updated
-
-## Timeline
-
-This FR should be implemented after v0.4.0 is released and users have had time to migrate.
+- [x] All deprecated commands removed
+- [x] YamlGraphDB deleted
+- [x] build_resume_graph deleted
+- [x] run_pipeline deleted  
+- [x] Legacy tests deleted
+- [x] No import errors
+- [x] All 1158 tests pass
+- [x] Documentation tests updated

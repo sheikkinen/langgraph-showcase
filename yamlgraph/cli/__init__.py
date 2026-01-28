@@ -6,28 +6,14 @@ Usage:
     yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
     yamlgraph graph run graphs/router-demo.yaml --var message="hello"
     yamlgraph graph list
-    yamlgraph list-runs
-    yamlgraph resume --thread-id abc123
-    yamlgraph trace --run-id <run-id>
 """
 
 import argparse
 
-# Import submodules for package access
-from yamlgraph.cli import commands, validators
-from yamlgraph.cli.commands import (
-    cmd_export,
-    cmd_list_runs,
-    cmd_resume,
-    cmd_trace,
-)
 from yamlgraph.cli.graph_commands import cmd_graph_dispatch
 from yamlgraph.cli.schema_commands import cmd_schema_dispatch
 
 __all__ = [
-    # Submodules
-    "commands",
-    "validators",
     # Entry points
     "main",
     "create_parser",
@@ -46,37 +32,6 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # List runs command
-    list_parser = subparsers.add_parser("list-runs", help="List recent runs")
-    list_parser.add_argument(
-        "--limit", "-l", type=int, default=10, help="Maximum runs to show"
-    )
-    list_parser.set_defaults(func=cmd_list_runs)
-
-    # Resume command
-    resume_parser = subparsers.add_parser("resume", help="Resume a pipeline")
-    resume_parser.add_argument(
-        "--thread-id", "-i", required=True, help="Thread ID to resume"
-    )
-    resume_parser.set_defaults(func=cmd_resume)
-
-    # Trace command
-    trace_parser = subparsers.add_parser("trace", help="Show execution trace")
-    trace_parser.add_argument(
-        "--run-id", "-r", help="Run ID (uses latest if not provided)"
-    )
-    trace_parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Include timing details"
-    )
-    trace_parser.set_defaults(func=cmd_trace)
-
-    # Export command
-    export_parser = subparsers.add_parser("export", help="Export a run to JSON")
-    export_parser.add_argument(
-        "--thread-id", "-i", required=True, help="Thread ID to export"
-    )
-    export_parser.set_defaults(func=cmd_export)
 
     # Graph command group (universal runner)
 

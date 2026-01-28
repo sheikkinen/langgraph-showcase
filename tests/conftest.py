@@ -13,7 +13,6 @@ import pytest
 from pydantic import BaseModel, Field
 
 from yamlgraph.models import create_initial_state
-from yamlgraph.storage import YamlGraphDB
 
 # =============================================================================
 # Test-Only Pydantic Models (Fixtures)
@@ -129,14 +128,6 @@ def empty_state() -> dict:
         style="casual",
         word_count=200,
     )
-
-
-@pytest.fixture
-def temp_db(tmp_path: Path) -> Generator[YamlGraphDB, None, None]:
-    """Temporary database for testing."""
-    db_path = tmp_path / "test.db"
-    db = YamlGraphDB(db_path=db_path)
-    yield db
 
 
 @pytest.fixture
