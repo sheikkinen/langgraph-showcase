@@ -36,8 +36,8 @@ python run_generator.py --lint-only -o ./my-graph
 ```bash
 # From project root
 python -c "
-from yamlgraph import build_graph
-graph = build_graph('examples/yamlgraph_gen/graph.yaml').compile()
+from yamlgraph.graph_loader import load_and_compile
+graph = load_and_compile('examples/yamlgraph_gen/graph.yaml').compile()
 result = graph.invoke({
     'request': 'Create a customer support router',
     'output_dir': './my-support-bot'

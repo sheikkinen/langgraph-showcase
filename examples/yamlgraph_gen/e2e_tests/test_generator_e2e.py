@@ -13,14 +13,14 @@ from pathlib import Path
 import pytest
 import yaml
 
-from yamlgraph import build_graph
+from yamlgraph.graph_loader import load_and_compile
 
 GRAPH_PATH = Path(__file__).parent.parent / "graph.yaml"
 
 
 def run_generator(request: str, output_dir: str) -> dict:
     """Run the generator graph with given request."""
-    graph = build_graph(GRAPH_PATH).compile()
+    graph = load_and_compile(GRAPH_PATH).compile()
     return graph.invoke(
         {
             "request": request,

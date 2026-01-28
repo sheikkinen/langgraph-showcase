@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-from yamlgraph import build_graph  # noqa: E402
+from yamlgraph.graph_loader import load_and_compile  # noqa: E402
 from yamlgraph.tools.graph_linter import lint_graph  # noqa: E402
 
 
@@ -33,7 +33,7 @@ def generate(request: str, output_dir: str) -> dict:
     print(f"   Output: {output_dir}")
 
     graph_path = Path(__file__).parent / "graph.yaml"
-    graph = build_graph(str(graph_path)).compile()
+    graph = load_and_compile(str(graph_path)).compile()
 
     result = graph.invoke(
         {
@@ -92,7 +92,7 @@ def run_generated(output_dir: str, input_data: dict | None = None) -> dict:
         print(f"   ❌ No graph.yaml found in {output_dir}")
         return {}
 
-    graph = build_graph(str(graph_path)).compile()
+    graph = load_and_compile(str(graph_path)).compile()
 
     # Use provided input or empty dict
     initial_state = input_data or {}

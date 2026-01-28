@@ -9,14 +9,14 @@ from pathlib import Path
 
 import pytest
 
-from yamlgraph import build_graph
+from yamlgraph.graph_loader import load_and_compile
 
 GENERATOR_GRAPH = Path(__file__).parent.parent / "graph.yaml"
 
 
 def run_generator(request: str, output_dir: str) -> dict:
     """Run the generator graph with given request."""
-    graph = build_graph(GENERATOR_GRAPH).compile()
+    graph = load_and_compile(GENERATOR_GRAPH).compile()
     return graph.invoke(
         {
             "request": request,
@@ -27,7 +27,7 @@ def run_generator(request: str, output_dir: str) -> dict:
 
 def run_generated_graph(graph_path: Path, initial_state: dict) -> dict:
     """Run a generated graph with given initial state."""
-    graph = build_graph(graph_path).compile()
+    graph = load_and_compile(graph_path).compile()
     return graph.invoke(initial_state)
 
 
