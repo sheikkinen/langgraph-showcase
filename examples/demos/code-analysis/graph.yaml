@@ -12,7 +12,7 @@ state:
 tools:
   run_ruff:
     type: shell
-    command: ruff check {path} --output-format=text 2>&1 || echo "No issues found"
+    command: ruff check {path} --output-format=concise 2>&1 || echo "No issues found"
     description: "Run ruff linter to check for code style and quality issues"
     parse: text
 
