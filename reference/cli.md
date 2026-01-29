@@ -23,7 +23,7 @@ yamlgraph [-h] {list-runs,resume,trace,export,graph} ...
 The primary command for running and managing graphs.
 
 ```
-yamlgraph graph {run,list,info,validate,lint,codegen} ...
+yamlgraph graph {run,info,validate,lint,codegen} ...
 ```
 
 ### graph run
@@ -58,14 +58,6 @@ yamlgraph graph run graphs/reflexion-demo.yaml -v topic="climate" -f
 
 # Export results
 yamlgraph graph run graphs/git-report.yaml -v input="What changed?" -e
-```
-
-### graph list
-
-List available graphs in the workspace.
-
-```bash
-yamlgraph graph list
 ```
 
 ### graph info

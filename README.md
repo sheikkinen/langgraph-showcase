@@ -228,7 +228,6 @@ nodes:
 ### CLI Utilities
 
 ```bash
-yamlgraph graph list                         # List available graphs
 yamlgraph graph info graphs/router-demo.yaml # Show graph structure
 yamlgraph graph validate graphs/*.yaml       # Validate graph schemas
 yamlgraph graph lint graphs/*.yaml           # Lint graphs for common issues

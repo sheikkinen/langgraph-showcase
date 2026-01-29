@@ -2,7 +2,6 @@
 
 Implements:
 - graph run <path> --var key=value
-- graph list
 - graph info <path>
 - graph lint <path>
 - graph validate <path>
@@ -149,35 +148,6 @@ def cmd_graph_run(args: Namespace) -> None:
         sys.exit(1)
 
 
-def cmd_graph_list(args: Namespace) -> None:
-    """List available graphs in graphs/ directory."""
-    graphs_dir = Path("graphs")
-
-    if not graphs_dir.exists():
-        print("❌ graphs/ directory not found")
-        return
-
-    yaml_files = sorted(graphs_dir.glob("*.yaml"))
-
-    if not yaml_files:
-        print("No graphs found in graphs/")
-        return
-
-    print(f"\n📋 Available graphs ({len(yaml_files)}):\n")
-
-    for path in yaml_files:
-        try:
-            config = load_graph_config(path)
-            description = config.get("description", "") if config else ""
-            print(f"  {path.name}")
-            if description:
-                print(f"    {description[:60]}")
-        except Exception:
-            print(f"  {path.name} (invalid)")
-
-    print()
-
-
 def cmd_graph_info(args: Namespace) -> None:
     """Show information about a graph."""
     graph_path = Path(args.graph_path)
@@ -262,8 +232,6 @@ def cmd_graph_dispatch(args: Namespace) -> None:
     """Dispatch to graph subcommands."""
     if args.graph_command == "run":
         cmd_graph_run(args)
-    elif args.graph_command == "list":
-        cmd_graph_list(args)
     elif args.graph_command == "info":
         cmd_graph_info(args)
     elif args.graph_command == "validate":

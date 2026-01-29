@@ -3,9 +3,8 @@
 This package provides the CLI entry point and command implementations.
 
 Usage:
-    yamlgraph graph run graphs/yamlgraph.yaml --var topic="AI" --var style=casual
-    yamlgraph graph run graphs/router-demo.yaml --var message="hello"
-    yamlgraph graph list
+    yamlgraph graph run examples/demos/yamlgraph/graph.yaml --var topic="AI"
+    yamlgraph graph info examples/npc/npc-creation.yaml
 """
 
 import argparse
@@ -61,9 +60,6 @@ def create_parser() -> argparse.ArgumentParser:
     graph_run_parser.add_argument(
         "--full", "-f", action="store_true", help="Show full output without truncation"
     )
-
-    # graph list
-    graph_subparsers.add_parser("list", help="List available graphs")
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

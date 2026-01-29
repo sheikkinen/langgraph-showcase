@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Mermaid diagram generation** - Removed `yamlgraph graph mermaid` command (106 LOC)
   - Use external tools like mermaid.live or paste YAML to LLMs for diagrams
   - Reduces core complexity; visualization not essential to pipeline execution
+- **graph list command** - Removed `yamlgraph graph list` (hardcoded to non-existent `graphs/` dir)
+  - Use `find examples -name '*.yaml'` or IDE file search instead
 
 ## [0.4.3] - 2026-01-28
 
