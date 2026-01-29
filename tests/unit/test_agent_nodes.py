@@ -226,31 +226,31 @@ class TestBuildPythonTool:
     def test_creates_tool_with_name(self):
         """Tool has correct name."""
         config = PythonToolConfig(
-            module="yamlgraph.utils.langsmith",
-            function="get_run_details",
-            description="Get run details",
+            module="yamlgraph.utils.prompts",
+            function="load_prompt",
+            description="Load a prompt",
         )
-        tool = build_python_tool("get_run_details", config)
-        assert tool.name == "get_run_details"
+        tool = build_python_tool("load_prompt", config)
+        assert tool.name == "load_prompt"
 
     def test_creates_tool_with_description(self):
         """Tool has correct description."""
         config = PythonToolConfig(
-            module="yamlgraph.utils.langsmith",
-            function="get_run_details",
-            description="Get details about a LangSmith run",
+            module="yamlgraph.utils.prompts",
+            function="load_prompt",
+            description="Load a YAML prompt file",
         )
-        tool = build_python_tool("run_details", config)
-        assert tool.description == "Get details about a LangSmith run"
+        tool = build_python_tool("load_prompt", config)
+        assert tool.description == "Load a YAML prompt file"
 
     def test_tool_is_structured_tool(self):
         """Tool is a LangChain StructuredTool."""
         from langchain_core.tools import StructuredTool
 
         config = PythonToolConfig(
-            module="yamlgraph.utils.langsmith",
-            function="get_run_details",
-            description="Get run details",
+            module="yamlgraph.utils.prompts",
+            function="load_prompt",
+            description="Load a prompt",
         )
         tool = build_python_tool("test_tool", config)
         assert isinstance(tool, StructuredTool)
