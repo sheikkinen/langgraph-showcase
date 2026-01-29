@@ -11,17 +11,6 @@ from pathlib import Path
 class TestGraphCommands:
     """Integration tests for graph subcommands."""
 
-    def test_graph_list_no_graphs_directory(self):
-        """'graph list' handles missing graphs/ directory gracefully."""
-        result = subprocess.run(
-            [sys.executable, "-m", "yamlgraph.cli", "graph", "list"],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent.parent,
-        )
-        # With empty graphs/ folder, should show 0 graphs or "not found"
-        assert result.returncode == 0 or "not found" in result.stdout.lower()
-
     def test_graph_validate_valid_graph(self):
         """'graph validate' succeeds for valid graph."""
         result = subprocess.run(
@@ -200,5 +189,5 @@ class TestHelpOutput:
         )
         assert result.returncode == 0
         assert "run" in result.stdout
-        assert "list" in result.stdout
         assert "validate" in result.stdout
+        assert "codegen" in result.stdout

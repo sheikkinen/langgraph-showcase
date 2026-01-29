@@ -23,7 +23,9 @@ class TestGraphSubcommand:
 
         parser = create_parser()
         # Parse with graph command
-        args = parser.parse_args(["graph", "list"])
+        args = parser.parse_args(
+            ["graph", "info", "examples/demos/yamlgraph/graph.yaml"]
+        )
         assert args.command == "graph"
 
     def test_graph_run_subcommand_exists(self):
@@ -36,14 +38,6 @@ class TestGraphSubcommand:
         )
         assert args.graph_command == "run"
         assert args.graph_path == "graphs/yamlgraph.yaml"
-
-    def test_graph_list_subcommand_exists(self):
-        """graph list subcommand should exist."""
-        from yamlgraph.cli import create_parser
-
-        parser = create_parser()
-        args = parser.parse_args(["graph", "list"])
-        assert args.graph_command == "list"
 
     def test_graph_info_subcommand_exists(self):
         """graph info subcommand should exist."""
@@ -308,34 +302,6 @@ class TestCmdGraphRun:
         # Verify checkpointer was retrieved and used
         mock_get_cp.assert_called_once_with(mock_config)
         mock_graph.compile.assert_called_once_with(checkpointer=mock_checkpointer)
-
-
-# =============================================================================
-# cmd_graph_list tests
-# =============================================================================
-
-
-class TestCmdGraphList:
-    """Tests for cmd_graph_list function."""
-
-    def test_cmd_graph_list_exists(self):
-        """cmd_graph_list function should exist."""
-        from yamlgraph.cli.graph_commands import cmd_graph_list
-
-        assert callable(cmd_graph_list)
-
-    def test_handles_empty_graphs_dir(self):
-        """Should handle empty or missing graphs/ directory gracefully."""
-        from yamlgraph.cli.graph_commands import cmd_graph_list
-
-        args = argparse.Namespace()
-
-        # Should not raise even if graphs/ is empty or missing
-        with patch("builtins.print") as mock_print:
-            cmd_graph_list(args)
-            # Check it printed something (either "not found" or "No graphs")
-            calls = [str(c) for c in mock_print.call_args_list]
-            assert len(calls) > 0
 
 
 # =============================================================================

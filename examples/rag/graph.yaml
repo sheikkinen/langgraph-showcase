@@ -18,7 +18,7 @@ state:
 tools:
   rag_retrieve:
     type: python
-    module: yamlgraph.tools.rag_retrieve
+    module: tools.rag_retrieve
     function: rag_retrieve_node
 
 nodes:

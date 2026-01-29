@@ -31,19 +31,19 @@ state:
 tools:
   get_run_details:
     type: python
-    module: yamlgraph.tools.langsmith_tools
+    module: tools.langsmith_tools
     function: get_run_details_tool
     description: "Get detailed information about a pipeline run including status, inputs, outputs, and timing"
 
   get_run_errors:
     type: python
-    module: yamlgraph.tools.langsmith_tools
+    module: tools.langsmith_tools
     function: get_run_errors_tool
     description: "Get all errors from a run and its child nodes with node names and error messages"
 
   get_failed_runs:
     type: python
-    module: yamlgraph.tools.langsmith_tools
+    module: tools.langsmith_tools
     function: get_failed_runs_tool
     description: "List recent failed runs in the project with error summaries"
 

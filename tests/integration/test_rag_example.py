@@ -118,18 +118,22 @@ class TestRagGraphFiles:
 class TestRagRetrieveInGraph:
     """Test rag_retrieve tool can be used in graph context."""
 
-    def test_tool_is_importable(self):
-        """Tool should be importable from yamlgraph.tools."""
-        from yamlgraph.tools import rag_retrieve
+    def test_tool_is_importable_from_example(self):
+        """Tool should be importable from examples/rag/tools."""
+        sys.path.insert(0, str(RAG_EXAMPLE_PATH))
+        try:
+            from tools.rag_retrieve import rag_retrieve
 
-        assert callable(rag_retrieve)
+            assert callable(rag_retrieve)
+        finally:
+            sys.path.remove(str(RAG_EXAMPLE_PATH))
 
-    def test_graph_references_correct_tool(self):
-        """Graph should reference the correct tool path."""
+    def test_graph_references_local_tool(self):
+        """Graph should reference the local tool path."""
         graph_path = RAG_EXAMPLE_PATH / "graph.yaml"
         content = graph_path.read_text()
 
-        assert "yamlgraph.tools.rag_retrieve" in content
+        assert "module: tools.rag_retrieve" in content
 
 
 class TestChunkText:
