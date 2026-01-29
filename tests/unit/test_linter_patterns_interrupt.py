@@ -1,6 +1,6 @@
 """Tests for interrupt pattern linter validations."""
 
-from yamlgraph.tools.linter_patterns.interrupt import (
+from yamlgraph.linter.patterns.interrupt import (
     check_interrupt_checkpointer,
     check_interrupt_node_structure,
     check_interrupt_patterns,

@@ -8,16 +8,18 @@ from pathlib import Path
 import pytest
 import yaml
 
-from yamlgraph.tools.graph_linter import (
+from yamlgraph.linter import (
     LintIssue,
-    LintResult,
+    lint_graph,
+)
+from yamlgraph.linter.checks import (
     check_edge_coverage,
     check_node_types,
     check_prompt_files,
     check_state_declarations,
     check_tool_references,
-    lint_graph,
 )
+from yamlgraph.linter.graph_linter import LintResult
 
 # --- Fixtures ---
 

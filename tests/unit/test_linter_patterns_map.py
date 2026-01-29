@@ -1,6 +1,6 @@
 """Tests for map pattern linter validations."""
 
-from yamlgraph.tools.linter_patterns.map import (
+from yamlgraph.linter.patterns.map import (
     check_map_node_structure,
     check_map_node_types,
     check_map_patterns,

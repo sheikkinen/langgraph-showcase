@@ -105,7 +105,7 @@ class TestGraphLinter:
 
     def test_graph_passes_lint(self) -> None:
         """Graph passes yamlgraph lint checks."""
-        from yamlgraph.tools.graph_linter import lint_graph
+        from yamlgraph.linter import lint_graph
 
         graph_path = EXAMPLE_DIR / "graph.yaml"
 

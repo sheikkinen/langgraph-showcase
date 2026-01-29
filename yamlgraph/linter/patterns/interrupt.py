@@ -10,7 +10,7 @@ Validates interrupt nodes follow YAMLGraph interrupt pattern requirements:
 from pathlib import Path
 from typing import Any
 
-from yamlgraph.tools.linter_checks import LintIssue, load_graph
+from yamlgraph.linter.checks import LintIssue, load_graph
 
 
 def check_interrupt_node_structure(

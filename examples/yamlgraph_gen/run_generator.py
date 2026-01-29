@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 from yamlgraph.graph_loader import load_and_compile  # noqa: E402
-from yamlgraph.tools.graph_linter import lint_graph  # noqa: E402
+from yamlgraph.linter import lint_graph  # noqa: E402
 
 
 def generate(request: str, output_dir: str) -> dict:

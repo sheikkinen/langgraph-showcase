@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from yamlgraph.tools.linter_patterns.subgraph import (
+from yamlgraph.linter.patterns.subgraph import (
     check_subgraph_node_requirements,
     check_subgraph_patterns,
 )

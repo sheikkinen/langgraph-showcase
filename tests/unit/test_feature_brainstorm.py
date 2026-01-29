@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from yamlgraph.tools.graph_linter import lint_graph
+from yamlgraph.linter import lint_graph
 
 # Use absolute paths relative to project root
 PROJECT_ROOT = Path(__file__).parent.parent.parent

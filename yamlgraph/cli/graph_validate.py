@@ -9,7 +9,7 @@ from pathlib import Path
 
 from yamlgraph.cli.helpers import GraphLoadError, require_graph_config
 from yamlgraph.config import WORKING_DIR
-from yamlgraph.tools.graph_linter import lint_graph
+from yamlgraph.linter import lint_graph
 
 
 def _validate_required_fields(config: dict) -> tuple[list[str], list[str]]:

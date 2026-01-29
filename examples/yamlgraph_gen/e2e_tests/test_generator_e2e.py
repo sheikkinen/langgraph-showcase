@@ -128,7 +128,7 @@ class TestGeneratorE2E:
 
     def test_generated_graph_lints_clean(self, output_dir: str) -> None:
         """Generated graph should pass linting."""
-        from yamlgraph.tools.graph_linter import lint_graph
+        from yamlgraph.linter import lint_graph
 
         request = """
         Create a simple linear Q&A pipeline:
@@ -177,8 +177,8 @@ class TestGeneratorPatternCombos:
             ]
 
             # Should have both router and map
-            assert "router" in node_types or "map" in node_types, (
-                "Expected router or map node for this request"
-            )
+            assert (
+                "router" in node_types or "map" in node_types
+            ), "Expected router or map node for this request"
         else:
             pytest.skip("Pipeline requested clarification")

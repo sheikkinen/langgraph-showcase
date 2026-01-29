@@ -1,6 +1,6 @@
 """Tests for agent pattern linter validations."""
 
-from yamlgraph.tools.linter_patterns.agent import (
+from yamlgraph.linter.patterns.agent import (
     check_agent_node_tools,
     check_agent_patterns,
 )

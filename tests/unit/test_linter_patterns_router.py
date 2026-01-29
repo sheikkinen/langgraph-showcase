@@ -2,7 +2,7 @@
 
 import yaml
 
-from yamlgraph.tools.linter_patterns.router import (
+from yamlgraph.linter.patterns.router import (
     check_router_edge_targets,
     check_router_node_structure,
     check_router_patterns,

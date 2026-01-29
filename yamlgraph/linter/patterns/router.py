@@ -10,7 +10,7 @@ Validates router nodes follow YAMLGraph router pattern requirements:
 from pathlib import Path
 from typing import Any
 
-from yamlgraph.tools.linter_checks import LintIssue, load_graph
+from yamlgraph.linter.checks import LintIssue, load_graph
 
 
 def check_router_node_structure(
@@ -91,7 +91,7 @@ def check_router_schema_fields(
     # Resolve prompt file path
     import yaml
 
-    from yamlgraph.tools.linter_checks import get_prompt_path, resolve_prompts_dir
+    from yamlgraph.linter.checks import get_prompt_path, resolve_prompts_dir
 
     graph = load_graph(graph_path)
     prompts_dir = resolve_prompts_dir(

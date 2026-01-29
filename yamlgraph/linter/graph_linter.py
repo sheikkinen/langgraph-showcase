@@ -15,7 +15,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from yamlgraph.tools.linter_checks import (
+from yamlgraph.linter.checks import (
     LintIssue,
     check_edge_coverage,
     check_node_types,
@@ -23,7 +23,7 @@ from yamlgraph.tools.linter_checks import (
     check_state_declarations,
     check_tool_references,
 )
-from yamlgraph.tools.linter_patterns import (
+from yamlgraph.linter.patterns import (
     check_agent_patterns,
     check_interrupt_patterns,
     check_map_patterns,
