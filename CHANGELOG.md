@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-01-28
+
+### Removed
+- **Mermaid diagram generation** - Removed `yamlgraph graph mermaid` command (106 LOC)
+  - Use external tools like mermaid.live or paste YAML to LLMs for diagrams
+  - Reduces core complexity; visualization not essential to pipeline execution
+
 ## [0.4.3] - 2026-01-28
 
 ### Fixed

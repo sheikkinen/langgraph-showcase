@@ -233,7 +233,6 @@ yamlgraph graph info graphs/router-demo.yaml # Show graph structure
 yamlgraph graph validate graphs/*.yaml       # Validate graph schemas
 yamlgraph graph lint graphs/*.yaml           # Lint graphs for common issues
 yamlgraph graph codegen graphs/my-graph.yaml # Generate TypedDict for IDE support
-yamlgraph graph mermaid graphs/my-graph.yaml # Generate Mermaid diagram
 ```
 
 ### IDE Type Support

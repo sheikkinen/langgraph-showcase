@@ -23,7 +23,7 @@ yamlgraph [-h] {list-runs,resume,trace,export,graph} ...
 The primary command for running and managing graphs.
 
 ```
-yamlgraph graph {run,list,info,validate,lint,mermaid} ...
+yamlgraph graph {run,list,info,validate,lint,codegen} ...
 ```
 
 ### graph run
@@ -105,19 +105,6 @@ yamlgraph graph lint <graph_paths...>
 **Example:**
 ```bash
 yamlgraph graph lint graphs/showcase.yaml graphs/router-demo.yaml
-```
-
-### graph mermaid
-
-Generate Mermaid diagram from graph definition.
-
-```bash
-yamlgraph graph mermaid <graph_path>
-```
-
-**Example:**
-```bash
-yamlgraph graph mermaid graphs/reflexion-demo.yaml
 ```
 
 ---

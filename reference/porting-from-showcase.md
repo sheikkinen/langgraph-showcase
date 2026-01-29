@@ -510,7 +510,7 @@ yamlgraph graph run graphs/npc/encounter.yaml --interactive
 2. **Declarative** - Easier to understand and modify
 3. **Testable** - Built-in validation and linting
 4. **Portable** - Can run on any YAMLGraph installation
-5. **Visualizable** - `yamlgraph graph mermaid` generates diagrams
+5. **Inspectable** - `yamlgraph graph info` shows structure
 
 ### Files to Delete After Migration
 

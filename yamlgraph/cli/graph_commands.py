@@ -5,7 +5,6 @@ Implements:
 - graph list
 - graph info <path>
 - graph lint <path>
-- graph mermaid <path>
 - graph validate <path>
 - graph codegen <path> [--output FILE] [--include-base]
 """
@@ -16,7 +15,6 @@ from pathlib import Path
 
 import yaml
 
-from yamlgraph.cli.graph_mermaid import cmd_graph_mermaid
 from yamlgraph.cli.graph_validate import cmd_graph_lint, cmd_graph_validate
 from yamlgraph.cli.helpers import (
     GraphLoadError,
@@ -272,8 +270,6 @@ def cmd_graph_dispatch(args: Namespace) -> None:
         cmd_graph_validate(args)
     elif args.graph_command == "lint":
         cmd_graph_lint(args)
-    elif args.graph_command == "mermaid":
-        cmd_graph_mermaid(args)
     elif args.graph_command == "codegen":
         cmd_graph_codegen(args)
     else:
