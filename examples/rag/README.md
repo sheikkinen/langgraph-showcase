@@ -14,18 +14,26 @@ export OPENAI_API_KEY=sk-...
 
 ## Quick Start
 
-### 1. Index Documents
+### 1. Run the Demo
 
 ```bash
 cd examples/rag
-python index_docs.py ./docs --collection my_docs
+./demo.sh "What is YAMLGraph?"
 ```
 
-### 2. Run the RAG Pipeline
+### 2. Manual Steps
 
 ```bash
-yamlgraph run graph.yaml --input '{"question": "What is YAMLGraph?"}'
+cd examples/rag
+
+# Index documents
+python index_docs.py ./docs --collection test_docs --db-path ./vectorstore
+
+# Run the pipeline
+yamlgraph graph run graph.yaml -v question="What is YAMLGraph?"
 ```
+
+**Note:** Must run from `examples/rag/` directory for local tool imports to work.
 
 ## Index Script Options
 
