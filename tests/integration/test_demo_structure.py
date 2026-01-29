@@ -90,7 +90,7 @@ class TestCoreMinimal:
         """Core graphs/ should only have hello.yaml."""
         core_graphs = PROJECT_ROOT / "graphs"
         if core_graphs.exists():
-            yaml_files = list(core_graphs.glob("*.yaml"))
+            list(core_graphs.glob("*.yaml"))
             # After migration, only hello.yaml should remain
             # For now, just check the structure
             assert core_graphs.is_dir()

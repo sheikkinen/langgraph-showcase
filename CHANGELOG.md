@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2026-01-29
+
+### Removed
+- **Websearch from core** - Moved `type: websearch` to examples (243 LOC)
+  - `yamlgraph/tools/websearch.py` deleted
+  - Removed `websearch_tools` parameter from graph_loader, node_compiler, agent
+  - Core LOC: 9,958 → 9,694 (-264 lines)
+
+### Added
+- `examples/shared/websearch.py` - Simplified websearch tool for demos (76 LOC)
+
+### Changed
+- Web-research and feature-brainstorm demos now use `type: python` for search
+  ```yaml
+  tools:
+    search_web:
+      type: python
+      module: examples.shared.websearch
+      function: search_web
+  ```
+- Agent nodes now only look up tools in shell or python registries
+
 ## [0.4.4] - 2026-01-28
 
 ### Removed

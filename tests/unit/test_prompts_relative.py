@@ -4,7 +4,7 @@ Ensures prompts_relative and prompts_dir reach all node types consistently.
 """
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -29,7 +29,6 @@ class TestPromptsRelativeConfig:
     def test_llm_node_receives_prompts_config(self, demo_graph_path: Path):
         """LLM nodes receive prompts_relative via effective_defaults."""
         from yamlgraph.graph_loader import load_graph_config
-        from yamlgraph.node_factory.llm_nodes import create_node_function
 
         config = load_graph_config(demo_graph_path)
 
@@ -101,7 +100,7 @@ class TestEffectiveDefaultsBuilding:
             effective_defaults["prompts_dir"] = str(prompts_dir)
 
         # Original defaults should have provider/temperature
-        assert "provider" in config.defaults or "temperature" in config.defaults or True
+        assert True
 
         # Effective defaults should have prompts settings merged
         assert effective_defaults["prompts_relative"] is True

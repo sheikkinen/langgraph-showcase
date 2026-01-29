@@ -45,12 +45,16 @@ class TestCodeAnalysisPrompts:
     def test_analyzer_prompt_exists(self):
         """Analyzer prompt should exist."""
         prompt_path = Path("examples/demos/code-analysis/prompts/analyzer.yaml")
-        assert prompt_path.exists(), "examples/demos/code-analysis/prompts/analyzer.yaml not found"
+        assert (
+            prompt_path.exists()
+        ), "examples/demos/code-analysis/prompts/analyzer.yaml not found"
 
     def test_recommend_prompt_exists(self):
         """Recommend prompt should exist."""
         prompt_path = Path("examples/demos/code-analysis/prompts/recommend.yaml")
-        assert prompt_path.exists(), "examples/demos/code-analysis/prompts/recommend.yaml not found"
+        assert (
+            prompt_path.exists()
+        ), "examples/demos/code-analysis/prompts/recommend.yaml not found"
 
     def test_analyzer_prompt_has_system_and_user(self):
         """Analyzer prompt should have system and user sections."""
