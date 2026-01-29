@@ -147,7 +147,7 @@ def print_run_tree(run_id: str | None = None, verbose: bool = False) -> None:
         run_id: Specific run ID (uses latest if not provided)
         verbose: Include timing and status details
     """
-    from yamlgraph.utils.langsmith_trace import print_run_node
+    from utils.langsmith_trace import print_run_node
 
     client = get_client()
     if not client:

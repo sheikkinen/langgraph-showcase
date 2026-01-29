@@ -30,7 +30,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from yamlgraph.utils.langsmith import (
+from utils.langsmith import (
     get_failed_runs,
     get_run_details,
     get_run_errors,

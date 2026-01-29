@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CLI `yamlgraph graph lint` unchanged
   - 1,232 LOC now isolated in dedicated subpackage
 
+### Removed
+- **LangSmith utils from core** - Moved to `examples/demos/run-analyzer/` (464 LOC)
+  - `yamlgraph/utils/langsmith.py` → `examples/demos/run-analyzer/utils/`
+  - `yamlgraph/utils/langsmith_trace.py` → `examples/demos/run-analyzer/utils/`
+  - Tests moved to `examples/demos/run-analyzer/tests/`
+  - **Breaking:** `from yamlgraph.utils.langsmith import` no longer works
+  - Core LOC: 9,694 → 9,230 (-464 lines)
+
 ### Fixed
 - Code-analysis demo: `ruff --output-format=text` → `concise` (text no longer valid)
 

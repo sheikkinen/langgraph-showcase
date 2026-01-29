@@ -653,8 +653,11 @@ yamlgraph graph run graphs/my-graph.yaml --thread my-session
 
 ### 6. LangSmith Tracing
 
+LangSmith utilities are available in the `run-analyzer` example:
+
 ```python
-from yamlgraph.utils.langsmith import print_run_tree
+# From examples/demos/run-analyzer/
+from utils.langsmith import print_run_tree
 
 print_run_tree(verbose=True)
 # 📊 Execution Tree:
@@ -669,7 +672,8 @@ print_run_tree(verbose=True)
 Use LangSmith tools to let agents inspect previous runs and fix errors:
 
 ```python
-from yamlgraph.utils.langsmith import get_run_details, get_run_errors, get_failed_runs
+# From examples/demos/run-analyzer/
+from utils.langsmith import get_run_details, get_run_errors, get_failed_runs
 
 # Get details of the last run
 details = get_run_details()  # or get_run_details("specific-run-id")
@@ -684,19 +688,19 @@ for e in errors:
 failures = get_failed_runs(limit=5)
 ```
 
-As agent tools (see [reference/langsmith-tools.md](reference/langsmith-tools.md)):
+As agent tools (see [examples/demos/run-analyzer/](examples/demos/run-analyzer/)):
 
 ```yaml
 tools:
   check_last_run:
     type: python
-    module: yamlgraph.tools.langsmith_tools
+    module: tools.langsmith_tools
     function: get_run_details_tool
     description: "Get status and errors from the last pipeline run"
 
   get_errors:
     type: python
-    module: yamlgraph.tools.langsmith_tools
+    module: tools.langsmith_tools
     function: get_run_errors_tool
     description: "Get detailed error info from a run"
 
