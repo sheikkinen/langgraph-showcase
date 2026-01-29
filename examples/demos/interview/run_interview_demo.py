@@ -7,18 +7,28 @@ This script demonstrates the interrupt feature:
 3. Graph resumes with user's response
 
 Usage:
-    python scripts/run_interview_demo.py
+    cd examples/demos/interview
+    python run_interview_demo.py
 """
 
 import uuid
+from pathlib import Path
 
-from langgraph.types import Command
+from dotenv import load_dotenv
 
-from yamlgraph.graph_loader import (
+# Load environment from project root
+load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
+
+from langgraph.types import Command  # noqa: E402
+
+from yamlgraph.graph_loader import (  # noqa: E402
     compile_graph,
     get_checkpointer_for_graph,
     load_graph_config,
 )
+
+# Graph path relative to this script
+GRAPH_PATH = Path(__file__).parent / "graph.yaml"
 
 
 def run_interview():
@@ -28,7 +38,7 @@ def run_interview():
     print("=" * 50 + "\n")
 
     # Load and compile graph
-    config = load_graph_config("graphs/interview-demo.yaml")
+    config = load_graph_config(str(GRAPH_PATH))
     graph = compile_graph(config)
 
     # Get checkpointer (required for interrupts)

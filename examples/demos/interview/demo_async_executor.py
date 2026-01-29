@@ -9,13 +9,14 @@ Demonstrates:
 
 Usage:
     # Interactive mode (real LLM + user input)
-    python scripts/demo_async_executor.py --interactive
+    cd examples/demos/interview
+    python demo_async_executor.py --interactive
 
     # Verification mode (mock inputs for CI)
-    python scripts/demo_async_executor.py --verify
+    python demo_async_executor.py --verify
 
     # Custom graph
-    python scripts/demo_async_executor.py --graph graphs/my-graph.yaml
+    python demo_async_executor.py --graph path/to/graph.yaml
 """
 
 import argparse
@@ -23,12 +24,25 @@ import asyncio
 import sys
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from dotenv import load_dotenv
 
-from langgraph.types import Command
+# Load environment from project root
+load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
-from yamlgraph.executor_async import load_and_compile_async, run_graph_async
+from langgraph.checkpoint.memory import MemorySaver  # noqa: E402
+from langgraph.types import Command  # noqa: E402
+
+from yamlgraph.graph_loader import compile_graph, load_graph_config  # noqa: E402
+
+# Graph path relative to this script
+GRAPH_PATH = Path(__file__).parent / "graph.yaml"
+
+
+async def load_and_compile_with_memory(graph_path: str):
+    """Load graph and compile with MemorySaver (async-compatible)."""
+    config = load_graph_config(graph_path)
+    graph = compile_graph(config)
+    return graph.compile(checkpointer=MemorySaver())
 
 
 def print_banner(title: str) -> None:
@@ -81,7 +95,7 @@ async def run_demo(
     # Load and compile
     print("│ Loading graph...                                │")
     try:
-        app = await load_and_compile_async(graph_path)
+        app = await load_and_compile_with_memory(graph_path)
         print("│ ✅ Compiled with memory checkpointer            │")
     except FileNotFoundError:
         print(f"│ ❌ Graph not found: {graph_path:<28}│")
@@ -95,7 +109,7 @@ async def run_demo(
 
     # Initial run
     print("│ Running graph async...                          │")
-    result = await run_graph_async(app, {"input": "start"}, config)
+    result = await app.ainvoke({"input": "start"}, config)
 
     # Show welcome if present
     if welcome := result.get("welcome_message"):
@@ -124,7 +138,7 @@ async def run_demo(
         # Resume
         print("│" + " " * 50 + "│")
         print("│ Resuming...                                     │")
-        result = await run_graph_async(app, Command(resume=user_input), config)
+        result = await app.ainvoke(Command(resume=user_input), config)
 
     # Complete
     print("│" + " " * 50 + "│")
@@ -155,7 +169,7 @@ async def main():
     parser = argparse.ArgumentParser(description="Async Executor Demo")
     parser.add_argument(
         "--graph",
-        default="graphs/interview-demo.yaml",
+        default=str(GRAPH_PATH),
         help="Path to YAML graph definition",
     )
     parser.add_argument(

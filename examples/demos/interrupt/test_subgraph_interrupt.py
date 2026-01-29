@@ -31,35 +31,39 @@ See: feature-requests/006-subgraph-checkpointer-inheritance.md
 import sys
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from dotenv import load_dotenv
 
-from langgraph.types import Command
+# Load environment from project root
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
 
-from yamlgraph.graph_loader import (
+from langgraph.types import Command  # noqa: E402
+
+from yamlgraph.graph_loader import (  # noqa: E402
     compile_graph,
     get_checkpointer_for_graph,
     load_graph_config,
 )
 
-# Test configurations
+# Test configurations - paths relative to this script directory
 SCENARIO_A = {
     "name": "A: Child WITHOUT checkpointer (memory)",
-    "graph_path": "graphs/interrupt-parent.yaml",
+    "graph_path": str(SCRIPT_DIR / "interrupt-parent.yaml"),
     "thread_id": "test-fr006-scenario-a",
     "description": "Child has no checkpointer config - relies on runtime propagation",
 }
 
 SCENARIO_B = {
     "name": "B: Child WITH checkpointer (memory)",
-    "graph_path": "graphs/interrupt-parent-with-checkpointer-child.yaml",
+    "graph_path": str(SCRIPT_DIR / "interrupt-parent-with-checkpointer-child.yaml"),
     "thread_id": "test-fr006-scenario-b",
     "description": "Child HAS its own checkpointer config - memory works via runtime",
 }
 
 SCENARIO_C = {
     "name": "C: Redis checkpointer (FR-006 bug)",
-    "graph_path": "graphs/interrupt-parent-redis.yaml",
+    "graph_path": str(SCRIPT_DIR / "interrupt-parent-redis.yaml"),
     "thread_id": "test-fr006-scenario-c",
     "description": "Redis checkpointer - REPRODUCES the actual bug!",
 }

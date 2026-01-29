@@ -9,21 +9,30 @@ This script tests the full interrupt/resume flow:
 5. LLM generates personalized greeting
 
 Can run as:
-- Automated test: python scripts/demo_interview_e2e.py
-- Interactive mode: python scripts/demo_interview_e2e.py --interactive
+- Automated test: cd examples/demos/interview && python demo_interview_e2e.py
+- Interactive mode: python demo_interview_e2e.py --interactive
 """
 
 import argparse
 import sys
 import uuid
+from pathlib import Path
 
-from langgraph.types import Command
+from dotenv import load_dotenv
 
-from yamlgraph.graph_loader import (
+# Load environment from project root
+load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
+
+from langgraph.types import Command  # noqa: E402
+
+from yamlgraph.graph_loader import (  # noqa: E402
     compile_graph,
     get_checkpointer_for_graph,
     load_graph_config,
 )
+
+# Graph path relative to this script
+GRAPH_PATH = Path(__file__).parent / "graph.yaml"
 
 
 def run_demo(interactive: bool = False) -> dict:
@@ -40,7 +49,7 @@ def run_demo(interactive: bool = False) -> dict:
     print("=" * 50 + "\n")
 
     # Load and compile graph
-    config = load_graph_config("graphs/interview-demo.yaml")
+    config = load_graph_config(str(GRAPH_PATH))
     graph = compile_graph(config)
     checkpointer = get_checkpointer_for_graph(config)
     app = graph.compile(checkpointer=checkpointer)
