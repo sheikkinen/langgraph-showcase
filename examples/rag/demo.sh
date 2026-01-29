@@ -20,7 +20,8 @@ else
 fi
 
 echo "🗂️  Indexing sample documents..."
-python examples/rag/index_docs.py examples/rag/docs --collection test_docs
+cd "$SCRIPT_DIR"
+python index_docs.py ./docs --collection test_docs --db-path ./vectorstore
 
 echo ""
 echo "🔍 Running RAG query..."
@@ -28,4 +29,5 @@ QUESTION="${1:-What is YAMLGraph?}"
 echo "   Question: $QUESTION"
 echo ""
 
-yamlgraph graph run examples/rag/graph.yaml -v "question=$QUESTION" --full
+cd "$SCRIPT_DIR"
+yamlgraph graph run graph.yaml -v "question=$QUESTION" --full

@@ -27,7 +27,7 @@ nodes:
     output:
       rag_collection: test_docs
       rag_query: "{state.question}"
-      rag_db_path: examples/rag/vectorstore
+      rag_db_path: vectorstore
 
   retrieve:
     type: python
