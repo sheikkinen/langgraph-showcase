@@ -91,7 +91,6 @@ class TestCompileToolCallNode:
             minimal_config,
             tools={},
             python_tools={},
-            websearch_tools={},
             callable_registry=tools_registry,  # tool_call uses callable_registry
         )
 

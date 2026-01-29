@@ -64,18 +64,17 @@ class TestFeatureBrainstormTools:
         missing = expected - tool_names
         assert not missing, f"Missing tools: {missing}"
 
-    def test_has_websearch_tool(self):
-        """Graph should have websearch tool for research."""
+    def test_has_search_web_tool(self):
+        """Graph should have search_web tool for research."""
         with open(GRAPH_PATH) as f:
             graph = yaml.safe_load(f)
 
         tools = graph.get("tools", {})
 
-        # Find websearch tool
-        websearch_tools = [
-            name for name, config in tools.items() if config.get("type") == "websearch"
-        ]
-        assert websearch_tools, "Missing websearch tool"
+        # search_web should be a python tool now
+        assert "search_web" in tools, "Missing search_web tool"
+        assert tools["search_web"].get("type") == "python"
+        assert tools["search_web"].get("function") == "search_web"
 
 
 class TestFeatureBrainstormNodes:
@@ -149,9 +148,9 @@ class TestFeatureBrainstormPrompts:
             with open(prompt_file) as f:
                 prompt = yaml.safe_load(f)
 
-            assert "system" in prompt or "user" in prompt, (
-                f"{prompt_file.name} missing 'system' or 'user'"
-            )
+            assert (
+                "system" in prompt or "user" in prompt
+            ), f"{prompt_file.name} missing 'system' or 'user'"
 
 
 class TestFeatureBrainstormEdges:

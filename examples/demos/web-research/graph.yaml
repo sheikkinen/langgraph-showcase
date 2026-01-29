@@ -9,9 +9,9 @@ state:
 
 tools:
   search_web:
-    type: websearch
-    provider: duckduckgo
-    max_results: 5
+    type: python
+    module: examples.shared.websearch
+    function: search_web
     description: "Search the web for current information on any topic. Returns titles, URLs, and snippets."
 
 nodes:

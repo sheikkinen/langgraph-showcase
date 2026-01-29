@@ -126,7 +126,6 @@ def create_agent_node(
     node_name: str,
     node_config: dict[str, Any],
     tools: dict[str, ShellToolConfig],
-    websearch_tools: dict[str, Any] | None = None,
     python_tools: dict[str, PythonToolConfig] | None = None,
     *,
     defaults: dict[str, Any] | None = None,
@@ -143,7 +142,6 @@ def create_agent_node(
         node_name: Name of the node in the graph
         node_config: Node configuration from YAML
         tools: Registry of available shell tools
-        websearch_tools: Registry of web search tools (LangChain StructuredTool)
         python_tools: Registry of Python tools (PythonToolConfig)
         defaults: Default configuration including prompts_relative/prompts_dir
         graph_path: Path to graph YAML file (for relative prompt resolution)
@@ -160,8 +158,6 @@ def create_agent_node(
     """
     if defaults is None:
         defaults = {}
-    if websearch_tools is None:
-        websearch_tools = {}
     if python_tools is None:
         python_tools = {}
 
@@ -186,18 +182,12 @@ def create_agent_node(
             # Shell tool - need to wrap
             lc_tools.append(build_langchain_tool(name, tools[name]))
             tool_lookup[name] = tools[name]
-        elif name in websearch_tools:
-            # Websearch tool - already a LangChain tool
-            lc_tools.append(websearch_tools[name])
-            tool_lookup[name] = websearch_tools[name]
         elif name in python_tools:
             # Python tool - wrap as LangChain tool
             lc_tools.append(build_python_tool(name, python_tools[name]))
             tool_lookup[name] = python_tools[name]
         else:
-            logger.warning(
-                f"Tool '{name}' not found in shell, websearch, or python registries"
-            )
+            logger.warning(f"Tool '{name}' not found in shell or python registries")
 
     def node_fn(state: dict) -> dict:
         """Execute the agent loop."""

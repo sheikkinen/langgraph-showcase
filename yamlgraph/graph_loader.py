@@ -19,7 +19,6 @@ from yamlgraph.routing import make_expr_router_fn, make_router_fn
 from yamlgraph.storage.checkpointer_factory import get_checkpointer
 from yamlgraph.tools.python_tool import load_python_function, parse_python_tools
 from yamlgraph.tools.shell import parse_tools
-from yamlgraph.tools.websearch import parse_websearch_tools
 from yamlgraph.utils.validators import validate_config
 
 # Type alias for dynamic state
@@ -194,19 +193,18 @@ def _resolve_state_class(config: GraphConfig) -> type:
 
 def _parse_all_tools(
     config: GraphConfig,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Callable]]:
-    """Parse shell, Python, and websearch tools from config.
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Callable]]:
+    """Parse shell and Python tools from config.
 
     Args:
         config: Graph configuration
 
     Returns:
-        Tuple of (shell_tools, python_tools, websearch_tools, callable_registry)
+        Tuple of (shell_tools, python_tools, callable_registry)
         callable_registry maps tool names to actual callable functions for tool_call nodes
     """
     tools = parse_tools(config.tools)
     python_tools = parse_python_tools(config.tools)
-    websearch_tools = parse_websearch_tools(config.tools)
 
     # Build callable registry for tool_call nodes
     callable_registry: dict[str, Callable] = {}
@@ -222,12 +220,8 @@ def _parse_all_tools(
         logger.info(
             f"Parsed {len(python_tools)} Python tools: {', '.join(python_tools.keys())}"
         )
-    if websearch_tools:
-        logger.info(
-            f"Parsed {len(websearch_tools)} websearch tools: {', '.join(websearch_tools.keys())}"
-        )
 
-    return tools, python_tools, websearch_tools, callable_registry
+    return tools, python_tools, callable_registry
 
 
 def _process_edge(
@@ -334,12 +328,10 @@ def compile_graph(config: GraphConfig) -> StateGraph:
     graph = StateGraph(state_class)
 
     # Parse all tools
-    tools, python_tools, websearch_tools, callable_registry = _parse_all_tools(config)
+    tools, python_tools, callable_registry = _parse_all_tools(config)
 
     # Compile all nodes
-    map_nodes = compile_nodes(
-        config, graph, tools, python_tools, websearch_tools, callable_registry
-    )
+    map_nodes = compile_nodes(config, graph, tools, python_tools, callable_registry)
 
     # Process edges
     router_edges: dict[str, list] = {}

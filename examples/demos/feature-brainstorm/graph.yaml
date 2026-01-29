@@ -44,9 +44,9 @@ tools:
     description: "List available tool implementations"
 
   search_web:
-    type: websearch
-    provider: duckduckgo
-    max_results: 5
+    type: python
+    module: examples.shared.websearch
+    function: search_web
     description: "Research competing tools and LLM orchestration trends"
 
 nodes:

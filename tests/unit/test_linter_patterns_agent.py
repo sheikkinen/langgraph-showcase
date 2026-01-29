@@ -14,7 +14,11 @@ class TestAgentNodeTools:
         node_config = {"type": "agent", "tools": ["search_web", "analyze_code"]}
         graph = {
             "tools": {
-                "search_web": {"type": "websearch"},
+                "search_web": {
+                    "type": "python",
+                    "module": "shared.websearch",
+                    "function": "search_web",
+                },
                 "analyze_code": {"type": "shell", "command": "analyze"},
             }
         }
@@ -23,7 +27,8 @@ class TestAgentNodeTools:
         assert len(issues) == 0
 
     def test_valid_agent_with_builtin_tools(self):
-        """Should pass when agent references built-in tools."""
+        """Should pass when agent references built-in tools like 'websearch'."""
+        # 'websearch' is a known built-in tool name that the linter recognizes
         node_config = {"type": "agent", "tools": ["websearch"]}
         graph = {
             "tools": {}  # No custom tools defined
@@ -38,7 +43,9 @@ class TestAgentNodeTools:
             "type": "agent",
             "tools": [],  # Empty tools list
         }
-        graph = {"tools": {"search_web": {"type": "websearch"}}}
+        graph = {
+            "tools": {"search_web": {"type": "python", "module": "m", "function": "f"}}
+        }
 
         issues = check_agent_node_tools("research_agent", node_config, graph)
         assert len(issues) == 1
@@ -52,7 +59,9 @@ class TestAgentNodeTools:
             "type": "agent"
             # No tools field
         }
-        graph = {"tools": {"search_web": {"type": "websearch"}}}
+        graph = {
+            "tools": {"search_web": {"type": "python", "module": "m", "function": "f"}}
+        }
 
         issues = check_agent_node_tools("research_agent", node_config, graph)
         assert len(issues) == 1
@@ -65,7 +74,7 @@ class TestAgentNodeTools:
         node_config = {"type": "agent", "tools": ["search_web", "undefined_tool"]}
         graph = {
             "tools": {
-                "search_web": {"type": "websearch"}
+                "search_web": {"type": "python", "module": "m", "function": "f"}
                 # "undefined_tool" not defined
             }
         }
@@ -105,8 +114,9 @@ class TestAgentPatternsIntegration:
         graph_content = """
 tools:
   search_web:
-    type: websearch
-    provider: duckduckgo
+    type: python
+    module: shared.websearch
+    function: search_web
 nodes:
   research:
     type: agent
@@ -125,7 +135,9 @@ nodes:
         graph_content = """
 tools:
   search_web:
-    type: websearch
+    type: python
+    module: shared.websearch
+    function: search_web
 nodes:
   research:
     type: agent
@@ -146,7 +158,9 @@ nodes:
         graph_content = """
 tools:
   search_web:
-    type: websearch
+    type: python
+    module: shared.websearch
+    function: search_web
 nodes:
   research:
     type: agent
@@ -168,7 +182,9 @@ nodes:
         graph_content = """
 tools:
   search_web:
-    type: websearch
+    type: python
+    module: shared.websearch
+    function: search_web
 nodes:
   llm_node:
     type: llm

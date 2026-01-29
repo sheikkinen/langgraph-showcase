@@ -36,7 +36,6 @@ def compile_node(
     config: "GraphConfig",
     tools: dict[str, Any],
     python_tools: dict[str, Any],
-    websearch_tools: dict[str, Any],
     callable_registry: dict[str, Callable],
 ) -> tuple[str, Any] | None:
     """Compile a single node and add to graph.
@@ -48,7 +47,6 @@ def compile_node(
         config: Full graph config for defaults
         tools: Shell tools registry
         python_tools: Python tools registry
-        websearch_tools: Web search tools registry (LangChain StructuredTool)
         callable_registry: Loaded callable functions for tool_call nodes
 
     Returns:
@@ -85,7 +83,6 @@ def compile_node(
             node_name,
             enriched_config,
             tools,
-            websearch_tools,
             python_tools,
             defaults=effective_defaults,
             graph_path=config.source_path,
@@ -152,7 +149,6 @@ def compile_nodes(
     graph: StateGraph,
     tools: dict[str, Any],
     python_tools: dict[str, Any],
-    websearch_tools: dict[str, Any],
     callable_registry: dict[str, Callable],
 ) -> dict[str, tuple]:
     """Compile all nodes and add to graph.
@@ -162,7 +158,6 @@ def compile_nodes(
         graph: StateGraph to add nodes to
         tools: Shell tools registry
         python_tools: Python tools registry
-        websearch_tools: Web search tools registry
         callable_registry: Loaded callable functions for tool_call nodes
 
     Returns:
@@ -178,7 +173,6 @@ def compile_nodes(
             config,
             tools,
             python_tools,
-            websearch_tools,
             callable_registry,
         )
         if result:
