@@ -363,15 +363,17 @@ def load_and_compile(path: str | Path) -> StateGraph:
 
 
 def get_checkpointer_for_graph(
-    config: GraphConfig, *, async_mode: bool = False
+    config: GraphConfig,
 ) -> BaseCheckpointSaver | None:
     """Get checkpointer from graph config.
 
     Args:
         config: Graph configuration
-        async_mode: If True, return async-compatible saver
 
     Returns:
         Configured checkpointer or None if not specified
+
+    Note:
+        For async usage, use get_checkpointer_async() directly.
     """
-    return get_checkpointer(config.checkpointer, async_mode=async_mode)
+    return get_checkpointer(config.checkpointer)

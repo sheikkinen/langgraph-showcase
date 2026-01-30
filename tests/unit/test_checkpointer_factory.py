@@ -133,32 +133,6 @@ class TestGetCheckpointerRedis:
                 mock_saver.setup.assert_called_once()
                 assert saver is mock_saver
 
-    def test_redis_checkpointer_async(self):
-        """Redis async saver should be created with async_mode=True."""
-        mock_saver = MagicMock()
-        mock_aio_module = MagicMock()
-        mock_aio_module.AsyncRedisSaver.from_conn_string.return_value = mock_saver
-
-        with patch.dict(
-            "sys.modules", {"langgraph.checkpoint.redis.aio": mock_aio_module}
-        ):
-            import importlib
-
-            from yamlgraph.storage import checkpointer_factory
-
-            importlib.reload(checkpointer_factory)
-
-            config = {"type": "redis", "url": "redis://localhost:6379", "ttl": 60}
-            saver = checkpointer_factory.get_checkpointer(config, async_mode=True)
-
-            mock_aio_module.AsyncRedisSaver.from_conn_string.assert_called_once_with(
-                "redis://localhost:6379",
-                ttl={"default_ttl": 60},
-            )
-            # Async saver should NOT call setup() - caller must await asetup()
-            mock_saver.setup.assert_not_called()
-            assert saver is mock_saver
-
     def test_redis_import_error_helpful_message(self):
         """Missing redis package should give helpful error."""
         import importlib
@@ -388,34 +362,6 @@ class TestRedisSimpleCheckpointer:
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
 
         assert isinstance(saver, SimpleRedisCheckpointer)
-
-
-class TestAsyncModeDeprecation:
-    """Test deprecation of async_mode parameter."""
-
-    def test_async_mode_true_logs_warning(self):
-        """Passing async_mode=True should log deprecation warning."""
-        import logging
-
-        # Create a handler to capture log messages
-        log_capture = []
-        handler = logging.Handler()
-        handler.emit = lambda record: log_capture.append(record.getMessage())
-
-        logger = logging.getLogger("yamlgraph.storage.checkpointer_factory")
-        original_level = logger.level
-        logger.setLevel(logging.WARNING)
-        logger.addHandler(handler)
-
-        try:
-            config = {"type": "memory"}
-            get_checkpointer(config, async_mode=True)
-
-            # Should log deprecation warning
-            assert any("deprecated" in msg.lower() for msg in log_capture)
-        finally:
-            logger.removeHandler(handler)
-            logger.setLevel(original_level)
 
 
 class TestShutdownCheckpointers:

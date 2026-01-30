@@ -35,18 +35,15 @@ def expand_env_vars(value: Any) -> Any:
 
 def get_checkpointer(
     config: dict | None,
-    *,
-    async_mode: bool = False,
 ) -> BaseCheckpointSaver | None:
     """Create checkpointer from config.
 
     Args:
         config: Checkpointer configuration dict with keys:
-            - type: "memory" | "sqlite" | "redis" (default: "memory")
-            - url: Redis connection URL (for redis type)
+            - type: "memory" | "sqlite" | "redis" | "redis-simple" (default: "memory")
+            - url: Redis connection URL (for redis/redis-simple types)
             - path: SQLite file path (for sqlite type)
-            - ttl: TTL in minutes (for redis type, default: 60)
-        async_mode: If True, return async-compatible saver for FastAPI/async usage
+            - ttl: TTL in minutes (for redis types, default: 60)
 
     Returns:
         Configured checkpointer or None if config is None
@@ -54,46 +51,27 @@ def get_checkpointer(
     Raises:
         ValueError: If unknown checkpointer type
         ImportError: If redis type used without yamlgraph[redis] installed
+
+    Note:
+        For async usage (FastAPI), use get_checkpointer_async() instead.
     """
     if not config:
         return None
 
     cp_type = config.get("type", "memory")
 
-    # Handle async_mode deprecation
-    if async_mode:
-        import logging
-
-        logging.getLogger(__name__).warning(
-            "async_mode parameter is deprecated. Use get_checkpointer_async() instead."
-        )
-
     if cp_type == "redis":
         url = expand_env_vars(config.get("url", ""))
         ttl = config.get("ttl", 60)
 
         try:
-            if async_mode:
-                from langgraph.checkpoint.redis.aio import (
-                    AsyncRedisSaver,
-                )
+            from langgraph.checkpoint.redis import RedisSaver
 
-                # Note: This still uses from_conn_string (deprecated path)
-                # Async callers should use get_checkpointer_async() instead
-                saver = AsyncRedisSaver.from_conn_string(
-                    url,
-                    ttl={"default_ttl": ttl},
-                )
-                # For async, caller must await saver.asetup()
-            else:
-                from langgraph.checkpoint.redis import RedisSaver
-
-                # Use direct instantiation instead of from_conn_string
-                saver = RedisSaver(
-                    redis_url=url,
-                    ttl={"default_ttl": ttl},
-                )
-                saver.setup()
+            saver = RedisSaver(
+                redis_url=url,
+                ttl={"default_ttl": ttl},
+            )
+            saver.setup()
 
             return saver
         except ImportError as e:
@@ -103,28 +81,12 @@ def get_checkpointer(
 
     elif cp_type == "sqlite":
         path = expand_env_vars(config.get("path", ":memory:"))
+        import sqlite3
 
-        if async_mode:
-            # MemorySaver supports both sync and async operations
-            # For production async SQLite, use AsyncSqliteSaver with aiosqlite
-            # but that requires async context management which complicates the API
-            import logging
+        from langgraph.checkpoint.sqlite import SqliteSaver
 
-            if path != ":memory:":
-                logging.getLogger(__name__).info(
-                    f"Using MemorySaver for async mode (sqlite path '{path}' ignored). "
-                    "For persistent async storage, use Redis checkpointer."
-                )
-            from langgraph.checkpoint.memory import MemorySaver
-
-            return MemorySaver()
-        else:
-            import sqlite3
-
-            from langgraph.checkpoint.sqlite import SqliteSaver
-
-            conn = sqlite3.connect(path, check_same_thread=False)
-            return SqliteSaver(conn)
+        conn = sqlite3.connect(path, check_same_thread=False)
+        return SqliteSaver(conn)
 
     elif cp_type == "redis-simple":
         url = expand_env_vars(config.get("url", ""))
@@ -243,7 +205,7 @@ async def get_checkpointer_async(
         return saver
 
     # memory/sqlite don't need async init
-    return get_checkpointer(config, async_mode=False)
+    return get_checkpointer(config)
 
 
 async def shutdown_checkpointers() -> None:

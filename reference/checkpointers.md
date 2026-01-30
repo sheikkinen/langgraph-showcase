@@ -155,14 +155,12 @@ async def main():
     await shutdown_checkpointers()
 ```
 
-> **Deprecated**: `get_checkpointer(..., async_mode=True)` is deprecated. Use `get_checkpointer_async()` instead.
-
 ## Async Mode
 
-When using async graph execution, the factory automatically selects async-compatible checkpointers:
+For async graph execution, use `get_checkpointer_async()` instead of `get_checkpointer()`:
 
-| Type | Sync | Async |
-|------|------|-------|
+| Type | Sync API | Async API |
+|------|----------|-----------|
 | memory | `MemorySaver` | `MemorySaver` (supports both) |
 | sqlite | `SqliteSaver` | `MemorySaver` (fallback) |
 | redis | `RedisSaver` | `AsyncRedisSaver` |
