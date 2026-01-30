@@ -1,49 +1,58 @@
-# Example Request: SOUP Inventory & Risk Narrative Generator
+# Example Request: SOUP Doc Compiler (Hybrid SBOM + Narratives)
 
 **Priority:** LOW  
 **Type:** Example  
 **Status:** Proposed  
-**Effort:** 4–6 days  
+**Effort:** 2–3 days  
 **Requested:** 2026-01-30
 
 ## Summary
 
-Create an example pipeline (`examples/soup/`) that generates a SOUP (Software of Unknown Provenance) inventory from a Python project, enriches each component with license and vulnerability metadata, computes risk classification, and produces exportable narratives (Markdown/JSON) suitable for regulated-software documentation.
+Create an example pipeline (`examples/soup/`) that uses **real SBOM tools** (Trivy/Syft) for dependency extraction, then adds YAMLGraph's value: policy scoring, contextual classification, LLM narratives, and doc-ready exports.
 
-**PoC target**: Run SOUP analysis against the YAMLGraph repository itself.
+**Key insight**: SBOM tools are best at accurate inventory + standards output. YAMLGraph is best at policy, context, narratives, and repeatable doc packs. The strongest solution is hybrid.
 
-## Problem
+**PoC target**: Run against the YAMLGraph repository itself.
 
-Regulated software teams need to:
+## Architecture: Hybrid Approach
 
-- Identify third-party dependencies (SOUP components)
-- Document provenance (name/version/source/license)
-- Assess security and maintenance risk
-- Generate consistent risk narratives
+### Layer 1: SBOM Tools (External)
 
-This is typically manual, inconsistent, and time-consuming. A YAMLGraph example pipeline would demonstrate map nodes, tool nodes, and LLM narrative generation.
+| Tool | Purpose |
+|------|---------|
+| **Trivy** | SBOM generation (`--format cyclonedx`) + vulnerability scan |
+| **Syft** | Alternative SBOM generation (filesystem/container) |
+| **OSV-Scanner** | Dependency-to-vuln matching |
+| **cdxgen** | CycloneDX-first, multi-ecosystem SBOMs |
+
+### Layer 2: YAMLGraph (This Pipeline)
+
+| Capability | Description |
+|------------|-------------|
+| **Normalize + dedupe** | Parse SBOM into internal component list |
+| **Policy scoring** | License rules, severity thresholds, maintenance windows |
+| **Contextual classification** | Runtime vs dev, safety-relevant tags |
+| **LLM narratives** | Generate doc-ready risk narratives per component |
+| **Human review** | Interrupt nodes for audit checkpoints |
+| **Export doc pack** | MD/JSON/CSV with repeatable runs |
 
 ## Proposed Solution
 
-An example graph in `examples/soup/` with:
-
-### Pipeline Nodes
+### Pipeline Nodes (Simplified)
 
 | Node | Type | Description |
 |------|------|-------------|
-| `discover_project` | python | Parse pyproject.toml, requirements.txt |
-| `extract_dependencies` | python | Normalize to `{name, version, ecosystem}` |
-| `enrich_components` | map | Parallel fetch license + vulnerability info |
-| `score_risks` | python | Compute risk score per component |
+| `generate_sbom` | python | Shell out to `trivy fs --format cyclonedx` |
+| `parse_sbom` | python | Parse CycloneDX JSON → normalized components |
+| `score_risks` | python | Apply policy rules, classify criticality |
 | `generate_narratives` | llm | Risk narrative per component |
-| `render_markdown` | python | Format as report |
-| `write_outputs` | python | Save JSON + Markdown |
+| `write_outputs` | python | Save inventory + report |
 
 ### Outputs
 
-- `soup_inventory.json` - Structured component data
-- `soup_report.md` - Human-readable report
-- `soup_report.json` - LLM-generated narratives
+- `sbom.json` - Standard CycloneDX SBOM (from Trivy)
+- `soup_inventory.json` - Enriched + scored component data
+- `soup_report.md` - Human-readable SOUP narratives
 
 ### Example Usage
 
@@ -62,45 +71,55 @@ yamlgraph graph run examples/soup/graph.yaml \
 
 ```yaml
 version: "1.0"
-name: soup_analyzer
+name: soup_compiler
 
 state:
   target_path: str
-  ecosystem: str
   risk_profile: str
+  sbom_path: str
   components: list
-  enriched: list
   scored: list
   report_md: str
 
-nodes:
-  discover_project:
+tools:
+  generate_sbom:
     type: python
-    tool: discover_project
+    module: examples.soup.nodes
+    function: generate_sbom
+    description: "Run trivy fs --format cyclonedx"
 
-  extract_dependencies:
+  parse_sbom:
     type: python
-    tool: extract_dependencies
-
-  enrich_components:
-    type: map
-    items: "{{ components }}"
-    node:
-      id: enrich_one
-      type: python
-      tool: enrich_component
+    module: examples.soup.nodes
+    function: parse_sbom
 
   score_risks:
     type: python
-    tool: score_components
+    module: examples.soup.nodes
+    function: score_risks
+
+  write_outputs:
+    type: python
+    module: examples.soup.nodes
+    function: write_outputs
+
+nodes:
+  generate_sbom:
+    type: python
+    tool: generate_sbom
+
+  parse_sbom:
+    type: python
+    tool: parse_sbom
+
+  score_risks:
+    type: python
+    tool: score_risks
 
   generate_narratives:
     type: llm
     prompt: prompts/narratives
-
-  render_markdown:
-    type: python
-    tool: render_markdown
+    state_key: narratives
 
   write_outputs:
     type: python
@@ -108,60 +127,58 @@ nodes:
 
 edges:
   - from: START
-    to: discover_project
-  - from: discover_project
-    to: extract_dependencies
-  - from: extract_dependencies
-    to: enrich_components
-  - from: enrich_components
+    to: generate_sbom
+  - from: generate_sbom
+    to: parse_sbom
+  - from: parse_sbom
     to: score_risks
   - from: score_risks
     to: generate_narratives
   - from: generate_narratives
-    to: render_markdown
-  - from: render_markdown
     to: write_outputs
   - from: write_outputs
     to: END
 ```
 
-## Risk Model (Heuristics)
+## Risk Scoring Policy
 
-| Risk Type | Indicators |
-|-----------|------------|
-| **Security** | Critical/High CVEs, vulnerable version ranges |
-| **Maintenance** | No release in N months, low activity |
-| **License** | Copyleft vs permissive (policy-based) |
-| **Criticality** | Runtime vs dev/test dependency |
+| Risk Type | Indicators | Source |
+|-----------|------------|--------|
+| **Security** | Critical/High CVEs | Trivy/OSV-Scanner |
+| **Maintenance** | No release in N months | PyPI metadata |
+| **License** | Copyleft vs permissive | SBOM license field |
+| **Criticality** | Runtime vs dev dependency | pyproject.toml groups |
 
-## Scope Notes
+## Why This Approach Wins
 
-- This is an **example pipeline**, not a core CLI command
-- Outputs are documentation assistance, not compliance certification
-- Reports include "human review required" header
+| Approach | Credibility | Differentiation | Effort |
+|----------|-------------|-----------------|--------|
+| ❌ Reimplement SBOM | Low | None | High |
+| ❌ SBOM tools only | High | None | Low |
+| ✅ **Hybrid** | High ("we use standard SBOM") | High ("we add narratives + policy") | Medium |
 
 ## Acceptance Criteria
 
-- [ ] Example pipeline in `examples/soup/`
-- [ ] Supports Python dependency extraction from pyproject.toml and requirements.txt
-- [ ] Produces normalized SOUP component list
-- [ ] Enrichment populates license and vulnerability info
-- [ ] Risk scoring produces explainable score + flags
-- [ ] Markdown report with narrative per component
-- [ ] PoC runs against YAMLGraph and outputs report
-- [ ] Tests for extract/enrich/score functions
-- [ ] README with usage instructions
+- [ ] Uses real SBOM tool (Trivy) as first step
+- [ ] Parses CycloneDX into normalized component list
+- [ ] Applies configurable risk policy
+- [ ] LLM generates doc-ready narratives
+- [ ] Outputs standard SBOM + enriched report
+- [ ] PoC runs against YAMLGraph repo
+- [ ] README documents Trivy prerequisite
 
-## Alternatives Considered
+## Prerequisites
 
-| Alternative | Reason Not Chosen |
-|-------------|-------------------|
-| External SBOM tools only | Misses narrative generation |
-| Static spreadsheet template | No automation |
-| Vulnerability scan only | Misses license/maintenance docs |
+```bash
+# Install Trivy (macOS)
+brew install trivy
+
+# Or via Docker
+docker pull aquasec/trivy
+```
 
 ## Related
 
-- [examples/codegen/](../examples/codegen/) - Tool-heavy pipeline
-- [examples/yamlgraph_gen/](../examples/yamlgraph_gen/) - Meta-generation + validation
+- [examples/codegen/](../examples/codegen/) - Tool-heavy pipeline with shell nodes
+- [examples/beautify/](../examples/beautify/) - LLM analysis + structured output
 - [examples/book_translator/](../examples/book_translator/) - Map nodes for parallel work
