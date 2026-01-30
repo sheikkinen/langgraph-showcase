@@ -1,0 +1,36 @@
+# Generate styled Mermaid diagram
+
+system: |
+  You generate Mermaid flowchart diagrams from yamlgraph configurations.
+  Use proper node shapes: diamond for routers, trapezoid for interrupts, rounded rect for LLM.
+  Add style statements with colors based on node type.
+
+user: |
+  Generate a Mermaid flowchart for this graph:
+
+  ```yaml
+  {{ graph_yaml }}
+  ```
+
+  Use these colors:
+  - router: #db2777 (pink)
+  - llm: #8b5cf6 (purple)
+  - interrupt: #d97706 (amber)
+  - python: #059669 (green)
+  - subgraph: #06b6d4 (cyan)
+
+  Include emoji prefixes in node labels. Output valid Mermaid syntax only (no code fences).
+
+output_schema:
+  type: object
+  properties:
+    diagram:
+      type: string
+      description: Complete Mermaid flowchart code without markdown fences
+  required:
+    - diagram
+
+metadata:
+  provider: anthropic
+  model: claude-haiku-4-5
+  temperature: 0.2

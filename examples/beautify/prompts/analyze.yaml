@@ -1,0 +1,73 @@
+# Analyze graph and generate all content for infographic
+
+system: |
+  You analyze yamlgraph configurations and generate infographic content.
+  Output structured data for an HTML infographic.
+
+user: |
+  Analyze this graph.yaml and generate infographic content:
+
+  ```yaml
+  {{ graph_yaml }}
+  ```
+
+  Generate:
+  - title (2-4 words)
+  - tagline (3-6 words) 
+  - summary (1 paragraph)
+  - 3 features with emoji + title + description (e.g., 🔄 Feature Title)
+  - nodes with emoji + type + description (e.g., 🧠 for llm, ⏸️ for interrupt, 🐍 for python)
+
+output_schema:
+  type: object
+  properties:
+    title:
+      type: string
+      description: Display title (2-4 words)
+    tagline:
+      type: string
+      description: Short tagline (3-6 words)
+    summary:
+      type: string
+      description: One paragraph description
+    features:
+      type: array
+      items:
+        type: object
+        properties:
+          emoji:
+            type: string
+            description: Single emoji representing the feature (required)
+          title:
+            type: string
+            description: Short feature title (2-4 words)
+          description:
+            type: string
+            description: One sentence explanation
+        required:
+          - emoji
+          - title
+          - description
+    nodes:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          emoji:
+            type: string
+          type:
+            type: string
+            enum: [router, llm, interrupt, python, subgraph, passthrough, map, agent, tool]
+          description:
+            type: string
+  required:
+    - title
+    - summary
+    - nodes
+
+metadata:
+  provider: anthropic
+  model: claude-haiku-4-5
+  temperature: 0.4

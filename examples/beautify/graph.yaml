@@ -1,0 +1,81 @@
+# Beautify - Transform graph.yaml into HTML infographic
+#
+# Usage:
+#   yamlgraph graph run examples/beautify/graph.yaml \
+#     --var graph_path=examples/booking/graph.yaml
+
+version: "1.0"
+name: beautify
+description: Transform a yamlgraph graph.yaml into a beautiful HTML infographic
+
+defaults:
+  prompts_relative: true
+  prompts_dir: prompts
+  provider: anthropic
+
+state:
+  graph_path: str
+  output_path: str
+  theme: str
+  title_override: str
+  graph_yaml: str
+  analysis: dict
+  mermaid_code: str
+  html_output: str
+  output_file: str
+
+tools:
+  load_graph:
+    type: python
+    module: examples.beautify.nodes
+    function: load_graph
+    description: "Load the target graph.yaml as raw YAML text"
+
+  render_html:
+    type: python
+    module: examples.beautify.nodes
+    function: render_html
+    description: "Render HTML template"
+
+  save_output:
+    type: python
+    module: examples.beautify.nodes
+    function: save_output
+    description: "Write HTML to file"
+
+nodes:
+  load_graph:
+    type: python
+    tool: load_graph
+
+  analyze:
+    type: llm
+    prompt: analyze
+    state_key: analysis
+
+  mermaid:
+    type: llm
+    prompt: mermaid
+    state_key: mermaid_code
+
+  render_html:
+    type: python
+    tool: render_html
+
+  save_output:
+    type: python
+    tool: save_output
+
+edges:
+  - from: START
+    to: load_graph
+  - from: load_graph
+    to: analyze
+  - from: analyze
+    to: mermaid
+  - from: mermaid
+    to: render_html
+  - from: render_html
+    to: save_output
+  - from: save_output
+    to: END
