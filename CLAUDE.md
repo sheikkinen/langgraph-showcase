@@ -6,6 +6,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **YAMLGraph** is a YAML-first framework for building LLM pipelines using LangGraph. The key insight: 60-80% of AI workflows can be defined entirely in YAML (graphs + prompts + schemas) without writing Python code. Built on LangGraph with multi-provider LLM support (Anthropic, Mistral, OpenAI).
 
+## Development Process
+
+Before implementing any feature or fix:
+
+### 1. Research First
+- Analyze existing solutions and alternatives
+- Check if the problem is already solved elsewhere in the codebase
+- Review similar patterns in `examples/` and `reference/`
+
+### 2. Plan Before Coding
+- Create an implementation plan (feature request or issue)
+- Define acceptance criteria upfront
+- Estimate effort realistically
+
+### 3. Critical Review
+- Plans need multiple iterations
+- Challenge assumptions: "Is this the right approach?"
+- Get feedback before writing code
+
+### 4. Reflect: Is This Really Needed?
+- Documenting patterns is cheaper than new code
+- Showing alternatives without implementation often suffices
+- Ask: "Does this belong in YAMLGraph, or is it a deployment/application concern?"
+
+> **Example**: URL-based prompt loading was proposed as a 2-day feature. After reflection, we realized documenting deployment patterns (volume mounts, git-sync, ConfigMaps) solved the same problem without adding framework complexity. See `reference/prompt-deployment.md`.
+
 ## Development Commands
 
 ### Environment Setup
@@ -109,7 +135,7 @@ YAML file → load_graph_config() → GraphConfig (Pydantic)
 ```
 
 **Key files:**
-- `graph_loader.py` (432 lines): Orchestrates entire compilation
+- `graph_loader.py` (~385 lines): Orchestrates entire compilation
 - `node_factory/` modules: Creates node functions by type (llm, router, map, agent, etc.)
 - `models/state_builder.py`: Generates dynamic TypedDict from graph YAML
 - `executor.py`: Unified `execute_prompt()` interface for all LLM calls
@@ -261,7 +287,12 @@ For YAML-defined nodes, error handling is automatic via `on_error: skip|retry|fa
 1. **Update** `yamlgraph/config.py`:
    ```python
    DEFAULT_MODELS = {
-       "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
+       "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
+       "mistral": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
+       "openai": os.getenv("OPENAI_MODEL", "gpt-4o"),
+       "replicate": os.getenv("REPLICATE_MODEL", "ibm-granite/granite-4.0-h-small"),
+       "xai": os.getenv("XAI_MODEL", "grok-4-1-fast-reasoning"),
+       "lmstudio": os.getenv("LMSTUDIO_MODEL", "qwen2.5-coder-7b-instruct"),
        "my_provider": os.getenv("MY_PROVIDER_MODEL", "my-model"),
    }
    ```
@@ -343,7 +374,16 @@ nodes:
 
 ## Production Application Pattern
 
-See `examples/npc/` for a complete production example showing:
+See `examples/npc/` for a complete production example, or `examples/demos/` for standalone demos:
+
+```bash
+# Run all demos
+./examples/demos/demo.sh
+
+# Individual demos: hello, router, reflexion, map, memory, interview, etc.
+```
+
+NPC example architecture:
 
 ```
 ┌─────────────────────────────────┐
@@ -397,6 +437,9 @@ Async modules import from sync, adding only async-specific features (streaming, 
 | `ANTHROPIC_API_KEY` | Anthropic authentication |
 | `MISTRAL_API_KEY` | Mistral authentication |
 | `OPENAI_API_KEY` | OpenAI authentication |
-| `PROVIDER` | Default LLM provider (anthropic/mistral/openai) |
-| `LANGCHAIN_TRACING_V2=true` | Enable LangSmith observability |
-| `LANGCHAIN_PROJECT` | LangSmith project name |
+| `REPLICATE_API_TOKEN` | Replicate authentication |
+| `XAI_API_KEY` | xAI Grok authentication |
+| `LMSTUDIO_BASE_URL` | LM Studio local server URL |
+| `PROVIDER` | Default LLM provider (anthropic/mistral/openai/replicate/xai/lmstudio) |
+| `LANGSMITH_TRACING` | Enable LangSmith observability (true/false) |
+| `LANGSMITH_PROJECT` | LangSmith project name |

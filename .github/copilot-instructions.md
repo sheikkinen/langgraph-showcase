@@ -2,13 +2,22 @@
 
 Getting started: See `reference/getting-started.md` for a comprehensive overview of the YAMLGraph framework, its core files, key patterns, and essential rules.
 
+## Development Process
+
+1. **Research First** - Analyze alternatives before proposing implementation
+2. **Plan** - Create implementation plan before coding
+3. **Critical Review** - Plans need multiple iterations; challenge assumptions
+4. **Reflect** - Is this really needed? Documenting patterns or using existing solutions is cheaper than new code
+
+> "The cheapest code is the code you don't write."
+
 ## Core Technologies
 - **LangGraph**: Pipeline orchestration with state management
 - **Pydantic v2**: Structured, validated LLM outputs
 - **YAML Prompts**: Declarative prompt templates with Jinja2 support
 - **Jinja2**: Advanced template engine for complex prompts
-- **Multi-Provider LLMs**: Factory pattern for Anthropic/Mistral/OpenAI
-- **SQLite**: State persistence and checkpointing
+- **Multi-Provider LLMs**: Anthropic, Mistral, OpenAI, Replicate, xAI, LM Studio
+- **Checkpointers**: Memory, SQLite, and Redis for state persistence
 - **LangSmith**: Observability and tracing
 
 - Term 'backward compatibility' is a key indicator for a refactoring need in this project. Use DeprecationError to mark old APIs while refactoring.
@@ -33,7 +42,7 @@ Getting started: See `reference/getting-started.md` for a comprehensive overview
 - **Never import providers directly** in nodes (use factory)
 - **Provider selection**: Parameter > YAML metadata > env var > default
 - **Caching**: Factory handles LLM instance caching
-- Supported: `"anthropic"`, `"mistral"`, `"openai"`
+- Supported: `"anthropic"`, `"mistral"`, `"openai"`, `"replicate"`, `"xai"`, `"lmstudio"`
 
 ### 3. Pydantic for All Outputs
 - All LLM outputs use Pydantic models in `yamlgraph/models/schemas.py`

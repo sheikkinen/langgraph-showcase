@@ -42,6 +42,7 @@ Complete reference documentation for YAMLGraph v0.3.0+.
 | [Async Usage](async-usage.md) | FastAPI integration & concurrent pipelines |
 | [Checkpointers](checkpointers.md) | State persistence (Memory, SQLite, Redis) |
 | [LangSmith Tools](langsmith-tools.md) | Observability and tracing tools |
+| [Prompt Deployment](prompt-deployment.md) | Patterns for updating prompts without rebuild |
 
 ### Examples & Guides
 
