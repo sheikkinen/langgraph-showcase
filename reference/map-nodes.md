@@ -330,6 +330,55 @@ animated_panels = [
 
 ---
 
+## Async Execution for Parallel Performance
+
+Map nodes use LangGraph's `Send()` for parallel fan-out. However, **parallel execution behavior varies by provider and execution mode**:
+
+| Provider | `invoke()` | `ainvoke()` | Recommendation |
+|----------|------------|-------------|----------------|
+| Anthropic | ✅ Parallel | ✅ Parallel | Works with both |
+| OpenAI | ✅ Parallel | ✅ Parallel | Works with both |
+| Mistral | ❌ Sequential | ✅ Parallel | **Use --async flag** |
+
+### Using the --async Flag
+
+For guaranteed parallel execution with any provider, use the `--async` flag:
+
+```bash
+# Parallel execution (recommended for map-heavy graphs)
+yamlgraph graph run examples/demos/map/graph.yaml --var topic="AI" --async
+
+# Default sync execution (may be sequential with Mistral)
+yamlgraph graph run examples/demos/map/graph.yaml --var topic="AI"
+```
+
+### Programmatic Async Execution
+
+In Python, use `ainvoke()` instead of `invoke()`:
+
+```python
+import asyncio
+from yamlgraph.graph_loader import load_and_compile
+
+async def run_parallel():
+    graph = load_and_compile("examples/demos/map/graph.yaml")
+    app = graph.compile()
+
+    # Use ainvoke for parallel map execution
+    result = await app.ainvoke({"topic": "AI"})
+    return result
+
+result = asyncio.run(run_parallel())
+```
+
+### Performance Example
+
+For 5 map items with ~3s LLM calls each:
+- **Sequential (Mistral + invoke)**: ~15s
+- **Parallel (any provider + ainvoke)**: ~3-4s
+
+---
+
 ## Troubleshooting
 
 ### "List is empty"

@@ -134,7 +134,15 @@ def cmd_graph_run(args: Namespace) -> None:
             config["configurable"] = {"thread_id": args.thread}
             initial_state["thread_id"] = args.thread
 
-        result = app.invoke(initial_state, config=config if config else None)
+        # Use ainvoke for async execution (parallel map nodes with all providers)
+        if getattr(args, "use_async", False):
+            import asyncio
+
+            result = asyncio.run(
+                app.ainvoke(initial_state, config=config if config else None)
+            )
+        else:
+            result = app.invoke(initial_state, config=config if config else None)
 
         _display_result(result, truncate=not getattr(args, "full", False))
 

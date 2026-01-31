@@ -44,11 +44,15 @@ yamlgraph graph run <graph_path> [options]
 | `--thread THREAD` | `-t` | Thread ID for state persistence |
 | `--export` | `-e` | Export results to files |
 | `--full` | `-f` | Show full output without truncation |
+| `--async` | `-a` | Use async execution for parallel map nodes |
 
 **Examples:**
 ```bash
 # Basic run with variables
 yamlgraph graph run graphs/showcase.yaml -v topic=AI -v style=casual
+
+# Parallel map execution (recommended for Mistral provider)
+yamlgraph graph run examples/demos/map/graph.yaml -v topic=AI --async
 
 # With thread ID for resumable sessions
 yamlgraph graph run graphs/interview.yaml -t session-123

@@ -60,6 +60,13 @@ def create_parser() -> argparse.ArgumentParser:
     graph_run_parser.add_argument(
         "--full", "-f", action="store_true", help="Show full output without truncation"
     )
+    graph_run_parser.add_argument(
+        "--async",
+        "-a",
+        action="store_true",
+        dest="use_async",
+        help="Use async execution for parallel map nodes (recommended for Mistral)",
+    )
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

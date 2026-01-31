@@ -16,6 +16,7 @@ ENV/
 
 # Planning files
 docs-planning/
+tmp/
 
 # Symlinks to external projects
 matrix
