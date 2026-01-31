@@ -1,0 +1,82 @@
+# OCR Cleanup Pipeline
+# Extract and clean scanned book PDFs with LLM-assisted paragraph processing
+
+version: "1.0"
+name: ocr-cleanup
+description: Clean scanned book OCR with parallel LLM processing per page
+
+defaults:
+  prompts_dir: prompts
+  prompts_relative: true
+
+state:
+  # Input
+  pdf_path: str
+  start_page: int
+  end_page: int
+
+  # Extraction
+  total_pages: int
+  pages: list
+
+  # Cleanup results (from map)
+  map_results: list
+
+  # Merged output
+  paragraphs: list
+  corrections: list
+  chapters: list
+  stats: dict
+
+tools:
+  extract_pdf_pages:
+    type: python
+    module: examples.ocr_cleanup.tools.pdf_extract
+    function: extract_pages_node
+    description: "Extract text from PDF page by page"
+
+  merge_page_paragraphs:
+    type: python
+    module: examples.ocr_cleanup.tools.merger
+    function: merge_paragraphs_node
+    description: "Join paragraphs spanning page boundaries"
+
+nodes:
+  extract_text:
+    type: python
+    tool: extract_pdf_pages
+    variables:
+      pdf_path: "{state.pdf_path}"
+      start_page: "{state.start_page}"
+      end_page: "{state.end_page}"
+
+  cleanup_pages:
+    type: map
+    over: "{state.pages}"
+    as: page
+    node:
+      type: llm
+      prompt: cleanup_page
+      variables:
+        page_num: "{state.page.page_num}"
+        raw_text: "{state.page.raw_text}"
+        prev_page_last_line: "{state.page.prev_last_line}"
+    collect: map_results
+    on_error: skip
+    max_retries: 2
+
+  merge_paragraphs:
+    type: python
+    tool: merge_page_paragraphs
+    variables:
+      map_results: "{state.map_results}"
+
+edges:
+  - from: START
+    to: extract_text
+  - from: extract_text
+    to: cleanup_pages
+  - from: cleanup_pages
+    to: merge_paragraphs
+  - from: merge_paragraphs
+    to: END

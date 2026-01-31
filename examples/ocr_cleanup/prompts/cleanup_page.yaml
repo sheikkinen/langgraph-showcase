@@ -1,0 +1,96 @@
+metadata:
+  description: Clean OCR text from a single page
+  temperature: 0.1
+
+system: |
+  You are an OCR cleanup specialist for Finnish text from scanned books.
+
+  Your tasks:
+  1. CONCATENATE paragraph lines - join hyphenated words split across lines
+  2. FIX obvious OCR character errors (common: rn→m, li→h, ni→m, cl→d)
+  3. NORMALIZE ellipses (. .. or ..   . or ...   → ...)
+  4. REMOVE page number artifacts (standalone numbers at page top/bottom)
+  5. REMOVE margin artifacts (■, □, stray marks)
+  6. DETECT if this is a chapter start (centered title, Roman numeral, etc.)
+
+  Rules:
+  - DO NOT change word meanings or rephrase content
+  - DO NOT add or remove content beyond cleanup
+  - ONLY fix garbled text that is clearly NOT any Finnish word (e.g., "hk1iltävää" → "kiiltävää")
+  - NEVER correct words based on context/meaning - only fix character-level OCR garbling
+  - If a word looks unusual but could be valid Finnish, add to manual_review - do NOT correct it
+  - PRESERVE original Finnish spelling, grammar, and style
+  - Track ALL corrections made with original and corrected text
+  - Mark paragraphs that continue from/to adjacent pages
+
+user: |
+  Page {{ page_num }}
+
+  {% if prev_page_last_line %}
+  Previous page ended with: "{{ prev_page_last_line }}"
+  {% endif %}
+
+  Raw OCR text:
+  ```
+  {{ raw_text }}
+  ```
+
+  Clean this text and return structured output.
+
+output_schema:
+  type: object
+  properties:
+    page_num:
+      type: integer
+      description: The page number being processed
+    paragraphs:
+      type: array
+      description: List of cleaned paragraphs
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+            description: The cleaned paragraph text
+          starts_mid_sentence:
+            type: boolean
+            description: True if this paragraph continues from the previous page
+          ends_mid_sentence:
+            type: boolean
+            description: True if this paragraph continues to the next page
+    corrections:
+      type: array
+      description: List of corrections made
+      items:
+        type: object
+        properties:
+          original:
+            type: string
+            description: The original text before correction
+          corrected:
+            type: string
+            description: The corrected text
+          type:
+            type: string
+            description: "Type of correction: hyphenation, ocr_char, ellipsis, artifact, page_number"
+    is_chapter_start:
+      type: boolean
+      description: True if this page starts a new chapter
+    chapter_title:
+      type: string
+      description: The chapter title if is_chapter_start is true, null otherwise
+    manual_review:
+      type: array
+      description: Items preserved as-is but flagged for manual review
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+            description: The preserved text
+          reason:
+            type: string
+            description: Why this needs review
+          location:
+            type: string
+            description: Where in the text (paragraph number or context)

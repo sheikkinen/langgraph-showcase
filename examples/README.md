@@ -10,6 +10,7 @@ Example applications demonstrating YAMLGraph capabilities.
 | [book_translator/](book_translator/) | Translate books & documents | Map nodes, parallel translation, glossary, checkpointing |
 | [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
+| [ocr_cleanup/](ocr_cleanup/) | OCR text cleanup | Map nodes, PDF extraction, parallel LLM cleanup |
 | [rag/](rag/) | RAG pipeline | LanceDB vectorstore, document indexing, retrieval |
 | [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
 | [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
@@ -39,6 +40,7 @@ yamlgraph graph run examples/npc/npc-creation.yaml \
 ### Map Nodes (Parallel Processing)
 - **book_translator/** - Parallel chapter translation and proofreading
 - **npc/** - Multiple NPC encounters processed simultaneously
+- **ocr_cleanup/** - Parallel page cleanup with LLM
 
 ### Router Nodes
 - **cost-router/** - Route to different LLM providers by query complexity
