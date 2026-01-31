@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.10] - 2026-01-31
+
+### Added
+- **CLI --async flag** - `yamlgraph graph run --async` for parallel map node execution
+  - Uses `ainvoke()` for guaranteed parallel processing with all LLM providers
+  - Particularly useful for Mistral provider which requires async for parallel execution
+  - Short form: `-a`
+  - Example: `yamlgraph graph run graph.yaml --var topic=AI --async`
+
+### Changed
+- **Map nodes documentation** - Added provider comparison table showing parallel behavior
+  - Anthropic/OpenAI: Parallel with both `invoke()` and `ainvoke()`
+  - Mistral: Requires `ainvoke()` (or `--async` flag) for parallel execution
+
+### Fixed
+- `.gitignore` - Added `tmp/` to ignore temporary test files
+
 ## [0.4.7] - 2026-01-29
 
 ### Removed
