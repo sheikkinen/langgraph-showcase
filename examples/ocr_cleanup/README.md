@@ -150,3 +150,65 @@ outputs/ocr_cleanup/{pdf_name}/
 - Use `--workers 10-20` for Anthropic (true parallel execution)
 - Use smaller batches (`--workers 5`) for Mistral/xAI (sequential execution)
 - The `--async` flag (default) enables parallel LLM calls within batches
+
+## Complete Workflow
+
+### Phase 1: Automated Processing
+
+```bash
+python -m examples.ocr_cleanup.run path/to/book.pdf --workers 10
+```
+
+Produces `final.json` and `final.txt` in the output directory.
+
+### Phase 2: Manual Review
+
+Open `final.txt` in VS Code and use **Find & Replace** (Cmd+H) with regex enabled:
+
+#### Find broken paragraphs (line breaks mid-sentence)
+
+```regex
+(?<=\S[^.!?…])\n
+```
+
+Matches linebreaks after non-punctuation. Replace with space to join broken paragraphs.
+
+#### Find non-printable/garbage characters
+
+```regex
+[^\p{L}\p{P}\s\d]
+```
+
+Matches anything that's not a letter, punctuation, whitespace, or digit. Review and remove artifacts.
+
+#### Find unusual Unicode
+
+```regex
+[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]
+```
+
+Matches control characters that shouldn't be in text.
+
+### Phase 3: Merge Corrected Text
+
+After manual editing, merge your corrected `final.txt` back with page information:
+
+```bash
+python -m examples.ocr_cleanup.tools.merge_corrected \
+  outputs/ocr_cleanup/{book}/final.json \
+  outputs/ocr_cleanup/{book}/final.txt
+```
+
+Produces `final_pages.json` with:
+- Corrected text from your edited `final.txt`
+- Page attribution preserved from original `final.json`
+- Fuzzy matching handles merged/split paragraphs
+
+### Output Files Summary
+
+| File | Description |
+|------|-------------|
+| `batch_NNN.json` | Per-batch LLM results |
+| `final.json` | Consolidated structured data (pre-manual edit) |
+| `final.txt` | Plain text for manual editing |
+| `final_pages.json` | Final output with corrected text + page info |
