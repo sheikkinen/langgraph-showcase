@@ -47,10 +47,16 @@ tahi → tai                   (archaic spelling normalized)
 
 ## Pipeline Structure
 
-```
-PDF → extract_text → cleanup_pages (map) → merge_paragraphs → Result
-                          ↓
-                    [parallel LLM calls]
+```mermaid
+flowchart LR
+    PDF["📄 PDF"] --> E["extract_text<br/>(pdftotext)"]
+    E --> C["cleanup_pages<br/>(MAP)"]
+    C --> M["merge_paragraphs"]
+    M --> R["📝 Result"]
+
+    C --> |parallel| L1["LLM page 1"]
+    C --> |parallel| L2["LLM page 2"]
+    C --> |parallel| LN["LLM page N"]
 ```
 
 ### Nodes
@@ -180,6 +186,35 @@ Matches linebreaks after non-punctuation. Replace with space to join broken para
 ```
 
 Matches anything that's not a letter, punctuation, whitespace, or digit. Review and remove artifacts.
+
+#### Find garbage characters (Finnish-specific)
+
+```regex
+[^a-zA-ZäöåüÄÖÅÜ.,;:!?'"()\-\s…]
+```
+
+Matches anything that's not a Finnish letter, common punctuation, or whitespace. More precise for Finnish text.
+
+#### Preprocessing: Normalize quotes
+
+Before manual review, run these regex replacements:
+
+| Find | Replace | Description |
+|------|---------|-------------|
+| `»` | `"` | Guillemet to quote |
+| `«` | `"` | Guillemet to quote |
+| `„` | `"` | Low-9 quote to quote |
+| `"` | `"` | Curly quote to straight |
+| `"` | `"` | Curly quote to straight |
+| `'` | `'` | Curly apostrophe to straight |
+| `'` | `'` | Curly apostrophe to straight |
+
+Or run all at once with regex:
+
+```regex
+[»«„""]   →   "
+[''']     →   '
+```
 
 #### Find unusual Unicode
 

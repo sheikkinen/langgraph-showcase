@@ -214,9 +214,11 @@ def consolidate_batches(batch_files: list[Path], output_dir: Path) -> dict:
     total_errors = []
 
     pending_paragraph = None  # For cross-batch continuation
+    prev_batch_end_page = 0  # Track previous batch's end page for adjacency check
 
     for batch_file in sorted(batch_files, key=lambda f: int(f.stem.split("_")[1])):
         batch = json.loads(batch_file.read_text())
+        batch_end = batch.get("end_page", 0)
 
         paragraphs = batch.get("paragraphs", [])
 
@@ -227,13 +229,33 @@ def consolidate_batches(batch_files: list[Path], output_dir: Path) -> dict:
 
             # Check if this continues from previous batch
             if i == 0 and pending_paragraph:
-                # Merge with pending
-                text = pending_paragraph["text"] + " " + text
-                start_page = pending_paragraph["start_page"]
+                # Only merge if pages are adjacent (within 1 page of batch boundary)
+                pending_end = pending_paragraph["end_page"]
+                pages_adjacent = (
+                    start_page is not None
+                    and pending_end is not None
+                    and (
+                        start_page <= pending_end + 1
+                        and pending_end
+                        >= prev_batch_end_page - 1  # Near batch boundary
+                    )
+                )
+
+                if pages_adjacent:
+                    # Merge with pending
+                    text = pending_paragraph["text"] + " " + text
+                    start_page = pending_paragraph["start_page"]
+                else:
+                    # Pages not adjacent - flush pending as separate paragraph
+                    all_paragraphs.append(pending_paragraph)
                 pending_paragraph = None
 
             # Check if this continues to next batch (last paragraph, ends mid-sentence)
-            if i == len(paragraphs) - 1 and text.rstrip()[-1] not in ".!?\"'":
+            # Only mark as pending if it's at or near the batch boundary
+            is_last = i == len(paragraphs) - 1
+            ends_mid_sentence = text and text.rstrip()[-1] not in ".!?\"'"
+            at_batch_boundary = end_page is not None and end_page >= batch_end - 1
+            if is_last and ends_mid_sentence and at_batch_boundary:
                 pending_paragraph = {
                     "text": text,
                     "start_page": start_page,
@@ -248,6 +270,8 @@ def consolidate_batches(batch_files: list[Path], output_dir: Path) -> dict:
                     "end_page": end_page,
                 }
             )
+
+        prev_batch_end_page = batch_end
 
         all_corrections.extend(batch.get("corrections", []))
         all_chapters.extend(batch.get("chapters", []))

@@ -75,9 +75,11 @@ class TestCreateLLM:
 
     def test_default_models(self):
         """Should use correct default models for each provider."""
-        # Anthropic default
+        # Anthropic default - use the configured default from config.py
+        from yamlgraph.config import DEFAULT_MODELS
+
         llm_anthropic = create_llm(provider="anthropic", temperature=0.7)
-        assert llm_anthropic.model == "claude-haiku-4-5"
+        assert llm_anthropic.model == DEFAULT_MODELS["anthropic"]
 
         # Mistral default
         with patch.dict(os.environ, {"MISTRAL_API_KEY": "test-key"}):
