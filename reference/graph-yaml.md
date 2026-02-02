@@ -13,6 +13,9 @@ defaults:                          # Default values for all nodes
   provider: mistral
   temperature: 0.7
 
+data_files:                        # Optional: Load external YAML into state
+  schema: schema.yaml
+
 tools:                             # Optional: Tool definitions for agents
   tool_name: { ... }
 
@@ -115,6 +118,69 @@ nodes:
     type: llm
     prompt: prompts/opening  # → questionnaires/audit/prompts/opening.yaml
 ```
+
+---
+
+### `data_files`
+**Type:** `object`
+**Default:** `{}`
+
+Load external YAML files into graph state at compile time. Useful for:
+- Schema definitions shared across prompts
+- Configuration data (personas, categories, rules)
+- Reference data that doesn't change between runs
+
+```yaml
+data_files:
+  schema: schema.yaml           # Load as state.schema
+  personas: data/personas.yaml  # Load as state.personas
+```
+
+**Paths are relative to the graph file**, not the working directory. This ensures portability.
+
+**Security:** Path traversal (`../`) is blocked. Data files must be within the graph directory.
+
+**Example - Survey with shared schema:**
+
+```
+surveys/
+  satisfaction/
+    graph.yaml
+    schema.yaml        # Field definitions
+    prompts/
+      extract.yaml
+```
+
+```yaml
+# surveys/satisfaction/graph.yaml
+version: "1.0"
+name: satisfaction-survey
+
+data_files:
+  schema: schema.yaml   # Loaded at compile time
+
+nodes:
+  extract:
+    type: llm
+    prompt: prompts/extract
+    variables:
+      fields: "{state.schema.fields}"  # Access loaded data
+```
+
+```yaml
+# surveys/satisfaction/schema.yaml
+fields:
+  - name: satisfaction_score
+    type: int
+    range: [1, 10]
+  - name: feedback
+    type: str
+    required: false
+```
+
+**Empty files** return `{}` (empty dict), not `null`.
+
+**State collision:** If input provides a key that matches a `data_files` key, the input value wins.
 
 ---
 

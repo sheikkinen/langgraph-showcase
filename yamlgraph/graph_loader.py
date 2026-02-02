@@ -13,6 +13,7 @@ import yaml
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 
+from yamlgraph.data_loader import load_data_files
 from yamlgraph.models.state_builder import build_state_class
 from yamlgraph.node_compiler import compile_nodes
 from yamlgraph.routing import make_expr_router_fn, make_router_fn
@@ -151,6 +152,12 @@ class GraphConfig:
             "prompts_relative", self.defaults.get("prompts_relative", False)
         )
         self.prompts_dir = config.get("prompts_dir", self.defaults.get("prompts_dir"))
+
+        # FR-021: Load external data files into state
+        if source_path:
+            self.data = load_data_files(config, source_path)
+        else:
+            self.data = {}
 
 
 def load_graph_config(path: str | Path) -> GraphConfig:
