@@ -171,4 +171,3 @@ def merge_paragraphs_node(state: dict) -> dict:
                 cleaned_pages.append(page_data)
 
     return merge_paragraphs(cleaned_pages)
-    return merge_paragraphs(cleaned_pages)
