@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.11] - 2026-02-02
+
+### Added
+- **FR-021: `data_files` directive** - Load external YAML files into graph state at compile time
+  - New `yamlgraph/data_loader.py` module with `load_data_files()` and `DataFileError`
+  - Paths resolved relative to graph file (not CWD) for portability
+  - Security: Path traversal (`../`) and symlinks blocked via `relative_to()`
+  - Empty files normalize to `{}` (not `None`)
+  - State collision: Input variables win over `data_files` values
+  - Example: `data_files: { schema: schema.yaml }` → `state.schema`
+  - Documentation in `reference/graph-yaml.md`
+  - Demo: `examples/demos/data-files/`
+
+### Changed
+- **State builder** - Now includes `data_files` keys as `Any` type in generated state class
+
 ## [0.4.10] - 2026-01-31
 
 ### Added

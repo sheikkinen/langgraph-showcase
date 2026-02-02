@@ -1,0 +1,32 @@
+# Extract structured data from survey response using schema from data_files
+schema:
+  name: SurveyExtraction
+  fields:
+    satisfaction_score:
+      type: int
+      description: "Rating from 1-10"
+    sentiment:
+      type: str
+      description: "positive, neutral, or negative"
+    keywords:
+      type: list[str]
+      description: "Key topics mentioned"
+    improvement_suggestion:
+      type: str
+      description: "Any improvement mentioned, or empty string"
+
+system: |
+  You are a survey response analyzer. Extract structured data according
+  to the provided schema.
+
+  {{ schema.extraction_instructions }}
+
+user: |
+  Extract the following fields from this survey response:
+
+  {% for field in schema.fields %}
+  - {{ field.name }} ({{ field.type }}): {{ field.description }}
+  {% endfor %}
+
+  Survey Response:
+  {{ response }}

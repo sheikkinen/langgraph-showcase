@@ -1,0 +1,25 @@
+# Summarize extracted survey data
+schema:
+  name: SurveySummary
+  fields:
+    summary:
+      type: str
+      description: "One-sentence summary of the survey response"
+    action_needed:
+      type: bool
+      description: "Whether follow-up action is recommended"
+
+system: |
+  You summarize survey analysis results concisely.
+
+user: |
+  Summarize this survey extraction:
+
+  - Satisfaction: {{ extracted.satisfaction_score }}/10
+  - Sentiment: {{ extracted.sentiment }}
+  - Keywords: {{ extracted.keywords | join(", ") }}
+  {% if extracted.improvement_suggestion %}
+  - Suggestion: {{ extracted.improvement_suggestion }}
+  {% endif %}
+
+  Provide a one-sentence summary and indicate if follow-up is needed.

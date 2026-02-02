@@ -133,6 +133,7 @@ def build_state_class(config: dict) -> type:
     - Custom fields from YAML 'state' section
     - Fields extracted from node state_key
     - Special fields for agent/router node types
+    - FR-021: Fields from data_files directive
 
     Args:
         config: Parsed YAML graph configuration dict
@@ -149,6 +150,12 @@ def build_state_class(config: dict) -> type:
     state_config = config.get("state", {})
     custom_fields = parse_state_config(state_config)
     fields.update(custom_fields)
+
+    # FR-021: Add fields from data_files directive
+    # Each data_files key becomes a state field of type Any
+    data_files = config.get("data_files", {})
+    for key in data_files:
+        fields[key] = Any
 
     # Extract fields from nodes
     nodes = config.get("nodes", {})

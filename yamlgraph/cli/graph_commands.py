@@ -128,6 +128,11 @@ def cmd_graph_run(args: Namespace) -> None:
         checkpointer = get_checkpointer_for_graph(graph_config)
         app = graph.compile(checkpointer=checkpointer)
 
+        # FR-021: Merge data_files into initial state (input vars win on collision)
+        if graph_config.data:
+            merged_state = {**graph_config.data, **initial_state}
+            initial_state = merged_state
+
         # Add thread_id if provided
         config = {}
         if args.thread:

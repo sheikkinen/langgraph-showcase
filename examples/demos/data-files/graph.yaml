@@ -1,0 +1,35 @@
+version: "1.0"
+name: data-files-demo
+description: Demonstrates data_files directive for loading external config
+prompts_relative: true
+prompts_dir: prompts
+
+# FR-021: Load external YAML files into state at compile time
+# The schema is available as state.schema in prompts
+data_files:
+  schema: schema.yaml
+
+state:
+  response: str  # Survey response to analyze
+
+nodes:
+  extract:
+    type: llm
+    prompt: extract
+    state_key: extracted
+    provider: mistral
+    temperature: 0.3
+
+  summarize:
+    type: llm
+    prompt: summarize
+    state_key: summary
+    provider: mistral
+
+edges:
+  - from: START
+    to: extract
+  - from: extract
+    to: summarize
+  - from: summarize
+    to: END

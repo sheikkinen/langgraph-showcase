@@ -2,10 +2,10 @@
 
 **Priority:** MEDIUM
 **Type:** Feature
-**Status:** Proposed → **Refined**
+**Status:** ✅ **Implemented** (v0.4.11)
 **Effort:** 3–4 days (Phase 1 only)
 **Requested:** 2026-02-02
-**Reviewed:** 2026-02-02
+**Implemented:** 2026-02-02
 
 ## Reflection: Is This Really Needed?
 

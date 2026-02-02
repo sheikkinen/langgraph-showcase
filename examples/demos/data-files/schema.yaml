@@ -1,0 +1,28 @@
+# Survey Response Schema
+# This file is loaded via data_files and available as state.schema
+# Edit this file to change what fields are extracted - no graph changes needed
+
+fields:
+  - name: satisfaction_score
+    type: int
+    range: [1, 10]
+    description: "Overall satisfaction rating"
+
+  - name: sentiment
+    type: str
+    options: [positive, neutral, negative]
+    description: "Overall sentiment of the response"
+
+  - name: keywords
+    type: list
+    description: "Key topics or themes mentioned"
+
+  - name: improvement_suggestion
+    type: str
+    required: false
+    description: "Any suggested improvements"
+
+extraction_instructions: |
+  Extract structured data from the survey response.
+  Be precise with the satisfaction score - look for numbers or
+  phrases like "very satisfied" (9-10), "satisfied" (7-8), etc.
