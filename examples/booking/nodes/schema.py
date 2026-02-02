@@ -27,6 +27,6 @@ class Booking(BaseModel):
     patient_phone: str
     created_at: datetime = None
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         if self.created_at is None:
             self.created_at = datetime.now()

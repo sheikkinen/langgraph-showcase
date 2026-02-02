@@ -23,7 +23,7 @@ class TestExtractPages:
             )
 
             # We need to handle multiple calls
-            def run_side_effect(*args, **kwargs):
+            def run_side_effect(*args, **_):
                 cmd = args[0]
                 if "pdfinfo" in cmd:
                     return MagicMock(stdout="Pages:          3\n", returncode=0)
@@ -50,7 +50,7 @@ class TestExtractPages:
 
         with patch("subprocess.run") as mock_run:
 
-            def run_side_effect(*args, **kwargs):
+            def run_side_effect(*args, **_):
                 cmd = args[0]
                 if "pdfinfo" in cmd:
                     return MagicMock(stdout="Pages:          2\n", returncode=0)
@@ -77,7 +77,7 @@ class TestExtractPages:
 
         with patch("subprocess.run") as mock_run:
 
-            def run_side_effect(*args, **kwargs):
+            def run_side_effect(*args, **_):
                 cmd = args[0]
                 if "pdfinfo" in cmd:
                     return MagicMock(stdout="Pages:          2\n", returncode=0)
@@ -120,7 +120,7 @@ class TestExtractPages:
 
         with patch("subprocess.run") as mock_run:
 
-            def run_side_effect(*args, **kwargs):
+            def run_side_effect(*args, **_):
                 cmd = args[0]
                 if "pdfinfo" in cmd:
                     return MagicMock(stdout="Pages:          10\n", returncode=0)
