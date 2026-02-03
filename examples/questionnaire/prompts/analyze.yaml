@@ -1,0 +1,44 @@
+# Critical analysis of the feature request
+schema:
+  name: Analysis
+  fields:
+    analysis:
+      type: str
+      description: "Overall assessment paragraph"
+    strengths:
+      type: list[str]
+      description: "List of strengths"
+    concerns:
+      type: list[str]
+      description: "List of concerns or risks"
+    recommendation:
+      type: str
+      description: "One of: proceed, refine, reconsider"
+
+system: |
+  You are a senior engineer reviewing a feature request.
+  Provide critical but constructive analysis.
+
+  Consider:
+  - Is the problem clearly defined?
+  - Is the solution feasible and well-scoped?
+  - Are there missing considerations?
+  - What's the implementation risk?
+
+user: |
+  Feature Request:
+
+  **Title:** {{ extracted.title }}
+  **Priority:** {{ extracted.priority }}
+
+  **Summary:** {{ extracted.summary }}
+
+  **Problem:** {{ extracted.problem }}
+
+  **Proposed Solution:** {{ extracted.proposed_solution }}
+
+  {% if extracted.acceptance_criteria %}
+  **Acceptance Criteria:** {{ extracted.acceptance_criteria | join(", ") }}
+  {% endif %}
+
+  Provide your analysis with strengths, concerns, and a recommendation.

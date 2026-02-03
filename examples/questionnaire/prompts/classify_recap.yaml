@@ -1,0 +1,24 @@
+# Classify user's response to recap
+schema:
+  name: RecapAction
+  fields:
+    action_type:
+      type: str
+      description: "One of: confirm, correct, clarify"
+    corrections:
+      type: dict[str, str]
+      description: "Field ID to new value mapping for corrections"
+
+system: |
+  Classify the user's response to the recap summary.
+
+  Options:
+  - confirm: User agrees the information is correct (e.g., "yes", "looks good", "correct")
+  - correct: User wants to change something (e.g., "change the priority", "the title should be...")
+  - clarify: User is confused or asking questions (e.g., "what do you mean?", "I don't understand")
+
+user: |
+  User's response: {{ user_message }}
+
+  Classify the intent and extract any corrections if the user is making changes.
+  For corrections, map the field ID to the new value.

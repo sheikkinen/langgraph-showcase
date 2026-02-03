@@ -1,0 +1,54 @@
+# Feature Request Schema
+# Loaded via data_files directive in graph.yaml
+
+name: feature-request
+description: Collect information for a YamlGraph feature request
+
+# Groups for organized recap display
+groups:
+  - id: overview
+    label: "Overview"
+    fields: [title, priority, summary]
+  - id: details
+    label: "Details"
+    fields: [problem, proposed_solution]
+  - id: extras
+    label: "Additional Info"
+    fields: [acceptance_criteria, alternatives]
+
+fields:
+  # Required (5 fields - core of any feature request)
+  - id: title
+    description: Short, descriptive title for the feature
+    required: true
+    example: "Add data_files directive for loading external YAML"
+
+  - id: priority
+    description: Importance level (low, medium, high)
+    required: true
+    coding:
+      low: Not urgent, nice-to-have
+      medium: Important but can wait
+      high: Critical, blocking work
+
+  - id: summary
+    description: Brief 1-2 sentence description
+    required: true
+
+  - id: problem
+    description: What problem does this solve? Why is it needed?
+    required: true
+
+  - id: proposed_solution
+    description: How should it work? Include examples if relevant
+    required: true
+
+  # Optional (extracted if mentioned, not probed)
+  - id: acceptance_criteria
+    description: List of criteria to consider the feature complete
+    required: false
+    extract_as: list
+
+  - id: alternatives
+    description: Other approaches that were considered
+    required: false

@@ -11,6 +11,7 @@ Example applications demonstrating YAMLGraph capabilities.
 | [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
 | [ocr_cleanup/](ocr_cleanup/) | OCR text cleanup | Map nodes, PDF extraction, parallel LLM cleanup |
+| [questionnaire/](questionnaire/) | Feature request collector | Data files, interrupt loops, conditional routing |
 | [rag/](rag/) | RAG pipeline | LanceDB vectorstore, document indexing, retrieval |
 | [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
 | [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
@@ -50,7 +51,12 @@ yamlgraph graph run examples/npc/npc-creation.yaml \
 - **yamlgraph_gen/** - Meta-generation with validation tools
 
 ### Interrupt Nodes (Human-in-the-Loop)
+- **questionnaire/** - Interactive data collection with probe/recap loops
 - **fastapi_interview.py** - Web-based multi-turn conversations
+
+### Data Files (External Schema Loading)
+- **questionnaire/** - Schema-driven field collection
+- **demos/data-files/** - Simple data_files demonstration
 
 ### RAG (Retrieval-Augmented Generation)
 - **rag/** - LanceDB vectorstore with document chunking

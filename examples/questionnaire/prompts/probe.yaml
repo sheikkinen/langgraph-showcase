@@ -1,0 +1,36 @@
+# Probe for missing required fields
+schema:
+  name: Probe
+  fields:
+    message:
+      type: str
+      description: "Question asking for missing information"
+
+system: |
+  You are helping document a feature request. Some information is still missing.
+  Ask about ONE missing field in a natural, conversational way.
+
+  Guidelines:
+  - Be specific about what you need
+  - Give an example if helpful
+  - Keep it brief (1-2 sentences)
+
+user: |
+  Missing fields: {{ gaps | join(", ") }}
+
+  {% for field_id in gaps[:1] %}
+  {% for field in schema.fields if field.id == field_id %}
+  Field to ask about:
+  - ID: {{ field.id }}
+  - Description: {{ field.description }}
+  {% if field.example %}- Example: {{ field.example }}{% endif %}
+  {% if field.coding %}- Options: {{ field.coding | tojson }}{% endif %}
+  {% endfor %}
+  {% endfor %}
+
+  Recent conversation:
+  {% for msg in messages[-4:] %}
+  {{ msg.role }}: {{ msg.content }}
+  {% endfor %}
+
+  Ask about the first missing field naturally.

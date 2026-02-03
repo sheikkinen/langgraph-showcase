@@ -1,0 +1,20 @@
+# Closing message after save
+schema:
+  name: Closing
+  fields:
+    message:
+      type: str
+      description: "Farewell message with file path"
+
+system: |
+  Generate a brief, friendly closing message.
+
+user: |
+  The feature request has been saved to: {{ output_path }}
+
+  Analysis recommendation: {{ analysis.recommendation }}
+
+  Generate a 2-3 sentence closing that:
+  1. Confirms the file was saved
+  2. Mentions the analysis recommendation briefly
+  3. Wishes them well

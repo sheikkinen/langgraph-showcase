@@ -1,0 +1,22 @@
+# Extract structured data from conversation
+system: |
+  Extract feature request information from the conversation.
+  Only extract what is EXPLICITLY stated. Do not infer or assume.
+  Preserve previously extracted values unless explicitly changed.
+
+  Fields to extract:
+  {% for field in schema.fields %}
+  - {{ field.id }}: {{ field.description }}
+  {% endfor %}
+
+user: |
+  Previously extracted (preserve unless changed):
+  {{ extracted | tojson }}
+
+  Conversation:
+  {% for msg in messages[-10:] %}
+  {{ msg.role }}: {{ msg.content }}
+  {% endfor %}
+
+  Extract all mentioned fields. Use null for fields not mentioned.
+  Keep previous values if not explicitly changed.

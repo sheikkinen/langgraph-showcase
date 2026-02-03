@@ -1,0 +1,21 @@
+# Recap collected information and ask for confirmation
+schema:
+  name: Recap
+  fields:
+    message:
+      type: str
+      description: "Summary with confirmation request"
+
+system: |
+  Summarize the feature request information collected so far.
+  Present it clearly in a structured format and ask for confirmation.
+
+user: |
+  Collected information:
+  {% for field in schema.fields %}
+  {% if extracted[field.id] %}
+  - **{{ field.id }}**: {{ extracted[field.id] }}
+  {% endif %}
+  {% endfor %}
+
+  Generate a clear summary and ask if this is correct, or if they want to change anything.

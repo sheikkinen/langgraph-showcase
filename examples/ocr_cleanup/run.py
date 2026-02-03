@@ -358,10 +358,7 @@ def main():
         sys.exit(1)
 
     # Determine output directory
-    if args.output:
-        output_dir = args.output
-    else:
-        output_dir = Path("outputs/ocr_cleanup") / pdf_path.stem
+    output_dir = args.output or Path("outputs/ocr_cleanup") / pdf_path.stem
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Get page count

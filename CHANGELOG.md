@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.12] - 2026-02-03
+
+### Added
+- **CLI interrupt handling** - `yamlgraph graph run` now handles interrupt nodes interactively
+  - Detects `__interrupt__` in graph state and prompts for user input
+  - Resumes with `Command(resume=input)` for human-in-the-loop flows
+  - Helper `_get_interrupt_message()` extracts display message from interrupt payload
+- **Questionnaire example** - Feature request collector demonstrating:
+  - `data_files` for schema loading
+  - Interrupt loops for multi-turn conversation
+  - Probe loop with gap detection and 10-iteration guard
+  - Recap flow with confirm/correct/clarify routing
+  - Critical analysis and markdown output
+  - 31 tests (16 unit + 15 integration)
+
+### Fixed
+- Pre-existing ruff issues in `examples/beautify/run.py` and `examples/ocr_cleanup/run.py`
+
 ## [0.4.11] - 2026-02-02
 
 ### Added

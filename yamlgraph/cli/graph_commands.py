@@ -70,6 +70,30 @@ def _display_result(result: dict, truncate: bool = True) -> None:
             print(f"  {key}: {value_str}")
 
 
+def _get_interrupt_message(result: dict) -> str:
+    """Extract human-readable message from interrupt.
+
+    Args:
+        result: Graph execution result containing __interrupt__
+
+    Returns:
+        Message to display to user
+    """
+    interrupt = result.get("__interrupt__", ())
+    if interrupt and len(interrupt) > 0:
+        # Interrupt is tuple of Interrupt objects
+        interrupt_obj = interrupt[0]
+        if hasattr(interrupt_obj, "value"):
+            value = interrupt_obj.value
+            # Value can be string or dict with message
+            if isinstance(value, str):
+                return value
+            if isinstance(value, dict):
+                return value.get("message", value.get("question", str(value)))
+    # Fallback: check response in state
+    return result.get("response", "Please provide input:")
+
+
 def _handle_export(graph_path: Path, result: dict) -> None:
     """Handle optional result export.
 
@@ -139,7 +163,7 @@ def cmd_graph_run(args: Namespace) -> None:
             config["configurable"] = {"thread_id": args.thread}
             initial_state["thread_id"] = args.thread
 
-        # Use ainvoke for async execution (parallel map nodes with all providers)
+        # Initial invoke
         if getattr(args, "use_async", False):
             import asyncio
 
@@ -148,6 +172,28 @@ def cmd_graph_run(args: Namespace) -> None:
             )
         else:
             result = app.invoke(initial_state, config=config if config else None)
+
+        # Interrupt loop - handle human-in-the-loop
+        while "__interrupt__" in result:
+            message = _get_interrupt_message(result)
+            print(f"\n💬 {message}")
+            user_input = input("\n> ").strip()
+
+            if not user_input:
+                print("❌ Empty input. Exiting.")
+                sys.exit(0)
+
+            # Resume with Command(resume=...)
+            from langgraph.types import Command
+
+            if getattr(args, "use_async", False):
+                import asyncio
+
+                result = asyncio.run(
+                    app.ainvoke(Command(resume=user_input), config=config)
+                )
+            else:
+                result = app.invoke(Command(resume=user_input), config=config)
 
         _display_result(result, truncate=not getattr(args, "full", False))
 

@@ -1,0 +1,12 @@
+# Ignore generated outputs
+outputs/
+*.md.bak
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/

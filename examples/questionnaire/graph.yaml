@@ -1,0 +1,317 @@
+version: "1.0"
+name: feature-request-questionnaire
+description: |
+  Interactive questionnaire to collect and analyze feature requests.
+  Demonstrates: data_files, interrupt nodes, conditional routing, Python tools.
+
+checkpointer:
+  type: memory
+
+data_files:
+  schema: schema.yaml
+
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: anthropic
+  temperature: 0.7
+
+tools:
+  append_user:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: append_user_message
+
+  append_assistant:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: append_assistant_message
+
+  prune:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: prune_messages
+
+  store_recap:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: store_recap_summary
+
+  detect_gaps:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: detect_gaps
+
+  apply_corrections:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: apply_corrections
+
+  save:
+    type: python
+    module: examples.questionnaire.tools.handlers
+    function: save_to_file
+
+state:
+  # Input
+  user_message: str
+  skip_opening: bool
+
+  # Conversation
+  messages: list
+
+  # Extraction
+  extracted: dict
+  gaps: list
+  has_gaps: bool
+  probe_count: int
+
+  # Recap
+  recap_action: dict
+  recap_summary: str
+  correction_count: int
+
+  # Analysis
+  analysis: dict
+
+  # Output
+  response: str
+  phase: str
+  complete: bool
+  output_path: str
+
+  # Interrupt control (cleared between loops)
+  interrupt_payload: str
+
+nodes:
+  # --- Init ---
+  init:
+    type: passthrough
+    output:
+      messages: []
+      extracted: {}
+      gaps: []
+      has_gaps: true
+      probe_count: 0
+      correction_count: 0
+      skip_opening: false
+      phase: opening
+      interrupt_payload: null  # Clear for first interrupt
+
+  # --- Opening ---
+  opening:
+    type: llm
+    prompt: opening
+    state_key: response
+
+  append_opening:
+    type: python
+    tool: append_assistant
+
+  ask_opening:
+    type: interrupt
+    message: "{response}"
+    resume_key: user_message
+
+  append_opening_msg:
+    type: python
+    tool: append_user
+
+  # --- Probe Loop ---
+  set_probing:
+    type: passthrough
+    output:
+      phase: probing
+      interrupt_payload: null  # Clear for next interrupt
+
+  extract:
+    type: llm
+    prompt: extract
+    parse_json: true
+    variables:
+      schema: "{state.schema}"
+      messages: "{state.messages}"
+      extracted: "{state.extracted}"
+    state_key: extracted
+
+  detect_gaps:
+    type: python
+    tool: detect_gaps
+
+  probe:
+    type: llm
+    prompt: probe
+    variables:
+      schema: "{state.schema}"
+      gaps: "{state.gaps}"
+      messages: "{state.messages}"
+    state_key: response
+
+  append_probe:
+    type: python
+    tool: append_assistant
+
+  ask_probe:
+    type: interrupt
+    message: "{response}"
+    resume_key: user_message
+
+  append_probe_msg:
+    type: python
+    tool: append_user
+
+  prune:
+    type: python
+    tool: prune
+
+  # --- Recap ---
+  set_recap:
+    type: passthrough
+    output:
+      phase: recap
+
+  recap:
+    type: llm
+    prompt: recap
+    variables:
+      schema: "{state.schema}"
+      extracted: "{state.extracted}"
+    state_key: response
+
+  store_recap:
+    type: python
+    tool: store_recap
+
+  append_recap:
+    type: python
+    tool: append_assistant
+
+  ask_recap:
+    type: interrupt
+    message: "{recap_summary}"
+    resume_key: user_message
+
+  append_recap_msg:
+    type: python
+    tool: append_user
+
+  classify:
+    type: llm
+    prompt: classify_recap
+    variables:
+      user_message: "{state.user_message}"
+    state_key: recap_action
+
+  apply_corrections:
+    type: python
+    tool: apply_corrections
+
+  # --- Analyze ---
+  set_analyzing:
+    type: passthrough
+    output:
+      phase: analyzing
+
+  analyze:
+    type: llm
+    prompt: analyze
+    variables:
+      extracted: "{state.extracted}"
+    state_key: analysis
+
+  # --- Save ---
+  save:
+    type: python
+    tool: save
+
+  # --- Closing ---
+  closing:
+    type: llm
+    prompt: closing
+    variables:
+      output_path: "{state.output_path}"
+      analysis: "{state.analysis}"
+    state_key: response
+
+edges:
+  # Init → Opening (skip if caller already greeted)
+  - from: START
+    to: init
+  - from: init
+    to: opening
+    condition: "skip_opening == false"
+  - from: init
+    to: append_opening_msg
+    condition: "skip_opening == true"
+  - from: opening
+    to: append_opening
+  - from: append_opening
+    to: ask_opening
+  - from: ask_opening
+    to: append_opening_msg
+  - from: append_opening_msg
+    to: set_probing
+
+  # Probing Loop
+  - from: set_probing
+    to: extract
+  - from: extract
+    to: detect_gaps
+  - from: detect_gaps
+    to: probe
+    condition: "has_gaps == true and probe_count < 10"
+  - from: detect_gaps
+    to: set_recap
+    condition: "has_gaps == false"
+  - from: detect_gaps
+    to: set_recap
+    condition: "probe_count >= 10"
+  - from: probe
+    to: append_probe
+  - from: append_probe
+    to: ask_probe
+  - from: ask_probe
+    to: append_probe_msg
+  - from: append_probe_msg
+    to: prune
+  - from: prune
+    to: extract
+
+  # Recap
+  - from: set_recap
+    to: recap
+  - from: recap
+    to: store_recap
+  - from: store_recap
+    to: append_recap
+  - from: append_recap
+    to: ask_recap
+  - from: ask_recap
+    to: append_recap_msg
+  - from: append_recap_msg
+    to: classify
+  - from: classify
+    to: set_analyzing
+    condition: "recap_action.action_type == 'confirm'"
+  - from: classify
+    to: set_analyzing
+    condition: "correction_count >= 5"
+  - from: classify
+    to: apply_corrections
+    condition: "recap_action.action_type == 'correct' and correction_count < 5"
+  - from: apply_corrections
+    to: recap
+  - from: classify
+    to: recap
+    condition: "recap_action.action_type == 'clarify' and correction_count < 5"
+
+  # Analyze & Save
+  - from: set_analyzing
+    to: analyze
+  - from: analyze
+    to: save
+  - from: save
+    to: closing
+  - from: closing
+    to: END

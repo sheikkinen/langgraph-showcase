@@ -58,12 +58,12 @@ def render_html(state: dict[str, Any]) -> dict[str, Any]:
 
     theme_name = state.get("theme") or "dark"
     theme = THEMES.get(theme_name, THEMES["dark"])
-    
+
     # Convert Pydantic models to dicts if needed
     analysis = state.get("analysis") or {}
     if hasattr(analysis, "model_dump"):
         analysis = analysis.model_dump()
-    
+
     mermaid = state.get("mermaid_code") or {}
     if hasattr(mermaid, "model_dump"):
         mermaid = mermaid.model_dump()

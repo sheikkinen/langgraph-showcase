@@ -14,14 +14,16 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from yamlgraph.graph_loader import compile_graph, load_graph_config
+from yamlgraph.graph_loader import compile_graph, load_graph_config  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Transform graph.yaml into HTML infographic")
+    parser = argparse.ArgumentParser(
+        description="Transform graph.yaml into HTML infographic"
+    )
     parser.add_argument("graph_path", help="Path to graph.yaml")
     parser.add_argument("--output", "-o", help="Output HTML path")
     parser.add_argument("--theme", "-t", choices=["dark", "light"], default="dark")
@@ -63,6 +65,7 @@ def main() -> int:
         logger.error(f"❌ {e}")
         if args.verbose:
             import traceback
+
             traceback.print_exc()
         return 1
 
