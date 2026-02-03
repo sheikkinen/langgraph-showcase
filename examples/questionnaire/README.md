@@ -126,3 +126,107 @@ pytest examples/questionnaire/tests/test_graph_integration.py -v
 - **Correction loop**: Max 5 iterations (prevents infinite corrections)
 
 These guards ensure the conversation terminates even if gaps can't be filled.
+
+---
+
+## Adapting for Other Questionnaires
+
+This example is designed as a **reusable framework**. Most components are generic and schema-driven.
+
+### Component Analysis
+
+| Component | Reusability | Changes Needed |
+|-----------|-------------|----------------|
+| `graph.yaml` | 95% Generic | Only `name`, `description` |
+| `tools/handlers.py` | 90% Generic | Only `_format_*()` function |
+| `prompts/extract.yaml` | 100% Generic | None |
+| `prompts/probe.yaml` | 100% Generic | None |
+| `prompts/recap.yaml` | 95% Generic | Update domain reference |
+| `prompts/classify_recap.yaml` | 100% Generic | None |
+| `prompts/opening.yaml` | 50% Generic | Update context/persona |
+| `prompts/analyze.yaml` | Domain-Specific | Complete rewrite |
+| `prompts/closing.yaml` | 80% Generic | Minor adjustments |
+| `schema.yaml` | Domain-Specific | Complete rewrite |
+
+### To Create a New Questionnaire
+
+1. **Copy the example:**
+   ```bash
+   cp -r examples/questionnaire examples/my-questionnaire
+   ```
+
+2. **Rewrite `schema.yaml`** with your fields:
+   ```yaml
+   name: bug-report
+   description: Collect information for bug triage
+
+   fields:
+     - id: title
+       description: Short bug description
+       required: true
+     - id: severity
+       description: critical/major/minor
+       required: true
+       coding:
+         critical: System down
+         major: Feature broken
+         minor: Cosmetic issue
+     - id: steps_to_reproduce
+       required: true
+     - id: expected_behavior
+       required: true
+     - id: actual_behavior
+       required: true
+   ```
+
+3. **Rewrite `prompts/analyze.yaml`** with domain expertise:
+   ```yaml
+   system: |
+     You are a QA engineer triaging a bug report.
+     Consider:
+     - Is the bug reproducible?
+     - What's the blast radius?
+     - Is there a workaround?
+   ```
+
+4. **Update `prompts/opening.yaml`** system prompt:
+   ```yaml
+   system: |
+     You are helping to document a bug report.
+   ```
+
+5. **Rename and update formatter** in `tools/handlers.py`:
+   ```python
+   def _format_bug_report(extracted: dict, analysis: dict) -> str:
+       return f"""# Bug Report: {extracted.get("title")}
+   **Severity:** {extracted.get("severity")}
+   ...
+   """
+   ```
+
+6. **Update graph metadata** in `graph.yaml`:
+   ```yaml
+   name: bug-report-questionnaire
+   description: Collect and triage bug reports
+   ```
+
+### What Works Unchanged
+
+The following are fully **schema-driven** and require no changes:
+
+- **Extraction loop** — Iterates over `schema.fields` dynamically
+- **Gap detection** — Checks `required` fields automatically
+- **Probing** — Asks about missing fields from schema
+- **Recap** — Displays all collected fields via Jinja2 loop
+- **Confirm/Correct/Clarify** — Universal user intent classification
+- **Conversation management** — Message append, prune, store
+
+### Example Domains
+
+| Domain | Key Fields |
+|--------|------------|
+| Bug Report | severity, steps, expected, actual, environment |
+| User Interview | goals, pain_points, workflows, feature_wishes |
+| Support Ticket | issue_type, urgency, affected_users, workaround |
+| Job Application | role, experience, skills, availability, salary |
+| Customer Feedback | product, rating, likes, dislikes, suggestions |
