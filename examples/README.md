@@ -26,15 +26,15 @@ After the learning path, explore production examples below.
 | [book_translator/](book_translator/) | Translate books & documents | Map nodes, parallel translation, glossary, checkpointing |
 | [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
-| [fsm-router/](fsm-router/) | FSM + YAMLGraph integration | statemachine-engine, job orchestration |
+| [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
+| [daily_digest/](daily_digest/) | Scheduled news digest | Fly.io deployment, background tasks, email |
+| [fsm-router/](fsm-router/) | FSM + YAMLGraph integration | statemachine-engine, LLM routing, job orchestration |
+| [npc/](npc/) | D&D NPC generator | Multi-graph, map nodes, parallel NPCs |
 | [ocr_cleanup/](ocr_cleanup/) | OCR text cleanup | Map nodes, PDF extraction, parallel LLM cleanup |
 | [questionnaire/](questionnaire/) | Feature request collector | Data files, interrupt loops, conditional routing |
 | [rag/](rag/) | RAG pipeline | LanceDB vectorstore, document indexing, retrieval |
-| [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
-| [cost-router/](cost-router/) | Multi-provider routing | Router nodes, Granite/Mistral/Claude |
-| [daily_digest/](daily_digest/) | Scheduled news digest | Fly.io deployment, background tasks, email |
-| [npc/](npc/) | D&D NPC generator | Multi-graph, map nodes, parallel NPCs |
 | [storyboard/](storyboard/) | Visual story generator | Replicate API, image generation |
+| [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
 | [fastapi_interview.py](fastapi_interview.py) | FastAPI integration | Async execution, interrupt handling, sessions |
 
 ## Demos Index
