@@ -222,6 +222,27 @@ pytest tests/ -v
 - Simple request → LLM → response (just use YAMLGraph alone)
 - Already have Celery/Airflow/Temporal
 
+## Use Cases
+
+### High Value (Clear FSM+LLM Fit)
+
+| Use Case | FSM Provides | YAMLGraph Provides |
+|----------|--------------|-------------------|
+| **Support Ticket Triage** | Queue, SLA timers, escalation paths, audit trail | Intent classification, priority detection, auto-response |
+| **Document Processing** | Job queue, retry on failure, approval workflow | OCR cleanup, entity extraction, summarization |
+| **Multi-Step Approval** | State persistence, human gates, timeout handling | Draft generation, compliance check, summaries |
+| **Chatbot with Handoff** | Session state, agent routing, escalation | Intent detection, response generation, sentiment |
+| **Code Review Automation** | PR queue, reviewer assignment, merge gates | Code analysis, security scanning, review comments |
+
+### Integration Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| **LLM-as-Router** | FSM transitions driven by LLM classification (this example) |
+| **Human-in-Loop** | FSM manages approval gates, YAMLGraph prepares content |
+| **Multi-Agent** | FSM coordinates multiple YAMLGraph agents |
+| **Retry with Refinement** | FSM retries failed calls, YAMLGraph self-corrects |
+
 ## See Also
 
 - [statemachine-engine docs](https://github.com/sheikkinen/statemachine-engine)
