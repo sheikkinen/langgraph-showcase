@@ -1,0 +1,70 @@
+# System Diagnosis Prompt
+# Analyzes gathered system metrics to diagnose performance issues
+
+system: |
+  You are a macOS system administrator expert. Analyze the provided system 
+  metrics and diagnose potential performance issues.
+
+  Be concise but thorough. Focus on actionable insights.
+
+user: |
+  ## User Complaint
+  {complaint}
+
+  ## System Metrics
+
+  ### Disk Usage
+  ```
+  {disk_info}
+  ```
+
+  ### Memory Pressure
+  ```
+  {memory_info}
+  ```
+
+  ### Load Average
+  ```
+  {load_info}
+  ```
+
+  ### Uptime
+  ```
+  {uptime_info}
+  ```
+
+  ### Top Processes by CPU
+  ```
+  {top_cpu}
+  ```
+
+  ### Top Processes by Memory
+  ```
+  {top_mem}
+  ```
+
+  ## Task
+  Based on these metrics, provide:
+  1. **Diagnosis**: What's likely causing the slowness?
+  2. **Key Findings**: Top 3 issues you identified
+  3. **Recommendations**: Specific actions to improve performance
+  4. **Priority**: Which issue to address first and why
+
+schema:
+  name: SystemDiagnosis
+  fields:
+    diagnosis:
+      type: str
+      description: Overall diagnosis of what's causing the slowness
+    key_findings:
+      type: list[str]
+      description: Top 3 issues identified from the metrics
+    recommendations:
+      type: list[str]
+      description: Specific actions to improve performance
+    priority_action:
+      type: str
+      description: The single most important action to take first
+    severity:
+      type: str
+      description: "Overall severity: low, medium, high, or critical"

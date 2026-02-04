@@ -1,0 +1,117 @@
+# System Status Report - type: tool Demo
+# Gathers macOS system info and asks LLM to diagnose slowness
+#
+# Usage:
+#   yamlgraph graph run examples/demos/system-status/graph.yaml \
+#     --var complaint="my system is running a bit slow - what could be the issue"
+
+version: "1.0"
+name: system-status
+description: Gather system metrics with shell tools, then LLM diagnoses issues
+
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  temperature: 0.3
+
+state:
+  complaint: str
+
+# Shell tools - executed deterministically (no LLM decision)
+tools:
+  disk_usage:
+    command: "df -h"
+    description: Show disk space usage
+
+  memory_pressure:
+    command: "memory_pressure"
+    description: Show memory pressure statistics
+
+  load_average:
+    command: "sysctl -n vm.loadavg"
+    description: System load average
+
+  top_processes_cpu:
+    command: "ps aux -r | head -15"
+    description: Top processes by CPU usage
+
+  top_processes_mem:
+    command: "ps aux -m | head -15"
+    description: Top processes by memory usage
+
+  uptime:
+    command: "uptime"
+    description: System uptime and load
+
+nodes:
+  # Gather system metrics using type: tool nodes
+  get_disk:
+    type: tool
+    tool: disk_usage
+    state_key: disk_info
+
+  get_memory:
+    type: tool
+    tool: memory_pressure
+    state_key: memory_info
+    on_error: skip  # memory_pressure may not be available
+
+  get_load:
+    type: tool
+    tool: load_average
+    state_key: load_info
+
+  get_uptime:
+    type: tool
+    tool: uptime
+    state_key: uptime_info
+
+  get_top_cpu:
+    type: tool
+    tool: top_processes_cpu
+    state_key: top_cpu
+
+  get_top_mem:
+    type: tool
+    tool: top_processes_mem
+    state_key: top_mem
+
+  # LLM analyzes all gathered data
+  analyze:
+    type: llm
+    prompt: analyze
+    variables:
+      complaint: "{state.complaint}"
+      disk_info: "{state.disk_info}"
+      memory_info: "{state.memory_info}"
+      load_info: "{state.load_info}"
+      uptime_info: "{state.uptime_info}"
+      top_cpu: "{state.top_cpu}"
+      top_mem: "{state.top_mem}"
+    state_key: diagnosis
+    requires:
+      - disk_info
+      - load_info
+      - uptime_info
+      - top_cpu
+      - top_mem
+
+edges:
+  # Sequential tool execution (LangGraph requires sequential for current_step)
+  - from: START
+    to: get_disk
+  - from: get_disk
+    to: get_memory
+  - from: get_memory
+    to: get_load
+  - from: get_load
+    to: get_uptime
+  - from: get_uptime
+    to: get_top_cpu
+  - from: get_top_cpu
+    to: get_top_mem
+  - from: get_top_mem
+    to: analyze
+  - from: analyze
+    to: END
