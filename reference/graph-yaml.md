@@ -1,6 +1,6 @@
 # Graph YAML Reference
 
-This document explains all configuration options for graph YAML files in the `graphs/` directory.
+This document explains all configuration options for graph YAML files. Graphs are typically located in `examples/demos/*/graph.yaml` or your project's graph directory.
 
 ## File Structure
 

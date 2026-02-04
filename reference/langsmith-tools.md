@@ -141,10 +141,10 @@ Pre-built graph for analyzing failed runs:
 
 ```bash
 # Analyze most recent failed run
-yamlgraph graph run graphs/run-analyzer.yaml -v mode=last_failed
+yamlgraph graph run examples/demos/run-analyzer/graph.yaml -v mode=last_failed
 
 # Analyze specific run
-yamlgraph graph run graphs/run-analyzer.yaml -v run_id="019bcf62-..."
+yamlgraph graph run examples/demos/run-analyzer/graph.yaml -v run_id="019bcf62-..."
 ```
 
 ---

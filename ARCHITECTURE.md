@@ -159,21 +159,28 @@ See [examples/npc/architecture.md](examples/npc/architecture.md) for full docume
 │                         graph_loader.py                                  │
 │  • load_graph_config() - Parse YAML → GraphConfig                       │
 │  • compile_graph() - GraphConfig → StateGraph                           │
-│  • _compile_node() - Dispatch to node factories                         │
 │  • _compile_edges() - Build edge connections                            │
 └──────────────────────────────┬──────────────────────────────────────────┘
                                │
           ┌────────────────────┼────────────────────┐
           ▼                    ▼                    ▼
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│ node_factory.py │  │ map_compiler.py │  │ tools/agent.py  │
-│ • LLM nodes     │  │ • Fan-out nodes │  │ • ReAct agents  │
-│ • Router nodes  │  │ • Send() API    │  │ • Tool binding  │
-│ • Interrupt     │  │ • Collection    │  │ • Max iterations│
-│ • Passthrough   │  └─────────────────┘  └─────────────────┘
-│ • Subgraph      │
-│ • Tool call     │
-└────────┬────────┘
+│ node_compiler.py│  │ map_compiler.py │  │ tools/agent.py  │
+│ • compile_node()│  │ • Fan-out nodes │  │ • ReAct agents  │
+│ • compile_nodes │  │ • Send() API    │  │ • Tool binding  │
+│                 │  │ • Collection    │  │ • Max iterations│
+└────────┬────────┘  └─────────────────┘  └─────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    node_factory/ (subpackage)                │
+│  • llm_nodes.py - LLM and router nodes                      │
+│  • control_nodes.py - Interrupt, passthrough                │
+│  • subgraph_nodes.py - Nested graph composition             │
+│  • tool_nodes.py - Tool call nodes                          │
+│  • streaming.py - Token streaming support                   │
+│  • base.py - Shared utilities                               │
+└─────────────────────────────────────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -290,9 +297,140 @@ Node execution raises Exception
   Log warning, return {}
 ```
 
+### 4. Pipeline Flow
+
+```mermaid
+graph TD
+    A["📝 generate"] -->|content| B{should_continue}
+    B -->|"✓ content exists"| C["🔍 analyze"]
+    B -->|"✗ error/empty"| F["🛑 END"]
+    C -->|analysis| D["📊 summarize"]
+    D -->|final_summary| F
+
+    style A fill:#e1f5fe
+    style C fill:#fff3e0
+    style D fill:#e8f5e9
+    style F fill:#fce4ec
+```
+
+**Node Outputs:**
+
+| Node | Output Type | Description |
+|------|-------------|-------------|
+| `generate` | Inline schema | Title, content, word_count, tags |
+| `analyze` | Inline schema | Summary, key_points, sentiment, confidence |
+| `summarize` | `str` | Final combined summary |
+
+Output schemas are defined inline in YAML prompt files using the `schema:` block.
+
+### 5. Resume Flow
+
+Pipelines can be resumed from any checkpoint. The resume behavior uses `skip_if_exists`:
+nodes check if their output already exists in state and skip LLM calls if so.
+
+```mermaid
+graph LR
+    subgraph "Resume after 'analyze' completed"
+        A1["Load State"] --> B1["analyze (skipped)"] --> C1["summarize"] --> D1["END"]
+    end
+```
+
+```bash
+# Resume an interrupted run (using checkpointer)
+yamlgraph graph run graphs/my-graph.yaml --thread abc123
+```
+
+When resumed:
+- Nodes with existing outputs are **skipped** (no duplicate LLM calls)
+- Only nodes without outputs in state actually run
+- State is preserved via SQLite checkpointing
+
 ---
 
 ## Extension Points
+
+### Tutorial: Adding a New Node (YAML-First Approach)
+
+Let's add a "fact_check" node that verifies generated content.
+
+**Step 1: Create the prompt** (`prompts/fact_check.yaml`):
+```yaml
+system: |
+  You are a fact-checker. Analyze the given content and identify
+  claims that can be verified. Assess the overall verifiability.
+
+user: |
+  Content to fact-check:
+  {content}
+
+  Identify key claims and assess their verifiability.
+```
+
+**Step 2: Add the node to your graph** (`graphs/yamlgraph.yaml`):
+```yaml
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    output_schema:  # Inline schema - no Python model needed!
+      title: str
+      content: str
+    state_key: generated
+
+  fact_check:  # ✨ New node - just YAML!
+    type: llm
+    prompt: fact_check
+    output_schema:  # Define schema inline
+      is_accurate: bool
+      issues: list[str]
+    requires: [generated]
+    variables:
+      content: generated.content
+    state_key: fact_check
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: fact_check
+  - from: fact_check
+    to: END
+```
+
+That's it! No Python node code needed. The graph loader dynamically generates the node function.
+
+**Step 3 (optional): Define reusable schema** (`yamlgraph/models/schemas.py`):
+```python
+class FactCheck(BaseModel):
+    """Structured fact-checking output."""
+    claims: list[str] = Field(description="Claims identified in content")
+    verified: bool = Field(description="Whether claims are verifiable")
+    confidence: float = Field(ge=0.0, le=1.0, description="Verification confidence")
+```
+
+### Tutorial: Adding Conditional Branching
+
+Route to different nodes based on analysis results (all in YAML):
+
+```yaml
+edges:
+  - from: analyze
+    to: rewrite_node
+    condition:
+      type: field_equals
+      field: analysis.sentiment
+      value: negative
+
+  - from: analyze
+    to: enhance_node
+    condition:
+      type: field_equals
+      field: analysis.sentiment
+      value: positive
+
+  - from: analyze
+    to: summarize  # Default fallback
+```
 
 ### Adding a New Node Type
 
@@ -311,10 +449,11 @@ Node execution raises Exception
        return node_fn
    ```
 
-3. **Register in graph_loader.py** `_compile_node()`:
+3. **Register in node_compiler.py** `compile_node()`:
    ```python
    elif node_type == NodeType.MY_NODE:
        node_fn = create_my_node(node_name, node_config)
+       graph.add_node(node_name, node_fn)
    ```
 
 4. **Add tests** in `tests/unit/test_my_node.py`
@@ -326,7 +465,7 @@ Node execution raises Exception
 1. **Add to config.py** `DEFAULT_MODELS`:
    ```python
    DEFAULT_MODELS = {
-       "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
+       "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
        "my_provider": os.getenv("MY_PROVIDER_MODEL", "my-model"),
    }
    ```
@@ -507,17 +646,18 @@ _loading_stack: ContextVar[list[Path]] = ContextVar("loading_stack")
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `graph_loader.py` | 432 | YAML → LangGraph compilation |
-| `node_factory.py` | 690 | Node function creation |
-| `executor.py` | 262 | Prompt execution |
-| `map_compiler.py` | 150 | Parallel fan-out |
-| `routing.py` | 100 | Edge condition evaluation |
-| `tools/agent.py` | 320 | ReAct agent creation |
+| `graph_loader.py` | 386 | YAML → LangGraph compilation |
+| `node_compiler.py` | 184 | Node dispatch to factories |
+| `node_factory/` | 855 | Node function creation (subpackage) |
+| `executor.py` | 205 | Prompt execution |
+| `map_compiler.py` | 154 | Parallel fan-out |
+| `routing.py` | 87 | Edge condition evaluation |
+| `tools/agent.py` | 329 | ReAct agent creation |
 | `tools/shell.py` | 205 | Shell tool execution |
-| `utils/llm_factory.py` | 118 | Multi-provider LLM |
-| `utils/expressions.py` | 245 | Template resolution |
-| `models/state_builder.py` | 236 | Dynamic state generation |
-| `schema_loader.py` | 240 | YAML schema → Pydantic |
+| `utils/llm_factory.py` | 189 | Multi-provider LLM |
+| `utils/expressions.py` | 244 | Template resolution |
+| `models/state_builder.py` | 375 | Dynamic state generation |
+| `schema_loader.py` | 268 | YAML schema → Pydantic |
 
 ---
 

@@ -20,7 +20,7 @@ The `code-analysis` graph uses an agent to run multiple analysis tools, then gen
 ## Quick Start
 
 ```bash
-yamlgraph graph run graphs/code-analysis.yaml \
+yamlgraph graph run examples/demos/code-analysis/graph.yaml \
   --var path="yamlgraph" \
   --var package="yamlgraph"
 ```

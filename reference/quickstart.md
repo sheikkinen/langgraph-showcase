@@ -30,10 +30,10 @@ user: |
 
 ## Step 2: Create a Graph
 
-Create `graphs/my_pipeline.yaml`:
+Create `my_pipeline.yaml` (in your project directory or `examples/demos/`):
 
 ```yaml
-version: "1.0"
+version: \"1.0\"
 name: my-pipeline
 description: Simple greeting generator
 
@@ -46,8 +46,8 @@ nodes:
     type: llm
     prompt: my_prompt
     variables:
-      name: "{state.name}"
-      style: "{state.style}"
+      name: \"{state.name}\"
+      style: \"{state.style}\"
     state_key: greeting
 
 edges:
@@ -62,7 +62,7 @@ edges:
 ## Step 3: Run It
 
 ```bash
-yamlgraph graph run graphs/my_pipeline.yaml --var name="Alice" --var style="formal"
+yamlgraph graph run my_pipeline.yaml --var name=\"Alice\" --var style=\"formal\"
 ```
 
 Or programmatically:
@@ -70,15 +70,15 @@ Or programmatically:
 ```python
 from yamlgraph.graph_loader import load_and_compile
 
-graph = load_and_compile("graphs/my_pipeline.yaml")
+graph = load_and_compile(\"my_pipeline.yaml\")
 app = graph.compile()
 
 result = app.invoke({
-    "name": "Alice",
-    "style": "formal"
+    \"name\": \"Alice\",
+    \"style\": \"formal\"
 })
 
-print(result["greeting"].message)
+print(result[\"greeting\"].message)
 ```
 
 ---

@@ -94,25 +94,27 @@ result = execute_prompt(
 ## CLI Usage
 
 ```bash
-yamlgraph graph run graphs/showcase.yaml --var topic=AI --var style=casual
-yamlgraph graph list
-yamlgraph graph info graphs/example.yaml
-yamlgraph graph lint graphs/example.yaml
+yamlgraph graph run examples/demos/yamlgraph/graph.yaml --var topic=AI --var style=casual
+yamlgraph graph info examples/demos/router/graph.yaml
+yamlgraph graph lint examples/demos/*/graph.yaml
 ```
 
 ## Directory Structure
 
 ```
-prompts/          # YAML prompt templates
-graphs/           # YAML graph definitions
-yamlgraph/        # Core framework
+examples/         # Example applications and demos
+  demos/          # Standalone demos (hello, router, reflexion, etc.)
+prompts/          # Shared YAML prompt templates
+yamlgraph/        # Core framework (~9,400 lines)
   cli/            # CLI commands
   models/         # Pydantic schemas, state builder
-  tools/          # Agent tools (shell, websearch, analysis)
+  node_factory/   # Node function creation (subpackage)
+  tools/          # Agent tools (shell, python)
   utils/          # LLM factory, prompts, templates
-  storage/        # SQLite persistence
+  storage/        # Checkpointer factory, export
+  linter/         # Graph linting
 tests/
-  unit/           # 840+ tests
+  unit/           # 1,100+ tests
   integration/    # Provider tests (need API keys)
 reference/        # Documentation
 ```

@@ -49,19 +49,19 @@ yamlgraph graph run <graph_path> [options]
 **Examples:**
 ```bash
 # Basic run with variables
-yamlgraph graph run graphs/showcase.yaml -v topic=AI -v style=casual
+yamlgraph graph run examples/demos/yamlgraph/graph.yaml -v topic=AI -v style=casual
 
 # Parallel map execution (recommended for Mistral provider)
 yamlgraph graph run examples/demos/map/graph.yaml -v topic=AI --async
 
 # With thread ID for resumable sessions
-yamlgraph graph run graphs/interview.yaml -t session-123
+yamlgraph graph run examples/demos/interview/graph.yaml -t session-123
 
 # Full output for debugging
-yamlgraph graph run graphs/reflexion-demo.yaml -v topic="climate" -f
+yamlgraph graph run examples/demos/reflexion/graph.yaml -v topic="climate" -f
 
 # Export results
-yamlgraph graph run graphs/git-report.yaml -v input="What changed?" -e
+yamlgraph graph run examples/demos/git-report/graph.yaml -v input="What changed?" -e
 ```
 
 ### graph info
@@ -74,7 +74,7 @@ yamlgraph graph info <graph_path>
 
 **Example:**
 ```bash
-yamlgraph graph info graphs/router-demo.yaml
+yamlgraph graph info examples/demos/router/graph.yaml
 ```
 
 ### graph validate
@@ -87,7 +87,7 @@ yamlgraph graph validate <graph_paths...>
 
 **Example:**
 ```bash
-yamlgraph graph validate graphs/*.yaml
+yamlgraph graph validate examples/demos/*/graph.yaml
 ```
 
 ### graph lint
@@ -100,7 +100,7 @@ yamlgraph graph lint <graph_paths...>
 
 **Example:**
 ```bash
-yamlgraph graph lint graphs/showcase.yaml graphs/router-demo.yaml
+yamlgraph graph lint examples/demos/yamlgraph/graph.yaml examples/demos/router/graph.yaml
 ```
 
 ---

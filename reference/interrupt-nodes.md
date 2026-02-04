@@ -5,7 +5,7 @@ Interrupt nodes pause graph execution to wait for human input. They enable human
 ## Quick Start
 
 ```yaml
-# graphs/interview.yaml
+# examples/demos/interview/graph.yaml
 version: "1.0"
 name: interview
 
@@ -65,7 +65,7 @@ from langgraph.types import Command
 from yamlgraph.graph_loader import load_and_compile, get_checkpointer_for_graph
 
 # Load graph
-config = load_graph_config("graphs/interview.yaml")
+config = load_graph_config("examples/demos/interview/graph.yaml")
 graph = compile_graph(config)
 checkpointer = get_checkpointer_for_graph(config)
 app = graph.compile(checkpointer=checkpointer)
@@ -91,7 +91,7 @@ if "__interrupt__" in result:
 ```python
 from yamlgraph.executor_async import load_and_compile_async, run_graph_async
 
-app = await load_and_compile_async("graphs/interview.yaml")
+app = await load_and_compile_async("examples/demos/interview/graph.yaml")
 config = {"configurable": {"thread_id": "session-123"}}
 
 result = await run_graph_async(app, {"input": "start"}, config)

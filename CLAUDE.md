@@ -256,78 +256,10 @@ For YAML-defined nodes, error handling is automatic via `on_error: skip|retry|fa
 
 ## Extension Points
 
-### Adding a New Node Type
-
-1. **Define constant** in `yamlgraph/constants.py`:
-   ```python
-   class NodeType(StrEnum):
-       MY_NODE = "my_node"
-   ```
-
-2. **Create factory** in `yamlgraph/node_factory/` (choose appropriate module):
-   ```python
-   def create_my_node(node_name: str, node_config: dict, state_class: type) -> Callable:
-       def node_fn(state: dict) -> dict:
-           # Implementation
-           return {"result_key": result}
-       return node_fn
-   ```
-
-3. **Register** in `graph_loader.py` `_compile_node()`:
-   ```python
-   elif node_type == NodeType.MY_NODE:
-       node_fn = create_my_node(node_name, node_config, state_class)
-   ```
-
-4. **Add tests** in `tests/unit/test_my_node.py`
-5. **Document** in `reference/graph-yaml.md`
-
-### Adding a New LLM Provider
-
-1. **Update** `yamlgraph/config.py`:
-   ```python
-   DEFAULT_MODELS = {
-       "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
-       "mistral": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
-       "openai": os.getenv("OPENAI_MODEL", "gpt-4o"),
-       "replicate": os.getenv("REPLICATE_MODEL", "ibm-granite/granite-4.0-h-small"),
-       "xai": os.getenv("XAI_MODEL", "grok-4-1-fast-reasoning"),
-       "lmstudio": os.getenv("LMSTUDIO_MODEL", "qwen2.5-coder-7b-instruct"),
-       "my_provider": os.getenv("MY_PROVIDER_MODEL", "my-model"),
-   }
-   ```
-
-2. **Update** `yamlgraph/utils/llm_factory.py`:
-   ```python
-   elif selected_provider == "my_provider":
-       from langchain_my_provider import ChatMyProvider
-       llm = ChatMyProvider(model=selected_model, temperature=temperature)
-   ```
-
-3. **Add dependency** to `pyproject.toml` (optional extra recommended)
-4. **Update docs** in `reference/graph-yaml.md`
-
-### Adding a New Tool Type
-
-1. **Create parser** in `yamlgraph/tools/my_tool.py`:
-   ```python
-   from langchain_core.tools import BaseTool
-
-   def parse_my_tools(tools_config: dict) -> list[BaseTool]:
-       tools = []
-       for name, config in tools_config.items():
-           if config.get("type") == "my_tool":
-               tools.append(create_my_tool(name, config))
-       return tools
-   ```
-
-2. **Register** in `graph_loader.py` `compile_graph()`:
-   ```python
-   from yamlgraph.tools.my_tool import parse_my_tools
-   all_tools.extend(parse_my_tools(config.tools))
-   ```
-
-3. **Add tests** in `tests/unit/test_my_tool.py`
+See [ARCHITECTURE.md](ARCHITECTURE.md#extension-points) for detailed guides on:
+- Adding a new node type
+- Adding a new LLM provider  
+- Adding a new tool type
 
 ## Code Quality Standards
 
@@ -340,77 +272,27 @@ For YAML-defined nodes, error handling is automatic via `on_error: skip|retry|fa
 
 ## Testing Patterns
 
-### Mock LLM for Unit Tests
-```python
-def test_node_execution(mock_llm, monkeypatch):
-    monkeypatch.setattr("yamlgraph.executor.create_llm", lambda **k: mock_llm)
-    result = execute_prompt("test", {})
-    assert result is not None
-```
-
-### Real LLM for Integration Tests
-```python
-@pytest.mark.integration
-@pytest.mark.skipif(not os.getenv("ANTHROPIC_API_KEY"), reason="No API key")
-def test_full_pipeline():
-    graph = load_and_compile("graphs/test.yaml")
-    result = graph.compile().invoke({"topic": "AI"})
-    assert "generated" in result
-```
-
-### YAML Fixture Files
-```python
-def test_router(tmp_path):
-    graph_yaml = tmp_path / "test.yaml"
-    graph_yaml.write_text("""
-version: "1.0"
-nodes:
-  classify:
-    type: router
-    ...
-""")
-    config = load_graph_config(graph_yaml)
-```
+See [ARCHITECTURE.md](ARCHITECTURE.md#testing-strategy) for detailed testing patterns including:
+- Mock LLM fixtures for unit tests
+- Real LLM integration tests with API key guards
+- YAML fixture file patterns
 
 ## Production Application Pattern
 
-See `examples/npc/` for a complete production example, or `examples/demos/` for standalone demos:
+See [examples/npc/architecture.md](examples/npc/architecture.md) for the NPC example demonstrating:
+- Session adapters for thread management
+- Human-in-loop with `interrupt_before` + `Command(resume=...)`
+- Map nodes for parallel processing
+- HTMX integration
 
-```bash
-# Run all demos
-./examples/demos/demo.sh
-
-# Individual demos: hello, router, reflexion, map, memory, interview, etc.
-```
-
-NPC example architecture:
-
-```
-┌─────────────────────────────────┐
-│  FastAPI + HTMX Frontend        │
-├─────────────────────────────────┤
-│  Session Adapter (Python)       │  ← Wraps graph with thread_id management
-├─────────────────────────────────┤
-│  YAMLGraph (encounter-multi.yaml)│  ← Map nodes, interrupt_before
-├─────────────────────────────────┤
-│  Tools + Prompts                │
-└─────────────────────────────────┘
-```
-
-Key patterns:
-- **Session Adapter**: Clean API over raw graph (`EncounterSession`)
-- **Human-in-Loop**: `interrupt_before` + `Command(resume=player_choice)`
-- **Map Nodes**: Parallel fan-out with `Send()` for multi-entity processing
-- **HTMX Integration**: Server-rendered fragments, minimal JavaScript
+For standalone demos: `./examples/demos/demo.sh`
 
 ## Sync/Async Pattern
 
 The codebase uses **sync-first with async wrappers**:
-
-- `executor.py` + `executor_async.py` (share `executor_base.py`)
-- `llm_factory.py` + `llm_factory_async.py` (async wraps sync)
-
-Async modules import from sync, adding only async-specific features (streaming, `asyncio.gather`). This avoids duplication and event loop issues for sync users.
+- Core functions in `executor.py` are synchronous
+- Async versions in `executor_async.py` wrap sync functions
+- Use `run_graph_async()` for FastAPI integration
 
 ## Anti-Patterns to Avoid
 
@@ -441,5 +323,6 @@ Async modules import from sync, adding only async-specific features (streaming, 
 | `XAI_API_KEY` | xAI Grok authentication |
 | `LMSTUDIO_BASE_URL` | LM Studio local server URL |
 | `PROVIDER` | Default LLM provider (anthropic/mistral/openai/replicate/xai/lmstudio) |
-| `LANGSMITH_TRACING` | Enable LangSmith observability (true/false) |
-| `LANGSMITH_PROJECT` | LangSmith project name |
+| `LANGCHAIN_TRACING_V2` | Enable LangSmith observability (true/false) |
+| `LANGCHAIN_API_KEY` | LangSmith API key |
+| `LANGCHAIN_PROJECT` | LangSmith project name |

@@ -76,7 +76,7 @@ results = await execute_prompts_concurrent([
 Load and compile a graph for async execution.
 
 ```python
-app = await load_and_compile_async("graphs/interview.yaml")
+app = await load_and_compile_async("examples/demos/interview/graph.yaml")
 ```
 
 Automatically uses async-compatible checkpointer.
@@ -119,7 +119,7 @@ graph_app = None
 @app.on_event("startup")
 async def startup():
     global graph_app
-    graph_app = await load_and_compile_async("graphs/interview.yaml")
+    graph_app = await load_and_compile_async("examples/demos/interview/graph.yaml")
 
 @app.post("/chat/{thread_id}")
 async def chat(thread_id: str, message: str):

@@ -1,6 +1,8 @@
 # YAMLGraph Reference Documentation
 
-Complete reference documentation for YAMLGraph v0.3.0+.
+Complete reference documentation for YAMLGraph v0.4.x.
+
+See [CHANGELOG.md](../CHANGELOG.md) for version history.
 
 ## Index
 
@@ -50,7 +52,6 @@ Complete reference documentation for YAMLGraph v0.3.0+.
 |----------|-------------|
 | [Code Analysis](code-analysis.md) | Automated code quality analysis |
 | [Implementation Agent](impl-agent.md) | 14-tool agent for codebase analysis |
-| [Porting from Showcase](porting-from-showcase.md) | Migration guide: Python → YAML graphs |
 | [Web UI & API](web-ui-api.md) | Serving graphs as web applications |
 
 ### Example Architectures
@@ -106,7 +107,7 @@ Complete reference documentation for YAMLGraph v0.3.0+.
 
 | Type | Location | Example |
 |------|----------|---------|
-| Graphs | `graphs/*.yaml` | `graphs/yamlgraph.yaml` |
+| Graphs | `examples/demos/*/graph.yaml` | `examples/demos/yamlgraph/graph.yaml` |
 | Prompts | `prompts/*.yaml` | `prompts/generate.yaml` |
 | Grouped prompts | `prompts/group/*.yaml` | `prompts/router-demo/classify.yaml` |
 | State classes | Auto-generated from YAML | `build_state_class(config)` |
