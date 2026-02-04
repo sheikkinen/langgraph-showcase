@@ -23,6 +23,8 @@ VALID_NODE_TYPES = {
     "python",
     "router",
     "subgraph",
+    "tool",
+    "tool_call",
 }
 
 # Built-in state fields that don't need declaration
@@ -180,6 +182,7 @@ def check_tool_references(graph_path: Path) -> list[LintIssue]:
     used_tools: set[str] = set()
 
     for node_name, node_config in graph.get("nodes", {}).items():
+        # Check tools list (for type: agent nodes)
         node_tools = node_config.get("tools", [])
         for tool in node_tools:
             used_tools.add(tool)
@@ -191,6 +194,21 @@ def check_tool_references(graph_path: Path) -> list[LintIssue]:
                         message=f"Tool '{tool}' referenced in node '{node_name}' "
                         f"but not defined in tools section",
                         fix=f"Add tool '{tool}' to the tools section or remove reference",
+                    )
+                )
+
+        # Check single tool property (for type: tool and type: python nodes)
+        single_tool = node_config.get("tool")
+        if single_tool:
+            used_tools.add(single_tool)
+            if single_tool not in defined_tools:
+                issues.append(
+                    LintIssue(
+                        severity="error",
+                        code="E003",
+                        message=f"Tool '{single_tool}' referenced in node '{node_name}' "
+                        f"but not defined in tools section",
+                        fix=f"Add tool '{single_tool}' to the tools section or remove reference",
                     )
                 )
 
