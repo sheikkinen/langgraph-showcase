@@ -63,6 +63,7 @@ fsm-router/
 │   └── fsm-diagrams/         # Generated Mermaid diagrams for UI
 ├── tests/
 │   └── test_yamlgraph_action.py
+├── run.sh                    # One-command startup script
 └── README.md
 ```
 
@@ -79,6 +80,23 @@ pip install statemachine-engine
 ## Running
 
 ### Quick Start
+
+```bash
+cd examples/fsm-router
+./run.sh
+```
+
+The `run.sh` script handles everything:
+- Loads `.env` from project root for API keys
+- Activates the virtual environment if present
+- Generates Mermaid diagrams for the UI
+- Starts the Web UI on http://localhost:3001
+- Starts the FSM state machine
+- Cleans up all processes on Ctrl+C
+
+### Manual Start (Alternative)
+
+If you prefer to start components separately:
 
 ```bash
 cd examples/fsm-router
