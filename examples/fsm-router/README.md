@@ -9,23 +9,27 @@ Demonstrates running YAMLGraph pipelines as statemachine-engine actions.
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     statemachine-engine FSM                         │
-│                                                                     │
-│   waiting ──► classifying ──┬──► simple_response ──► waiting       │
-│       ▲                     │                           │           │
-│       │                     └──► complex_response ──────┘           │
-│       │                                                             │
-│       └─────────────────────────────────────────────────────────────┘
-│                                                                     │
-│   classifying state runs:                                           │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │              YAMLGraph classifier.yaml                       │   │
-│   │   ┌────────┐                                                 │   │
-│   │   │ router │ ─────► returns route: simple | complex | code  │   │
-│   │   └────────┘                                                 │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                      statemachine-engine FSM                          │
+│                                                                       │
+│                         ┌──► simple_response ──┐                      │
+│                         │         (simple)     │                      │
+│   waiting ──► classifying ──┬─────────────────►├──► waiting           │
+│       ▲                     │                  │       │              │
+│       │                     └──► complex_response ─────┘              │
+│       │                          (complex|code)                       │
+│       │                                                               │
+│       │              ┌──► error ───────────────────────┘              │
+│       │              │    (failed)                                    │
+│       │              │                                                │
+│       └──────────────┴────────────────► completed (stop from any)     │
+│                                                                       │
+│   classifying runs YAMLGraph classifier.yaml:                         │
+│   ┌─────────────────────────────────────────────────────────────┐     │
+│   │   LLM classifies query → returns route: simple|complex|code │     │
+│   │   (code queries reuse complex_response for deep analysis)   │     │
+│   └─────────────────────────────────────────────────────────────┘     │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Key Concept
@@ -144,54 +148,29 @@ statemachine-db send-event \
 
 ### 1. YamlgraphAction
 
-The `yamlgraph_action.py` is a custom statemachine-engine action:
-
-```python
-class YamlgraphAction(BaseAction):
-    async def execute(self, context):
-        # Load and run YAMLGraph pipeline
-        app = await load_and_compile_async(graph_path)
-        result = await run_graph_async(app, initial_state)
-        
-        # Return route event to FSM
-        if "route" in result:
-            return result["route"]  # Triggers FSM transition
-        return success_event
-```
+See [actions/yamlgraph_action.py](actions/yamlgraph_action.py) - a custom statemachine-engine action that:
+- Loads and runs a YAMLGraph pipeline
+- Returns the `route` field as an FSM event to trigger transitions
 
 ### 2. Router Integration
 
-The YAMLGraph `classifier.yaml` uses an LLM node with `output_schema` that returns a `route` field:
+| File | Purpose |
+|------|--------|
+| [graphs/classifier.yaml](graphs/classifier.yaml) | LLM node references prompt, stores result in `classification` |
+| [graphs/prompts/classify.yaml](graphs/prompts/classify.yaml) | Defines `output_schema` with `route` enum: `simple`, `complex`, `code` |
 
-```yaml
-# classifier.yaml
-nodes:
-  classify:
-    type: llm
-    prompt: prompts/classify.yaml
-    output_schema:
-      route:
-        type: string
-        enum: [simple, complex, code]
-```
-
-The action reads this `route` field and returns it as the FSM event.
+The action reads `classification.route` and returns it as the FSM event.
 
 ### 3. FSM Transitions
 
-The FSM config defines transitions for each possible route:
+See [config/router.yaml](config/router.yaml) for full transition definitions:
 
-```yaml
-# router.yaml
-transitions:
-  - from: classifying
-    to: simple_response
-    event: simple
-
-  - from: classifying
-    to: complex_response
-    event: complex
-```
+| Event | From | To | Notes |
+|-------|------|----|---------|
+| `simple` | classifying | simple_response | Fast path |
+| `complex` | classifying | complex_response | Deep analysis |
+| `code` | classifying | complex_response | Reuses complex path |
+| `failed` | classifying | error | Error recovery |
 
 ## Testing
 
@@ -251,21 +230,4 @@ pytest tests/ -v
 
 ## State Groups (for Kanban View)
 
-The FSM config uses state group comments for the UI's Kanban view:
-
-```yaml
-states:
-  # === IDLE STATES ===
-  - waiting
-
-  # === PROCESSING STATES ===
-  - classifying
-  - simple_response
-  - complex_response
-
-  # === COMPLETION STATES ===
-  - completed
-  - error
-```
-
-Run `statemachine-diagrams` to generate the Mermaid diagrams that the UI displays.
+The FSM config ([config/router.yaml](config/router.yaml)) uses state group comments (`# === GROUP ===`) for the UI's Kanban view. Run `statemachine-diagrams` to generate Mermaid diagrams.
