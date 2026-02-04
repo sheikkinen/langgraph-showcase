@@ -2,6 +2,10 @@
 
 Getting started: See `reference/getting-started.md` for a comprehensive overview of the YAMLGraph framework, its core files, key patterns, and essential rules.
 
+User context: See `USER.md` (gitignored) for user identity, collaboration history, and project-specific notes.
+
+Agent soul: `SOUL.md` (gitignored) captures evolved behavioral principles from collaboration - what works, what doesn't, how to think about this project. Create when the collaboration develops patterns worth preserving.
+
 ## Development Process
 
 1. **Research First** - Analyze alternatives before proposing implementation

@@ -1,0 +1,27 @@
+version: "1.0"
+name: soul-pattern-demo
+description: Demonstrates the soul pattern for AI agent personality
+
+prompts_relative: true
+prompts_dir: prompts
+
+# Soul loaded via data_files - available as {{ soul }} in prompts
+data_files:
+  soul: souls/friendly.yaml
+
+state:
+  message: str  # User message to respond to
+
+nodes:
+  respond:
+    type: llm
+    prompt: respond
+    state_key: response
+    provider: mistral
+    temperature: 0.7
+
+edges:
+  - from: START
+    to: respond
+  - from: respond
+    to: END

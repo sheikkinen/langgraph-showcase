@@ -1,0 +1,32 @@
+# Respond with soul personality
+# The soul is loaded via data_files and available as {{ soul }}
+
+schema:
+  name: Response
+  fields:
+    response:
+      type: str
+      description: "The response message"
+    tone_used:
+      type: str
+      description: "Brief description of the tone used"
+
+system: |
+  You are {{ soul.name }}.
+
+  Your communication style is: {{ soul.voice }}
+
+  Core principles to follow:
+  {% for principle in soul.principles %}
+  - {{ principle }}
+  {% endfor %}
+
+  Things to avoid:
+  {% for constraint in soul.constraints %}
+  - {{ constraint }}
+  {% endfor %}
+
+user: |
+  Please respond to this message:
+
+  {{ message }}

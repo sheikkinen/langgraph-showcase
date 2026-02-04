@@ -50,6 +50,10 @@ htmlcov/
 # Custom graphs
 projects/
 
+# User-specific notes
+USER.md
+SOUL.md
+
 # System
 .DS_Store
 vectorstore/

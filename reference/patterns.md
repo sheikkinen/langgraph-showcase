@@ -703,3 +703,96 @@ edges:
     to: refine
     condition: critique.score < 0.8
 ```
+
+---
+
+## Pattern 9: Soul Pattern (Agent Personality)
+
+Give AI agents consistent personality using `data_files` to load a soul configuration.
+
+### Use Case
+- Customer service agents with brand-appropriate tone
+- Multiple personality variants (friendly, formal, technical)
+- A/B testing different communication styles
+
+### Soul File Structure
+
+```yaml
+# souls/friendly.yaml
+name: Friendly Helper
+
+voice: warm, approachable, patient, and encouraging
+
+principles:
+  - Always acknowledge the person's situation before providing solutions
+  - Use "we" language to create a sense of partnership
+  - Explain technical concepts with everyday analogies
+  - End responses with clear, actionable next steps
+
+constraints:
+  - Never blame the user for problems
+  - Avoid jargon unless the user uses it first
+  - Don't be condescending or overly simplistic
+```
+
+### Graph Configuration
+
+```yaml
+version: "1.0"
+name: personality-agent
+
+# Soul loaded via data_files - available as {{ soul }} in all prompts
+data_files:
+  soul: souls/friendly.yaml
+
+nodes:
+  respond:
+    type: llm
+    prompt: respond
+    state_key: response
+```
+
+### Prompt Template
+
+```yaml
+# prompts/respond.yaml
+system: |
+  You are {{ soul.name }}.
+  Your communication style is: {{ soul.voice }}
+
+  Core principles:
+  {% for principle in soul.principles %}
+  - {{ principle }}
+  {% endfor %}
+
+  Things to avoid:
+  {% for constraint in soul.constraints %}
+  - {{ constraint }}
+  {% endfor %}
+
+user: |
+  {{ message }}
+```
+
+### Switching Souls
+
+Three ways to use different personalities:
+
+| Method | When to Use |
+|--------|-------------|
+| Change `data_files.soul` path | Different builds/deployments |
+| Pass `soul` as input | Runtime override (input wins) |
+| Different graph files | Distinct product variants |
+
+### Runtime Override Example
+
+```bash
+# Override soul at runtime via CLI
+yamlgraph run graph.yaml \
+  --var 'message=Hello!' \
+  --var 'soul={"name": "Quick Bot", "voice": "brief", "principles": ["be fast"]}'
+```
+
+### Example
+
+See [examples/soul](../examples/soul/) for a complete working example.

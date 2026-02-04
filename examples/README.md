@@ -60,6 +60,7 @@ Standalone demos in [demos/](demos/):
 | [feature-brainstorm](demos/feature-brainstorm/) | `agent` | Self-analysis |
 | [data-files](demos/data-files/) | `llm` | External data loading |
 | [run-analyzer](demos/run-analyzer/) | - | Analysis utilities |
+| [soul](soul/) | `llm`, `data_files` | Agent personality pattern |
 
 ## Running Examples
 
@@ -98,6 +99,9 @@ yamlgraph graph run examples/npc/npc-creation.yaml \
 ### Data Files (External Schema Loading)
 - **questionnaire/** - Schema-driven field collection
 - **demos/data-files/** - Simple data_files demonstration
+
+### Soul Pattern (Agent Personality)
+- **soul/** - Give AI agents consistent personality via data_files
 
 ### RAG (Retrieval-Augmented Generation)
 - **rag/** - LanceDB vectorstore with document chunking
