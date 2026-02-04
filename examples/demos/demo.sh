@@ -112,6 +112,11 @@ demo_costrouter() {
         --var query="Analyze the ethical implications of AI in healthcare"
 }
 
+demo_systemstatus() {
+    run_demo "System Status (type: tool demo)" "$SCRIPT_DIR/system-status/graph.yaml" \
+        --var complaint="my system is running a bit slow"
+}
+
 print_usage() {
     echo -e "${YELLOW}YamlGraph Demos${NC}"
     echo ""
@@ -133,6 +138,7 @@ print_usage() {
     echo "  codegen     - Impl-agent code analysis (from examples/codegen)"
     echo "  subgraph    - Subgraph composition demo"
     echo "  costrouter  - Cost-based routing (Replicate/Mistral/Anthropic)"
+    echo "  systemstatus - System diagnostics using type: tool nodes"
     echo "  all         - Run all demos (default)"
     echo ""
 }
@@ -194,6 +200,9 @@ case "${1:-all}" in
     costrouter)
         demo_costrouter
         ;;
+    systemstatus)
+        demo_systemstatus
+        ;;
     all)
         echo -e "${YELLOW}🚀 Running all YamlGraph demos...${NC}"
         demo_hello
@@ -208,6 +217,7 @@ case "${1:-all}" in
         demo_brainstorm
         demo_webresearch
         demo_costrouter
+        demo_systemstatus
         # Skip interview (requires interaction) and codegen (slow)
         echo ""
         echo -e "${YELLOW}Note: Skipped 'interview' (interactive) and 'codegen' (slow)${NC}"
