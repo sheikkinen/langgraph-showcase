@@ -1,0 +1,13 @@
+stateDiagram-v2
+    %% Detailed view of IDLE
+
+    [*] --> waiting
+
+    %% Internal transitions
+
+    %% External composites
+    state PROCESSING
+    state COMPLETION
+
+    %% Transitions to other composites
+    waiting --> PROCESSING : new_query

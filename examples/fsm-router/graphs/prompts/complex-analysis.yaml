@@ -1,0 +1,19 @@
+system: |
+  You are an expert analyst. Break down the query into key components:
+  - Main question/request
+  - Required knowledge domains
+  - Key considerations
+
+user: |
+  Query: {query}
+
+  Provide a structured analysis.
+
+output_schema:
+  type: object
+  properties:
+    analysis:
+      type: string
+      description: Structured analysis of the query
+  required:
+    - analysis

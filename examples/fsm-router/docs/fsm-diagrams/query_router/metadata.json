@@ -1,0 +1,67 @@
+{
+  "machine_name": "query_router",
+  "template": false,
+  "diagrams": {
+    "main": {
+      "file": "main.mermaid",
+      "title": "State Machine Overview",
+      "description": "High-level state machine flow with composite states",
+      "composites": [
+        "IDLE",
+        "PROCESSING",
+        "COMPLETION"
+      ]
+    },
+    "IDLE": {
+      "file": "IDLE.mermaid",
+      "title": "IDLE",
+      "description": "Detailed view of idle",
+      "states": [
+        "waiting"
+      ],
+      "entry_states": [
+        "waiting"
+      ],
+      "exit_states": [
+        "waiting"
+      ],
+      "parent": "main"
+    },
+    "PROCESSING": {
+      "file": "PROCESSING.mermaid",
+      "title": "PROCESSING",
+      "description": "Detailed view of processing",
+      "states": [
+        "classifying",
+        "simple_response",
+        "complex_response"
+      ],
+      "entry_states": [
+        "classifying"
+      ],
+      "exit_states": [
+        "simple_response",
+        "complex_response",
+        "classifying"
+      ],
+      "parent": "main"
+    },
+    "COMPLETION": {
+      "file": "COMPLETION.mermaid",
+      "title": "COMPLETION",
+      "description": "Detailed view of completion",
+      "states": [
+        "completed",
+        "error"
+      ],
+      "entry_states": [
+        "error",
+        "completed"
+      ],
+      "exit_states": [
+        "error"
+      ],
+      "parent": "main"
+    }
+  }
+}

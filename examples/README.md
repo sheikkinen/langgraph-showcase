@@ -26,6 +26,7 @@ After the learning path, explore production examples below.
 | [book_translator/](book_translator/) | Translate books & documents | Map nodes, parallel translation, glossary, checkpointing |
 | [booking/](booking/) | Appointment booking assistant | Interrupt nodes, tool nodes, multi-turn conversation |
 | [codegen/](codegen/) | Implementation agent | Tool nodes, code analysis, 24 Python tools |
+| [fsm-router/](fsm-router/) | FSM + YAMLGraph integration | statemachine-engine, job orchestration |
 | [ocr_cleanup/](ocr_cleanup/) | OCR text cleanup | Map nodes, PDF extraction, parallel LLM cleanup |
 | [questionnaire/](questionnaire/) | Feature request collector | Data files, interrupt loops, conditional routing |
 | [rag/](rag/) | RAG pipeline | LanceDB vectorstore, document indexing, retrieval |

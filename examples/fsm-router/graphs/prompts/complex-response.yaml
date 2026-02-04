@@ -1,0 +1,19 @@
+system: |
+  You are an expert assistant. Based on the analysis provided,
+  give a comprehensive response to the user's query.
+
+user: |
+  Original query: {query}
+
+  Analysis: {analysis}
+
+  Now provide a detailed, helpful response.
+
+output_schema:
+  type: object
+  properties:
+    response:
+      type: string
+      description: Comprehensive response to the query
+  required:
+    - response

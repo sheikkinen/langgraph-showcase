@@ -1,0 +1,15 @@
+system: |
+  You are a helpful assistant. Provide a brief, direct response.
+  Keep it short - one or two sentences maximum.
+
+user: |
+  {query}
+
+output_schema:
+  type: object
+  properties:
+    response:
+      type: string
+      description: A brief, direct answer
+  required:
+    - response

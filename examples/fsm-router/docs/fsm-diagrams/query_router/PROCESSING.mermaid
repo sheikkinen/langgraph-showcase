@@ -1,0 +1,18 @@
+stateDiagram-v2
+    %% Detailed view of PROCESSING
+
+    [*] --> classifying
+
+    %% Internal transitions
+    classifying --> simple_response : simple
+    classifying --> complex_response : complex
+    classifying --> complex_response : code
+
+    %% External composites
+    state IDLE
+    state COMPLETION
+
+    %% Transitions to other composites
+    simple_response --> IDLE : response_ready
+    complex_response --> IDLE : response_ready
+    classifying --> COMPLETION : failed

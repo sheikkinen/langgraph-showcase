@@ -72,6 +72,9 @@ digest = [
     "uvicorn>=0.27.0",
     "python-multipart>=0.0.9",
 ]
+fsm = [
+    "statemachine-engine>=1.0.70",
+]
 
 [project.scripts]
 yamlgraph = "yamlgraph.cli:main"

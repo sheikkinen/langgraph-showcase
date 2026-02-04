@@ -1,0 +1,17 @@
+stateDiagram-v2
+    [*] --> IDLE
+
+    %% IDLE (1 states)
+    state IDLE
+
+    %% PROCESSING (3 states)
+    state PROCESSING
+
+    %% COMPLETION (2 states)
+    state COMPLETION
+
+    %% Transitions between composites
+    IDLE --> PROCESSING : new_query
+    PROCESSING --> IDLE : response_ready
+    PROCESSING --> COMPLETION : failed
+    COMPLETION --> IDLE : response_ready

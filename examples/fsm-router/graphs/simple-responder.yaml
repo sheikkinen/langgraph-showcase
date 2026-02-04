@@ -1,0 +1,25 @@
+# Simple Responder
+# Handles simple queries with quick responses
+
+name: simple-responder
+version: "1.0"
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: mistral
+  model: mistral-small-latest
+
+nodes:
+  respond:
+    type: llm
+    prompt: simple-response
+    variables:
+      query: "{state.query}"
+    state_key: response
+
+edges:
+  - from: START
+    to: respond
+  - from: respond
+    to: END

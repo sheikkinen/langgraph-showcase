@@ -1,0 +1,14 @@
+stateDiagram-v2
+    %% Detailed view of COMPLETION
+
+    [*] --> completed
+    [*] --> error
+
+    %% Internal transitions
+
+    %% External composites
+    state IDLE
+    state PROCESSING
+
+    %% Transitions to other composites
+    error --> IDLE : response_ready

@@ -205,6 +205,53 @@ class YamlGraphAction(BaseAction):
         return self.params.get('success', 'completed')
 ```
 
+### Pattern 0: Simple Custom Action (Recommended Starting Point)
+
+**No framework changes needed.** Just create a custom action in your project:
+
+```python
+# my_project/actions/analyze_action.py
+from statemachine_engine.actions.base import BaseAction
+
+class AnalyzeAction(BaseAction):
+    """Custom action that runs a YAMLGraph pipeline."""
+    
+    async def execute(self, context):
+        # Import YAMLGraph at runtime
+        from yamlgraph import load_graph
+        from yamlgraph.executor import execute_graph
+        
+        # Run the pipeline with context data
+        graph = load_graph("graphs/analysis.yaml")
+        result = await execute_graph(graph, {
+            "input": context.get("job_data", {})
+        })
+        
+        # Store result in FSM context for downstream actions
+        context["analysis_result"] = result
+        
+        # Return event to trigger FSM transition
+        return "analysis_complete"
+```
+
+**Usage in FSM config:**
+
+```yaml
+# worker.yaml
+transitions:
+  - from: processing
+    to: analyzed
+    event: analysis_complete
+    actions:
+      - type: analyze  # Maps to AnalyzeAction via ActionLoader
+```
+
+**Why this is simpler:**
+- No changes to either framework
+- Standard statemachine-engine custom action pattern
+- YAMLGraph is just a library call
+- Works today, no waiting for integration
+
 ### Pattern 2: FSM Event Bridge from YAMLGraph
 
 YAMLGraph Python node sends events to statemachine-engine:

@@ -1,0 +1,820 @@
+2026-02-04 17:39:19,464 - __main__ - INFO - ================================================================================
+2026-02-04 17:39:19,464 - __main__ - INFO - WebSocket Server with async-safe logging initialized
+2026-02-04 17:39:19,465 - __main__ - INFO - Using QueueHandler to prevent blocking I/O in event loop
+2026-02-04 17:39:19,465 - __main__ - INFO - ================================================================================
+2026-02-04 17:39:19,465 - __main__ - INFO - 🐕 Watchdog started with 15s timeout
+2026-02-04 17:39:19,710 - __main__ - INFO - ================================================================================
+2026-02-04 17:39:19,710 - __main__ - INFO - 🚀 WebSocket Server v1.0.31 Starting Up
+2026-02-04 17:39:19,710 - __main__ - INFO - ✅ Non-blocking logging with QueueHandler architecture
+2026-02-04 17:39:19,710 - __main__ - INFO - ================================================================================
+2026-02-04 17:39:19,710 - __main__ - INFO - Starting WebSocket server background tasks...
+2026-02-04 17:39:19,710 - __main__ - INFO - WebSocket server started with 2 background tasks
+2026-02-04 17:39:19,710 - __main__ - INFO - 🐕 Watchdog thread monitoring for hangs (15s timeout)
+2026-02-04 17:39:19,710 - __main__ - INFO - Listening on Unix socket: /tmp/statemachine-events.sock
+2026-02-04 17:39:20,211 - __main__ - INFO - ✅ Background task 'unix_socket_listener' running successfully
+2026-02-04 17:39:20,211 - __main__ - INFO - ✅ Background task 'server_heartbeat' running successfully
+2026-02-04 17:39:24,713 - __main__ - INFO - 💓 Server heartbeat #1 | connections=0 | tasks=4 | last_event=5.2s ago
+2026-02-04 17:39:29,715 - __main__ - INFO - 💓 Server heartbeat #2 | connections=0 | tasks=4 | last_event=10.2s ago
+2026-02-04 17:39:34,716 - __main__ - INFO - 💓 Server heartbeat #3 | connections=0 | tasks=4 | last_event=15.3s ago
+2026-02-04 17:39:36,994 - __main__ - INFO - 📥 Unix socket: Event #1 type=machine_registered (193 bytes)
+2026-02-04 17:39:36,994 - __main__ - INFO - 📡 Broadcasting to 0 clients (193 bytes)
+2026-02-04 17:39:39,717 - __main__ - INFO - 💓 Server heartbeat #4 | connections=0 | tasks=4 | last_event=2.7s ago
+2026-02-04 17:39:44,718 - __main__ - INFO - 💓 Server heartbeat #5 | connections=0 | tasks=4 | last_event=7.7s ago
+2026-02-04 17:39:49,720 - __main__ - INFO - 💓 Server heartbeat #6 | connections=0 | tasks=4 | last_event=12.7s ago
+2026-02-04 17:39:50,949 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:39:50,949 - __main__ - INFO - Client 4573211024 connected from Address(host='127.0.0.1', port=57247)
+2026-02-04 17:39:50,949 - __main__ - INFO - 📋 Client 4573211024: Fetching initial state...
+2026-02-04 17:39:50,954 - __main__ - INFO - 📋 Client 4573211024: Sending initial state with 1 machines
+2026-02-04 17:39:50,954 - __main__ - INFO - ✅ Client 4573211024: Initial state sent successfully
+2026-02-04 17:39:54,722 - __main__ - INFO - 💓 Server heartbeat #7 | connections=1 | tasks=10 | last_event=17.7s ago
+2026-02-04 17:39:59,724 - __main__ - INFO - 💓 Server heartbeat #8 | connections=1 | tasks=10 | last_event=22.7s ago
+2026-02-04 17:40:00,957 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:00,957 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:04,726 - __main__ - INFO - 💓 Server heartbeat #9 | connections=1 | tasks=10 | last_event=27.7s ago
+2026-02-04 17:40:09,727 - __main__ - INFO - 💓 Server heartbeat #10 | connections=1 | tasks=10 | last_event=32.7s ago
+2026-02-04 17:40:10,956 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:10,956 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:14,728 - __main__ - INFO - 💓 Server heartbeat #11 | connections=1 | tasks=10 | last_event=37.7s ago
+2026-02-04 17:40:19,729 - __main__ - INFO - 💓 Server heartbeat #12 | connections=1 | tasks=10 | last_event=42.7s ago
+2026-02-04 17:40:19,745 - __main__ - INFO - Unix socket listener heartbeat: 1 events received, still listening
+2026-02-04 17:40:20,956 - __main__ - INFO - 📨 Client 4573211024: Received message: ping
+2026-02-04 17:40:20,956 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:20,956 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:24,730 - __main__ - INFO - 💓 Server heartbeat #13 | connections=1 | tasks=10 | last_event=47.7s ago
+2026-02-04 17:40:29,731 - __main__ - INFO - 💓 Server heartbeat #14 | connections=1 | tasks=10 | last_event=52.7s ago
+2026-02-04 17:40:30,960 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:30,960 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:34,733 - __main__ - INFO - 💓 Server heartbeat #15 | connections=1 | tasks=10 | last_event=57.7s ago
+2026-02-04 17:40:39,735 - __main__ - INFO - 💓 Server heartbeat #16 | connections=1 | tasks=10 | last_event=62.7s ago
+2026-02-04 17:40:40,961 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:40,961 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:44,736 - __main__ - INFO - 💓 Server heartbeat #17 | connections=1 | tasks=10 | last_event=67.7s ago
+2026-02-04 17:40:49,737 - __main__ - INFO - 💓 Server heartbeat #18 | connections=1 | tasks=10 | last_event=72.7s ago
+2026-02-04 17:40:50,956 - __main__ - INFO - 📨 Client 4573211024: Received message: ping
+2026-02-04 17:40:50,960 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:40:50,960 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:40:54,738 - __main__ - INFO - 💓 Server heartbeat #19 | connections=1 | tasks=10 | last_event=77.7s ago
+2026-02-04 17:40:59,739 - __main__ - INFO - 💓 Server heartbeat #20 | connections=1 | tasks=10 | last_event=82.7s ago
+2026-02-04 17:41:00,964 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:41:00,964 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:41:04,741 - __main__ - INFO - 💓 Server heartbeat #21 | connections=1 | tasks=10 | last_event=87.7s ago
+2026-02-04 17:41:09,741 - __main__ - INFO - 💓 Server heartbeat #22 | connections=1 | tasks=10 | last_event=92.7s ago
+2026-02-04 17:41:10,963 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:41:10,963 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:41:14,742 - __main__ - INFO - 💓 Server heartbeat #23 | connections=1 | tasks=10 | last_event=97.7s ago
+2026-02-04 17:41:19,743 - __main__ - INFO - 💓 Server heartbeat #24 | connections=1 | tasks=10 | last_event=102.7s ago
+2026-02-04 17:41:19,749 - __main__ - INFO - Unix socket listener heartbeat: 1 events received, still listening
+2026-02-04 17:41:20,955 - __main__ - INFO - 📨 Client 4573211024: Received message: ping
+2026-02-04 17:41:20,963 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:41:20,963 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:41:24,744 - __main__ - INFO - 💓 Server heartbeat #25 | connections=1 | tasks=10 | last_event=107.8s ago
+2026-02-04 17:41:29,744 - __main__ - INFO - 💓 Server heartbeat #26 | connections=1 | tasks=10 | last_event=112.8s ago
+2026-02-04 17:41:30,964 - __main__ - INFO - 📨 Client 4573211024: Received message: pong
+2026-02-04 17:41:30,964 - __main__ - INFO - 🏓 Client 4573211024: Received pong response
+2026-02-04 17:41:33,081 - __main__ - INFO - Client 4573211024: Keepalive task cancelled
+2026-02-04 17:41:33,081 - __main__ - INFO - Client 4573211024 disconnected normally
+2026-02-04 17:41:33,081 - __main__ - INFO - Client disconnected. Total connections: 0
+2026-02-04 17:41:33,169 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:41:33,169 - __main__ - INFO - Client 4573424400 connected from Address(host='127.0.0.1', port=57298)
+2026-02-04 17:41:33,169 - __main__ - INFO - 📋 Client 4573424400: Fetching initial state...
+2026-02-04 17:41:33,173 - __main__ - INFO - 📋 Client 4573424400: Sending initial state with 1 machines
+2026-02-04 17:41:33,173 - __main__ - INFO - ✅ Client 4573424400: Initial state sent successfully
+2026-02-04 17:41:34,747 - __main__ - INFO - 💓 Server heartbeat #27 | connections=1 | tasks=10 | last_event=117.8s ago
+2026-02-04 17:41:39,748 - __main__ - INFO - 💓 Server heartbeat #28 | connections=1 | tasks=10 | last_event=122.8s ago
+2026-02-04 17:41:41,737 - __main__ - INFO - Client 4573424400: Keepalive task cancelled
+2026-02-04 17:41:41,737 - __main__ - INFO - Client 4573424400 disconnected normally
+2026-02-04 17:41:41,737 - __main__ - INFO - Client disconnected. Total connections: 0
+2026-02-04 17:41:41,811 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:41:41,811 - __main__ - INFO - Client 4573618992 connected from Address(host='127.0.0.1', port=57305)
+2026-02-04 17:41:41,811 - __main__ - INFO - 📋 Client 4573618992: Fetching initial state...
+2026-02-04 17:41:41,813 - __main__ - INFO - 📋 Client 4573618992: Sending initial state with 1 machines
+2026-02-04 17:41:41,814 - __main__ - INFO - ✅ Client 4573618992: Initial state sent successfully
+2026-02-04 17:41:42,734 - __main__ - INFO - Client 4573618992: Keepalive task cancelled
+2026-02-04 17:41:42,734 - __main__ - INFO - Client 4573618992 disconnected normally
+2026-02-04 17:41:42,734 - __main__ - INFO - Client disconnected. Total connections: 0
+2026-02-04 17:41:42,798 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:41:42,798 - __main__ - INFO - Client 4573015280 connected from Address(host='127.0.0.1', port=57308)
+2026-02-04 17:41:42,798 - __main__ - INFO - 📋 Client 4573015280: Fetching initial state...
+2026-02-04 17:41:42,800 - __main__ - INFO - 📋 Client 4573015280: Sending initial state with 1 machines
+2026-02-04 17:41:42,800 - __main__ - INFO - ✅ Client 4573015280: Initial state sent successfully
+2026-02-04 17:41:44,750 - __main__ - INFO - 💓 Server heartbeat #29 | connections=1 | tasks=10 | last_event=127.8s ago
+2026-02-04 17:41:49,751 - __main__ - INFO - 💓 Server heartbeat #30 | connections=1 | tasks=10 | last_event=132.8s ago
+2026-02-04 17:41:52,801 - __main__ - INFO - 📨 Client 4573015280: Received message: pong
+2026-02-04 17:41:52,801 - __main__ - INFO - 🏓 Client 4573015280: Received pong response
+2026-02-04 17:41:54,752 - __main__ - INFO - 💓 Server heartbeat #31 | connections=1 | tasks=10 | last_event=137.8s ago
+2026-02-04 17:41:55,123 - __main__ - INFO - Client 4573015280: Keepalive task cancelled
+2026-02-04 17:41:55,123 - __main__ - INFO - Client 4573015280 disconnected normally
+2026-02-04 17:41:55,123 - __main__ - INFO - Client disconnected. Total connections: 0
+2026-02-04 17:41:55,224 - __main__ - INFO - Shutting down WebSocket server...
+2026-02-04 17:41:55,224 - __main__ - INFO - Cancelling background task: unix_socket_listener
+2026-02-04 17:41:55,224 - __main__ - WARNING - ⚠️  Unix socket listener cancelled, shutting down
+2026-02-04 17:41:55,224 - __main__ - INFO - Background task 'unix_socket_listener' cancelled successfully
+2026-02-04 17:41:55,224 - __main__ - INFO - Cancelling background task: server_heartbeat
+2026-02-04 17:41:55,224 - __main__ - INFO - Server heartbeat cancelled
+2026-02-04 17:41:55,224 - __main__ - INFO - Background task 'server_heartbeat' cancelled successfully
+2026-02-04 17:41:55,224 - __main__ - INFO - Stopping background logging thread...
+2026-02-04 17:41:58,281 - __main__ - INFO - ================================================================================
+2026-02-04 17:41:58,281 - __main__ - INFO - WebSocket Server with async-safe logging initialized
+2026-02-04 17:41:58,281 - __main__ - INFO - Using QueueHandler to prevent blocking I/O in event loop
+2026-02-04 17:41:58,281 - __main__ - INFO - ================================================================================
+2026-02-04 17:41:58,281 - __main__ - INFO - 🐕 Watchdog started with 15s timeout
+2026-02-04 17:41:58,331 - __main__ - INFO - ================================================================================
+2026-02-04 17:41:58,331 - __main__ - INFO - 🚀 WebSocket Server v1.0.31 Starting Up
+2026-02-04 17:41:58,331 - __main__ - INFO - ✅ Non-blocking logging with QueueHandler architecture
+2026-02-04 17:41:58,331 - __main__ - INFO - ================================================================================
+2026-02-04 17:41:58,331 - __main__ - INFO - Starting WebSocket server background tasks...
+2026-02-04 17:41:58,331 - __main__ - INFO - WebSocket server started with 2 background tasks
+2026-02-04 17:41:58,331 - __main__ - INFO - 🐕 Watchdog thread monitoring for hangs (15s timeout)
+2026-02-04 17:41:58,331 - __main__ - INFO - Listening on Unix socket: /tmp/statemachine-events.sock
+2026-02-04 17:41:58,832 - __main__ - INFO - ✅ Background task 'unix_socket_listener' running successfully
+2026-02-04 17:41:58,832 - __main__ - INFO - ✅ Background task 'server_heartbeat' running successfully
+2026-02-04 17:42:02,147 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:42:02,147 - __main__ - INFO - Client 4444236176 connected from Address(host='127.0.0.1', port=57321)
+2026-02-04 17:42:02,147 - __main__ - INFO - 📋 Client 4444236176: Fetching initial state...
+2026-02-04 17:42:02,149 - __main__ - INFO - 📋 Client 4444236176: Sending initial state with 1 machines
+2026-02-04 17:42:02,150 - __main__ - INFO - ✅ Client 4444236176: Initial state sent successfully
+2026-02-04 17:42:03,332 - __main__ - INFO - 💓 Server heartbeat #1 | connections=1 | tasks=10 | last_event=5.1s ago
+2026-02-04 17:42:05,600 - __main__ - INFO - Client connected. Total connections: 2
+2026-02-04 17:42:05,600 - __main__ - INFO - Client 4444450160 connected from Address(host='127.0.0.1', port=57329)
+2026-02-04 17:42:05,600 - __main__ - INFO - 📋 Client 4444450160: Fetching initial state...
+2026-02-04 17:42:05,603 - __main__ - INFO - 📋 Client 4444450160: Sending initial state with 1 machines
+2026-02-04 17:42:05,603 - __main__ - INFO - ✅ Client 4444450160: Initial state sent successfully
+2026-02-04 17:42:08,335 - __main__ - INFO - 💓 Server heartbeat #2 | connections=2 | tasks=16 | last_event=10.1s ago
+2026-02-04 17:42:08,336 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:12,152 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:42:12,153 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:42:13,336 - __main__ - INFO - 💓 Server heartbeat #3 | connections=2 | tasks=16 | last_event=15.1s ago
+2026-02-04 17:42:13,336 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:15,606 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:42:15,606 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:42:18,337 - __main__ - INFO - 💓 Server heartbeat #4 | connections=2 | tasks=16 | last_event=20.1s ago
+2026-02-04 17:42:18,337 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:22,152 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:42:22,153 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:42:23,339 - __main__ - INFO - 💓 Server heartbeat #5 | connections=2 | tasks=16 | last_event=25.1s ago
+2026-02-04 17:42:23,339 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:25,606 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:42:25,606 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:42:28,340 - __main__ - INFO - 💓 Server heartbeat #6 | connections=2 | tasks=16 | last_event=30.1s ago
+2026-02-04 17:42:28,340 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:32,152 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:42:32,152 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:42:32,191 - __main__ - INFO - 📨 Client 4444236176: Received message: ping
+2026-02-04 17:42:33,341 - __main__ - INFO - 💓 Server heartbeat #7 | connections=2 | tasks=16 | last_event=35.1s ago
+2026-02-04 17:42:33,342 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:35,605 - __main__ - INFO - 📨 Client 4444450160: Received message: ping
+2026-02-04 17:42:35,606 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:42:35,606 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:42:38,342 - __main__ - INFO - 💓 Server heartbeat #8 | connections=2 | tasks=16 | last_event=40.1s ago
+2026-02-04 17:42:38,342 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:42,156 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:42:42,157 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:42:43,343 - __main__ - INFO - 💓 Server heartbeat #9 | connections=2 | tasks=16 | last_event=45.1s ago
+2026-02-04 17:42:43,344 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:45,610 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:42:45,610 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:42:48,345 - __main__ - INFO - 💓 Server heartbeat #10 | connections=2 | tasks=16 | last_event=50.1s ago
+2026-02-04 17:42:48,345 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:52,156 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:42:52,156 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:42:53,347 - __main__ - INFO - 💓 Server heartbeat #11 | connections=2 | tasks=16 | last_event=55.1s ago
+2026-02-04 17:42:53,347 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:55,611 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:42:55,611 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:42:58,348 - __main__ - INFO - 💓 Server heartbeat #12 | connections=2 | tasks=16 | last_event=60.1s ago
+2026-02-04 17:42:58,349 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:42:58,381 - __main__ - INFO - Unix socket listener heartbeat: 0 events received, still listening
+2026-02-04 17:43:02,158 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:02,158 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:02,190 - __main__ - INFO - 📨 Client 4444236176: Received message: ping
+2026-02-04 17:43:03,350 - __main__ - INFO - 💓 Server heartbeat #13 | connections=2 | tasks=16 | last_event=65.1s ago
+2026-02-04 17:43:03,351 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:43:05,605 - __main__ - INFO - 📨 Client 4444450160: Received message: ping
+2026-02-04 17:43:05,611 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:05,611 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:08,351 - __main__ - INFO - 💓 Server heartbeat #14 | connections=2 | tasks=16 | last_event=70.1s ago
+2026-02-04 17:43:08,352 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:43:12,158 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:12,158 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:13,300 - __main__ - INFO - 💓 Server heartbeat #15 | connections=2 | tasks=16 | last_event=75.0s ago
+2026-02-04 17:43:13,300 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:43:15,560 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:15,560 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:18,301 - __main__ - INFO - 💓 Server heartbeat #16 | connections=2 | tasks=16 | last_event=80.0s ago
+2026-02-04 17:43:18,301 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:43:22,106 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:22,106 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:23,302 - __main__ - INFO - 💓 Server heartbeat #17 | connections=2 | tasks=16 | last_event=85.0s ago
+2026-02-04 17:43:23,302 - __main__ - WARNING - ⚠️  High task count: 16 active tasks
+2026-02-04 17:43:25,077 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:43:25,077 - __main__ - INFO - Client 4444663408 connected from Address(host='127.0.0.1', port=57359)
+2026-02-04 17:43:25,077 - __main__ - INFO - 📋 Client 4444663408: Fetching initial state...
+2026-02-04 17:43:25,082 - __main__ - INFO - 📋 Client 4444663408: Sending initial state with 1 machines
+2026-02-04 17:43:25,083 - __main__ - INFO - ✅ Client 4444663408: Initial state sent successfully
+2026-02-04 17:43:25,559 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:25,559 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:26,961 - __main__ - INFO - Client 4444663408: Keepalive task cancelled
+2026-02-04 17:43:26,962 - __main__ - INFO - Client 4444663408 disconnected normally
+2026-02-04 17:43:26,962 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:43:27,037 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:43:27,037 - __main__ - INFO - Client 4444043696 connected from Address(host='127.0.0.1', port=57362)
+2026-02-04 17:43:27,037 - __main__ - INFO - 📋 Client 4444043696: Fetching initial state...
+2026-02-04 17:43:27,040 - __main__ - INFO - 📋 Client 4444043696: Sending initial state with 1 machines
+2026-02-04 17:43:27,041 - __main__ - INFO - ✅ Client 4444043696: Initial state sent successfully
+2026-02-04 17:43:28,303 - __main__ - INFO - 💓 Server heartbeat #18 | connections=3 | tasks=22 | last_event=90.0s ago
+2026-02-04 17:43:28,304 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:32,109 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:32,109 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:32,142 - __main__ - INFO - 📨 Client 4444236176: Received message: ping
+2026-02-04 17:43:32,545 - __main__ - INFO - Client 4444043696: Keepalive task cancelled
+2026-02-04 17:43:32,546 - __main__ - INFO - Client 4444043696 disconnected normally
+2026-02-04 17:43:32,546 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:43:32,613 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:43:32,613 - __main__ - INFO - Client 4444435024 connected from Address(host='127.0.0.1', port=57365)
+2026-02-04 17:43:32,613 - __main__ - INFO - 📋 Client 4444435024: Fetching initial state...
+2026-02-04 17:43:32,616 - __main__ - INFO - 📋 Client 4444435024: Sending initial state with 1 machines
+2026-02-04 17:43:32,617 - __main__ - INFO - ✅ Client 4444435024: Initial state sent successfully
+2026-02-04 17:43:33,304 - __main__ - INFO - 💓 Server heartbeat #19 | connections=3 | tasks=22 | last_event=95.0s ago
+2026-02-04 17:43:33,305 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:35,561 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:35,561 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:36,137 - __main__ - INFO - 📨 Client 4444450160: Received message: ping
+2026-02-04 17:43:38,306 - __main__ - INFO - 💓 Server heartbeat #20 | connections=3 | tasks=22 | last_event=100.0s ago
+2026-02-04 17:43:38,307 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:42,107 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:42,107 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:42,624 - __main__ - INFO - 📨 Client 4444435024: Received message: pong
+2026-02-04 17:43:42,624 - __main__ - INFO - 🏓 Client 4444435024: Received pong response
+2026-02-04 17:43:43,308 - __main__ - INFO - 💓 Server heartbeat #21 | connections=3 | tasks=22 | last_event=105.0s ago
+2026-02-04 17:43:43,308 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:45,561 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:45,561 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:48,309 - __main__ - INFO - 💓 Server heartbeat #22 | connections=3 | tasks=22 | last_event=110.0s ago
+2026-02-04 17:43:48,309 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:52,111 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:43:52,112 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:43:52,628 - __main__ - INFO - 📨 Client 4444435024: Received message: pong
+2026-02-04 17:43:52,628 - __main__ - INFO - 🏓 Client 4444435024: Received pong response
+2026-02-04 17:43:53,311 - __main__ - INFO - 💓 Server heartbeat #23 | connections=3 | tasks=22 | last_event=115.0s ago
+2026-02-04 17:43:53,311 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:55,564 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:43:55,564 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:43:58,312 - __main__ - INFO - 💓 Server heartbeat #24 | connections=3 | tasks=22 | last_event=120.0s ago
+2026-02-04 17:43:58,313 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:43:58,395 - __main__ - INFO - Unix socket listener heartbeat: 0 events received, still listening
+2026-02-04 17:44:02,060 - __main__ - INFO - Client 4444435024: Keepalive task cancelled
+2026-02-04 17:44:02,061 - __main__ - INFO - Client 4444435024 disconnected normally
+2026-02-04 17:44:02,061 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:02,109 - __main__ - INFO - 📨 Client 4444236176: Received message: pong
+2026-02-04 17:44:02,110 - __main__ - INFO - 🏓 Client 4444236176: Received pong response
+2026-02-04 17:44:02,136 - __main__ - INFO - 📨 Client 4444236176: Received message: ping
+2026-02-04 17:44:02,141 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:02,142 - __main__ - INFO - Client 4455464256 connected from Address(host='127.0.0.1', port=57387)
+2026-02-04 17:44:02,142 - __main__ - INFO - 📋 Client 4455464256: Fetching initial state...
+2026-02-04 17:44:02,145 - __main__ - INFO - 📋 Client 4455464256: Sending initial state with 1 machines
+2026-02-04 17:44:02,145 - __main__ - INFO - ✅ Client 4455464256: Initial state sent successfully
+2026-02-04 17:44:03,054 - __main__ - INFO - Client 4455464256: Keepalive task cancelled
+2026-02-04 17:44:03,055 - __main__ - INFO - Client 4455464256 disconnected normally
+2026-02-04 17:44:03,055 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:03,122 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:03,122 - __main__ - INFO - Client 4455437648 connected from Address(host='127.0.0.1', port=57392)
+2026-02-04 17:44:03,122 - __main__ - INFO - 📋 Client 4455437648: Fetching initial state...
+2026-02-04 17:44:03,127 - __main__ - INFO - 📋 Client 4455437648: Sending initial state with 1 machines
+2026-02-04 17:44:03,127 - __main__ - INFO - ✅ Client 4455437648: Initial state sent successfully
+2026-02-04 17:44:03,314 - __main__ - INFO - 💓 Server heartbeat #25 | connections=3 | tasks=22 | last_event=125.0s ago
+2026-02-04 17:44:03,314 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:05,564 - __main__ - INFO - 📨 Client 4444450160: Received message: pong
+2026-02-04 17:44:05,564 - __main__ - INFO - 🏓 Client 4444450160: Received pong response
+2026-02-04 17:44:06,142 - __main__ - INFO - 📨 Client 4444450160: Received message: ping
+2026-02-04 17:44:08,316 - __main__ - INFO - 💓 Server heartbeat #26 | connections=3 | tasks=22 | last_event=130.0s ago
+2026-02-04 17:44:08,316 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4444236176: Keepalive task cancelled
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4444450160: Keepalive task cancelled
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4455437648: Keepalive task cancelled
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4444236176 disconnected normally
+2026-02-04 17:44:12,086 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4444450160 disconnected normally
+2026-02-04 17:44:12,086 - __main__ - INFO - Client disconnected. Total connections: 1
+2026-02-04 17:44:12,086 - __main__ - INFO - Client 4455437648 disconnected normally
+2026-02-04 17:44:12,086 - __main__ - INFO - Client disconnected. Total connections: 0
+2026-02-04 17:44:12,186 - __main__ - INFO - Shutting down WebSocket server...
+2026-02-04 17:44:12,186 - __main__ - INFO - Cancelling background task: unix_socket_listener
+2026-02-04 17:44:12,186 - __main__ - WARNING - ⚠️  Unix socket listener cancelled, shutting down
+2026-02-04 17:44:12,186 - __main__ - INFO - Background task 'unix_socket_listener' cancelled successfully
+2026-02-04 17:44:12,186 - __main__ - INFO - Cancelling background task: server_heartbeat
+2026-02-04 17:44:12,186 - __main__ - INFO - Server heartbeat cancelled
+2026-02-04 17:44:12,186 - __main__ - INFO - Background task 'server_heartbeat' cancelled successfully
+2026-02-04 17:44:12,186 - __main__ - INFO - Stopping background logging thread...
+2026-02-04 17:44:15,517 - __main__ - INFO - ================================================================================
+2026-02-04 17:44:15,517 - __main__ - INFO - WebSocket Server with async-safe logging initialized
+2026-02-04 17:44:15,517 - __main__ - INFO - Using QueueHandler to prevent blocking I/O in event loop
+2026-02-04 17:44:15,517 - __main__ - INFO - ================================================================================
+2026-02-04 17:44:15,517 - __main__ - INFO - 🐕 Watchdog started with 15s timeout
+2026-02-04 17:44:15,571 - __main__ - INFO - ================================================================================
+2026-02-04 17:44:15,571 - __main__ - INFO - 🚀 WebSocket Server v1.0.31 Starting Up
+2026-02-04 17:44:15,571 - __main__ - INFO - ✅ Non-blocking logging with QueueHandler architecture
+2026-02-04 17:44:15,571 - __main__ - INFO - ================================================================================
+2026-02-04 17:44:15,571 - __main__ - INFO - Starting WebSocket server background tasks...
+2026-02-04 17:44:15,571 - __main__ - INFO - WebSocket server started with 2 background tasks
+2026-02-04 17:44:15,571 - __main__ - INFO - 🐕 Watchdog thread monitoring for hangs (15s timeout)
+2026-02-04 17:44:15,571 - __main__ - INFO - Listening on Unix socket: /tmp/statemachine-events.sock
+2026-02-04 17:44:16,072 - __main__ - INFO - ✅ Background task 'unix_socket_listener' running successfully
+2026-02-04 17:44:16,072 - __main__ - INFO - ✅ Background task 'server_heartbeat' running successfully
+2026-02-04 17:44:16,143 - __main__ - INFO - Client connected. Total connections: 1
+2026-02-04 17:44:16,143 - __main__ - INFO - Client 4417153424 connected from Address(host='127.0.0.1', port=57411)
+2026-02-04 17:44:16,143 - __main__ - INFO - 📋 Client 4417153424: Fetching initial state...
+2026-02-04 17:44:16,146 - __main__ - INFO - 📋 Client 4417153424: Sending initial state with 1 machines
+2026-02-04 17:44:16,146 - __main__ - INFO - ✅ Client 4417153424: Initial state sent successfully
+2026-02-04 17:44:16,158 - __main__ - INFO - Client connected. Total connections: 2
+2026-02-04 17:44:16,158 - __main__ - INFO - Client 4417367408 connected from Address(host='127.0.0.1', port=57417)
+2026-02-04 17:44:16,158 - __main__ - INFO - 📋 Client 4417367408: Fetching initial state...
+2026-02-04 17:44:16,161 - __main__ - INFO - 📋 Client 4417367408: Sending initial state with 1 machines
+2026-02-04 17:44:16,161 - __main__ - INFO - ✅ Client 4417367408: Initial state sent successfully
+2026-02-04 17:44:19,109 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:19,109 - __main__ - INFO - Client 4417563984 connected from Address(host='127.0.0.1', port=57423)
+2026-02-04 17:44:19,109 - __main__ - INFO - 📋 Client 4417563984: Fetching initial state...
+2026-02-04 17:44:19,113 - __main__ - INFO - 📋 Client 4417563984: Sending initial state with 1 machines
+2026-02-04 17:44:19,114 - __main__ - INFO - ✅ Client 4417563984: Initial state sent successfully
+2026-02-04 17:44:20,573 - __main__ - INFO - 💓 Server heartbeat #1 | connections=3 | tasks=22 | last_event=5.1s ago
+2026-02-04 17:44:20,573 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:22,227 - __main__ - INFO - Client 4417563984: Keepalive task cancelled
+2026-02-04 17:44:22,227 - __main__ - INFO - Client 4417563984 disconnected normally
+2026-02-04 17:44:22,228 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:22,303 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:22,303 - __main__ - INFO - Client 4416960672 connected from Address(host='127.0.0.1', port=57430)
+2026-02-04 17:44:22,303 - __main__ - INFO - 📋 Client 4416960672: Fetching initial state...
+2026-02-04 17:44:22,307 - __main__ - INFO - 📋 Client 4416960672: Sending initial state with 1 machines
+2026-02-04 17:44:22,308 - __main__ - INFO - ✅ Client 4416960672: Initial state sent successfully
+2026-02-04 17:44:23,050 - __main__ - INFO - Client 4416960672: Keepalive task cancelled
+2026-02-04 17:44:23,051 - __main__ - INFO - Client 4416960672 disconnected normally
+2026-02-04 17:44:23,051 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:23,118 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:23,118 - __main__ - INFO - Client 4417352528 connected from Address(host='127.0.0.1', port=57432)
+2026-02-04 17:44:23,118 - __main__ - INFO - 📋 Client 4417352528: Fetching initial state...
+2026-02-04 17:44:23,119 - __main__ - INFO - 📋 Client 4417352528: Sending initial state with 1 machines
+2026-02-04 17:44:23,120 - __main__ - INFO - ✅ Client 4417352528: Initial state sent successfully
+2026-02-04 17:44:23,557 - __main__ - INFO - Client 4417352528: Keepalive task cancelled
+2026-02-04 17:44:23,558 - __main__ - INFO - Client 4417352528 disconnected normally
+2026-02-04 17:44:23,558 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:44:23,631 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:44:23,631 - __main__ - INFO - Client 4419812432 connected from Address(host='127.0.0.1', port=57435)
+2026-02-04 17:44:23,631 - __main__ - INFO - 📋 Client 4419812432: Fetching initial state...
+2026-02-04 17:44:23,635 - __main__ - INFO - 📋 Client 4419812432: Sending initial state with 1 machines
+2026-02-04 17:44:23,636 - __main__ - INFO - ✅ Client 4419812432: Initial state sent successfully
+2026-02-04 17:44:25,574 - __main__ - INFO - 💓 Server heartbeat #2 | connections=3 | tasks=22 | last_event=10.1s ago
+2026-02-04 17:44:25,574 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:26,149 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:44:26,149 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:44:26,167 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:44:26,167 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:44:30,576 - __main__ - INFO - 💓 Server heartbeat #3 | connections=3 | tasks=22 | last_event=15.1s ago
+2026-02-04 17:44:30,576 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:33,638 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:44:33,638 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:44:35,577 - __main__ - INFO - 💓 Server heartbeat #4 | connections=3 | tasks=22 | last_event=20.1s ago
+2026-02-04 17:44:35,577 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:36,149 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:44:36,149 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:44:36,168 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:44:36,168 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:44:40,578 - __main__ - INFO - 💓 Server heartbeat #5 | connections=3 | tasks=22 | last_event=25.1s ago
+2026-02-04 17:44:40,579 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:43,638 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:44:43,639 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:44:45,580 - __main__ - INFO - 💓 Server heartbeat #6 | connections=3 | tasks=22 | last_event=30.1s ago
+2026-02-04 17:44:45,580 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:46,150 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:44:46,150 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:44:46,169 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:44:46,169 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:44:47,136 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:44:47,137 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:44:50,582 - __main__ - INFO - 💓 Server heartbeat #7 | connections=3 | tasks=22 | last_event=35.1s ago
+2026-02-04 17:44:50,582 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:53,640 - __main__ - INFO - 📨 Client 4419812432: Received message: ping
+2026-02-04 17:44:53,640 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:44:53,640 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:44:55,583 - __main__ - INFO - 💓 Server heartbeat #8 | connections=3 | tasks=22 | last_event=40.1s ago
+2026-02-04 17:44:55,583 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:44:56,150 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:44:56,150 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:44:56,170 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:44:56,170 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:00,584 - __main__ - INFO - 💓 Server heartbeat #9 | connections=3 | tasks=22 | last_event=45.1s ago
+2026-02-04 17:45:00,584 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:03,641 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:45:03,641 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:45:05,585 - __main__ - INFO - 💓 Server heartbeat #10 | connections=3 | tasks=22 | last_event=50.1s ago
+2026-02-04 17:45:05,585 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:06,160 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:06,160 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:06,170 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:06,170 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:10,585 - __main__ - INFO - 💓 Server heartbeat #11 | connections=3 | tasks=22 | last_event=55.1s ago
+2026-02-04 17:45:10,585 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:13,642 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:45:13,642 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:45:15,586 - __main__ - INFO - 💓 Server heartbeat #12 | connections=3 | tasks=22 | last_event=60.1s ago
+2026-02-04 17:45:15,587 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:15,630 - __main__ - INFO - Unix socket listener heartbeat: 0 events received, still listening
+2026-02-04 17:45:16,152 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:16,152 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:16,175 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:16,175 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:17,140 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:45:17,141 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:45:20,587 - __main__ - INFO - 💓 Server heartbeat #13 | connections=3 | tasks=22 | last_event=65.1s ago
+2026-02-04 17:45:20,587 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:23,637 - __main__ - INFO - 📨 Client 4419812432: Received message: ping
+2026-02-04 17:45:23,642 - __main__ - INFO - 📨 Client 4419812432: Received message: pong
+2026-02-04 17:45:23,642 - __main__ - INFO - 🏓 Client 4419812432: Received pong response
+2026-02-04 17:45:23,903 - __main__ - INFO - Client 4419812432: Keepalive task cancelled
+2026-02-04 17:45:23,904 - __main__ - INFO - Client 4419812432 disconnected normally
+2026-02-04 17:45:23,904 - __main__ - INFO - Client disconnected. Total connections: 2
+2026-02-04 17:45:24,302 - __main__ - INFO - Client connected. Total connections: 3
+2026-02-04 17:45:24,302 - __main__ - INFO - Client 4419769008 connected from Address(host='127.0.0.1', port=57654)
+2026-02-04 17:45:24,302 - __main__ - INFO - 📋 Client 4419769008: Fetching initial state...
+2026-02-04 17:45:24,308 - __main__ - INFO - 📋 Client 4419769008: Sending initial state with 1 machines
+2026-02-04 17:45:24,308 - __main__ - INFO - ✅ Client 4419769008: Initial state sent successfully
+2026-02-04 17:45:25,589 - __main__ - INFO - 💓 Server heartbeat #14 | connections=3 | tasks=22 | last_event=70.1s ago
+2026-02-04 17:45:25,589 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:26,153 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:26,154 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:26,175 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:26,175 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:30,590 - __main__ - INFO - 💓 Server heartbeat #15 | connections=3 | tasks=22 | last_event=75.1s ago
+2026-02-04 17:45:30,590 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:34,313 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:45:34,314 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:45:35,590 - __main__ - INFO - 💓 Server heartbeat #16 | connections=3 | tasks=22 | last_event=80.1s ago
+2026-02-04 17:45:35,591 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:36,154 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:36,154 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:36,177 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:36,177 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:40,592 - __main__ - INFO - 💓 Server heartbeat #17 | connections=3 | tasks=22 | last_event=85.1s ago
+2026-02-04 17:45:40,592 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:44,315 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:45:44,315 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:45:45,595 - __main__ - INFO - 💓 Server heartbeat #18 | connections=3 | tasks=22 | last_event=90.1s ago
+2026-02-04 17:45:45,595 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:46,155 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:46,156 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:46,176 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:46,176 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:45:47,138 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:45:47,139 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:45:50,596 - __main__ - INFO - 💓 Server heartbeat #19 | connections=3 | tasks=22 | last_event=95.1s ago
+2026-02-04 17:45:50,596 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:54,310 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:45:54,314 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:45:54,314 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:45:55,598 - __main__ - INFO - 💓 Server heartbeat #20 | connections=3 | tasks=22 | last_event=100.1s ago
+2026-02-04 17:45:55,598 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:45:56,155 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:45:56,155 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:45:56,178 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:45:56,178 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:00,599 - __main__ - INFO - 💓 Server heartbeat #21 | connections=3 | tasks=22 | last_event=105.1s ago
+2026-02-04 17:46:00,599 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:04,317 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:04,318 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:04,962 - __main__ - INFO - 📥 Unix socket: Event #1 type=new_query (100 bytes)
+2026-02-04 17:46:04,962 - __main__ - INFO - 📡 Broadcasting to 3 clients (100 bytes)
+2026-02-04 17:46:05,600 - __main__ - INFO - 💓 Server heartbeat #22 | connections=3 | tasks=22 | last_event=0.6s ago
+2026-02-04 17:46:05,601 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:06,156 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:06,156 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:06,177 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:06,177 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:10,601 - __main__ - INFO - 💓 Server heartbeat #23 | connections=3 | tasks=22 | last_event=5.6s ago
+2026-02-04 17:46:10,602 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:14,319 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:14,319 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:15,602 - __main__ - INFO - 💓 Server heartbeat #24 | connections=3 | tasks=22 | last_event=10.6s ago
+2026-02-04 17:46:15,602 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:15,700 - __main__ - INFO - Unix socket listener heartbeat: 1 events received, still listening
+2026-02-04 17:46:16,160 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:16,160 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:16,177 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:16,178 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:17,137 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:46:17,138 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:46:20,602 - __main__ - INFO - 💓 Server heartbeat #25 | connections=3 | tasks=22 | last_event=15.6s ago
+2026-02-04 17:46:20,602 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:24,309 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:46:24,318 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:24,318 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:25,603 - __main__ - INFO - 💓 Server heartbeat #26 | connections=3 | tasks=22 | last_event=20.6s ago
+2026-02-04 17:46:25,603 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:26,157 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:26,157 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:26,179 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:26,179 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:30,603 - __main__ - INFO - 💓 Server heartbeat #27 | connections=3 | tasks=22 | last_event=25.6s ago
+2026-02-04 17:46:30,603 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:31,475 - __main__ - INFO - 📥 Unix socket: Event #2 type=machine_registered (192 bytes)
+2026-02-04 17:46:31,475 - __main__ - INFO - 📡 Broadcasting to 3 clients (192 bytes)
+2026-02-04 17:46:34,320 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:34,320 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:35,605 - __main__ - INFO - 💓 Server heartbeat #28 | connections=3 | tasks=22 | last_event=4.1s ago
+2026-02-04 17:46:35,605 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:36,157 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:36,157 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:36,180 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:36,180 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:40,606 - __main__ - INFO - 💓 Server heartbeat #29 | connections=3 | tasks=22 | last_event=9.1s ago
+2026-02-04 17:46:40,606 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:44,320 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:44,320 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:45,607 - __main__ - INFO - 💓 Server heartbeat #30 | connections=3 | tasks=22 | last_event=14.1s ago
+2026-02-04 17:46:45,608 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:46,158 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:46,158 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:46,181 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:46,181 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:46:46,885 - __main__ - INFO - 📥 Unix socket: Event #3 type=new_query (100 bytes)
+2026-02-04 17:46:46,885 - __main__ - INFO - 📡 Broadcasting to 3 clients (100 bytes)
+2026-02-04 17:46:47,132 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:46:47,134 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:46:47,356 - __main__ - INFO - 📥 Unix socket: Event #4 type=activity_log (180 bytes)
+2026-02-04 17:46:47,356 - __main__ - INFO - 📡 Broadcasting to 3 clients (180 bytes)
+2026-02-04 17:46:47,357 - __main__ - INFO - 📥 Unix socket: Event #5 type=state_change (183 bytes)
+2026-02-04 17:46:47,357 - __main__ - INFO - 📡 Broadcasting to 3 clients (183 bytes)
+2026-02-04 17:46:50,072 - __main__ - INFO - 📥 Unix socket: Event #6 type=state_change (188 bytes)
+2026-02-04 17:46:50,072 - __main__ - INFO - 📡 Broadcasting to 3 clients (188 bytes)
+2026-02-04 17:46:50,609 - __main__ - INFO - 💓 Server heartbeat #31 | connections=3 | tasks=22 | last_event=0.5s ago
+2026-02-04 17:46:50,609 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:50,810 - __main__ - INFO - 📥 Unix socket: Event #7 type=state_change (193 bytes)
+2026-02-04 17:46:50,810 - __main__ - INFO - 📡 Broadcasting to 3 clients (193 bytes)
+2026-02-04 17:46:54,308 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:46:54,320 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:46:54,320 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:46:55,610 - __main__ - INFO - 💓 Server heartbeat #32 | connections=3 | tasks=22 | last_event=4.8s ago
+2026-02-04 17:46:55,610 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:46:56,158 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:46:56,158 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:46:56,182 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:46:56,182 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:00,611 - __main__ - INFO - 💓 Server heartbeat #33 | connections=3 | tasks=22 | last_event=9.8s ago
+2026-02-04 17:47:00,612 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:04,322 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:04,322 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:05,612 - __main__ - INFO - 💓 Server heartbeat #34 | connections=3 | tasks=22 | last_event=14.8s ago
+2026-02-04 17:47:05,613 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:06,159 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:06,159 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:06,182 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:06,183 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:10,614 - __main__ - INFO - 💓 Server heartbeat #35 | connections=3 | tasks=22 | last_event=19.8s ago
+2026-02-04 17:47:10,614 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:14,323 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:14,323 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:15,615 - __main__ - INFO - 💓 Server heartbeat #36 | connections=3 | tasks=22 | last_event=24.8s ago
+2026-02-04 17:47:15,615 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:15,745 - __main__ - INFO - Unix socket listener heartbeat: 7 events received, still listening
+2026-02-04 17:47:16,162 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:16,162 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:16,187 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:16,187 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:17,134 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:47:17,135 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:47:20,616 - __main__ - INFO - 💓 Server heartbeat #37 | connections=3 | tasks=22 | last_event=29.8s ago
+2026-02-04 17:47:20,616 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:24,307 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:47:24,322 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:24,322 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:25,617 - __main__ - INFO - 💓 Server heartbeat #38 | connections=3 | tasks=22 | last_event=34.8s ago
+2026-02-04 17:47:25,617 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:26,162 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:26,162 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:26,186 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:26,186 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:30,618 - __main__ - INFO - 💓 Server heartbeat #39 | connections=3 | tasks=22 | last_event=39.8s ago
+2026-02-04 17:47:30,618 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:34,323 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:34,323 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:35,618 - __main__ - INFO - 💓 Server heartbeat #40 | connections=3 | tasks=22 | last_event=44.8s ago
+2026-02-04 17:47:35,618 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:36,160 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:36,160 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:36,186 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:36,187 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:40,620 - __main__ - INFO - 💓 Server heartbeat #41 | connections=3 | tasks=22 | last_event=49.8s ago
+2026-02-04 17:47:40,620 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:44,323 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:44,323 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:45,620 - __main__ - INFO - 💓 Server heartbeat #42 | connections=3 | tasks=22 | last_event=54.8s ago
+2026-02-04 17:47:45,620 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:46,162 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:46,162 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:46,187 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:46,187 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:47:50,623 - __main__ - INFO - 💓 Server heartbeat #43 | connections=3 | tasks=22 | last_event=59.8s ago
+2026-02-04 17:47:50,623 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:54,308 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:47:54,325 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:47:54,325 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:47:55,623 - __main__ - INFO - 💓 Server heartbeat #44 | connections=3 | tasks=22 | last_event=64.8s ago
+2026-02-04 17:47:55,623 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:47:56,166 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:47:56,166 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:47:56,192 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:47:56,192 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:00,624 - __main__ - INFO - 💓 Server heartbeat #45 | connections=3 | tasks=22 | last_event=69.8s ago
+2026-02-04 17:48:00,624 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:04,326 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:04,326 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:05,626 - __main__ - INFO - 💓 Server heartbeat #46 | connections=3 | tasks=22 | last_event=74.8s ago
+2026-02-04 17:48:05,626 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:06,169 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:06,169 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:06,189 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:06,189 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:10,627 - __main__ - INFO - 💓 Server heartbeat #47 | connections=3 | tasks=22 | last_event=79.8s ago
+2026-02-04 17:48:10,628 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:14,326 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:14,326 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:15,629 - __main__ - INFO - 💓 Server heartbeat #48 | connections=3 | tasks=22 | last_event=84.8s ago
+2026-02-04 17:48:15,629 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:15,768 - __main__ - INFO - Unix socket listener heartbeat: 7 events received, still listening
+2026-02-04 17:48:16,167 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:16,167 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:16,190 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:16,190 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:20,630 - __main__ - INFO - 💓 Server heartbeat #49 | connections=3 | tasks=22 | last_event=89.8s ago
+2026-02-04 17:48:20,630 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:24,308 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:48:24,326 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:24,326 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:25,632 - __main__ - INFO - 💓 Server heartbeat #50 | connections=3 | tasks=22 | last_event=94.8s ago
+2026-02-04 17:48:25,632 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:26,169 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:26,169 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:26,191 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:26,191 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:27,164 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:48:27,166 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:48:30,633 - __main__ - INFO - 💓 Server heartbeat #51 | connections=3 | tasks=22 | last_event=99.8s ago
+2026-02-04 17:48:30,633 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:34,326 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:34,327 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:35,634 - __main__ - INFO - 💓 Server heartbeat #52 | connections=3 | tasks=22 | last_event=104.8s ago
+2026-02-04 17:48:35,635 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:36,169 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:36,169 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:36,193 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:36,193 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:40,636 - __main__ - INFO - 💓 Server heartbeat #53 | connections=3 | tasks=22 | last_event=109.8s ago
+2026-02-04 17:48:40,636 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:44,327 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:44,327 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:45,637 - __main__ - INFO - 💓 Server heartbeat #54 | connections=3 | tasks=22 | last_event=114.8s ago
+2026-02-04 17:48:45,637 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:46,170 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:46,170 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:46,193 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:46,194 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:48:50,638 - __main__ - INFO - 💓 Server heartbeat #55 | connections=3 | tasks=22 | last_event=119.8s ago
+2026-02-04 17:48:50,638 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:54,305 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:48:54,328 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:48:54,328 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:48:55,639 - __main__ - INFO - 💓 Server heartbeat #56 | connections=3 | tasks=22 | last_event=124.8s ago
+2026-02-04 17:48:55,639 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:48:56,171 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:48:56,171 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:48:56,194 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:48:56,194 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:00,640 - __main__ - INFO - 💓 Server heartbeat #57 | connections=3 | tasks=22 | last_event=129.8s ago
+2026-02-04 17:49:00,640 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:04,329 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:04,329 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:05,641 - __main__ - INFO - 💓 Server heartbeat #58 | connections=3 | tasks=22 | last_event=134.8s ago
+2026-02-04 17:49:05,641 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:06,170 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:06,171 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:06,196 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:06,196 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:10,642 - __main__ - INFO - 💓 Server heartbeat #59 | connections=3 | tasks=22 | last_event=139.8s ago
+2026-02-04 17:49:10,642 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:14,329 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:14,329 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:15,643 - __main__ - INFO - 💓 Server heartbeat #60 | connections=3 | tasks=22 | last_event=144.8s ago
+2026-02-04 17:49:15,643 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:15,841 - __main__ - INFO - Unix socket listener heartbeat: 7 events received, still listening
+2026-02-04 17:49:16,171 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:16,171 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:16,197 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:16,197 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:20,644 - __main__ - INFO - 💓 Server heartbeat #61 | connections=3 | tasks=22 | last_event=149.8s ago
+2026-02-04 17:49:20,644 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:24,305 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:49:24,330 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:24,331 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:25,645 - __main__ - INFO - 💓 Server heartbeat #62 | connections=3 | tasks=22 | last_event=154.8s ago
+2026-02-04 17:49:25,645 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:26,172 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:26,172 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:26,197 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:26,197 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:27,160 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:49:27,161 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:49:30,647 - __main__ - INFO - 💓 Server heartbeat #63 | connections=3 | tasks=22 | last_event=159.8s ago
+2026-02-04 17:49:30,647 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:34,332 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:34,332 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:35,648 - __main__ - INFO - 💓 Server heartbeat #64 | connections=3 | tasks=22 | last_event=164.8s ago
+2026-02-04 17:49:35,648 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:36,173 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:36,173 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:36,197 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:36,197 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:40,650 - __main__ - INFO - 💓 Server heartbeat #65 | connections=3 | tasks=22 | last_event=169.8s ago
+2026-02-04 17:49:40,650 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:44,332 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:44,332 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:45,651 - __main__ - INFO - 💓 Server heartbeat #66 | connections=3 | tasks=22 | last_event=174.8s ago
+2026-02-04 17:49:45,651 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:46,174 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:46,174 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:46,198 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:46,198 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:49:50,652 - __main__ - INFO - 💓 Server heartbeat #67 | connections=3 | tasks=22 | last_event=179.8s ago
+2026-02-04 17:49:50,652 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:54,306 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:49:54,333 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:49:54,333 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:49:55,654 - __main__ - INFO - 💓 Server heartbeat #68 | connections=3 | tasks=22 | last_event=184.8s ago
+2026-02-04 17:49:55,654 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:49:56,174 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:49:56,174 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:49:56,199 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:49:56,199 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:00,655 - __main__ - INFO - 💓 Server heartbeat #69 | connections=3 | tasks=22 | last_event=189.8s ago
+2026-02-04 17:50:00,655 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:04,334 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:04,335 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:05,656 - __main__ - INFO - 💓 Server heartbeat #70 | connections=3 | tasks=22 | last_event=194.8s ago
+2026-02-04 17:50:05,657 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:06,177 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:06,177 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:06,200 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:06,200 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:10,661 - __main__ - INFO - 💓 Server heartbeat #71 | connections=3 | tasks=22 | last_event=199.9s ago
+2026-02-04 17:50:10,661 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:14,336 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:14,338 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:15,662 - __main__ - INFO - 💓 Server heartbeat #72 | connections=3 | tasks=22 | last_event=204.9s ago
+2026-02-04 17:50:15,662 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:15,885 - __main__ - INFO - Unix socket listener heartbeat: 7 events received, still listening
+2026-02-04 17:50:16,180 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:16,181 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:16,201 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:16,202 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:20,663 - __main__ - INFO - 💓 Server heartbeat #73 | connections=3 | tasks=22 | last_event=209.9s ago
+2026-02-04 17:50:20,664 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:24,304 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:50:24,334 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:24,334 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:25,665 - __main__ - INFO - 💓 Server heartbeat #74 | connections=3 | tasks=22 | last_event=214.9s ago
+2026-02-04 17:50:25,665 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:26,180 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:26,180 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:26,202 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:26,202 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:27,148 - __main__ - INFO - 📨 Client 4417367408: Received message: ping
+2026-02-04 17:50:27,148 - __main__ - INFO - 📨 Client 4417153424: Received message: ping
+2026-02-04 17:50:30,666 - __main__ - INFO - 💓 Server heartbeat #75 | connections=3 | tasks=22 | last_event=219.9s ago
+2026-02-04 17:50:30,666 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:34,336 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:34,336 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:35,667 - __main__ - INFO - 💓 Server heartbeat #76 | connections=3 | tasks=22 | last_event=224.9s ago
+2026-02-04 17:50:35,668 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:36,182 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:36,182 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:36,204 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:36,204 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:40,669 - __main__ - INFO - 💓 Server heartbeat #77 | connections=3 | tasks=22 | last_event=229.9s ago
+2026-02-04 17:50:40,669 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:44,336 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:44,336 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:45,671 - __main__ - INFO - 💓 Server heartbeat #78 | connections=3 | tasks=22 | last_event=234.9s ago
+2026-02-04 17:50:45,671 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:46,184 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:46,184 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:46,204 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:46,204 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:50:50,671 - __main__ - INFO - 💓 Server heartbeat #79 | connections=3 | tasks=22 | last_event=239.9s ago
+2026-02-04 17:50:50,672 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:54,302 - __main__ - INFO - 📨 Client 4419769008: Received message: ping
+2026-02-04 17:50:54,338 - __main__ - INFO - 📨 Client 4419769008: Received message: pong
+2026-02-04 17:50:54,338 - __main__ - INFO - 🏓 Client 4419769008: Received pong response
+2026-02-04 17:50:55,673 - __main__ - INFO - 💓 Server heartbeat #80 | connections=3 | tasks=22 | last_event=244.9s ago
+2026-02-04 17:50:55,673 - __main__ - WARNING - ⚠️  High task count: 22 active tasks
+2026-02-04 17:50:56,183 - __main__ - INFO - 📨 Client 4417153424: Received message: pong
+2026-02-04 17:50:56,184 - __main__ - INFO - 🏓 Client 4417153424: Received pong response
+2026-02-04 17:50:56,205 - __main__ - INFO - 📨 Client 4417367408: Received message: pong
+2026-02-04 17:50:56,205 - __main__ - INFO - 🏓 Client 4417367408: Received pong response
+2026-02-04 17:51:00,675 - __main__ - INFO - 💓 Server heartbeat #81 | connections=3 | tasks=22 | last_event=249.9s ago
+2026-02-04 17:51:00,675 - __main__ - WARNING - ⚠️  High task count: 22 active tasks

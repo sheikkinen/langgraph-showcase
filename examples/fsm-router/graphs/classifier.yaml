@@ -1,0 +1,27 @@
+# Query Classifier
+# Routes incoming queries to appropriate handlers based on complexity
+#
+# Returns: route field with one of: simple, complex, code
+
+name: query-classifier
+version: "1.0"
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: mistral
+  model: mistral-small-latest
+
+nodes:
+  classify:
+    type: llm
+    prompt: classify
+    variables:
+      query: "{state.query}"
+    state_key: classification
+
+edges:
+  - from: START
+    to: classify
+  - from: classify
+    to: END

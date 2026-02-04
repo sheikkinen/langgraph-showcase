@@ -1,0 +1,138 @@
+# FSM Router Worker
+# Demonstrates running YAMLGraph pipelines as FSM actions
+#
+# Use case: Incoming queries are classified by an LLM router, then
+# routed to different processing paths based on complexity.
+
+metadata:
+  name: "Query Router FSM"
+  machine_name: query_router
+  version: "1.0.0"
+
+initial_state: waiting
+
+states:
+  # === IDLE STATES ===
+  - waiting
+
+  # === PROCESSING STATES ===
+  - classifying
+  - simple_response
+  - complex_response
+
+  # === COMPLETION STATES ===
+  - completed
+  - error
+
+events:
+  - new_query
+  - simple          # Route: simple query
+  - complex         # Route: complex query
+  - code            # Route: code-related query
+  - response_ready
+  - failed
+
+transitions:
+  # Main flow: waiting for queries
+  - from: waiting
+    to: classifying
+    event: new_query
+
+  # Classification routes to different handlers
+  - from: classifying
+    to: simple_response
+    event: simple
+
+  - from: classifying
+    to: complex_response
+    event: complex
+
+  - from: classifying
+    to: complex_response
+    event: code
+
+  # Response paths complete
+  - from: simple_response
+    to: waiting
+    event: response_ready
+
+  - from: complex_response
+    to: waiting
+    event: response_ready
+
+  # Error handling
+  - from: classifying
+    to: error
+    event: failed
+
+  - from: error
+    to: waiting
+    event: response_ready
+
+  # Shutdown from any state
+  - from: "*"
+    to: completed
+    event: stop
+
+actions:
+  classifying:
+    - type: log
+      params:
+        message: "📝 Classifying query: {query}"
+        level: info
+
+    # Run YAMLGraph classifier pipeline
+    - type: yamlgraph
+      params:
+        graph: graphs/classifier.yaml
+        input_key: query
+        output_key: classification
+        # Events are returned based on router output:
+        # simple, complex, or code
+        success: simple  # Fallback if no route returned
+        failure: failed
+
+  simple_response:
+    - type: log
+      params:
+        message: "⚡ Fast path: {classification.response}"
+        level: info
+
+    - type: yamlgraph
+      params:
+        graph: graphs/simple-responder.yaml
+        input_key: query
+        output_key: response
+        success: response_ready
+        failure: failed
+
+  complex_response:
+    - type: log
+      params:
+        message: "🧠 Deep analysis: {classification.category}"
+        level: info
+
+    - type: yamlgraph
+      params:
+        graph: graphs/complex-responder.yaml
+        input_key: query
+        output_key: response
+        success: response_ready
+        failure: failed
+
+  error:
+    - type: log
+      params:
+        message: "❌ Error occurred: {error}"
+        level: error
+
+    - type: log
+      params:
+        message: "Returning to waiting state..."
+        level: info
+
+  completed:
+    - type: log
+      params:
+        message: "👋 Router shutting down"
+        level: info

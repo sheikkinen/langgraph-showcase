@@ -1,0 +1,35 @@
+# Complex Responder
+# Handles complex/code queries with detailed analysis
+
+name: complex-responder
+version: "1.0"
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: mistral
+  model: mistral-small-latest
+
+nodes:
+  analyze:
+    type: llm
+    prompt: complex-analysis
+    variables:
+      query: "{state.query}"
+    state_key: analysis
+
+  respond:
+    type: llm
+    prompt: complex-response
+    variables:
+      query: "{state.query}"
+      analysis: "{state.analysis}"
+    state_key: response
+
+edges:
+  - from: START
+    to: analyze
+  - from: analyze
+    to: respond
+  - from: respond
+    to: END

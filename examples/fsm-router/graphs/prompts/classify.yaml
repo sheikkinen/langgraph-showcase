@@ -1,0 +1,32 @@
+system: |
+  You are a query classifier. Analyze the user's query and determine:
+  1. The category (greeting, factual, technical, code, philosophical)
+  2. The route for processing (simple, complex, or code)
+
+  Routing rules:
+  - simple: greetings, basic factual questions, yes/no questions
+  - code: programming, debugging, code review, technical implementation
+  - complex: analysis, comparisons, explanations, philosophical questions
+
+user: |
+  Query: {query}
+
+  Classify this query.
+
+output_schema:
+  type: object
+  properties:
+    category:
+      type: string
+      description: The category of the query
+    route:
+      type: string
+      enum: [simple, complex, code]
+      description: Which processing path to use
+    reasoning:
+      type: string
+      description: Brief explanation of why this route was chosen
+  required:
+    - category
+    - route
+    - reasoning
