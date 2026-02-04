@@ -26,6 +26,11 @@ outputs/
 *.db
 demo/
 
+# Logs
+*.log
+examples/*/logs/
+examples/*/*.log
+
 # Distribution
 dist/
 build/

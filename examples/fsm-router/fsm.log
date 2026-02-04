@@ -1,7 +1,0 @@
-2026-02-04 17:46:14,945 - statemachine_engine.cli - INFO - Starting state machine with config: config/router.yaml
-2026-02-04 17:46:14,946 - statemachine_engine.cli - INFO - Using custom actions directory: /Users/sami.j.p.heikkinen/src/yamlgraph/examples/fsm-router/actions
-2026-02-04 17:46:14,950 - statemachine_engine.core.engine - INFO - [query_router] Control socket listening on: /tmp/statemachine-control-query_router.sock
-2026-02-04 17:46:14,950 - statemachine_engine.core.engine - INFO - [query_router] Loaded state machine config: Query Router FSM
-2026-02-04 17:46:14,950 - statemachine_engine.core.engine - INFO - [query_router] Machine name: query_router
-2026-02-04 17:46:14,950 - statemachine_engine.core.engine - INFO - [query_router] Initial state: waiting
-2026-02-04 17:46:14,953 - statemachine_engine.core.engine - INFO - [query_router] Starting state machine execution from state: waiting

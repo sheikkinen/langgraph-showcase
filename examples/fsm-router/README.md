@@ -1,6 +1,10 @@
 # FSM Router Example
 
+> **Optional Integration Example** - This demonstrates YAMLGraph integration with an external framework.
+
 Demonstrates running YAMLGraph pipelines as statemachine-engine actions.
+
+**Compatibility:** statemachine-engine >= 1.0.70
 
 ## Architecture
 
