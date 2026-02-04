@@ -29,6 +29,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for version history.
 | `llm` | [§ LLM nodes](graph-yaml.md#type-llm---standard-llm-node) | - |
 | `router` | [§ Router nodes](graph-yaml.md#type-router---conditional-routing) | - |
 | `agent` | [§ Agent nodes](graph-yaml.md#type-agent---tool-using-agent) | [impl-agent.md](impl-agent.md) |
+| `tool` | [§ Tool nodes](graph-yaml.md#type-tool---shell-tool-node) | - |
 | `python` | [§ Python nodes](graph-yaml.md#type-python---python-function-node) | - |
 | `map` | [§ Map nodes](graph-yaml.md#type-map---parallel-fan-out-node) | [map-nodes.md](map-nodes.md) |
 | `interrupt` | [§ Interrupt nodes](graph-yaml.md#type-interrupt---human-in-the-loop) | [interrupt-nodes.md](interrupt-nodes.md) |

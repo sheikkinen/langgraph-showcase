@@ -192,7 +192,7 @@ Each node in the `nodes` section defines a processing step.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `type` | `string` | `"llm"` | Node type: `llm`, `router`, `agent`, `python`, `map`, `interrupt`, `passthrough`, `tool_call`, `subgraph` |
+| `type` | `string` | `"llm"` | Node type: `llm`, `router`, `agent`, `tool`, `python`, `map`, `interrupt`, `passthrough`, `tool_call`, `subgraph` |
 | `prompt` | `string` | varies | Prompt file path (without `.yaml`) |
 | `variables` | `object` | `{}` | Template variable mappings |
 | `state_key` | `string` | node name | State key to store result |
@@ -309,6 +309,57 @@ nodes:
 | `tools` | `list[str]` | `[]` | Tool names from graph's `tools` section |
 | `max_iterations` | `int` | `5` | Maximum tool invocations |
 | `tool_results_key` | `string` | - | State key for tool execution logs |
+
+### `type: tool` - Shell Tool Node
+
+Execute a shell command tool deterministically (no LLM decision-making).
+
+```yaml
+nodes:
+  fetch_commits:
+    type: tool
+    tool: recent_commits             # References tool from tools section
+    variables:
+      count: "{state.num_commits}"
+    state_key: commit_data
+```
+
+**Tool node properties:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `tool` | `string` | required | Name of shell tool from `tools` section |
+| `variables` | `object` | `{}` | Variable mappings for command substitution |
+| `state_key` | `string` | node name | State key to store command output |
+| `on_error` | `string` | `"fail"` | Error handling: `skip` or `fail` |
+
+**Difference from related types:**
+
+| Type | Description |
+|------|-------------|
+| `tool` | Executes a named shell tool deterministically |
+| `tool_call` | Dynamically selects tool name from state |
+| `agent` | LLM decides which tools to call |
+
+**Example with tools section:**
+
+```yaml
+tools:
+  recent_commits:
+    command: "git log --oneline -n {count}"
+  file_diff:
+    command: "git diff {commit_hash}"
+
+nodes:
+  get_history:
+    type: tool
+    tool: recent_commits
+    variables:
+      count: "10"
+    state_key: history
+```
+
+All user-provided variables are sanitized with `shlex.quote()` to prevent shell injection.
 
 ### `type: python` - Python Function Node
 
