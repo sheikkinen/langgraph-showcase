@@ -2,6 +2,22 @@
 
 Example applications demonstrating YAMLGraph capabilities.
 
+## 🎓 Learning Path
+
+Start here and progress through the demos in order:
+
+| Step | Demo | Concept | Time |
+|------|------|---------|------|
+| 1 | [demos/hello](demos/hello/) | Basic LLM node, variables | 5 min |
+| 2 | [demos/router](demos/router/) | Conditional routing | 10 min |
+| 3 | [demos/map](demos/map/) | Parallel fan-out | 15 min |
+| 4 | [demos/reflexion](demos/reflexion/) | Self-correction loops | 15 min |
+| 5 | [demos/git-report](demos/git-report/) | Tool-using agents | 15 min |
+| 6 | [demos/interview](demos/interview/) | Human-in-the-loop | 15 min |
+| 7 | [demos/subgraph](demos/subgraph/) | Graph composition | 20 min |
+
+After the learning path, explore production examples below.
+
 ## Quick Reference
 
 | Example | Description | Key Features |
@@ -19,6 +35,30 @@ Example applications demonstrating YAMLGraph capabilities.
 | [npc/](npc/) | D&D NPC generator | Multi-graph, map nodes, parallel NPCs |
 | [storyboard/](storyboard/) | Visual story generator | Replicate API, image generation |
 | [fastapi_interview.py](fastapi_interview.py) | FastAPI integration | Async execution, interrupt handling, sessions |
+
+## Demos Index
+
+Standalone demos in [demos/](demos/):
+
+| Demo | Node Types | Description |
+|------|------------|-------------|
+| [hello](demos/hello/) | `llm` | Minimal example - start here |
+| [router](demos/router/) | `router` | Tone-based conditional routing |
+| [map](demos/map/) | `map`, `llm` | Parallel fan-out processing |
+| [reflexion](demos/reflexion/) | `llm` | Self-correction with loop limits |
+| [yamlgraph](demos/yamlgraph/) | `llm` | Multi-step pipeline |
+| [git-report](demos/git-report/) | `agent` | Git analysis with tools |
+| [memory](demos/memory/) | `agent` | Multi-turn with memory |
+| [interview](demos/interview/) | `interrupt` | Human-in-the-loop |
+| [interrupt](demos/interrupt/) | `subgraph`, `interrupt` | Subgraph interrupt tests |
+| [streaming](demos/streaming/) | `llm` | Token-by-token output |
+| [subgraph](demos/subgraph/) | `subgraph` | Graph composition |
+| [system-status](demos/system-status/) | `tool` | Shell tool execution |
+| [web-research](demos/web-research/) | `agent` | Web search agent |
+| [code-analysis](demos/code-analysis/) | `tool`, `llm` | Code quality tools |
+| [feature-brainstorm](demos/feature-brainstorm/) | `agent` | Self-analysis |
+| [data-files](demos/data-files/) | `llm` | External data loading |
+| [run-analyzer](demos/run-analyzer/) | - | Analysis utilities |
 
 ## Running Examples
 
