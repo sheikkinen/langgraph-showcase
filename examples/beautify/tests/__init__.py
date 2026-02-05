@@ -1,0 +1,1 @@
+# Beautify example tests

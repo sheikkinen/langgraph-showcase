@@ -36,6 +36,7 @@ After the learning path, explore production examples below.
 | [storyboard/](storyboard/) | Visual story generator | Replicate API, image generation |
 | [yamlgraph_gen/](yamlgraph_gen/) | Pipeline generator | Meta-generation, snippet composition, validation |
 | [fastapi_interview.py](fastapi_interview.py) | FastAPI integration | Async execution, interrupt handling, sessions |
+| [demos/soul/](demos/soul/) | Agent personality pattern | Data files, persona definition |
 
 ## Demos Index
 
@@ -60,7 +61,7 @@ Standalone demos in [demos/](demos/):
 | [feature-brainstorm](demos/feature-brainstorm/) | `agent` | Self-analysis |
 | [data-files](demos/data-files/) | `llm` | External data loading |
 | [run-analyzer](demos/run-analyzer/) | - | Analysis utilities |
-| [soul](soul/) | `llm`, `data_files` | Agent personality pattern |
+| [soul](demos/soul/) | `llm`, `data_files` | Agent personality pattern |
 
 ## Running Examples
 

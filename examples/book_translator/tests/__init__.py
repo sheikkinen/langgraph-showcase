@@ -1,0 +1,1 @@
+# Book translator example tests
