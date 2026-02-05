@@ -2,10 +2,9 @@
 
 **Priority:** MEDIUM
 **Type:** Enhancement
-**Status:** ✅ Implemented
+**Status:** Proposed
 **Effort:** 0.5 days
 **Requested:** 2026-02-05
-**Completed:** 2026-02-05
 
 ## Summary
 
@@ -97,13 +96,13 @@ nodes:
 
 ## Acceptance Criteria
 
-- [x] `type: python` works in map sub-node configuration
-- [x] Tool must be defined in `tools:` section
-- [x] Clear error if tool not found in registry
-- [x] `_map_index` preserved in output for ordering
-- [x] Error handling via `wrap_for_reducer` works correctly
-- [x] Tests added for happy path and error cases
-- [x] Example added to docs or examples/
+- [ ] `type: python` works in map sub-node configuration
+- [ ] Tool must be defined in `tools:` section
+- [ ] Clear error if tool not found in registry
+- [ ] `_map_index` preserved in output for ordering
+- [ ] Error handling via `wrap_for_reducer` works correctly
+- [ ] Tests added for happy path and error cases
+- [ ] Example added to docs or examples/
 
 ## Alternatives Considered
 

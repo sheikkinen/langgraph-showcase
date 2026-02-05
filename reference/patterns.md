@@ -795,4 +795,157 @@ yamlgraph run graph.yaml \
 
 ### Example
 
-See [examples/soul](../examples/soul/) for a complete working example.
+See [examples/demos/soul](../examples/demos/soul/) for a complete working example.
+---
+
+## Pattern 10: Batched Map Processing
+
+Process large lists in controlled batches to avoid rate limits or memory pressure.
+
+### Problem
+
+Map nodes fan out **all items simultaneously**. For large lists (100+ items) or rate-limited APIs, this causes:
+- API rate limit errors (429s)
+- Memory pressure from parallel LLM calls
+- Uncontrolled parallelism
+
+### Solution: Pre-Chunking
+
+Chunk the list in a prior node, then map over batches:
+
+```yaml
+version: "1.0"
+name: batched-processing
+
+tools:
+  chunk_list:
+    type: python
+    module: myproject.tools
+    function: chunk_list
+
+  process_batch:
+    type: python
+    module: myproject.tools
+    function: process_batch
+
+  flatten_results:
+    type: python
+    module: myproject.tools
+    function: flatten_results
+
+nodes:
+  # Split items into batches
+  prepare_batches:
+    type: python
+    tool: chunk_list
+    state_key: batches          # [[item1, item2, item3], [item4, item5, item6], ...]
+
+  # Process each batch (batches run in parallel, items within batch are sequential)
+  process_batches:
+    type: map
+    over: "{state.batches}"
+    as: batch
+    collect: batch_results
+    node:
+      type: python
+      tool: process_batch       # Processes items in batch sequentially
+      state_key: batch_result
+
+  # Flatten results
+  combine_results:
+    type: python
+    tool: flatten_results
+    state_key: results
+
+edges:
+  - from: START
+    to: prepare_batches
+  - from: prepare_batches
+    to: process_batches
+  - from: process_batches
+    to: combine_results
+  - from: combine_results
+    to: END
+```
+
+### Python Tools
+
+```python
+# myproject/tools.py
+from typing import Any
+
+def chunk_list(state: dict) -> dict:
+    """Split items into batches of specified size."""
+    items = state.get("items", [])
+    batch_size = state.get("batch_size", 10)
+
+    batches = [
+        items[i:i + batch_size]
+        for i in range(0, len(items), batch_size)
+    ]
+    return {"batches": batches}
+
+def process_batch(state: dict) -> dict:
+    """Process items in a batch sequentially."""
+    batch = state.get("batch", [])
+    results = []
+
+    for item in batch:
+        # Process each item (with rate limiting if needed)
+        result = process_single_item(item)
+        results.append(result)
+
+    return {"batch_result": results}
+
+def flatten_results(state: dict) -> dict:
+    """Flatten batch results into single list."""
+    batch_results = state.get("batch_results", [])
+
+    # Sort by _map_index to preserve order
+    sorted_batches = sorted(batch_results, key=lambda x: x.get("_map_index", 0))
+
+    flat = []
+    for batch in sorted_batches:
+        flat.extend(batch.get("batch_result", []))
+
+    return {"results": flat}
+```
+
+### Key Points
+
+| Aspect | Approach |
+|--------|----------|
+| **Chunking** | Done in Python tool before map node |
+| **Parallelism** | Batches run in parallel via map |
+| **Within-batch** | Items processed sequentially (rate-limit safe) |
+| **Ordering** | Preserved via `_map_index` |
+| **Flattening** | Post-processing combines results |
+
+### Why Not Built-In `batch_size`?
+
+We considered adding `batch_size` directly to map nodes but chose the pre-chunking pattern because:
+
+1. **Simplicity** - No changes to core framework
+2. **Flexibility** - Custom chunking logic (by type, size, priority)
+3. **Visibility** - Explicit graph structure, no magic edges
+4. **Testability** - Each tool is independently testable
+5. **KISS** - The cheapest code is the code you don't write
+
+### Rate Limiting Within Batches
+
+```python
+import time
+
+def process_batch(state: dict) -> dict:
+    batch = state.get("batch", [])
+    delay_seconds = state.get("rate_limit_delay", 0.5)
+    results = []
+
+    for i, item in enumerate(batch):
+        if i > 0:
+            time.sleep(delay_seconds)  # Rate limiting
+        result = process_single_item(item)
+        results.append(result)
+
+    return {"batch_result": results}
+```
