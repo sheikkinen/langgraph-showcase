@@ -92,20 +92,14 @@ except Exception as e:
    yamlgraph graph run graphs/hello.yaml --var name="World" --var style="enthusiastic"
    ```
 
-3. **Thou shalt put ALL prompts in YAML** — Never hardcode prompts in Python; use `prompts/`:
-   ```yaml
-   # prompts/greet.yaml
-   system: You are a friendly assistant.
-   user: Say hello to {name} in a {style} way.
-   ```
-
-4. **Thou shalt use the LLM Factory** — Always `create_llm()` from factory; never import providers directly.
-5. **Thou shalt type everything with Pydantic** — All outputs use models; no untyped dicts.
-6. **Thou shalt own thy errors** — No pre-existing issues; run `ruff check . && ruff format .` before committing.
-7. **Thou shalt test before implementing** — TDD: Red-Green-Refactor; run `pytest` with every change.
-8. **Thou shalt keep modules under 400 lines** — When growing, split; check with `radon cc -a .`
+3. **Thou shalt not utter code in vain** — Keep config separate from code.
+4. **Thou shalt honor existing patterns** — Don't reinvent; check how it's done elsewhere in the codebase.
+5. **Thou shalt sanctify thy outputs with types** — All outputs use Pydantic models; no untyped dicts.
+6. **Thou shalt bear witness of thy errors** — Expose them, don't hide; run `ruff check . && ruff format .` before committing.
+7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change.
+8. **Thou shalt kill obsolete code** — Keep modules under 400 lines; when growing, split; check with `radon cc -a .`
 9. **Thou shalt RTFM and document** — Check `examples/` and `reference/` first; update them to keep sync.
-10. **Thou shalt maintain CHANGELOG and release** — Every change gets a `CHANGELOG.md` entry; bump `pyproject.toml` version.
+10. **Thou shalt covet transparency** — Every change gets a `CHANGELOG.md` entry; bump `pyproject.toml` version.
 
 ## Anti-Patterns
 
