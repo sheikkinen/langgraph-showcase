@@ -6,18 +6,18 @@ This document describes the pattern for handling dynamic intent-based routing be
 
 ## Problem
 
-In a multi-questionnaire system where an intent detector (e.g., "navigator") routes users to specialized questionnaires (e.g., "booking-fi", "phq9", "audit"), the following issues arise:
+In a multi-questionnaire system where an intent detector (e.g., "navigator") routes users to specialized questionnaires (e.g., "booking", "survey-a", "survey-b"), the following issues arise:
 
 1. **Stale Session References** - After reroute, the client still holds the original session ID and template
-2. **Isolated Keyspaces** - Each template stores state under its own Redis prefix (`navigator:*`, `booking-fi:*`)
+2. **Isolated Keyspaces** - Each template stores state under its own Redis prefix (`navigator:*`, `booking:*`)
 3. **Lost Context** - Returning to the old session causes the conversation to regress
 
 ### Failing Scenario
 
 ```
 User → navigator (session: web-abc, template: navigator)
-  ↓ intent detected: "ajanvaraus"
-User → booking-fi (session: web-abc-r1, template: booking-fi)
+  ↓ intent detected: "booking"
+User → booking (session: web-abc-r1, template: booking)
   ↓ user's next message uses stale values
 User → navigator (session: web-abc, template: navigator)  ← WRONG!
 ```
@@ -29,7 +29,7 @@ User → navigator (session: web-abc, template: navigator)  ← WRONG!
 This pattern requires:
 
 1. **A graph-based session system** that returns structured results including a `status` field
-2. **Redis** for cross-request state (registry + phone mapping)
+2. **Redis** for cross-request state (session registry)
 3. **Intent detection** in the "navigator" graph that emits `reroute` status
 
 ### Intent Detection Output
@@ -41,8 +41,8 @@ The navigator graph must return this structure when detecting an intent change:
 InterviewResponse(
     status="reroute",           # Triggers reroute handling
     result={
-        "new_intent": "ajanvaraus",       # Intent name
-        "trigger_message": "haluan varata ajan",  # User's message
+        "new_intent": "booking",          # Intent name
+        "trigger_message": "I want to book",  # User's message
         "portable_state": {...},          # Optional context to carry over
     },
     ...
@@ -62,10 +62,10 @@ A Redis-based registry that maps base session IDs to their currently active sess
 │                    Session Registry                      │
 │  session:registry:{base_id} → {                         │
 │    active_session_id: "web-abc-r1",                     │
-│    active_template: "booking-fi",                       │
+│    active_template: "booking",                          │
 │    reroute_chain: [                                     │
 │      {session_id: "web-abc", template: "navigator"},    │
-│      {session_id: "web-abc-r1", template: "booking-fi"} │
+│      {session_id: "web-abc-r1", template: "booking"}    │
 │    ],                                                   │
 │    updated_at: "2026-02-05T12:00:00"                    │
 │  }                                                      │
@@ -79,8 +79,8 @@ A Redis-based registry that maps base session IDs to their currently active sess
 │  1. Client sends: session_id="web-abc", template="nav"  │
 │  2. Server: get_base_session_id("web-abc") → "web-abc"  │
 │  3. Server: get_active_session("web-abc")               │
-│     → {active: "web-abc-r1", template: "booking-fi"}    │
-│  4. Server: load graph for "booking-fi" (not "nav")     │
+│     → {active: "web-abc-r1", template: "booking"}       │
+│  4. Server: load graph for "booking" (not "nav")        │
 │  5. Server: process message in "web-abc-r1"             │
 │  6. Response includes actual session_id and template    │
 └─────────────────────────────────────────────────────────┘
@@ -94,10 +94,15 @@ A Redis-based registry that maps base session IDs to their currently active sess
 
 ## Implementation
 
+> **Note:** Code snippets use `...` to indicate implementation details omitted for brevity.
+
 ### 1. Session Registry Module
 
 ```python
 # src/api/session_registry.py
+import re
+from dataclasses import dataclass
+from typing import Optional
 
 REGISTRY_TTL = 86400  # 24 hours
 MAX_REROUTE_CHAIN = 5  # Prevent infinite reroute loops
@@ -138,11 +143,10 @@ Map intent names from the navigator to actual template names:
 ```python
 # At module level in the route file
 INTENT_TO_TEMPLATE = {
-    "elderlycare": "interrai-ca",
-    "depression": "phq9",
-    "alcohol": "audit",
-    "ajanvaraus": "booking-fi",
-    "crisis": "navigator",  # Stay in navigator for crisis handling
+    "booking": "booking",
+    "survey": "survey-a",
+    "feedback": "feedback-form",
+    "help": "navigator",  # Stay in navigator for help/crisis
 }
 ```
 
@@ -174,21 +178,18 @@ class ResolvedSession:
     session_id: str
     template: str
     followed_reroute: bool
-    resumed_from_phone: bool
     registry_entry: Optional[SessionRegistryEntry]
 
 async def _resolve_session(
     request: Request,
     payload_session_id: str,
     payload_template: str,
-    sms_to: Optional[str],
 ) -> ResolvedSession:
     """Resolve effective session BEFORE loading graph.
 
     Priority:
     1. Registry (follows reroute chain)
-    2. Phone mapping (for SMS/voice resume)
-    3. Payload values (new session)
+    2. Payload values (new session)
     """
     # Check registry first
     registry_entry = await get_active_session(request, payload_session_id)
@@ -201,22 +202,16 @@ async def _resolve_session(
                 session_id=registry_entry.active_session_id,
                 template=registry_entry.active_template,
                 followed_reroute=True,
-                ...
-            )
-
-    # No registry - check phone mapping for SMS resume
-    if sms_to:
-        mapping = await lookup_session_by_phone(request, sms_to)
-        if mapping:
-            return ResolvedSession(
-                session_id=mapping.session_id,
-                template=mapping.template,
-                resumed_from_phone=True,
-                ...
+                registry_entry=registry_entry,
             )
 
     # New session - use payload values
-    return ResolvedSession(...)
+    return ResolvedSession(
+        session_id=payload_session_id,
+        template=payload_template,
+        followed_reroute=False,
+        registry_entry=None,
+    )
 ```
 
 ### 5. Route Integration
@@ -234,8 +229,10 @@ async def _get_graph_app(template: str) -> CompiledGraph:
 async def questionnaire_assessment(request, payload, _):
     # === STEP 1: Resolve BEFORE loading graph ===
     resolved = await _resolve_session(
-        request, payload.session_id, payload.template, payload.sms_to
+        request, payload.session_id, payload.template
     )
+    effective_session_id = resolved.session_id
+    effective_template = resolved.template
 
     # === STEP 2: Load correct graph (once!) ===
     app = await _get_graph_app(resolved.template)
@@ -248,19 +245,18 @@ async def questionnaire_assessment(request, payload, _):
     )
 
     # === STEP 3b: Check if resumed session is already complete ===
-    if resolved.resumed_from_phone or resolved.followed_reroute:
+    if resolved.followed_reroute:
         state = await session.get_state()
         if state and state.get("is_complete", False):
             # Session complete - start fresh with payload values
-            resolved = ResolvedSession(
-                session_id=payload.session_id,
-                template=payload.template,
-                followed_reroute=False,
-                resumed_from_phone=False,
-                registry_entry=None,
+            effective_session_id = payload.session_id
+            effective_template = payload.template
+            app = await _get_graph_app(effective_template)
+            session = YamlGraphInterviewSession(
+                app=app,
+                thread_id=effective_session_id,
+                template_name=effective_template,
             )
-            app = await _get_graph_app(resolved.template)
-            session = YamlGraphInterviewSession(...)
 
     # === STEP 4: Register if new ===
     if not resolved.registry_entry:
@@ -393,12 +389,12 @@ class TestResolveSession:
         """Registry shows reroute - should follow it."""
         registry_entry = SessionRegistryEntry(
             active_session_id="web-abc-r1",
-            active_template="booking-fi",
+            active_template="booking",
             ...
         )
-        resolved = await _resolve_session(request, "web-abc", "navigator", None)
+        resolved = await _resolve_session(request, "web-abc", "navigator")
         assert resolved.session_id == "web-abc-r1"
-        assert resolved.template == "booking-fi"
+        assert resolved.template == "booking"
         assert resolved.followed_reroute is True
 ```
 
@@ -409,24 +405,38 @@ class TestResolveSession:
 curl -X POST /questionnaire -d '{"session_id":"test-123","template":"navigator","query":"hello"}'
 
 # 2. Trigger reroute
-curl -X POST /questionnaire -d '{"session_id":"test-123","template":"navigator","query":"haluan varata ajan"}'
-# Response: session_id="test-123-r1", template="booking-fi"
+curl -X POST /questionnaire -d '{"session_id":"test-123","template":"navigator","query":"I want to book an appointment"}'
+# Response: session_id="test-123-r1", template="booking"
 
 # 3. Continue with stale values (server should follow registry)
 curl -X POST /questionnaire -d '{"session_id":"test-123","template":"navigator","query":"next message"}'
-# Response: session_id="test-123-r1", template="booking-fi" (followed reroute!)
+# Response: session_id="test-123-r1", template="booking" (followed reroute!)
 ```
 
 ---
 
-## Related Files
+## Project Structure
 
-- [src/api/session_registry.py](../src/api/session_registry.py) - Registry module
-- [src/api/routes/questionnaire.py](../src/api/routes/questionnaire.py) - Route with `_resolve_session`
-- [src/api/phone_session.py](../src/api/phone_session.py) - Phone-to-session mapping for SMS resume
-- [tests/api/test_session_registry.py](../tests/api/test_session_registry.py) - Registry tests
-- [tests/api/test_resolve_session.py](../tests/api/test_resolve_session.py) - Resolution tests
-- [docs/plan-session-rerouting.md](plan-session-rerouting.md) - Original implementation plan
+This pattern assumes a FastAPI-based API structure. See `examples/booking/` for a reference implementation:
+
+```
+your-project/
+├── api/
+│   ├── app.py                 # FastAPI application
+│   ├── models.py              # Pydantic request/response models
+│   ├── session_registry.py    # Redis session registry (from this pattern)
+│   └── routes/
+│       └── questionnaire.py   # Main route with _resolve_session()
+├── graphs/
+│   ├── navigator.yaml         # Intent detection graph
+│   └── booking.yaml           # Specialized questionnaire graph
+├── prompts/
+│   └── ...                    # YAML prompt templates
+└── tests/
+    └── api/
+        ├── test_session_registry.py
+        └── test_resolve_session.py
+```
 
 ---
 
