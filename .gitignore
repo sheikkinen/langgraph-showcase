@@ -58,3 +58,6 @@ SOUL.md
 # System
 .DS_Store
 vectorstore/
+
+# Fun projects
+examples/fun/
