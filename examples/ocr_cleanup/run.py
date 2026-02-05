@@ -324,7 +324,7 @@ def _write_plain_text(final: dict, output_path: Path) -> None:
                 "start_page"
             ) and current_chapter != ch.get("title"):
                 current_chapter = ch.get("title")
-                text_lines.append(f"\n\n{'='*60}\n{current_chapter}\n{'='*60}\n\n")
+                text_lines.append(f"\n\n{'=' * 60}\n{current_chapter}\n{'=' * 60}\n\n")
 
         text_lines.append(para.get("text", ""))
         text_lines.append("\n\n")

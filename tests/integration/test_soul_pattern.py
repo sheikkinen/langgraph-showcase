@@ -9,7 +9,7 @@ from pathlib import Path
 
 from yamlgraph.graph_loader import load_graph_config
 
-SOUL_EXAMPLE_PATH = Path(__file__).parent.parent.parent / "examples" / "soul"
+SOUL_EXAMPLE_PATH = Path(__file__).parent.parent.parent / "examples" / "demos" / "soul"
 
 
 class TestSoulPatternExample:
@@ -17,7 +17,7 @@ class TestSoulPatternExample:
 
     def test_soul_example_exists(self) -> None:
         """Soul example directory exists with required files."""
-        assert SOUL_EXAMPLE_PATH.exists(), "examples/soul directory should exist"
+        assert SOUL_EXAMPLE_PATH.exists(), "examples/demos/soul directory should exist"
         assert (SOUL_EXAMPLE_PATH / "graph.yaml").exists()
         assert (SOUL_EXAMPLE_PATH / "souls").is_dir()
         assert (SOUL_EXAMPLE_PATH / "prompts").is_dir()

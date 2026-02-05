@@ -75,7 +75,46 @@ Map nodes support these sub-node types:
 |------|----------|
 | `llm` | Transform each item with LLM |
 | `router` | Classify/route each item |
-| `python` | Custom processing per item |
+| `python` | Custom processing per item (FR-021) |
+
+### Python Sub-Nodes (FR-021)
+
+Python sub-nodes enable parallel Python tool execution within map nodes:
+
+```yaml
+tools:
+  analyze_text:
+    type: python
+    module: myproject.tools
+    function: analyze_text
+
+nodes:
+  analyze:
+    type: map
+    over: "{state.texts}"
+    as: text
+    collect: analyses
+    node:
+      type: python
+      tool: analyze_text      # References tools section
+      state_key: stats
+```
+
+**Key points:**
+- Tool must be defined in the `tools:` section with `type: python`
+- The `as` variable is injected into the state passed to the Python function
+- Results are wrapped and collected with `_map_index` for ordering
+- Errors are captured per-item without failing the entire map
+
+**Python function signature:**
+
+```python
+def analyze_text(state: dict) -> dict:
+    text = state["text"]  # The 'as' variable
+    return {"stats": {"word_count": len(text.split())}}
+```
+
+See [examples/demos/python-map/](../examples/demos/python-map/) for a complete demo.
 
 ---
 

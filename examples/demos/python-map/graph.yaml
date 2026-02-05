@@ -1,0 +1,30 @@
+version: "1.0"
+name: python-map-demo
+description: Demonstrates type:python sub-nodes in map nodes (FR-021)
+
+data_files:
+  sample: sample_texts.yaml
+
+tools:
+  analyze_text:
+    type: python
+    module: examples.demos.python-map.tools
+    function: analyze_text
+    description: Extract statistics from a text snippet
+
+nodes:
+  analyze:
+    type: map
+    over: "{state.sample.texts}"
+    as: text
+    collect: analyses
+    node:
+      type: python
+      tool: analyze_text
+      state_key: stats
+
+edges:
+  - from: START
+    to: analyze
+  - from: analyze
+    to: END

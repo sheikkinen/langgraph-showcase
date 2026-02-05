@@ -57,14 +57,16 @@ async def execute_prompt_async(
         ...     output_model=GenericReport,
         ... )
     """
-    messages, resolved_provider = prepare_messages(
+    messages, resolved_provider, resolved_model = prepare_messages(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
     )
 
     # Create LLM (cached via factory)
-    llm = create_llm(temperature=temperature, provider=resolved_provider)
+    llm = create_llm(
+        temperature=temperature, provider=resolved_provider, model=resolved_model
+    )
 
     # Invoke asynchronously
     return await invoke_async(llm, messages, output_model)
@@ -138,14 +140,16 @@ async def execute_prompt_streaming(
         ...     print(token, end="", flush=True)
         Hello, World!
     """
-    messages, resolved_provider = prepare_messages(
+    messages, resolved_provider, resolved_model = prepare_messages(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
     )
 
     # Create LLM (cached via factory)
-    llm = create_llm(temperature=temperature, provider=resolved_provider)
+    llm = create_llm(
+        temperature=temperature, provider=resolved_provider, model=resolved_model
+    )
 
     # Stream tokens
     async for chunk in llm.astream(messages):

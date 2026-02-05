@@ -56,7 +56,7 @@ def verify_merge(path: str) -> dict:
             gaps.append((sorted_pages[i], sorted_pages[i + 1], gap - 1))
     print(f"\n⚠️  Missing page gaps: {len(gaps)}")
     for start, end, count in gaps:
-        print(f"  Pages {start+1}-{end-1} missing ({count} pages)")
+        print(f"  Pages {start + 1}-{end - 1} missing ({count} pages)")
 
     return {
         "total_paragraphs": len(paragraphs),

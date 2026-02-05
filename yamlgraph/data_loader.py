@@ -46,8 +46,7 @@ def load_data_files(config: dict, graph_path: Path) -> dict[str, Any]:
         # Phase 1: Only string paths supported
         if not isinstance(value, str):
             raise DataFileError(
-                f"data_files[{key}]: Expected string path, "
-                f"got {type(value).__name__}"
+                f"data_files[{key}]: Expected string path, got {type(value).__name__}"
             )
 
         rel_path = value
@@ -75,7 +74,7 @@ def load_data_files(config: dict, graph_path: Path) -> dict[str, Any]:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise DataFileError(
-                f"data_files[{key}]: Invalid YAML in '{rel_path}'\n" f"  Error: {e}"
+                f"data_files[{key}]: Invalid YAML in '{rel_path}'\n  Error: {e}"
             ) from e
 
         # Empty files return None from safe_load; normalize to empty dict

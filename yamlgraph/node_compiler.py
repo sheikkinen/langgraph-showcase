@@ -96,6 +96,7 @@ def compile_node(
             effective_defaults,
             callable_registry,
             graph_path=config.source_path,
+            python_tools=python_tools,
         )
         logger.info(f"Added node: {node_name} (type={node_type})")
         return (node_name, (map_edge_fn, sub_node_name))

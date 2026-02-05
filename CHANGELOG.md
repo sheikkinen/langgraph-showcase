@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.13] - 2026-02-05
+
+### Added
+- **FR-021: Python sub-nodes in map nodes** - Fan-out over items with Python tool processing
+  - `type: python` now supported in map node `node:` configuration
+  - Enables parallel Python tool execution with `_map_index` preservation
+  - Clear error messages for missing/unknown tools
+  - Documentation in `reference/map-nodes.md`
+- **Python-map demo** - `examples/demos/python-map/` demonstrating parallel Python tools
+- **Soul pattern example** - AI agent personality via `data_files`
+  - `examples/demos/soul/` with 3 soul variants (friendly, formal, emo-teen)
+  - Pattern 9 documented in `reference/patterns.md`
+
 ## [0.4.12] - 2026-02-03
 
 ### Added

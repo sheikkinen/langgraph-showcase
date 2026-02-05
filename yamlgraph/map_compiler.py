@@ -13,6 +13,7 @@ from langgraph.types import Send
 
 from yamlgraph.constants import NodeType
 from yamlgraph.node_factory import create_node_function, create_tool_call_node
+from yamlgraph.tools.python_tool import load_python_function
 from yamlgraph.utils.expressions import resolve_state_expression
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,7 @@ def compile_map_node(
     defaults: dict[str, Any],
     tools_registry: dict[str, Any] | None = None,
     graph_path: Any | None = None,
+    python_tools: dict[str, Callable] | None = None,
 ) -> tuple[Callable[[dict], list[Send]], str]:
     """Compile type: map node using LangGraph Send.
 
@@ -104,6 +106,7 @@ def compile_map_node(
         defaults: Default configuration for nodes
         tools_registry: Optional tools registry for tool_call sub-nodes
         graph_path: Path to graph YAML file (for relative prompt resolution)
+        python_tools: Optional python tools registry for python sub-nodes
 
     Returns:
         Tuple of (map_edge_function, sub_node_name)
@@ -129,6 +132,17 @@ def compile_map_node(
                 f"Map node '{name}' has tool_call sub-node but no tools_registry"
             )
         sub_node = create_tool_call_node(sub_node_name, sub_node_config, tools_registry)
+    elif sub_node_type == NodeType.PYTHON:
+        if python_tools is None:
+            raise ValueError(
+                f"Map node '{name}' has python sub-node but no python_tools registry"
+            )
+        tool_name = sub_node_config.get("tool")
+        if tool_name not in python_tools:
+            raise ValueError(f"Unknown python tool '{tool_name}' in map node '{name}'")
+        # Load the actual function from the tool config
+        tool_config = python_tools[tool_name]
+        sub_node = load_python_function(tool_config)
     else:
         sub_node = create_node_function(
             sub_node_name, sub_node_config, defaults, graph_path=graph_path

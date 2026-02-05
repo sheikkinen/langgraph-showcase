@@ -60,6 +60,7 @@ Standalone demos in [demos/](demos/):
 | [code-analysis](demos/code-analysis/) | `tool`, `llm` | Code quality tools |
 | [feature-brainstorm](demos/feature-brainstorm/) | `agent` | Self-analysis |
 | [data-files](demos/data-files/) | `llm` | External data loading |
+| [python-map](demos/python-map/) | `map`, `python` | Parallel Python tools |
 | [run-analyzer](demos/run-analyzer/) | - | Analysis utilities |
 | [soul](demos/soul/) | `llm`, `data_files` | Agent personality pattern |
 

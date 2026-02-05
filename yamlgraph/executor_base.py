@@ -85,10 +85,11 @@ def prepare_messages(
     prompt_name: str,
     variables: dict | None = None,
     provider: str | None = None,
+    model: str | None = None,
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
-) -> tuple[list, str | None]:
+) -> tuple[list, str | None, str | None]:
     """Load prompt, validate, format, and build messages.
 
     Shared logic for sync and async executors.
@@ -97,12 +98,13 @@ def prepare_messages(
         prompt_name: Name of the prompt file (without .yaml)
         variables: Variables to substitute in the template
         provider: LLM provider override (None to use YAML/env default)
+        model: LLM model override (None to use YAML/env default)
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
 
     Returns:
-        Tuple of (messages list, resolved provider)
+        Tuple of (messages list, resolved provider, resolved model)
 
     Raises:
         ValueError: If required template variables are missing
@@ -120,11 +122,18 @@ def prepare_messages(
     full_template = prompt_config.get("system", "") + prompt_config.get("user", "")
     validate_variables(full_template, variables, prompt_name)
 
-    # Extract provider from YAML metadata if not provided
+    # Extract provider and model from YAML if not provided via parameter
     resolved_provider = provider
-    if resolved_provider is None and "provider" in prompt_config:
-        resolved_provider = prompt_config["provider"]
-        logger.debug(f"Using provider from YAML metadata: {resolved_provider}")
+    if resolved_provider is None:
+        resolved_provider = prompt_config.get("provider")
+        if resolved_provider:
+            logger.debug(f"Using provider from YAML: {resolved_provider}")
+
+    resolved_model = model
+    if resolved_model is None:
+        resolved_model = prompt_config.get("model")
+        if resolved_model:
+            logger.debug(f"Using model from YAML: {resolved_model}")
 
     system_text = format_prompt(prompt_config.get("system", ""), variables)
     user_text = format_prompt(prompt_config["user"], variables)
@@ -134,4 +143,4 @@ def prepare_messages(
         messages.append(SystemMessage(content=system_text))
     messages.append(HumanMessage(content=user_text))
 
-    return messages, resolved_provider
+    return messages, resolved_provider, resolved_model

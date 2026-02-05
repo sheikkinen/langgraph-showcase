@@ -1,0 +1,5 @@
+# Sample texts for analysis
+texts:
+  - "Hello world!"
+  - "How are you today?"
+  - "This is a longer sentence with more words."

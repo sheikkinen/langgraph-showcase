@@ -226,3 +226,109 @@ class TestCompileMapNodeToolCall:
 
         with pytest.raises(ValueError, match="no tools_registry"):
             compile_map_node("expand", config, builder, defaults)
+
+
+class TestCompileMapNodePython:
+    """Tests for python sub-nodes in map nodes (FR-021)."""
+
+    def test_python_subnode_requires_registry(self):
+        """Python sub-node requires python_tools registry."""
+        config = {
+            "over": "{items}",
+            "as": "item",
+            "collect": "results",
+            "node": {"type": "python", "tool": "process_item", "state_key": "result"},
+        }
+        builder = MagicMock()
+        defaults = {}
+
+        with pytest.raises(ValueError, match="no python_tools"):
+            compile_map_node("expand", config, builder, defaults)
+
+    def test_python_subnode_unknown_tool_error(self):
+        """Unknown python tool in map sub-node raises error."""
+        from yamlgraph.tools.python_tool import PythonToolConfig
+
+        config = {
+            "over": "{items}",
+            "as": "item",
+            "collect": "results",
+            "node": {"type": "python", "tool": "unknown_tool", "state_key": "result"},
+        }
+        builder = MagicMock()
+        defaults = {}
+        tool_config = PythonToolConfig(module="test", function="other")
+        python_tools = {"other_tool": tool_config}
+
+        with pytest.raises(ValueError, match="Unknown python tool 'unknown_tool'"):
+            compile_map_node(
+                "expand", config, builder, defaults, python_tools=python_tools
+            )
+
+    def test_python_subnode_creates_wrapped_node(self):
+        """Python sub-node is wrapped and added to builder."""
+        from unittest.mock import patch
+
+        from yamlgraph.tools.python_tool import PythonToolConfig
+
+        def process_item(state: dict) -> dict:
+            return {"result": state["item"] * 2}
+
+        config = {
+            "over": "{items}",
+            "as": "item",
+            "collect": "results",
+            "node": {"type": "python", "tool": "process_item", "state_key": "result"},
+        }
+        builder = MagicMock()
+        defaults = {}
+        tool_config = PythonToolConfig(module="test", function="process_item")
+        python_tools = {"process_item": tool_config}
+
+        with patch(
+            "yamlgraph.map_compiler.load_python_function", return_value=process_item
+        ):
+            map_edge, sub_node_name = compile_map_node(
+                "process", config, builder, defaults, python_tools=python_tools
+            )
+
+        assert sub_node_name == "_map_process_sub"
+        builder.add_node.assert_called_once()
+
+    def test_python_subnode_returns_correct_result(self):
+        """Python sub-node result is collected correctly."""
+        from unittest.mock import patch
+
+        from yamlgraph.tools.python_tool import PythonToolConfig
+
+        def process_item(state: dict) -> dict:
+            return {"result": f"processed_{state['item']}"}
+
+        config = {
+            "over": "{items}",
+            "as": "item",
+            "collect": "results",
+            "node": {"type": "python", "tool": "process_item", "state_key": "result"},
+        }
+        builder = MagicMock()
+        defaults = {}
+        tool_config = PythonToolConfig(module="test", function="process_item")
+        python_tools = {"process_item": tool_config}
+
+        with patch(
+            "yamlgraph.map_compiler.load_python_function", return_value=process_item
+        ):
+            compile_map_node(
+                "process", config, builder, defaults, python_tools=python_tools
+            )
+
+        # Get the wrapped node that was added
+        wrapped_node = builder.add_node.call_args[0][1]
+
+        # Call it with a test state
+        result = wrapped_node({"item": "test", "_map_index": 0})
+
+        assert "results" in result
+        assert result["results"][0]["_map_index"] == 0
+        # The result should be "processed_test"
+        assert result["results"][0]["value"] == "processed_test"

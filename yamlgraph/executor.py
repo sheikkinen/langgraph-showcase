@@ -110,12 +110,13 @@ class PromptExecutor:
         self,
         temperature: float = DEFAULT_TEMPERATURE,
         provider: str | None = None,
+        model: str | None = None,
     ) -> BaseChatModel:
         """Get or create cached LLM instance.
 
         Uses llm_factory which handles caching internally.
         """
-        return create_llm(temperature=temperature, provider=provider)
+        return create_llm(temperature=temperature, provider=provider, model=model)
 
     def _invoke_with_retry(
         self, llm, messages, output_model: type[T] | None = None
@@ -191,7 +192,7 @@ class PromptExecutor:
         Raises:
             ValueError: If required template variables are missing
         """
-        messages, resolved_provider = prepare_messages(
+        messages, resolved_provider, resolved_model = prepare_messages(
             prompt_name=prompt_name,
             variables=variables,
             provider=provider,
@@ -200,6 +201,8 @@ class PromptExecutor:
             prompts_relative=prompts_relative,
         )
 
-        llm = self._get_llm(temperature=temperature, provider=resolved_provider)
+        llm = self._get_llm(
+            temperature=temperature, provider=resolved_provider, model=resolved_model
+        )
 
         return self._invoke_with_retry(llm, messages, output_model)
