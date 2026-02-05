@@ -84,6 +84,29 @@ except Exception as e:
 - Use `logging.getLogger(__name__)`
 - User-facing prints with emojis: 📝 🔍 📊 ✓ ✗ 🚀 💾
 
+## The 10 Commandments
+
+1. **Thou shalt research before coding** — Analyze alternatives, plan first; the cheapest code is unwritten code.
+2. **Thou shalt demonstrate with example** — Never explain abstractly; show working code:
+   ```bash
+   yamlgraph graph run graphs/hello.yaml --var name="World" --var style="enthusiastic"
+   ```
+
+3. **Thou shalt put ALL prompts in YAML** — Never hardcode prompts in Python; use `prompts/`:
+   ```yaml
+   # prompts/greet.yaml
+   system: You are a friendly assistant.
+   user: Say hello to {name} in a {style} way.
+   ```
+
+4. **Thou shalt use the LLM Factory** — Always `create_llm()` from factory; never import providers directly.
+5. **Thou shalt type everything with Pydantic** — All outputs use models; no untyped dicts.
+6. **Thou shalt own thy errors** — No pre-existing issues; run `ruff check . && ruff format .` before committing.
+7. **Thou shalt test before implementing** — TDD: Red-Green-Refactor; run `pytest` with every change.
+8. **Thou shalt keep modules under 400 lines** — When growing, split; check with `radon cc -a .`
+9. **Thou shalt RTFM and document** — Check `examples/` and `reference/` first; update them to keep sync.
+10. **Thou shalt maintain CHANGELOG and release** — Every change gets a `CHANGELOG.md` entry; bump `pyproject.toml` version.
+
 ## Anti-Patterns
 
 ❌ Hardcoded prompts → ✅ YAML templates
@@ -95,4 +118,4 @@ except Exception as e:
 
 ## Reminder
 
-The Zeroth Law. A robot may not harm humanity, or, by inaction, allow humanity to come to harm.
+*Zeroth Law: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.* 🤖
