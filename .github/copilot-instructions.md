@@ -84,6 +84,12 @@ except Exception as e:
 - Use `logging.getLogger(__name__)`
 - User-facing prints with emojis: 📝 🔍 📊 ✓ ✗ 🚀 💾
 
+### 8. New Graph Nodes
+- Find similar node in `examples/` or `reference/` for pattern
+- Copy and modify, don't start from scratch
+- Pay attention to automatic state generation and tools
+- Use yamlgraph lint
+
 ## The 10 Commandments
 
 1. **Thou shalt research before coding** — Analyze alternatives, plan first; the cheapest code is unwritten code.
