@@ -1,10 +1,10 @@
 """Tests for yamlgraph.utils.logging module.
 
 Covers:
-- REQ-YG-059: Structured logging setup
-- REQ-YG-060: JSON format output
-- REQ-YG-061: Human-readable format
-- REQ-YG-062: Logger configuration from env
+- Structured logging setup
+- JSON format output
+- Human-readable format
+- Logger configuration from env
 """
 
 import json

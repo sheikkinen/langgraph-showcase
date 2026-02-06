@@ -1,10 +1,10 @@
 """Tests for yamlgraph.constants module.
 
 Covers:
-- REQ-YG-030: NodeType constants
-- REQ-YG-031: ErrorHandler strategies
-- REQ-YG-032: EdgeType constants
-- REQ-YG-033: SpecialNodes constants
+- NodeType constants
+- ErrorHandler strategies
+- EdgeType constants
+- SpecialNodes constants
 """
 
 from yamlgraph.constants import EdgeType, ErrorHandler, NodeType, SpecialNodes

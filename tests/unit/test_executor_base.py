@@ -1,8 +1,8 @@
 """Tests for yamlgraph.executor_base module.
 
 Covers:
-- REQ-YG-012: Format prompt functionality
-- REQ-YG-013: Retry logic (is_retryable)
+- Format prompt functionality
+- Retry logic (is_retryable)
 """
 
 from yamlgraph.executor_base import (
