@@ -230,3 +230,46 @@ class TestSchemaCliCommands:
         captured = capsys.readouterr()
         path = Path(captured.out.strip())
         assert path.suffix == ".json"
+
+    def test_cmd_schema_dispatch_export(self, capsys: pytest.CaptureFixture) -> None:
+        """Test schema dispatch routes to export command."""
+        from argparse import Namespace
+
+        from yamlgraph.cli.schema_commands import cmd_schema_dispatch
+
+        args = Namespace(schema_command="export", output=None)
+        cmd_schema_dispatch(args)
+
+        captured = capsys.readouterr()
+        # Should output valid JSON
+        schema = json.loads(captured.out)
+        assert "$schema" in schema
+
+    def test_cmd_schema_dispatch_path(self, capsys: pytest.CaptureFixture) -> None:
+        """Test schema dispatch routes to path command."""
+        from argparse import Namespace
+
+        from yamlgraph.cli.schema_commands import cmd_schema_dispatch
+
+        args = Namespace(schema_command="path")
+        cmd_schema_dispatch(args)
+
+        captured = capsys.readouterr()
+        path = Path(captured.out.strip())
+        assert path.suffix == ".json"
+
+    def test_cmd_schema_dispatch_unknown_command(
+        self, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Test schema dispatch handles unknown command."""
+        from argparse import Namespace
+
+        from yamlgraph.cli.schema_commands import cmd_schema_dispatch
+
+        args = Namespace(schema_command="invalid")
+        with pytest.raises(SystemExit) as exc_info:
+            cmd_schema_dispatch(args)
+        assert exc_info.value.code == 1
+
+        captured = capsys.readouterr()
+        assert "Unknown schema command" in captured.out
