@@ -39,6 +39,7 @@ async def execute_prompt_async(
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
+    state: dict | None = None,
 ) -> T | str:
     """Execute a YAML prompt asynchronously.
 
@@ -53,6 +54,7 @@ async def execute_prompt_async(
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
+        state: Optional state dict for Jinja2 templates (accessible as {{ state.field }})
 
     Returns:
         Parsed Pydantic model if output_model provided, else raw string
@@ -71,6 +73,7 @@ async def execute_prompt_async(
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
+        state=state,
     )
 
     # Create LLM (cached via factory)
@@ -133,6 +136,7 @@ async def execute_prompt_streaming(
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
+    state: dict | None = None,
 ) -> AsyncIterator[str]:
     """Execute a YAML prompt with streaming token output.
 
@@ -147,6 +151,7 @@ async def execute_prompt_streaming(
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
+        state: Optional state dict for Jinja2 templates (accessible as {{ state.field }})
 
     Yields:
         Token strings as they are generated
@@ -163,6 +168,7 @@ async def execute_prompt_streaming(
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
+        state=state,
     )
 
     # Create LLM (cached via factory)

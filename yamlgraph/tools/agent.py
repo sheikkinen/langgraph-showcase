@@ -201,6 +201,23 @@ def create_agent_node(
         system_prompt = prompt_config.get("system", "")
         user_template = prompt_config.get("user", "{input}")
 
+        # Resolve LLM config: node_config > defaults > prompt_config > None
+        resolved_provider = (
+            node_config.get("provider")
+            or defaults.get("provider")
+            or prompt_config.get("provider")
+        )
+        resolved_model = (
+            node_config.get("model")
+            or defaults.get("model")
+            or prompt_config.get("model")
+        )
+        resolved_temperature = (
+            node_config.get("temperature")
+            or defaults.get("temperature")
+            or prompt_config.get("temperature")
+        )
+
         # Format user prompt with state - handle missing keys
         import re
 
@@ -225,8 +242,12 @@ def create_agent_node(
         # Track raw tool outputs for persistence
         tool_results: list[dict] = []
 
-        # Get LLM with tools bound
-        llm = create_llm().bind_tools(lc_tools)
+        # Get LLM with tools bound - use resolved config
+        llm = create_llm(
+            provider=resolved_provider,
+            model=resolved_model,
+            temperature=resolved_temperature,
+        ).bind_tools(lc_tools)
 
         logger.info(
             f"🤖 Starting agent loop: {node_name} (max {max_iterations} iterations)"

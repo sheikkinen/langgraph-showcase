@@ -89,6 +89,7 @@ def prepare_messages(
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
+    state: dict | None = None,
 ) -> tuple[list, str | None, str | None]:
     """Load prompt, validate, format, and build messages.
 
@@ -102,6 +103,7 @@ def prepare_messages(
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
+        state: Optional state dict for Jinja2 templates (accessible as {{ state.field }})
 
     Returns:
         Tuple of (messages list, resolved provider, resolved model)
@@ -135,8 +137,8 @@ def prepare_messages(
         if resolved_model:
             logger.debug(f"Using model from YAML: {resolved_model}")
 
-    system_text = format_prompt(prompt_config.get("system", ""), variables)
-    user_text = format_prompt(prompt_config["user"], variables)
+    system_text = format_prompt(prompt_config.get("system", ""), variables, state=state)
+    user_text = format_prompt(prompt_config["user"], variables, state=state)
 
     messages = []
     if system_text:

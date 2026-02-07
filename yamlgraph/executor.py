@@ -38,6 +38,7 @@ def execute_prompt(
     graph_path: "Path | None" = None,
     prompts_dir: "Path | None" = None,
     prompts_relative: bool = False,
+    state: dict | None = None,
 ) -> T | str:
     """Execute a YAML prompt with optional structured output.
 
@@ -53,6 +54,7 @@ def execute_prompt(
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
+        state: Optional state dict for Jinja2 templates (accessible as {{ state.field }})
 
     Returns:
         Parsed Pydantic model if output_model provided, else raw string
@@ -74,6 +76,7 @@ def execute_prompt(
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
+        state=state,
     )
 
 
@@ -171,6 +174,7 @@ class PromptExecutor:
         graph_path: "Path | None" = None,
         prompts_dir: "Path | None" = None,
         prompts_relative: bool = False,
+        state: dict | None = None,
     ) -> T | str:
         """Execute a prompt using cached LLM with retry logic.
 
@@ -188,6 +192,7 @@ class PromptExecutor:
             graph_path: Path to graph file for relative prompt resolution
             prompts_dir: Explicit prompts directory override
             prompts_relative: If True, resolve prompts relative to graph_path
+            state: Optional state dict for Jinja2 templates (accessible as {{ state.field }})
 
         Raises:
             ValueError: If required template variables are missing
@@ -199,6 +204,7 @@ class PromptExecutor:
             graph_path=graph_path,
             prompts_dir=prompts_dir,
             prompts_relative=prompts_relative,
+            state=state,
         )
 
         llm = self._get_llm(
