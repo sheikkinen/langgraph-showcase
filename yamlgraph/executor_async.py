@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import AsyncIterator
+from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import BaseModel
@@ -35,6 +36,9 @@ async def execute_prompt_async(
     output_model: type[T] | None = None,
     temperature: float = DEFAULT_TEMPERATURE,
     provider: str | None = None,
+    graph_path: Path | None = None,
+    prompts_dir: Path | None = None,
+    prompts_relative: bool = False,
 ) -> T | str:
     """Execute a YAML prompt asynchronously.
 
@@ -46,6 +50,9 @@ async def execute_prompt_async(
         output_model: Optional Pydantic model for structured output
         temperature: LLM temperature setting
         provider: LLM provider ("anthropic", "mistral", "openai")
+        graph_path: Path to graph file for relative prompt resolution
+        prompts_dir: Explicit prompts directory override
+        prompts_relative: If True, resolve prompts relative to graph_path
 
     Returns:
         Parsed Pydantic model if output_model provided, else raw string
@@ -61,6 +68,9 @@ async def execute_prompt_async(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
+        graph_path=graph_path,
+        prompts_dir=prompts_dir,
+        prompts_relative=prompts_relative,
     )
 
     # Create LLM (cached via factory)
@@ -120,6 +130,9 @@ async def execute_prompt_streaming(
     variables: dict | None = None,
     temperature: float = DEFAULT_TEMPERATURE,
     provider: str | None = None,
+    graph_path: Path | None = None,
+    prompts_dir: Path | None = None,
+    prompts_relative: bool = False,
 ) -> AsyncIterator[str]:
     """Execute a YAML prompt with streaming token output.
 
@@ -131,6 +144,9 @@ async def execute_prompt_streaming(
         variables: Variables to substitute in the template
         temperature: LLM temperature setting
         provider: LLM provider ("anthropic", "mistral", "openai")
+        graph_path: Path to graph file for relative prompt resolution
+        prompts_dir: Explicit prompts directory override
+        prompts_relative: If True, resolve prompts relative to graph_path
 
     Yields:
         Token strings as they are generated
@@ -144,6 +160,9 @@ async def execute_prompt_streaming(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
+        graph_path=graph_path,
+        prompts_dir=prompts_dir,
+        prompts_relative=prompts_relative,
     )
 
     # Create LLM (cached via factory)

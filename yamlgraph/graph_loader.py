@@ -60,28 +60,35 @@ def detect_loop_nodes(edges: list[dict]) -> set[str]:
             graph[from_node].add(to_node)
             all_nodes.add(to_node)
 
-    # Find nodes in cycles using DFS with ancestor tracking
+    # Find nodes in cycles using DFS with path tracking
     loop_nodes: set[str] = set()
     WHITE, GRAY, BLACK = 0, 1, 2
     color: dict[str, int] = dict.fromkeys(all_nodes, WHITE)
 
-    def dfs(node: str, ancestors: set[str]) -> None:
-        """DFS that tracks ancestors to detect back edges."""
+    def dfs(node: str, path: list[str]) -> None:
+        """DFS that tracks path to detect and extract cycle nodes."""
         color[node] = GRAY
-        current_ancestors = ancestors | {node}
+        current_path = path + [node]
 
         for neighbor in graph.get(node, set()):
-            if neighbor in current_ancestors:
-                # Back edge found - mark all nodes from neighbor to current as in loop
-                loop_nodes.update(current_ancestors)
+            if color[neighbor] == GRAY:
+                # Back edge found - extract only the cycle portion
+                # Find where neighbor appears in path to get cycle nodes
+                try:
+                    cycle_start = current_path.index(neighbor)
+                    cycle_nodes = current_path[cycle_start:]
+                    loop_nodes.update(cycle_nodes)
+                except ValueError:
+                    # neighbor not in path (shouldn't happen with GRAY check)
+                    pass
             elif color[neighbor] == WHITE:
-                dfs(neighbor, current_ancestors)
+                dfs(neighbor, current_path)
 
         color[node] = BLACK
 
     for node in all_nodes:
         if color[node] == WHITE:
-            dfs(node, set())
+            dfs(node, [])
 
     return loop_nodes
 
