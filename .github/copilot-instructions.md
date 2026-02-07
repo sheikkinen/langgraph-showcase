@@ -38,7 +38,7 @@ See these canonical sources for patterns:
 4. **Thou shalt honor existing patterns** — Don't reinvent; check how it's done elsewhere in the codebase.
 5. **Thou shalt sanctify thy outputs with types** — All outputs use Pydantic models; no untyped dicts.
 6. **Thou shalt bear witness of thy errors** — Expose them, don't hide; run `ruff check . && ruff format .` before committing.
-7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change.
+7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change. No bug shall be fixed unless first condemned by a failing test.
 8. **Thou shalt kill all entropy** — Split modules before they bloat (< 400 lines); feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify the living with `radon cc -a .`.
 9. **Thou shalt RTFM and document** — Check `examples/` and `reference/` first; update them to keep sync.
 10. **Thou shalt covet transparency** — Every change gets a `CHANGELOG.md` entry; bump `pyproject.toml` version.
