@@ -291,7 +291,13 @@ def test_node_config_stream_true_creates_streaming_node():
         # This should detect stream: true and use create_streaming_node
         _result = create_node_function("generate", node_config, defaults={})
 
-        mock_create.assert_called_once_with("generate", node_config)
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
+        assert call_args[0] == ("generate", node_config)
+        # Verify prompt resolution params are passed
+        assert "graph_path" in call_args[1]
+        assert "prompts_dir" in call_args[1]
+        assert "prompts_relative" in call_args[1]
 
 
 def test_node_config_stream_false_creates_regular_node():

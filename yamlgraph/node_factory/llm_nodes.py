@@ -56,7 +56,13 @@ def create_node_function(
 
     # Check for streaming mode
     if node_config.get("stream", False):
-        return create_streaming_node(node_name, node_config)
+        return create_streaming_node(
+            node_name,
+            node_config,
+            graph_path=graph_path,
+            prompts_dir=prompts_dir,
+            prompts_relative=prompts_relative,
+        )
 
     # Resolve output model (explicit > inline schema > None)
     # When parse_json is true, skip output_model (provider doesn't support structured output)
@@ -133,6 +139,7 @@ def create_node_function(
                     graph_path=graph_path,
                     prompts_dir=prompts_dir,
                     prompts_relative=prompts_relative,
+                    state=state,
                 )
                 return result, None
             except Exception as e:

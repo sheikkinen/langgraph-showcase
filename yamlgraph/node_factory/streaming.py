@@ -5,6 +5,7 @@ Creates LangGraph nodes that stream LLM output.
 
 import logging
 from collections.abc import AsyncIterator, Callable
+from pathlib import Path
 from typing import Any
 
 from yamlgraph.node_factory.base import GraphState
@@ -16,6 +17,9 @@ logger = logging.getLogger(__name__)
 def create_streaming_node(
     node_name: str,
     node_config: dict[str, Any],
+    graph_path: Path | None = None,
+    prompts_dir: Path | None = None,
+    prompts_relative: bool = False,
 ) -> Callable[[GraphState], AsyncIterator[str]]:
     """Create a streaming node that yields tokens.
 
@@ -30,6 +34,9 @@ def create_streaming_node(
             - on_token: Optional callback function for each token
             - provider: LLM provider
             - temperature: LLM temperature
+        graph_path: Path to graph YAML file (for relative prompt resolution)
+        prompts_dir: Explicit prompts directory override
+        prompts_relative: If True, resolve prompts relative to graph_path
 
     Returns:
         Async generator function compatible with streaming execution
@@ -51,6 +58,10 @@ def create_streaming_node(
             variables=variables,
             provider=provider,
             temperature=temperature,
+            graph_path=graph_path,
+            prompts_dir=prompts_dir,
+            prompts_relative=prompts_relative,
+            state=state,
         ):
             if on_token:
                 on_token(token)

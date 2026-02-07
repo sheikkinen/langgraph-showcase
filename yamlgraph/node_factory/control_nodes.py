@@ -60,10 +60,11 @@ def create_interrupt_node(
             # First execution with prompt
             payload = execute_prompt(
                 prompt_name,
-                state,
+                variables=state,
                 graph_path=graph_path,
                 prompts_dir=prompts_dir,
                 prompts_relative=prompts_relative,
+                state=state,
             )
         elif message is not None:
             # Static message - check for template syntax and interpolate

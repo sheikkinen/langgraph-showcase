@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.15] - 2026-02-07
+
+### Fixed
+- **LLM Jinja2 state context** - `{{ state.foo }}` now renders correctly in LLM node prompts (was passing state as variables only, not as Jinja2 context)
+- **Interrupt Jinja2 state context** - Same fix for interrupt node prompts
+- **Streaming node resolution** - Streaming nodes now receive `graph_path`, `prompts_dir`, `prompts_relative`, and `state` parameters for full prompt resolution
+- **Map node KeyError context** - Raw `KeyError` now includes node name, expression, and available state keys for easier debugging
+
+### Added
+- Test coverage for all 4 bug fixes (12 new tests)
+
 ## [0.4.14] - 2026-02-07
 
 ### Fixed

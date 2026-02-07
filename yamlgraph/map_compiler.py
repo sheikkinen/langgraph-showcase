@@ -153,7 +153,14 @@ def compile_map_node(
 
     # Create fan-out edge function using Send
     def map_edge(state: dict) -> list[Send]:
-        items = resolve_state_expression(over_expr, state)
+        try:
+            items = resolve_state_expression(over_expr, state)
+        except KeyError as e:
+            available_keys = list(state.keys())
+            raise KeyError(
+                f"Map node '{name}' failed: expression '{over_expr}' could not be resolved. "
+                f"Missing key: {e}. Available state keys: {available_keys}"
+            ) from e
 
         if not isinstance(items, list):
             raise TypeError(
