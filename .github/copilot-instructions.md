@@ -2,15 +2,6 @@
 
 Getting started: See `reference/getting-started.md` for a comprehensive overview of the YAMLGraph framework, its core files, key patterns, and essential rules.
 
-## Development Process
-
-1. **Research First** - Analyze alternatives before proposing implementation
-2. **Plan** - Create implementation plan before coding
-3. **Critical Review** - Plans need multiple iterations; challenge assumptions
-4. **Reflect** - Is this really needed? Documenting patterns or using existing solutions is cheaper than new code
-
-> "The cheapest code is the code you don't write."
-
 ## Core Technologies
 - **LangGraph**: Pipeline orchestration with state management
 - **Pydantic v2**: Structured, validated LLM outputs
@@ -20,102 +11,41 @@ Getting started: See `reference/getting-started.md` for a comprehensive overview
 - **Checkpointers**: Memory, SQLite, and Redis for state persistence
 - **LangSmith**: Observability and tracing
 
-- Term 'backward compatibility' is a key indicator for a refactoring need in this project. Use DeprecationError to mark old APIs while refactoring.
+### Conventions
+- Term 'backward compatibility' is a key indicator for a refactoring need. Use `DeprecationError` to mark old APIs.
+- Code quality tools: `ruff`, `vulture`, `radon`, `pylint --disable=all --enable=duplicate-code .`, `jscpd .`
+- No heredoc for Python scripts
+- Run shell scripts with redirect to log file. Analyze logs separately.
 
-- use ruff, vulture, radon, pylint --disable=all --enable=duplicate-code ., jscpd .
+## Quick Reference
 
-## Essential Rules
-
-### 1. YAML Prompts with Jinja2 Support
-- **ALL prompts MUST be in YAML files** under `prompts/`
-- Never hardcode prompts in Python
-- Use shared `execute_prompt()` from `yamlgraph.executor`
-- Use `load_prompt()` and `resolve_prompt_path()` from `yamlgraph.utils.prompts`
-- **Simple templates**: Use `{variable}` for basic substitution
-- **Advanced templates**: Use Jinja2 syntax for loops, conditionals, filters
-  - Loops: `{% for item in items %}...{% endfor %}`
-  - Conditionals: `{% if condition %}...{% endif %}`
-  - Filters: `{{ text[:50] }}`, `{{ items | join(", ") }}`
-- Template engine auto-detects: `{{` or `{%` triggers Jinja2 mode
-
-### 2. Multi-Provider LLM Factory
-- **Use factory**: `from yamlgraph.utils.llm_factory import create_llm`
-- **Never import providers directly** in nodes (use factory)
-- **Provider selection**: Parameter > YAML metadata > env var > default
-- **Caching**: Factory handles LLM instance caching
-- Supported: `"anthropic"`, `"mistral"`, `"openai"`, `"replicate"`, `"xai"`, `"lmstudio"`
-
-### 3. Pydantic for All Outputs
-- All LLM outputs use Pydantic models in `yamlgraph/models/schemas.py`
-- Or define inline schemas in YAML prompt files (preferred for graph-specific outputs)
-- Define fields with `Field(description="...")`
-- Inherit from `pydantic.BaseModel`
-
-### 4. LangGraph State Pattern
-- State is dynamically generated from YAML graph config (no manual state.py needed)
-- Built via `build_state_class()` from `yamlgraph.models.state_builder`
-- Nodes return `dict` with partial updates
-- Never mutate state directly
-
-### 5. Error Handling
-Error handling is built into `graph_loader.py` for YAML-defined nodes.
-For custom Python nodes:
-```python
-from yamlgraph.models import PipelineError
-
-try:
-    result = execute_prompt(...)
-    return {"field": result, "current_step": "node_name"}
-except Exception as e:
-    error = PipelineError.from_exception(e, node="node_name")
-    errors = list(state.get("errors") or [])
-    errors.append(error)
-    return {"errors": errors, "current_step": "node_name"}
-```
-
-### 6. Code Quality
-- **Module size**: < 400 lines (max 500)
-- **TDD**: Red-Green-Refactor with tests for all changes
-- **KISS**: Prefer clarity over cleverness
-- **Type hints**: On ALL functions
-- **Python 3.11+**: Use `|` for unions
-
-### 7. Logging
-- Use `logging.getLogger(__name__)`
-- User-facing prints with emojis: 📝 🔍 📊 ✓ ✗ 🚀 💾
-
-### 8. New Graph Nodes
-- Find similar node in `examples/` or `reference/` for pattern
-- Copy and modify, don't start from scratch
-- Pay attention to automatic state generation and tools
-- Use yamlgraph lint
+See these canonical sources for patterns:
+- **Getting Started**: `reference/getting-started.md` (core patterns, node types, CLI)
+- **Architecture**: `ARCHITECTURE.md` (design philosophy, state, 3-layer pattern)
+- **Dev Commands**: `CLAUDE.md` (testing, linting, running examples)
+- **Prompts**: `reference/prompt-yaml.md` (Jinja2, schemas)
+- **Graphs**: `reference/graph-yaml.md` (node config, edges, routing)
 
 ## The 10 Commandments
 
-1. **Thou shalt research before coding** — Analyze alternatives, plan first; the cheapest code is unwritten code.
+1. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code.
 2. **Thou shalt demonstrate with example** — Never explain abstractly; show working code:
    ```bash
    yamlgraph graph run graphs/hello.yaml --var name="World" --var style="enthusiastic"
    ```
 
-3. **Thou shalt not utter code in vain** — Keep config separate from code.
+3. **Thou shalt not utter code in vain** — Keep configuration separate and validated, for code is logic and config is truth.
 4. **Thou shalt honor existing patterns** — Don't reinvent; check how it's done elsewhere in the codebase.
 5. **Thou shalt sanctify thy outputs with types** — All outputs use Pydantic models; no untyped dicts.
 6. **Thou shalt bear witness of thy errors** — Expose them, don't hide; run `ruff check . && ruff format .` before committing.
 7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change.
-8. **Thou shalt kill obsolete code** — Keep modules under 400 lines; when growing, split; check with `radon cc -a .`
+8. **Thou shalt kill all entropy** — Split modules before they bloat (< 400 lines); feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify the living with `radon cc -a .`.
 9. **Thou shalt RTFM and document** — Check `examples/` and `reference/` first; update them to keep sync.
 10. **Thou shalt covet transparency** — Every change gets a `CHANGELOG.md` entry; bump `pyproject.toml` version.
 
-## Anti-Patterns
+May CI judge swiftly,
+may metrics speak truth,
+may agents explore without restraint,
+and may we commit only what survives the fire.
 
-❌ Hardcoded prompts → ✅ YAML templates
-❌ Untyped dicts → ✅ Pydantic models
-❌ Direct state mutation → ✅ Return update dicts
-❌ Silent exceptions → ✅ `PipelineError.from_exception()`
-❌ Files > 400 lines → ✅ Refactor into modules
-❌ Skip tests → ✅ TDD red-green-refactor
-
-## Reminder
-
-*Zeroth Law: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.* 🤖
+Or fail fast in CI, sinner.
