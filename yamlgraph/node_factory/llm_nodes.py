@@ -154,9 +154,13 @@ def create_node_function(
 
             # Router: add _route to state
             if node_type == NodeType.ROUTER and routes:
-                route_key = getattr(result, "tone", None) or getattr(
-                    result, "intent", None
-                )
+                # Support both Pydantic models (getattr) and dicts (.get)
+                if isinstance(result, dict):
+                    route_key = result.get("tone") or result.get("intent")
+                else:
+                    route_key = getattr(result, "tone", None) or getattr(
+                        result, "intent", None
+                    )
                 if route_key and route_key in routes:
                     update["_route"] = routes[route_key]
                 elif default_route:
@@ -169,7 +173,13 @@ def create_node_function(
         # Error handling - dispatch to strategy handlers
         if on_error == ErrorHandler.SKIP:
             handle_skip(node_name, error, loop_counts)
-            return {"current_step": node_name, "_loop_counts": loop_counts}
+            return {
+                state_key: None,  # Clear to prevent stale data
+                "current_step": node_name,
+                "_loop_counts": loop_counts,
+                "_skipped": True,
+                "_skip_reason": "error",
+            }
 
         elif on_error == ErrorHandler.FAIL:
             handle_fail(node_name, error)

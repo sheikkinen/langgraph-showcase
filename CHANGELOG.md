@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.14] - 2026-02-07
+
+### Fixed
+- **Agent prompt formatting** - Now uses `format_prompt()` instead of regex, supporting Jinja2 templates (`{{ state.topic }}`) and dot notation variables
+- **Router dict routing** - Router nodes now correctly route dict outputs (e.g., `parse_json: true`) by checking `isinstance(result, dict)` and using `.get()` instead of `getattr()`
+- **on_error: skip stale state** - Skip now returns `{state_key: None, "_skipped": True, "_skip_reason": "error"}` to prevent downstream nodes from using stale data
+
+### Added
+- Test coverage for all 3 bug fixes (14 new tests)
+
 ## [0.4.13] - 2026-02-05
 
 ### Added

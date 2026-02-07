@@ -15,6 +15,7 @@ from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
+from yamlgraph.executor_base import format_prompt
 from yamlgraph.tools.python_tool import PythonToolConfig, load_python_function
 from yamlgraph.tools.shell import ShellToolConfig, execute_shell_tool
 from yamlgraph.utils.llm_factory import create_llm
@@ -198,7 +199,6 @@ def create_agent_node(
             graph_path=graph_path,
             prompts_relative=prompts_relative,
         )
-        system_prompt = prompt_config.get("system", "")
         user_template = prompt_config.get("user", "{input}")
 
         # Resolve LLM config: node_config > defaults > prompt_config > None
@@ -218,14 +218,18 @@ def create_agent_node(
             or prompt_config.get("temperature")
         )
 
-        # Format user prompt with state - handle missing keys
-        import re
-
-        def replace_var(match):
-            key = match.group(1)
-            return str(state.get(key, f"{{{key}}}"))
-
-        user_prompt = re.sub(r"\{(\w+)\}", replace_var, user_template)
+        # Format prompts using format_prompt (supports Jinja2 and simple vars)
+        # Pass state as both 'state' parameter and merged into variables for flexibility
+        system_prompt = format_prompt(
+            prompt_config.get("system", ""),
+            variables=state,
+            state=state,
+        )
+        user_prompt = format_prompt(
+            user_template,
+            variables=state,
+            state=state,
+        )
 
         # Initialize messages - preserve existing if multi-turn
         existing_messages = list(state.get("messages", []))
