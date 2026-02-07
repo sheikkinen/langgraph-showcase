@@ -11,9 +11,10 @@ import re
 
 
 def find_balanced_json(text: str, start_char: str, end_char: str) -> str | None:
-    """Find first balanced JSON structure with given delimiters.
+    """Find first valid balanced JSON structure with given delimiters.
 
     Scans for matching open/close brackets to extract nested JSON.
+    Continues searching if a balanced candidate is syntactically invalid.
 
     Args:
         text: Text to search
@@ -23,25 +24,31 @@ def find_balanced_json(text: str, start_char: str, end_char: str) -> str | None:
     Returns:
         Extracted JSON string if found and valid, else None
     """
-    start_idx = text.find(start_char)
-    if start_idx == -1:
-        return None
+    search_start = 0
 
-    depth = 0
-    for i, c in enumerate(text[start_idx:], start=start_idx):
-        if c == start_char:
-            depth += 1
-        elif c == end_char:
-            depth -= 1
-            if depth == 0:
-                candidate = text[start_idx : i + 1]
-                try:
-                    json.loads(candidate)  # Validate it's valid JSON
-                    return candidate
-                except json.JSONDecodeError:
-                    return None  # Found balanced but invalid JSON
+    while True:
+        start_idx = text.find(start_char, search_start)
+        if start_idx == -1:
+            return None
 
-    return None  # Unbalanced brackets
+        depth = 0
+        for i, c in enumerate(text[start_idx:], start=start_idx):
+            if c == start_char:
+                depth += 1
+            elif c == end_char:
+                depth -= 1
+                if depth == 0:
+                    candidate = text[start_idx : i + 1]
+                    try:
+                        json.loads(candidate)  # Validate it's valid JSON
+                        return candidate
+                    except json.JSONDecodeError:
+                        # Continue searching after this invalid candidate
+                        search_start = i + 1
+                        break
+        else:
+            # Unbalanced brackets - no closing found
+            return None
 
 
 def extract_json(text: str) -> dict | list | str:

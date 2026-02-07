@@ -187,6 +187,14 @@ def load_graph_config(path: str | Path) -> GraphConfig:
     with open(path) as f:
         config = yaml.safe_load(f)
 
+    # Guard against empty/null YAML files
+    if config is None:
+        raise ValueError(f"Empty or invalid YAML file: {path}")
+    if not isinstance(config, dict):
+        raise ValueError(
+            f"Graph config must be a dict, got {type(config).__name__}: {path}"
+        )
+
     # FR-010: Auto-apply skip_if_exists=false to loop nodes
     config = apply_loop_node_defaults(config)
 

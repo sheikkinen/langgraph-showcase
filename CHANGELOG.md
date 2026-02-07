@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.16] - 2026-02-07
+
+### Fixed
+- **Empty YAML error handling** - `load_graph_config()` now raises `ValueError("Empty or invalid YAML file")` instead of `AttributeError` when YAML file is empty or contains only comments/null
+- **JSON extraction continuation** - `find_balanced_json()` now continues searching after finding invalid balanced candidates, so valid JSON later in the text is discovered
+
+### Added
+- Test coverage for both fixes (9 new tests)
+
 ## [0.4.15] - 2026-02-07
 
 ### Fixed
