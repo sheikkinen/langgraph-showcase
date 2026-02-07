@@ -1,10 +1,8 @@
 name: animate_character_panel
 description: Convert a character panel prompt into first/original/last frame prompts for animation
 
-model:
-  provider: anthropic
-  name: claude-haiku-4-5
-  temperature: 0.7
+provider: anthropic
+model: claude-haiku-4-5
 
 schema:
   name: AnimatedCharacterPanel

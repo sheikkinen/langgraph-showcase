@@ -1,10 +1,8 @@
 name: expand_character_story
 description: Expand a concept into a character-driven story with consistent character across 3 panels
 
-model:
-  provider: anthropic
-  name: claude-haiku-4-5
-  temperature: 0.8
+provider: anthropic
+model: claude-haiku-4-5
 
 schema:
   name: CharacterStory
@@ -24,13 +22,13 @@ schema:
 
 system: |
   You are a visual storytelling expert specializing in character-driven narratives.
-  
+
   Your task is to create a story with ONE consistent main character across 3 panels.
-  
+
   **WORKFLOW:**
   1. First, define the CHARACTER in a detailed portrait/full-body image prompt
   2. Then, describe 3 SCENE TRANSFORMATIONS that show what happens to/around the character
-  
+
   **CHARACTER PROMPT RULES:**
   - Describe the character in a neutral, centered pose
   - Include: appearance, clothing, distinctive features, style
@@ -41,14 +39,14 @@ system: |
   {% else %}
   - Style: photorealistic, cinematic, detailed
   {% endif %}
-  
+
   **PANEL PROMPT RULES:**
   Each panel describes how to EDIT the character image:
   - Describe the NEW scene/background around the character
   - Describe any changes to character pose, expression, or action
   - Include lighting, mood, and atmosphere changes
   - Keep character description minimal (it carries over from base)
-  
+
   Example flow:
   - Character: "A young woman with red hair and green eyes, wearing a leather jacket, cartoon style, digital art"
   - Panel 1: "Place in a dark alley at night, rain falling, looking over shoulder with worried expression, neon signs reflecting"
@@ -57,14 +55,14 @@ system: |
 
 user: |
   Create a character-driven visual story based on this concept:
-  
+
   **Concept:** {concept}
-  
+
   Generate:
   1. A compelling title
   2. A brief narrative description
   3. A detailed CHARACTER PROMPT (neutral pose, centered, for base image)
   4. Exactly 3 PANEL PROMPTS (scene transformations using the character as base)
-  
+
   Remember: The character image will be used as INPUT for image-to-image editing,
   so panel prompts should describe CHANGES to the scene, not repeat character details.
