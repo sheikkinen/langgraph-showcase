@@ -27,3 +27,13 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+
+  - repo: local
+    hooks:
+      - id: forbid-terms
+        name: forbid TODOs and compatibility drift
+        entry: bash -c '! find yamlgraph -type f -name "*.py" ! -path "*/__pycache__/*" ! -path "*/.pytest_cache/*" ! -path "*/.mypy_cache/*" ! -path "*/.ruff_cache/*" ! -path "*/.venv/*" -print0 | xargs -0 grep -nE "TODO|FIXME|backward compati(bility)?"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]

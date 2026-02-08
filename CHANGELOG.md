@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.17] - 2026-02-08
+
+### Added
+- **Reqtracer full-run pipeline** - New `--run-full` flow to run mapping + traceability + baseline under reqtracer
+- **Reqtracer graphs** - Mapping and traceability graphs with reqtracer-owned tools and prompts
+- **Reqtracer runner tests** - Unit tests for runner command wiring and repo-root module key handling
+
+### Changed
+- **Reqtracer E2E flow** - Uses the new run-full pipeline and reqtracer outputs
+
 ## [0.4.16] - 2026-02-07
 
 ### Fixed

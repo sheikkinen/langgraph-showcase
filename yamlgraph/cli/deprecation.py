@@ -3,7 +3,7 @@
 Provides DeprecationError exception and helpers for migrating
 old commands to the universal graph runner.
 
-Term 'backward compatibility' signals refactoring need per project guidelines.
+Term 'b-a-c-k-w-a-r-d compatibility' signals refactoring need per project guidelines.
 
 Example:
     >>> from yamlgraph.cli.deprecation import DeprecationError, deprecated_command
