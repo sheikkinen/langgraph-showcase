@@ -75,10 +75,9 @@ class TestPrepareMessagesState:
         params = list(sig.parameters.keys())
 
         # BUG: prepare_messages does not have a state parameter
-        assert "state" in params, (
-            f"prepare_messages should accept state parameter. "
-            f"Current params: {params}"
-        )
+        assert (
+            "state" in params
+        ), f"prepare_messages should accept state parameter. Current params: {params}"
 
 
 class TestExecutorStateIntegration:
@@ -94,10 +93,9 @@ class TestExecutorStateIntegration:
         params = list(sig.parameters.keys())
 
         # BUG: execute_prompt does not have a state parameter
-        assert "state" in params, (
-            f"execute_prompt should accept state parameter. "
-            f"Current params: {params}"
-        )
+        assert (
+            "state" in params
+        ), f"execute_prompt should accept state parameter. Current params: {params}"
 
     def test_execute_prompt_async_passes_state(self) -> None:
         """execute_prompt_async should pass state to prepare_messages."""

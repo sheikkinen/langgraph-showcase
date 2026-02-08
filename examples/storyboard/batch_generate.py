@@ -164,7 +164,7 @@ def main():
             logger.error(f"  ✗ {result.error}")
 
     # Summary
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info(f"Done! {success}/{len(prompts)} images generated")
     if failed:
         logger.warning(f"  {failed} failed")

@@ -81,9 +81,7 @@ class TestAsyncPromptResolutionArgs:
                 )
             except TypeError as e:
                 if "graph_path" in str(e):
-                    pytest.fail(
-                        "execute_prompt_async does not accept graph_path: " f"{e}"
-                    )
+                    pytest.fail(f"execute_prompt_async does not accept graph_path: {e}")
                 raise
 
 

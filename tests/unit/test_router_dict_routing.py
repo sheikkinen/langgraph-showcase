@@ -140,9 +140,9 @@ class TestRouterDictOutputRouting:
             result = node_fn({"input": "Random text"})
 
             # Should fall back gracefully, not error out
-            assert result.get("_route") == "neutral_handler", (
-                f"Router should fall back when tone/intent missing. " f"Got: {result}"
-            )
+            assert (
+                result.get("_route") == "neutral_handler"
+            ), f"Router should fall back when tone/intent missing. Got: {result}"
 
 
 class TestRouterCustomRouteKey:
@@ -176,6 +176,6 @@ class TestRouterCustomRouteKey:
             result = node_fn({"input": "Emergency!"})
 
             # Should use custom route_key
-            assert result.get("_route") == "escalate", (
-                f"Router should use custom route_key 'category'. " f"Got: {result}"
-            )
+            assert (
+                result.get("_route") == "escalate"
+            ), f"Router should use custom route_key 'category'. Got: {result}"

@@ -115,10 +115,9 @@ user: Custom user {input}
             mock_prepare.assert_called_once()
             call_kwargs = mock_prepare.call_args.kwargs
 
-            assert call_kwargs.get("graph_path") == test_graph_path, (
-                f"graph_path not passed to prepare_messages. "
-                f"Got kwargs: {call_kwargs}"
-            )
+            assert (
+                call_kwargs.get("graph_path") == test_graph_path
+            ), f"graph_path not passed to prepare_messages. Got kwargs: {call_kwargs}"
             assert call_kwargs.get("prompts_relative") is True
 
 

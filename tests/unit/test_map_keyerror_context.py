@@ -50,9 +50,9 @@ class TestMapNodeKeyErrorContext:
         # Bug: Error just says "panels", not the full path or what exists
         has_path_context = "story.panels" in error_message or "story" in error_message
 
-        assert has_path_context, (
-            f"KeyError for nested path should show full path. " f"Got: {error_message}"
-        )
+        assert (
+            has_path_context
+        ), f"KeyError for nested path should show full path. Got: {error_message}"
 
     def test_map_over_missing_key_error_context(self) -> None:
         """Map 'over' with missing key should provide node context."""

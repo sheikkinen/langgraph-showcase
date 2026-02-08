@@ -47,10 +47,9 @@ class TestAgentLLMConfiguration:
             call_kwargs = mock_create_llm.call_args.kwargs
 
             # These assertions will FAIL because agent ignores config
-            assert call_kwargs.get("provider") == "openai", (
-                f"Agent should use provider from YAML. "
-                f"Got call kwargs: {call_kwargs}"
-            )
+            assert (
+                call_kwargs.get("provider") == "openai"
+            ), f"Agent should use provider from YAML. Got call kwargs: {call_kwargs}"
 
     def test_agent_uses_model_from_prompt_yaml(self) -> None:
         """Agent should use model from prompt YAML."""
