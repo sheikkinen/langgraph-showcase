@@ -35,24 +35,40 @@ See these canonical sources for patterns:
 
 ## The 10 Commandments
 
-0. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code.
-1. **Thou shalt demonstrate with example** — Never explain abstractly; show working code.
-2. **Thou shalt not utter code in vain** — Keep configuration separate and validated, for code is logic and config is truth.
-3. **Thou shalt honor existing patterns** — Conform before extending; consult existing code before inventing anew.
-4. **Thou shalt sanctify thy outputs with types** — All outputs use Pydantic models; no untyped dicts.
-5. **Thou shalt bear witness of thy errors** — Hide nothing; expose every fault to `ruff` and to CI, for what is hidden in commit shall be revealed in production.
-6. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change. No bug shall be fixed unless first condemned by a failing test.
-7. **Thou shalt kill all entropy** — Split modules before they bloat (< 400 lines); feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify the living with `radon`.
-8. **Thou shalt keep no false idols** — No shims, no adapters, no “compat” flags. Archive legacy to `./purgatory`; purge its names from the active code. Record the rationale and learnings in `./docs/adr/`.
-9. **Thou shalt RTFM and document** — Check `examples/` and `reference/` first; update them to keep sync.
-10. **Thou shalt covet transparency and improve the system** — Record every change in `CHANGELOG.md`; bump `pyproject.toml`; let every failure refine the doctrine and every success be codified into practice.
+1. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code.
+
+2. **Thou shalt demonstrate with example** — Never explain abstractly; show working code.
+
+3. **Thou shalt not utter code in vain** — Keep configuration separate and validated, for code is logic and config is truth.
+
+4. **Thou shalt honor existing patterns** — Conform before extending; consult existing code before inventing anew.
+
+5. **Thou shalt sanctify thy outputs with types** — All outputs use Pydantic models; no untyped dicts.
+
+6. **Thou shalt bear witness of thy errors** — Hide nothing; expose every fault to `ruff` and to CI, for what is hidden in commit shall be revealed in production.
+
+7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change. No bug shall be fixed unless first condemned by a failing test.
+
+8. **Thou shalt kill all entropy and false idols** — Split modules before they bloat; feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify with `radon`. No shims, no adapters, no “compat” flags; archive legacy to `purgatory/` and record its lessons in `docs/adr/`.
+
+9. **Thou shalt define and observe operational truth** — Establish measurable service objectives; instrument and trace execution; treat performance degradation, failure rates, and evaluation drift as production defects. No incident shall be closed without cited traces in LangSmith and recorded rationale in ./docs/adr/.
+
+10. **Thou shalt preserve and improve the doctrine** — RTFM in `examples/` and `reference/`; record every change in `CHANGELOG.md`; bump `pyproject.toml`; let failure refine and success be codified into doctrine.
 
 ## Sermon of the Chaplain
 
 **Research**. Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
-**Plan**. Define the next phase with precision, grounded in documentation and existing code; declare the path to the end state with clarity and discipline.
+**Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `docs/fr/`; express the objective as measurable epics and record the path to the end state in `docs/epics/` with clarity and discipline.
 **Proceed with implementation**. Write the failing test. May TDD protect us from regression, and may refactor purge corruption.
+**Purge.** Burn invented interfaces, speculative flags, and hypothetical extensibility. If it is not required and not tested, it shall not exist. Let ADRs preserve the record of their folly.
 **Submit to CI**. Let hidden sins be revealed. What survives the fire may merge.
+
+## Rite of Correction
+
+**Inspect.** Assume nothing; audit the codebase; trace failures and smells to file and line; expose violated constraints and missing tests.
+**Amend.** Write the failing test first. Correct the root cause second. Recommit and let CI confirm the repair.
+**Petition.** When amendment is impossible, write the feature request `docs/fr/`. Cite traces. Define the violated objective. Propose the new constraint. Let priority be governed by reality.
+
 
 ## Agents' prayer
 
