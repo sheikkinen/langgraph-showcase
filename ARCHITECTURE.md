@@ -1,6 +1,6 @@
 # YAMLGraph Architecture
 
-> Internal architecture guide for core developers and contributors.
+> Single source of truth for YAMLGraph architecture, capabilities, and requirements traceability.
 
 ## Design Philosophy
 
@@ -216,6 +216,178 @@ The codebase uses a **sync-first with async wrappers** pattern:
 
 This is the idiomatic Python approach. An "async-first with `asyncio.run()` sync wrappers"
 would add complexity and introduce event loop issues for sync users.
+
+---
+
+## End-to-End Flow
+
+1. CLI loads YAML and validates structure.
+2. Graph config is parsed and validated, with optional data file loading.
+3. Dynamic state is generated from config.
+4. Nodes are compiled into a LangGraph `StateGraph`.
+5. Edges and routing are wired, including map and conditional edges.
+6. The graph executes with prompt execution, tools, and error handling.
+7. Optional persistence and export capture results and state.
+
+Key flow anchors in code:
+- Config load and loop defaults: [graph_loader.py](yamlgraph/graph_loader.py#L31) → [graph_loader.py](yamlgraph/graph_loader.py#L96) → [graph_loader.py](yamlgraph/graph_loader.py#L170)
+- Compile and wire graph: [graph_loader.py](yamlgraph/graph_loader.py#L339)
+- State generation: [state_builder.py](yamlgraph/models/state_builder.py#L127)
+- Node compilation: [node_compiler.py](yamlgraph/node_compiler.py#L32) → [node_compiler.py](yamlgraph/node_compiler.py#L148)
+- Prompt execution: [executor.py](yamlgraph/executor.py#L32) → [executor_base.py](yamlgraph/executor_base.py#L84)
+
+---
+
+## Capabilities & Requirements Traceability
+
+YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capability maps to specific modules.
+
+### Capability Summary
+
+| # | Capability | Primary Modules | Requirements |
+|---|-----------|----------------|--------------|
+| 1 | Configuration Loading & Validation | `graph_loader`, `models/graph_schema`, `utils/validators`, `linter/`, `data_loader` | REQ-YG-001 – 004 |
+| 2 | Graph Compilation | `graph_loader`, `node_compiler` | REQ-YG-005 – 008 |
+| 3 | Node Execution | `node_factory/llm_nodes`, `node_factory/streaming`, `utils/llm_factory`, `utils/llm_factory_async` | REQ-YG-009 – 011 |
+| 4 | Prompt Execution | `executor`, `executor_base`, `executor_async`, `utils/prompts`, `utils/template`, `utils/json_extract` | REQ-YG-012 – 016 |
+| 5 | Tool & Agent Integration | `node_factory/tool_nodes`, `tools/agent`, `tools/shell`, `tools/python_tool` | REQ-YG-017 – 020 |
+| 6 | Routing & Flow Control | `node_factory/control_nodes`, `routing`, `utils/conditions` | REQ-YG-021 – 023 |
+| 7 | State Persistence & Management | `models/state_builder`, `storage/checkpointer_factory`, `storage/simple_redis`, `storage/checkpointer` | REQ-YG-024 – 026 |
+| 8 | Error Handling & Reliability | `error_handlers`, `models/schemas`, `executor_base` | REQ-YG-027 – 031 |
+| 9 | CLI Interface | `cli/__init__`, `cli/graph_commands`, `cli/graph_validate`, `cli/deprecation`, `cli/helpers`, `cli/schema_commands` | REQ-YG-032 – 035 |
+| 10 | Export & Serialization | `cli/schema_commands`, `cli/graph_commands`, `storage/export`, `storage/serializers` | REQ-YG-036 – 039 |
+| 11 | Subgraph & Map Processing | `map_compiler`, `node_factory/subgraph_nodes` | REQ-YG-040 – 042 |
+| 12 | Utilities & Infrastructure | `config`, `constants`, `schema_loader`, `node_factory/base`, `utils/logging`, `utils/parsing`, `utils/sanitize`, `utils/expressions` | REQ-YG-043 – 046 |
+
+### 1. Configuration Loading & Validation
+
+Load YAML graph configs, validate schemas, build state models, and ensure graph integrity through linting.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-001 | Load graph configurations from YAML files | `graph_loader.load_graph_config`, `cli/helpers`, `data_loader` |
+| REQ-YG-002 | Validate graph configuration schemas and structures | `models/graph_schema`, `utils/validators` |
+| REQ-YG-003 | Perform linting and pattern validation | `linter/graph_linter`, `linter/checks`, `linter/patterns/*` |
+| REQ-YG-004 | Handle errors during configuration loading | `cli/helpers.GraphLoadError`, `data_loader.DataFileError` |
+
+### 2. Graph Compilation
+
+Transform validated configs into executable StateGraphs with node compilation, edge wiring, and loop detection.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-005 | Load YAML graph definitions into StateGraphs | `graph_loader`, `graph_loader.load_and_compile` |
+| REQ-YG-006 | Validate graph structures (cycle detection, loop defaults) | `graph_loader.detect_loop_nodes`, `graph_loader.apply_loop_node_defaults` |
+| REQ-YG-007 | Compile individual nodes | `node_compiler.compile_node`, `node_factory` |
+| REQ-YG-008 | Compile full graph configuration | `graph_loader.compile_graph`, `node_compiler.compile_nodes` |
+
+### 3. Node Execution
+
+Create executable node functions for LLM, streaming, tool, interrupt, and subgraph behavior.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-009 | Node creation and streaming | `node_factory/llm_nodes`, `node_factory/streaming` |
+| REQ-YG-010 | Synchronous LLM factory management | `utils/llm_factory` |
+| REQ-YG-011 | Asynchronous LLM factory management | `utils/llm_factory_async` |
+
+### 4. Prompt Execution
+
+Load prompt YAML, validate variables, format messages, and run LLM calls sync and async.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-012 | Prompt loading and resolution | `utils/prompts` |
+| REQ-YG-013 | Variable resolution and template management | `executor_base.format_prompt`, `utils/expressions`, `utils/template` |
+| REQ-YG-014 | Synchronous prompt execution | `executor.PromptExecutor`, `executor.execute_prompt` |
+| REQ-YG-015 | Asynchronous prompt execution | `executor_async` |
+| REQ-YG-016 | JSON extraction from LLM outputs | `utils/json_extract` |
+
+### 5. Tool & Agent Integration
+
+Integrate shell and Python tools into graphs, enable agent loops for tool-calling.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-017 | Dynamic tool node creation | `node_factory/tool_nodes` |
+| REQ-YG-018 | Agent-driven tool selection and execution | `tools/agent` |
+| REQ-YG-019 | Shell tool integration and execution | `tools/shell`, `tools/nodes` |
+| REQ-YG-020 | Python tool integration and execution | `tools/python_tool` |
+
+### 6. Routing & Flow Control
+
+Route across nodes using explicit routes, expression evaluation, and control nodes.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-021 | Control node creation (interrupt, passthrough) | `node_factory/control_nodes` |
+| REQ-YG-022 | Conditional routing functions | `routing` |
+| REQ-YG-023 | Condition expression evaluation | `utils/conditions` |
+
+### 7. State Persistence & Management
+
+Checkpointers and Redis storage for resuming pipelines and state history.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-024 | Dynamic state class generation | `models/state_builder` |
+| REQ-YG-025 | Checkpointer provisioning | `storage/checkpointer_factory` |
+| REQ-YG-026 | State persistence operations (Redis) | `storage/simple_redis`, `storage/checkpointer` |
+
+### 8. Error Handling & Reliability
+
+Error strategies (retry, fallback, skip), sanitization, resilience features.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-027 | Error handling strategies (skip, fail, retry, fallback) | `error_handlers` |
+| REQ-YG-028 | Pre-execution validation (requirements, loop limits) | `error_handlers.check_requirements`, `error_handlers.check_loop_limit` |
+| REQ-YG-029 | Error state management (NodeResult, skip updates) | `error_handlers.NodeResult`, `error_handlers.build_skip_error_state` |
+| REQ-YG-030 | Error schemas and reporting | `models/schemas.PipelineError`, `models/schemas.ErrorType` |
+| REQ-YG-031 | Retry capability | `executor_base.is_retryable`, `executor._invoke_with_retry` |
+
+### 9. CLI Interface
+
+Command-line commands for graph validation, execution, info display, schema export.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-032 | CLI entry point and parser setup | `cli/__init__`, `cli/__main__` |
+| REQ-YG-033 | Graph command execution and information | `cli/graph_commands` |
+| REQ-YG-034 | Deprecation handling for CLI commands | `cli/deprecation` |
+| REQ-YG-035 | CLI utilities and schema command dispatch | `cli/helpers`, `cli/schema_commands` |
+
+### 10. Export & Serialization
+
+Export results/states in JSON/Markdown, handle serialization for persistence.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-036 | CLI schema export and access | `cli/schema_commands` |
+| REQ-YG-037 | Graph code generation for IDE support | `cli/graph_commands.cmd_graph_codegen` |
+| REQ-YG-038 | Export and management of pipeline results/states | `storage/export` |
+| REQ-YG-039 | Serialization and deserialization utilities | `storage/serializers` |
+
+### 11. Subgraph & Map Processing
+
+Parallel fan-out and nested subgraph execution.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-040 | Map node compilation | `map_compiler` |
+| REQ-YG-041 | Output wrapping for reduction | `map_compiler.wrap_for_reducer` |
+| REQ-YG-042 | Subgraph node creation | `node_factory/subgraph_nodes` |
+
+### 12. Utilities & Infrastructure
+
+Logging, templating, JSON extraction, environment handling, and shared utilities.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-043 | Configuration and constants management | `config`, `constants` |
+| REQ-YG-044 | Schema loading and model building | `schema_loader` |
+| REQ-YG-045 | Node factory and resolution | `node_factory/base` |
+| REQ-YG-046 | Logging, parsing, and sanitization utilities | `utils/logging`, `utils/parsing`, `utils/sanitize` |
 
 ---
 
@@ -644,20 +816,59 @@ _loading_stack: ContextVar[list[Path]] = ContextVar("loading_stack")
 
 ## File Reference
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `graph_loader.py` | 386 | YAML → LangGraph compilation |
-| `node_compiler.py` | 184 | Node dispatch to factories |
-| `node_factory/` | 855 | Node function creation (subpackage) |
-| `executor.py` | 205 | Prompt execution |
-| `map_compiler.py` | 154 | Parallel fan-out |
-| `routing.py` | 87 | Edge condition evaluation |
-| `tools/agent.py` | 329 | ReAct agent creation |
-| `tools/shell.py` | 205 | Shell tool execution |
-| `utils/llm_factory.py` | 189 | Multi-provider LLM |
-| `utils/expressions.py` | 244 | Template resolution |
-| `models/state_builder.py` | 375 | Dynamic state generation |
-| `schema_loader.py` | 268 | YAML schema → Pydantic |
+| File | Purpose | Capabilities |
+|------|---------|-------------|
+| `graph_loader.py` | YAML → LangGraph compilation | 1, 2 |
+| `node_compiler.py` | Node dispatch to factories | 2 |
+| `node_factory/` | Node function creation (subpackage) | 3, 5, 6, 11 |
+| `node_factory/llm_nodes.py` | LLM and router nodes | 3 |
+| `node_factory/streaming.py` | Token streaming support | 3 |
+| `node_factory/control_nodes.py` | Interrupt and passthrough nodes | 6 |
+| `node_factory/tool_nodes.py` | Tool call nodes | 5 |
+| `node_factory/subgraph_nodes.py` | Nested graph composition | 11 |
+| `node_factory/base.py` | Shared utilities (resolve_class, output models) | 12 |
+| `executor.py` | Sync prompt execution with retry | 4 |
+| `executor_base.py` | Shared executor logic (format, messages, retry check) | 4, 8 |
+| `executor_async.py` | Async prompt execution and streaming | 4 |
+| `map_compiler.py` | Parallel fan-out with Send() | 11 |
+| `routing.py` | Edge condition evaluation | 6 |
+| `error_handlers.py` | Error strategies (skip, fail, retry, fallback) | 8 |
+| `data_loader.py` | Load external data files into state | 1 |
+| `schema_loader.py` | YAML schema → Pydantic models | 12 |
+| `tools/agent.py` | ReAct agent creation | 5 |
+| `tools/shell.py` | Shell tool execution | 5 |
+| `tools/python_tool.py` | Python tool integration | 5 |
+| `tools/nodes.py` | Tool node creation | 5 |
+| `utils/llm_factory.py` | Multi-provider LLM factory | 3 |
+| `utils/llm_factory_async.py` | Async LLM factory | 3 |
+| `utils/expressions.py` | Template and state path resolution | 4 |
+| `utils/conditions.py` | Condition expression evaluation | 6 |
+| `utils/prompts.py` | Prompt loading and path resolution | 4 |
+| `utils/template.py` | Variable extraction and validation | 4 |
+| `utils/json_extract.py` | JSON extraction from LLM text | 4 |
+| `utils/validators.py` | Config validation functions | 1 |
+| `utils/logging.py` | Structured logging | 12 |
+| `utils/parsing.py` | Literal parsing utilities | 12 |
+| `utils/sanitize.py` | Input sanitization | 12 |
+| `models/state_builder.py` | Dynamic state class generation | 7 |
+| `models/graph_schema.py` | Pydantic graph config schema | 1 |
+| `models/schemas.py` | PipelineError, ErrorType, GenericReport | 8, 12 |
+| `config.py` | Centralized paths and settings | 12 |
+| `constants.py` | NodeType, ErrorHandler, EdgeType enums | 12 |
+| `storage/checkpointer_factory.py` | Checkpointer provisioning | 7 |
+| `storage/checkpointer.py` | State persistence operations | 7 |
+| `storage/simple_redis.py` | Redis-based checkpointer | 7 |
+| `storage/serializers.py` | Serialization/deserialization helpers | 10 |
+| `storage/export.py` | Export results/state to JSON | 10 |
+| `linter/graph_linter.py` | Graph linting entry point | 1 |
+| `linter/checks.py` | Individual lint checks | 1 |
+| `linter/patterns/` | Pattern validators (agent, interrupt, map, router, subgraph) | 1 |
+| `cli/__init__.py` | CLI entry point and parser | 9 |
+| `cli/graph_commands.py` | graph run, info, codegen | 9, 10 |
+| `cli/graph_validate.py` | graph validate, lint | 9 |
+| `cli/schema_commands.py` | schema export, path | 10 |
+| `cli/helpers.py` | Shared CLI utilities | 9 |
+| `cli/deprecation.py` | Deprecated command handling | 9 |
 
 ---
 

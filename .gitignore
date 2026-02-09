@@ -62,3 +62,4 @@ vectorstore/
 
 # Fun projects
 examples/fun/
+.reqtracer/

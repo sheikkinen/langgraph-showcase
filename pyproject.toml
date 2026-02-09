@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yamlgraph"
-version = "0.4.17"
+version = "0.4.18"
 description = "YAML-first framework for building LLM pipelines with LangGraph"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -109,7 +109,6 @@ addopts = "--cov=yamlgraph --cov-report=term-missing --cov-fail-under=70"
 [tool.coverage.run]
 source = ["yamlgraph"]
 omit = [
-    "yamlgraph/cli/*",
     "*/__pycache__/*",
 ]
 

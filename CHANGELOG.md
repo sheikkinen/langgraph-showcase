@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.18] - 2026-02-10
+
+### Changed
+- **ARCHITECTURE.md is single source of truth** - Merged `docs/architecture-from-requirements.md` into `ARCHITECTURE.md`. Added end-to-end flow, capabilities & requirements traceability section (12 capabilities, 46 requirements mapped to modules), and expanded file reference table covering all modules with capability cross-references.
+
+### Removed
+- **docs/architecture-from-requirements.md** - Content merged into `ARCHITECTURE.md`
+
 ## [0.4.17] - 2026-02-08
 
 ### Added
