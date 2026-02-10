@@ -745,9 +745,36 @@ def test_invoke_with_retry_succeeds_after_transient_failure(mock_llm):
     ...
 ```
 
-**Coverage report**: `python scripts/req-coverage.py` (add `--detail` for per-test breakdown, `--strict` for CI gate).
+#### `scripts/req-coverage.py`
 
-All 46 requirements across 12 capabilities are covered. See `docs/adr/001-test-requirement-traceability.md` for decision rationale.
+Generates a traceability matrix from `@pytest.mark.req` markers using AST parsing.
+
+| Command | Purpose |
+|---------|---------|
+| `python scripts/req-coverage.py` | Summary: per-capability coverage |
+| `python scripts/req-coverage.py --detail` | Full mapping: every test → requirement |
+| `python scripts/req-coverage.py --strict` | CI gate: exits non-zero if any REQ uncovered |
+
+#### Current Coverage (v0.4.19)
+
+```
+Requirements: 46/46 covered | Tagged tests: 1623
+
+ ✅  1. Config Loading & Validation:  4/4 reqs, 201 tests
+ ✅  2. Graph Compilation:            4/4 reqs, 109 tests
+ ✅  3. Node Execution:               3/3 reqs,  99 tests
+ ✅  4. Prompt Execution:             5/5 reqs, 290 tests
+ ✅  5. Tool & Agent Integration:     4/4 reqs,  90 tests
+ ✅  6. Routing & Flow Control:       3/3 reqs, 109 tests
+ ✅  7. State Persistence:            3/3 reqs, 191 tests
+ ✅  8. Error Handling:               5/5 reqs,  80 tests
+ ✅  9. CLI Interface:                4/4 reqs,  71 tests
+ ✅ 10. Export & Serialization:       4/4 reqs, 165 tests
+ ✅ 11. Subgraph & Map:              3/3 reqs,  86 tests
+ ✅ 12. Utilities:                    4/4 reqs, 132 tests
+```
+
+See `docs/adr/001-test-requirement-traceability.md` for decision rationale.
 
 ---
 
