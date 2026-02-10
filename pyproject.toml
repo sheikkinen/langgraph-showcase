@@ -11,6 +11,7 @@ requires-python = ">=3.11,<3.14"
 license = {text = "MIT"}
 dependencies = [
     "langchain-anthropic>=0.3.0",
+    "langchain-google-genai>=2.0.0",
     "langchain-mistralai>=0.2.0",
     "langchain-openai>=0.3.0",
     "langgraph>=0.2.0",
