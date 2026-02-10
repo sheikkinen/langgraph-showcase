@@ -21,8 +21,6 @@ from yamlgraph.utils.parsing import parse_literal
 COMPARISON_PATTERN = re.compile(
     r"^\s*([a-zA-Z_][\w.]*)\s*(<=|>=|==|!=|<(?!<)|>(?!>))\s*(.+?)\s*$"
 )
-COMPOUND_AND_PATTERN = re.compile(r"\s+and\s+", re.IGNORECASE)
-COMPOUND_OR_PATTERN = re.compile(r"\s+or\s+", re.IGNORECASE)
 
 
 def _split_compound(expr: str, keyword: str) -> list[str] | None:
