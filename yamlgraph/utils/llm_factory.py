@@ -16,7 +16,9 @@ from yamlgraph.config import DEFAULT_MODELS
 logger = logging.getLogger(__name__)
 
 # Type alias for supported providers
-ProviderType = Literal["anthropic", "lmstudio", "mistral", "openai", "replicate", "xai"]
+ProviderType = Literal[
+    "anthropic", "google", "lmstudio", "mistral", "openai", "replicate", "xai"
+]
 
 # Thread-safe cache for LLM instances
 _llm_cache: dict[tuple, BaseChatModel] = {}
@@ -30,7 +32,7 @@ def create_llm(
 ) -> BaseChatModel:
     """Create an LLM instance with multi-provider support.
 
-    Supports Anthropic (default), Mistral, OpenAI, Replicate, and xAI providers.
+    Supports Anthropic (default), Google, Mistral, OpenAI, Replicate, and xAI providers.
     Provider can be specified via parameter or PROVIDER environment variable.
     Model can be specified via parameter or {PROVIDER}_MODEL environment variable.
 
@@ -92,7 +94,15 @@ def create_llm(
             f"Creating LLM: {selected_provider}/{selected_model} (temp={temperature})"
         )
 
-        if selected_provider == "mistral":
+        if selected_provider == "google":
+            from langchain_google_genai import ChatGoogleGenerativeAI
+
+            llm = ChatGoogleGenerativeAI(
+                model=selected_model,
+                temperature=temperature,
+                google_api_key=os.getenv("GOOGLE_API_KEY"),
+            )
+        elif selected_provider == "mistral":
             from langchain_mistralai import ChatMistralAI
 
             llm = ChatMistralAI(model=selected_model, temperature=temperature)

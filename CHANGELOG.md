@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.22] - 2026-02-10
+
+### Added
+- **Google/Gemini provider** — New `google` provider in `llm_factory` using `langchain-google-genai`. Set `PROVIDER=google`, `GOOGLE_API_KEY`, and optionally `GOOGLE_MODEL` (default: `gemini-2.0-flash`). 3 new tests, TDD.
+- **OpenAI-compatible guardrail proxy** (`examples/openai_proxy/`) — Fly.io-deployable FastAPI proxy with OpenAI `/v1/chat/completions` API. Graph pipeline: `echo_input` → `validate_input` (stamps `*validation missing*`) → LLM respond. Bearer token auth via `WEB_API_KEY`. 45 tests. Deployed at `yamlgraph-proxy.fly.dev`.
+- `python-dotenv` support in proxy for local `.env` loading.
+
 ## [0.4.21] - 2026-02-10
 
 ### Added

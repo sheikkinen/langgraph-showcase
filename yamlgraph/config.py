@@ -34,9 +34,11 @@ DEFAULT_MAX_TOKENS = 4096
 
 # Default models per provider (override with {PROVIDER}_MODEL env var)
 # API keys expected in .env:
-#   ANTHROPIC_API_KEY, MISTRAL_API_KEY, OPENAI_API_KEY, REPLICATE_API_TOKEN, XAI_API_KEY
+#   ANTHROPIC_API_KEY, GOOGLE_API_KEY, MISTRAL_API_KEY, OPENAI_API_KEY,
+#   REPLICATE_API_TOKEN, XAI_API_KEY
 DEFAULT_MODELS = {
     "anthropic": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
+    "google": os.getenv("GOOGLE_MODEL", "gemini-2.0-flash"),
     "lmstudio": os.getenv("LMSTUDIO_MODEL", "qwen2.5-coder-7b-instruct"),
     "mistral": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
     "openai": os.getenv("OPENAI_MODEL", "gpt-4o"),

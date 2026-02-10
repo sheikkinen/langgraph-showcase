@@ -129,3 +129,26 @@ class TestCreateLLM:
         with patch.dict(os.environ, {"MISTRAL_API_KEY": "test-key"}):
             llm3 = create_llm(provider="mistral", temperature=0.7)
             assert llm1 is not llm3
+
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
+    def test_google_provider(self):
+        """Should create Google Gemini LLM when provider='google'."""
+        with patch.dict(os.environ, {"GOOGLE_API_KEY": "test-key"}):
+            llm = create_llm(provider="google", temperature=0.7)
+            assert llm.__class__.__name__ == "ChatGoogleGenerativeAI"
+            assert llm.temperature == 0.7
+
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
+    def test_google_default_model(self):
+        """Should use gemini-2.0-flash as default Google model."""
+        from yamlgraph.config import DEFAULT_MODELS
+
+        assert "google" in DEFAULT_MODELS
+        assert DEFAULT_MODELS["google"] == os.getenv("GOOGLE_MODEL", "gemini-2.0-flash")
+
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
+    def test_google_custom_model(self):
+        """Should accept custom Google model."""
+        with patch.dict(os.environ, {"GOOGLE_API_KEY": "test-key"}):
+            llm = create_llm(provider="google", model="gemini-2.5-pro", temperature=0.5)
+            assert llm.model == "gemini-2.5-pro"
