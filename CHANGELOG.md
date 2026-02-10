@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Graph-level streaming (FR-023)** — New `run_graph_streaming()` async generator in `executor_async.py`. Runs non-LLM nodes (python, tool) first, then streams the LLM node token-by-token via `llm.astream()`. REQ-YG-048, REQ-YG-049. 7 new tests.
 - **Real SSE streaming in proxy** — OpenAI-compatible proxy now streams LLM tokens in real-time via `run_graph_streaming()`, replacing the previous fake word-splitting approach. TTFT reduced from full-generation time to ~200ms.
 - **Capability 14** in ARCHITECTURE.md — Graph-Level Streaming (REQ-YG-048, REQ-YG-049). 49 total requirements covered.
+- **Proxy demo script** (`examples/openai_proxy/demo.py`) — OpenAI SDK demo with `--stream`, `--verify`, `--prompt`, `--base-url` flags. Works against deployed Fly.io proxy or local server.
 
 ## [0.4.22] - 2026-02-10
 
