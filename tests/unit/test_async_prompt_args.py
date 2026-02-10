@@ -16,6 +16,7 @@ import pytest
 class TestAsyncPromptResolutionArgs:
     """Tests for execute_prompt_async parameter handling."""
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_async_accepts_graph_path(self) -> None:
         """Test that execute_prompt_async accepts graph_path parameter.
 
@@ -32,6 +33,7 @@ class TestAsyncPromptResolutionArgs:
             "for graph-relative prompt resolution"
         )
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_async_accepts_prompts_dir(self) -> None:
         """Test that execute_prompt_async accepts prompts_dir parameter."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -43,6 +45,7 @@ class TestAsyncPromptResolutionArgs:
             "prompts_dir" in param_names
         ), "execute_prompt_async should accept prompts_dir parameter"
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_async_accepts_prompts_relative(self) -> None:
         """Test that execute_prompt_async accepts prompts_relative parameter."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -54,6 +57,7 @@ class TestAsyncPromptResolutionArgs:
             "prompts_relative" in param_names
         ), "execute_prompt_async should accept prompts_relative parameter"
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_async_passes_graph_path_to_prepare_messages(
         self,
     ) -> None:
@@ -88,6 +92,7 @@ class TestAsyncPromptResolutionArgs:
 class TestStreamingPromptResolutionArgs:
     """Tests for execute_prompt_streaming parameter handling."""
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_streaming_accepts_graph_path(self) -> None:
         """Test that execute_prompt_streaming accepts graph_path parameter."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -100,6 +105,7 @@ class TestStreamingPromptResolutionArgs:
             "for graph-relative prompt resolution"
         )
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_streaming_accepts_prompts_dir(self) -> None:
         """Test that execute_prompt_streaming accepts prompts_dir parameter."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -111,6 +117,7 @@ class TestStreamingPromptResolutionArgs:
             "prompts_dir" in param_names
         ), "execute_prompt_streaming should accept prompts_dir parameter"
 
+    @pytest.mark.req("REQ-YG-015")
     def test_execute_prompt_streaming_accepts_prompts_relative(self) -> None:
         """Test that execute_prompt_streaming accepts prompts_relative."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -126,6 +133,7 @@ class TestStreamingPromptResolutionArgs:
 class TestSyncVsAsyncParity:
     """Tests ensuring sync and async have same resolution capabilities."""
 
+    @pytest.mark.req("REQ-YG-015")
     def test_sync_and_async_have_same_prompt_resolution_params(self) -> None:
         """Verify sync and async executors accept same prompt resolution params.
 

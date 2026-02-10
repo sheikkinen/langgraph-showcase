@@ -32,6 +32,7 @@ def mock_load_prompt():
 class TestAgentReturnsMessages:
     """Tests for message accumulation in agent state."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_agent_returns_messages_in_state(self):
         """Agent node should return messages for state accumulation."""
         from yamlgraph.tools.agent import create_agent_node
@@ -55,10 +56,11 @@ class TestAgentReturnsMessages:
 
         # Should include messages in output
         assert "messages" in result, "Agent should return messages for accumulation"
-        assert len(result["messages"]) >= 2, (
-            "Should have at least system + user + AI messages"
-        )
+        assert (
+            len(result["messages"]) >= 2
+        ), "Should have at least system + user + AI messages"
 
+    @pytest.mark.req("REQ-YG-026")
     def test_agent_messages_include_all_types(self):
         """Agent should include system, user, AI, and tool messages."""
         from yamlgraph.tools.agent import create_agent_node
@@ -106,6 +108,7 @@ class TestAgentReturnsMessages:
 class TestToolResultsPersistence:
     """Tests for raw tool result storage."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_tool_results_stored_in_state(self):
         """Agent should store raw tool results in state."""
         from yamlgraph.tools.agent import create_agent_node
@@ -158,6 +161,7 @@ class TestToolResultsPersistence:
         assert "commit abc123" in tool_result["output"]
         assert tool_result["success"] is True
 
+    @pytest.mark.req("REQ-YG-026")
     def test_tool_results_key_is_optional(self):
         """Without tool_results_key, raw results are not stored."""
         from yamlgraph.tools.agent import create_agent_node
@@ -181,6 +185,7 @@ class TestToolResultsPersistence:
         # Should NOT have _tool_results if not configured
         assert "_tool_results" not in result
 
+    @pytest.mark.req("REQ-YG-026")
     def test_multiple_tool_calls_all_stored(self):
         """Multiple tool calls should all be stored."""
         from yamlgraph.tools.agent import create_agent_node
@@ -232,6 +237,7 @@ class TestToolResultsPersistence:
 class TestMultiTurnConversation:
     """Tests for multi-turn conversation support."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_existing_messages_preserved(self):
         """Agent should preserve existing messages from state."""
         from yamlgraph.tools.agent import create_agent_node
@@ -269,6 +275,7 @@ class TestMultiTurnConversation:
         # The exact count depends on implementation - key is messages are returned
         assert len(messages) >= 2, "Should return messages for accumulation"
 
+    @pytest.mark.req("REQ-YG-026")
     def test_agent_state_message_reducer_works(self):
         """Dynamic state's Annotated[list, add] should accumulate messages."""
         from operator import add as add_op
@@ -285,6 +292,6 @@ class TestMultiTurnConversation:
 
         # The Annotated type should have add as metadata
         if hasattr(messages_hint, "__metadata__"):
-            assert add_op in messages_hint.__metadata__, (
-                "messages should use add reducer"
-            )
+            assert (
+                add_op in messages_hint.__metadata__
+            ), "messages should use add reducer"

@@ -4,6 +4,8 @@ Ensures coding dict keys are normalized to strings to survive
 JSON serialization (e.g., Redis checkpointer round-trips).
 """
 
+import pytest
+
 from yamlgraph.schema_loader import (
     build_pydantic_model,
     build_pydantic_model_from_json_schema,
@@ -14,24 +16,28 @@ from yamlgraph.schema_loader import (
 class TestNormalizeCodingKeys:
     """Tests for normalize_coding_keys function."""
 
+    @pytest.mark.req("REQ-YG-039")
     def test_normalizes_integer_keys_to_strings(self):
         """Integer keys become string keys."""
         field = {"coding": {0: "Zero", 1: "One", 2: "Two"}}
         normalize_coding_keys(field)
         assert field["coding"] == {"0": "Zero", "1": "One", "2": "Two"}
 
+    @pytest.mark.req("REQ-YG-039")
     def test_preserves_string_keys(self):
         """String keys remain unchanged."""
         field = {"coding": {"a": "Alpha", "b": "Beta"}}
         normalize_coding_keys(field)
         assert field["coding"] == {"a": "Alpha", "b": "Beta"}
 
+    @pytest.mark.req("REQ-YG-039")
     def test_handles_mixed_keys(self):
         """Mixed integer and string keys all become strings."""
         field = {"coding": {0: "Zero", "one": "One", 2: "Two"}}
         normalize_coding_keys(field)
         assert field["coding"] == {"0": "Zero", "one": "One", "2": "Two"}
 
+    @pytest.mark.req("REQ-YG-039")
     def test_no_op_when_no_coding(self):
         """Field without coding is unchanged."""
         field = {"type": "str", "description": "test"}
@@ -39,18 +45,21 @@ class TestNormalizeCodingKeys:
         normalize_coding_keys(field)
         assert field == original
 
+    @pytest.mark.req("REQ-YG-039")
     def test_no_op_when_coding_is_none(self):
         """Field with coding=None is unchanged."""
         field = {"type": "int", "coding": None}
         normalize_coding_keys(field)
         assert field["coding"] is None
 
+    @pytest.mark.req("REQ-YG-039")
     def test_handles_empty_coding(self):
         """Empty coding dict stays empty."""
         field = {"coding": {}}
         normalize_coding_keys(field)
         assert field["coding"] == {}
 
+    @pytest.mark.req("REQ-YG-039")
     def test_survives_json_roundtrip(self):
         """After normalization, JSON round-trip preserves lookup capability."""
         import json
@@ -74,6 +83,7 @@ class TestNormalizeCodingKeys:
 class TestBuildPydanticModelNormalization:
     """Integration tests: normalization during model building."""
 
+    @pytest.mark.req("REQ-YG-039")
     def test_build_pydantic_model_normalizes_coding(self):
         """build_pydantic_model normalizes coding keys."""
         schema = {
@@ -97,6 +107,7 @@ class TestBuildPydanticModelNormalization:
             "2": "Good",
         }
 
+    @pytest.mark.req("REQ-YG-039")
     def test_build_json_schema_model_normalizes_coding(self):
         """build_pydantic_model_from_json_schema normalizes coding keys."""
         schema = {

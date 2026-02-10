@@ -1,11 +1,14 @@
 """Unit tests for passthrough node functionality."""
 
+import pytest
+
 from yamlgraph.node_factory import create_passthrough_node
 
 
 class TestPassthroughNode:
     """Tests for create_passthrough_node."""
 
+    @pytest.mark.req("REQ-YG-021")
     def test_increment_counter(self):
         """Test basic counter increment."""
         config = {
@@ -21,6 +24,7 @@ class TestPassthroughNode:
         assert result["counter"] == 6
         assert result["current_step"] == "next_turn"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_append_to_list(self):
         """Test appending item to list."""
         config = {
@@ -35,6 +39,7 @@ class TestPassthroughNode:
 
         assert result["history"] == ["a", "b", "c"]
 
+    @pytest.mark.req("REQ-YG-021")
     def test_append_dict_to_list(self):
         """Test appending dict to list using simple syntax."""
         # Note: Complex dict literals not yet supported
@@ -51,6 +56,7 @@ class TestPassthroughNode:
 
         assert result["log"] == [{"turn": 1, "action": "attack"}]
 
+    @pytest.mark.req("REQ-YG-021")
     def test_multiple_outputs(self):
         """Test multiple output fields."""
         config = {
@@ -69,6 +75,7 @@ class TestPassthroughNode:
         assert result["doubled"] == 10
         assert result["message"] == "Status: done"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_empty_output(self):
         """Test passthrough with no output (just sets current_step)."""
         config = {"output": {}}
@@ -80,6 +87,7 @@ class TestPassthroughNode:
         assert result["current_step"] == "noop"
         assert "x" not in result  # Doesn't copy state
 
+    @pytest.mark.req("REQ-YG-021")
     def test_no_output_key(self):
         """Test passthrough with missing output key."""
         config = {}  # No output defined
@@ -90,6 +98,7 @@ class TestPassthroughNode:
 
         assert result["current_step"] == "minimal"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_error_keeps_original_value(self):
         """Test that errors preserve original state values."""
         config = {
@@ -106,6 +115,7 @@ class TestPassthroughNode:
         # When left operand is None, we keep original
         assert result["result"] == 42
 
+    @pytest.mark.req("REQ-YG-021")
     def test_function_name(self):
         """Test that function has descriptive name."""
         config = {"output": {}}
@@ -113,6 +123,7 @@ class TestPassthroughNode:
 
         assert node_fn.__name__ == "my_node_passthrough"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_string_concatenation(self):
         """Test string concatenation with + operator."""
         config = {

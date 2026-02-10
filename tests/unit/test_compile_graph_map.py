@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from yamlgraph.graph_loader import GraphConfig, compile_graph
 
 
@@ -30,6 +32,7 @@ def make_map_node_config(collect: str = "results") -> dict:
 class TestCompileGraphMap:
     """Tests for compile_graph handling type: map nodes."""
 
+    @pytest.mark.req("REQ-YG-008", "REQ-YG-040")
     def test_map_node_compiled_to_graph(self) -> None:
         """Map node is correctly added to graph."""
         config = make_graph_config(
@@ -57,6 +60,7 @@ class TestCompileGraphMap:
             assert call_args[0][0] == "process_items"  # name
             assert call_args[0][1]["type"] == "map"  # config
 
+    @pytest.mark.req("REQ-YG-008", "REQ-YG-040")
     def test_map_node_sub_node_added(self) -> None:
         """Map node's wrapped sub_node is added to graph."""
         config = make_graph_config(
@@ -81,6 +85,7 @@ class TestCompileGraphMap:
             # (the mocked compile_map_node adds it via the builder)
             # In the real implementation, compile_map_node adds the node
 
+    @pytest.mark.req("REQ-YG-008", "REQ-YG-040")
     def test_map_node_conditional_edge_wired(self) -> None:
         """Map node predecessor gets conditional edge with Send function."""
         config = make_graph_config(
@@ -106,6 +111,7 @@ class TestCompileGraphMap:
 
             # The graph should have conditional edge from start_node using map_edge_fn
 
+    @pytest.mark.req("REQ-YG-008", "REQ-YG-040")
     def test_map_node_fanin_edge_wired(self) -> None:
         """Map sub_node has edge to next node for fan-in."""
         config = make_graph_config(

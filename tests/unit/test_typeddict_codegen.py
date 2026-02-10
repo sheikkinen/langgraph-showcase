@@ -4,12 +4,15 @@ Enables exporting the dynamically-built TypedDict state class to a
 Python file for IDE autocomplete and static type checking.
 """
 
+import pytest
+
 from yamlgraph.models.state_builder import generate_typeddict_code
 
 
 class TestGenerateTypedDictCode:
     """Tests for generate_typeddict_code function."""
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_generates_basic_typeddict(self):
         """Basic graph config produces valid TypedDict code."""
         config = {
@@ -25,6 +28,7 @@ class TestGenerateTypedDictCode:
         assert "complete: bool" in code
         assert "greeting: Any" in code  # from state_key
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_includes_typing_imports(self):
         """Generated code includes necessary typing imports."""
         config = {"name": "simple", "nodes": {}}
@@ -35,6 +39,7 @@ class TestGenerateTypedDictCode:
         assert "TypedDict" in code
         assert "Any" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_includes_generation_comment(self):
         """Generated code includes auto-generation comment."""
         config = {"name": "test", "nodes": {}}
@@ -44,6 +49,7 @@ class TestGenerateTypedDictCode:
         assert "Auto-generated" in code
         assert "graphs/test.yaml" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_handles_all_type_mappings(self):
         """All YAML types map to Python types correctly."""
         config = {
@@ -68,6 +74,7 @@ class TestGenerateTypedDictCode:
         assert "l: list" in code
         assert "d: dict" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_extracts_agent_fields(self):
         """Agent nodes add input and _tool_results fields."""
         config = {
@@ -80,6 +87,7 @@ class TestGenerateTypedDictCode:
         assert "input: str" in code
         assert "_tool_results: list" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_extracts_router_fields(self):
         """Router nodes add _route field."""
         config = {
@@ -91,6 +99,7 @@ class TestGenerateTypedDictCode:
 
         assert "_route: str" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_class_name_from_graph_name(self):
         """Class name is derived from graph name."""
         config = {"name": "my-awesome-graph", "nodes": {}}
@@ -99,6 +108,7 @@ class TestGenerateTypedDictCode:
 
         assert "class MyAwesomeGraphState" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_handles_missing_name(self):
         """Uses default name when graph name is missing."""
         config = {"nodes": {}}
@@ -107,6 +117,7 @@ class TestGenerateTypedDictCode:
 
         assert "class GraphState" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_generated_code_is_valid_python(self):
         """Generated code can be compiled without syntax errors."""
         config = {
@@ -120,6 +131,7 @@ class TestGenerateTypedDictCode:
         # Should compile without raising SyntaxError
         compile(code, "<test>", "exec")
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_excludes_base_fields_by_default(self):
         """Base fields are excluded by default to reduce noise."""
         config = {"name": "minimal", "state": {"custom": "str"}, "nodes": {}}
@@ -133,6 +145,7 @@ class TestGenerateTypedDictCode:
         # But should include custom fields
         assert "custom: str" in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_includes_base_fields_when_requested(self):
         """Can include base fields if explicitly requested."""
         config = {"name": "full", "nodes": {}}
@@ -146,6 +159,7 @@ class TestGenerateTypedDictCode:
 class TestGenerateTypedDictCodeDocstrings:
     """Tests for docstring generation."""
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_includes_class_docstring(self):
         """Generated class includes a docstring."""
         config = {"name": "documented", "nodes": {}}
@@ -154,6 +168,7 @@ class TestGenerateTypedDictCodeDocstrings:
 
         assert '"""State for documented graph."""' in code
 
+    @pytest.mark.req("REQ-YG-037", "REQ-YG-044")
     def test_field_comments_from_state_key(self):
         """Fields from state_key are commented with node source."""
         config = {

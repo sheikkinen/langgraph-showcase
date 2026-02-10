@@ -54,6 +54,7 @@ def state_with_generated(sample_state):
 class TestResolveClass:
     """Tests for dynamic class importing."""
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_resolve_existing_class(self):
         """Import a real class from dotted path."""
         cls = resolve_class("yamlgraph.models.GenericReport")
@@ -61,6 +62,7 @@ class TestResolveClass:
         assert cls is not None
         assert hasattr(cls, "model_fields")  # Pydantic model check
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_resolve_state_class(self):
         """Dynamic state class can be built."""
         from yamlgraph.models.state_builder import build_state_class
@@ -70,11 +72,13 @@ class TestResolveClass:
         assert cls is not None
         assert hasattr(cls, "__annotations__")
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_resolve_invalid_module_raises(self):
         """Invalid module raises ImportError."""
         with pytest.raises((ImportError, ModuleNotFoundError)):
             resolve_class("nonexistent.module.Class")
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_resolve_invalid_class_raises(self):
         """Invalid class name raises AttributeError."""
         with pytest.raises(AttributeError):
@@ -89,31 +93,37 @@ class TestResolveClass:
 class TestResolveTemplate:
     """Tests for template resolution against state."""
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_simple_state_access(self, sample_state):
         """'{state.topic}' resolves to state['topic']."""
         result = resolve_template("{state.topic}", sample_state)
         assert result == "machine learning"
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_nested_state_access(self, state_with_generated):
         """'{state.generated.content}' resolves nested attrs."""
         result = resolve_template("{state.generated.content}", state_with_generated)
         assert result == "Test content about ML."
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_missing_state_returns_none(self, sample_state):
         """Missing state key returns None."""
         result = resolve_template("{state.generated.content}", sample_state)
         assert result is None
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_literal_string_unchanged(self, sample_state):
         """Non-template strings returned as-is."""
         result = resolve_template("literal value", sample_state)
         assert result == "literal value"
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_int_access(self, sample_state):
         """Integer values resolved correctly."""
         result = resolve_template("{state.word_count}", sample_state)
         assert result == 300
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_list_access(self, state_with_generated):
         """List values resolved correctly."""
         result = resolve_template("{state.generated.tags}", state_with_generated)
@@ -128,6 +138,7 @@ class TestResolveTemplate:
 class TestCreateNodeFunction:
     """Tests for node function factory."""
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_calls_execute_prompt(self, sample_state):
         """Generated node calls execute_prompt with config."""
         node_config = {
@@ -163,6 +174,7 @@ class TestCreateNodeFunction:
         assert result["generated"] == mock_result
         assert result["current_step"] == "generate"
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_checks_requirements(self, sample_state):
         """Node returns error if requires not met."""
         node_config = {
@@ -179,6 +191,7 @@ class TestCreateNodeFunction:
         assert result.get("errors")
         assert "generated" in result["errors"][0].message
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_handles_exception(self, sample_state):
         """Exceptions become PipelineError."""
         node_config = {
@@ -198,6 +211,7 @@ class TestCreateNodeFunction:
         assert result.get("errors")
         assert "API Error" in result["errors"][0].message
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_uses_defaults(self, sample_state):
         """Node uses default provider/temperature from config."""
         node_config = {
@@ -222,6 +236,7 @@ class TestCreateNodeFunction:
             assert mock.call_args[1]["temperature"] == 0.5
             assert mock.call_args[1]["provider"] == "anthropic"
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_uses_graph_relative_prompts(self, sample_state, tmp_path):
         """Node uses graph_path for relative prompt resolution."""
 
@@ -263,6 +278,7 @@ class TestCreateNodeFunction:
             mock.assert_called_once()
             assert result["opening"] == mock_result
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_uses_explicit_prompts_dir(self, sample_state, tmp_path):
         """Node uses explicit prompts_dir from defaults."""
 
@@ -298,6 +314,7 @@ class TestCreateNodeFunction:
             mock.assert_called_once()
             assert result["greeting"] == mock_result
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_parse_json_enabled(self, sample_state):
         """Node with parse_json: true extracts JSON from response."""
         node_config = {
@@ -324,6 +341,7 @@ Reasoning: I extracted the name and value.
         # Should be parsed dict, not raw string
         assert result["extracted"] == {"name": "test", "value": 42}
 
+    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
     def test_node_parse_json_disabled_by_default(self, sample_state):
         """Node without parse_json returns raw string."""
         node_config = {

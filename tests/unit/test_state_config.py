@@ -6,6 +6,8 @@ in build_state_class.
 
 from typing import Any
 
+import pytest
+
 from yamlgraph.models.state_builder import (
     TYPE_MAP,
     build_state_class,
@@ -16,46 +18,55 @@ from yamlgraph.models.state_builder import (
 class TestParseStateConfig:
     """Tests for parse_state_config function."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_empty_config(self):
         """Empty state config returns empty dict."""
         result = parse_state_config({})
         assert result == {}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_str_type(self):
         """Parse 'str' type."""
         result = parse_state_config({"concept": "str"})
         assert result == {"concept": str}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_int_type(self):
         """Parse 'int' type."""
         result = parse_state_config({"count": "int"})
         assert result == {"count": int}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_float_type(self):
         """Parse 'float' type."""
         result = parse_state_config({"score": "float"})
         assert result == {"score": float}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_bool_type(self):
         """Parse 'bool' type."""
         result = parse_state_config({"enabled": "bool"})
         assert result == {"enabled": bool}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_list_type(self):
         """Parse 'list' type."""
         result = parse_state_config({"items": "list"})
         assert result == {"items": list}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_simple_dict_type(self):
         """Parse 'dict' type."""
         result = parse_state_config({"metadata": "dict"})
         assert result == {"metadata": dict}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_any_type(self):
         """Parse 'any' type."""
         result = parse_state_config({"data": "any"})
         assert result == {"data": Any}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_type_aliases(self):
         """Type aliases like 'string', 'integer', 'boolean' work."""
         result = parse_state_config(
@@ -67,6 +78,7 @@ class TestParseStateConfig:
         )
         assert result == {"name": str, "age": int, "active": bool}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_case_insensitive(self):
         """Type names are case-insensitive."""
         result = parse_state_config(
@@ -78,6 +90,7 @@ class TestParseStateConfig:
         )
         assert result == {"a": str, "b": int, "c": float}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_multiple_fields(self):
         """Parse multiple fields."""
         result = parse_state_config(
@@ -89,11 +102,13 @@ class TestParseStateConfig:
         )
         assert result == {"concept": str, "count": int, "score": float}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_unknown_type_defaults_to_any(self):
         """Unknown type strings default to Any."""
         result = parse_state_config({"custom": "unknown_type"})
         assert result == {"custom": Any}
 
+    @pytest.mark.req("REQ-YG-024")
     def test_non_string_value_defaults_to_any(self):
         """Non-string values default to Any."""
         result = parse_state_config(
@@ -108,6 +123,7 @@ class TestParseStateConfig:
 class TestTypeMap:
     """Tests for TYPE_MAP constant."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_all_basic_types_present(self):
         """TYPE_MAP contains all basic Python types."""
         assert "str" in TYPE_MAP
@@ -118,6 +134,7 @@ class TestTypeMap:
         assert "dict" in TYPE_MAP
         assert "any" in TYPE_MAP
 
+    @pytest.mark.req("REQ-YG-024")
     def test_aliases_present(self):
         """TYPE_MAP contains common aliases."""
         assert "string" in TYPE_MAP
@@ -128,6 +145,7 @@ class TestTypeMap:
 class TestBuildStateClassWithStateConfig:
     """Tests for build_state_class with state: section."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_state_section_adds_fields(self):
         """State section fields are included in generated class."""
         config = {
@@ -141,6 +159,7 @@ class TestBuildStateClassWithStateConfig:
         assert "concept" in annotations
         assert "count" in annotations
 
+    @pytest.mark.req("REQ-YG-024")
     def test_state_section_empty(self):
         """Empty state section doesn't break build."""
         config = {
@@ -152,6 +171,7 @@ class TestBuildStateClassWithStateConfig:
         # Should still have base fields
         assert "thread_id" in state_class.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_state_section_missing(self):
         """Missing state section is handled."""
         config = {
@@ -162,6 +182,7 @@ class TestBuildStateClassWithStateConfig:
         # Should still have base fields
         assert "thread_id" in state_class.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_custom_field_overrides_common(self):
         """Custom state field can override common field type."""
         config = {
@@ -173,6 +194,7 @@ class TestBuildStateClassWithStateConfig:
         # The custom field should be present
         assert "topic" in state_class.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_storyboard_example(self):
         """Test storyboard-style config with concept field."""
         config = {

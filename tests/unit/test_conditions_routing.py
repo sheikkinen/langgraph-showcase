@@ -21,37 +21,44 @@ from yamlgraph.utils.conditions import (
 class TestParseLiteral:
     """Tests for parse_literal function."""
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_integer(self):
         """Should parse integer."""
         assert parse_literal("42") == 42
         assert parse_literal("-5") == -5
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_float(self):
         """Should parse float."""
         assert parse_literal("0.8") == 0.8
         assert parse_literal("-3.14") == -3.14
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_boolean_true(self):
         """Should parse boolean true (case insensitive)."""
         assert parse_literal("true") is True
         assert parse_literal("True") is True
         assert parse_literal("TRUE") is True
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_boolean_false(self):
         """Should parse boolean false."""
         assert parse_literal("false") is False
         assert parse_literal("False") is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_null_none(self):
         """Should parse null/none."""
         assert parse_literal("null") is None
         assert parse_literal("None") is None
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_quoted_string(self):
         """Should parse quoted strings."""
         assert parse_literal('"hello"') == "hello"
         assert parse_literal("'world'") == "world"
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_unquoted_string(self):
         """Should return unquoted string as-is."""
         assert parse_literal("hello") == "hello"
@@ -60,18 +67,21 @@ class TestParseLiteral:
 class TestEvaluateComparison:
     """Tests for evaluate_comparison function."""
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_less_than(self):
         """Should evaluate < operator."""
         state = {"score": 0.5}
         assert evaluate_comparison("score", "<", "0.8", state) is True
         assert evaluate_comparison("score", "<", "0.3", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_greater_than(self):
         """Should evaluate > operator."""
         state = {"score": 0.9}
         assert evaluate_comparison("score", ">", "0.5", state) is True
         assert evaluate_comparison("score", ">", "1.0", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_less_than_or_equal(self):
         """Should evaluate <= operator."""
         state = {"value": 5}
@@ -79,6 +89,7 @@ class TestEvaluateComparison:
         assert evaluate_comparison("value", "<=", "10", state) is True
         assert evaluate_comparison("value", "<=", "3", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_greater_than_or_equal(self):
         """Should evaluate >= operator."""
         state = {"value": 5}
@@ -86,6 +97,7 @@ class TestEvaluateComparison:
         assert evaluate_comparison("value", ">=", "3", state) is True
         assert evaluate_comparison("value", ">=", "10", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_equal(self):
         """Should evaluate == operator."""
         state = {"status": "done", "count": 3}
@@ -93,23 +105,27 @@ class TestEvaluateComparison:
         assert evaluate_comparison("count", "==", "3", state) is True
         assert evaluate_comparison("status", "==", '"pending"', state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_not_equal(self):
         """Should evaluate != operator."""
         state = {"status": "done"}
         assert evaluate_comparison("status", "!=", '"pending"', state) is True
         assert evaluate_comparison("status", "!=", '"done"', state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_missing_value_returns_false(self):
         """Missing value should return False for comparison (except ==, !=)."""
         state = {"a": 1}
         assert evaluate_comparison("missing", "<", "5", state) is False
         assert evaluate_comparison("missing", ">", "5", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_missing_value_equals_none(self):
         """Missing value equals None."""
         state = {"a": 1}
         assert evaluate_comparison("missing", "==", "None", state) is True
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_type_mismatch_returns_false(self):
         """Type mismatch in comparison should return False."""
         state = {"value": "not_a_number"}
@@ -119,17 +135,20 @@ class TestEvaluateComparison:
 class TestEvaluateCondition:
     """Tests for evaluate_condition function."""
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_simple_comparison(self):
         """Should evaluate simple comparison."""
         assert evaluate_condition("score < 0.8", {"score": 0.5}) is True
         assert evaluate_condition("score >= 0.8", {"score": 0.9}) is True
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_nested_path(self):
         """Should evaluate nested path comparison."""
         state = {"critique": {"score": 0.7}}
         assert evaluate_condition("critique.score < 0.8", state) is True
         assert evaluate_condition("critique.score >= 0.8", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_compound_and(self):
         """Should evaluate AND expression."""
         state = {"a": 5, "b": 10}
@@ -137,6 +156,7 @@ class TestEvaluateCondition:
         assert evaluate_condition("a > 1 and b > 20", state) is False
         assert evaluate_condition("a > 10 and b < 20", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_compound_or(self):
         """Should evaluate OR expression."""
         state = {"a": 5, "b": 10}
@@ -144,23 +164,27 @@ class TestEvaluateCondition:
         assert evaluate_condition("a > 1 or b > 100", state) is True
         assert evaluate_condition("a > 10 or b > 100", state) is False
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_mixed_and_or(self):
         """Should handle mixed AND/OR (AND has higher precedence)."""
         state = {"a": 5, "b": 10, "c": 15}
         # a > 10 OR (b < 20 AND c > 10) -> False OR True -> True
         assert evaluate_condition("a > 10 or b < 20 and c > 10", state) is True
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_whitespace_handling(self):
         """Should handle various whitespace."""
         state = {"score": 0.5}
         assert evaluate_condition("  score   <   0.8  ", state) is True
         assert evaluate_condition("score<0.8", state) is True
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_invalid_expression_raises(self):
         """Should raise ValueError for invalid expression."""
         with pytest.raises(ValueError, match="Invalid condition"):
             evaluate_condition("not a valid expression !!!", {})
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_pydantic_model_in_state(self):
         """Should work with Pydantic models in state."""
 
@@ -175,18 +199,21 @@ class TestEvaluateCondition:
 class TestMakeRouterFn:
     """Tests for make_router_fn factory."""
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_routes_to_matching_target(self):
         """Should route to target matching _route."""
         router = make_router_fn(["positive", "negative", "neutral"])
         assert router({"_route": "positive"}) == "positive"
         assert router({"_route": "negative"}) == "negative"
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_defaults_to_first_target(self):
         """Should default to first target when no match."""
         router = make_router_fn(["a", "b", "c"])
         assert router({"_route": "unknown"}) == "a"
         assert router({}) == "a"
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_ignores_invalid_route(self):
         """Should ignore route not in targets."""
         router = make_router_fn(["x", "y"])
@@ -196,6 +223,7 @@ class TestMakeRouterFn:
 class TestMakeExprRouterFn:
     """Tests for make_expr_router_fn factory."""
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_routes_on_first_matching_condition(self):
         """Should route to first matching condition."""
         edges = [
@@ -207,6 +235,7 @@ class TestMakeExprRouterFn:
         assert router({"score": 0.3}) == "refine"
         assert router({"score": 0.8}) == "done"
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_loop_limit_takes_precedence(self):
         """Should return END when loop limit reached."""
         from langgraph.graph import END
@@ -216,6 +245,7 @@ class TestMakeExprRouterFn:
 
         assert router({"_loop_limit_reached": True, "score": 0.5}) == END
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_defaults_to_end_when_no_match(self):
         """Should return END when no condition matches."""
         from langgraph.graph import END
@@ -229,6 +259,7 @@ class TestMakeExprRouterFn:
         # score = 0.7 doesn't match either
         assert router({"score": 0.7}) == END
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_handles_condition_error_gracefully(self):
         """Should log warning and continue on condition error."""
 
@@ -241,6 +272,7 @@ class TestMakeExprRouterFn:
         # Should skip invalid and match second condition
         assert router({"score": 0.9}) == "done"
 
+    @pytest.mark.req("REQ-YG-022", "REQ-YG-023")
     def test_condition_order_matters(self):
         """First matching condition wins."""
         edges = [

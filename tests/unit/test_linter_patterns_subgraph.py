@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from yamlgraph.linter.patterns.subgraph import (
     check_subgraph_node_requirements,
     check_subgraph_patterns,
@@ -11,6 +13,7 @@ from yamlgraph.linter.patterns.subgraph import (
 class TestSubgraphNodeRequirements:
     """Test subgraph node validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_subgraph_with_all_fields(self, tmp_path):
         """Should pass when subgraph has all required fields and file exists."""
         # Create a mock subgraph file
@@ -31,6 +34,7 @@ class TestSubgraphNodeRequirements:
         )
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_missing_graph_field(self):
         """Should error when subgraph node missing 'graph' field."""
         node_config = {
@@ -46,6 +50,7 @@ class TestSubgraphNodeRequirements:
         assert issues[0].code == "E501"
         assert "missing required 'graph' field" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_file_not_found(self, tmp_path):
         """Should error when subgraph file doesn't exist."""
         node_config = {"type": "subgraph", "graph": "nonexistent.yaml"}
@@ -60,6 +65,7 @@ class TestSubgraphNodeRequirements:
         assert error_issues[0].code == "E502"
         assert "references non-existent graph file" in error_issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_file_found_relative_to_graph_dir(self, tmp_path):
         """Should find subgraph file relative to graph directory."""
         # Create graph in subdirectory
@@ -83,6 +89,7 @@ class TestSubgraphNodeRequirements:
         warning_codes = {i.code for i in issues}
         assert warning_codes == {"W501", "W502"}
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_missing_input_mapping_warning(self, tmp_path):
         """Should warn when subgraph node missing input_mapping."""
         # Create subgraph file
@@ -105,6 +112,7 @@ class TestSubgraphNodeRequirements:
         assert issues[0].code == "W501"
         assert "missing input_mapping" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_missing_output_mapping_warning(self, tmp_path):
         """Should warn when subgraph node missing output_mapping."""
         # Create subgraph file
@@ -127,6 +135,7 @@ class TestSubgraphNodeRequirements:
         assert issues[0].code == "W502"
         assert "missing output_mapping" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_missing_both_mappings_warnings(self, tmp_path):
         """Should warn for both missing mappings."""
         # Create subgraph file
@@ -147,6 +156,7 @@ class TestSubgraphNodeRequirements:
         codes = {issue.code for issue in issues}
         assert codes == {"W501", "W502"}
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_minimal_valid_config(self, tmp_path):
         """Should pass with minimal valid config (just graph field)."""
         # Create subgraph file
@@ -172,6 +182,7 @@ class TestSubgraphNodeRequirements:
 class TestSubgraphPatternsIntegration:
     """Test subgraph pattern validation integration."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_subgraph_graph(self, tmp_path):
         """Should pass valid subgraph graph."""
         # Create subgraph file
@@ -220,6 +231,7 @@ edges:
         issues = check_subgraph_patterns(graph_file, tmp_path)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_subgraph_graph_missing_graph_field(self, tmp_path):
         """Should error when subgraph node missing graph field."""
         graph_content = """
@@ -241,6 +253,7 @@ edges:
         assert issues[0].severity == "error"
         assert issues[0].code == "E501"
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_subgraph_graph_file_not_found(self, tmp_path):
         """Should error when subgraph file doesn't exist."""
         graph_content = """
@@ -262,6 +275,7 @@ edges:
         assert len(error_issues) == 1
         assert error_issues[0].code == "E502"
 
+    @pytest.mark.req("REQ-YG-003")
     def test_subgraph_graph_missing_mappings_warnings(self, tmp_path):
         """Should warn when subgraph missing mappings."""
         # Create subgraph file
@@ -286,6 +300,7 @@ edges:
         codes = {issue.code for issue in issues}
         assert codes == {"W501", "W502"}
 
+    @pytest.mark.req("REQ-YG-003")
     def test_mixed_nodes_validates_only_subgraphs(self, tmp_path):
         """Should only validate subgraph nodes, ignore others."""
         # Create subgraph file

@@ -13,6 +13,7 @@ from yamlgraph.graph_loader import load_graph_config
 class TestDataFilesInGraphLoader:
     """Test data_files integration in graph_loader."""
 
+    @pytest.mark.req("REQ-YG-001")
     def test_graph_config_loads_data_files(self, tmp_path: Path) -> None:
         """GraphConfig.data property contains loaded data files."""
         # Create data file
@@ -41,6 +42,7 @@ edges:
         assert hasattr(config, "data")
         assert config.data == {"schema": {"fields": ["name", "age"]}}
 
+    @pytest.mark.req("REQ-YG-001")
     def test_graph_config_empty_data_files(self, tmp_path: Path) -> None:
         """Graph without data_files has empty data dict."""
         graph_file = tmp_path / "graph.yaml"
@@ -62,6 +64,7 @@ edges:
         assert hasattr(config, "data")
         assert config.data == {}
 
+    @pytest.mark.req("REQ-YG-001")
     def test_data_files_path_relative_to_graph(self, tmp_path: Path) -> None:
         """Data files are resolved relative to graph file, not cwd."""
         # Create subdirectory for graph
@@ -99,6 +102,7 @@ edges:
         finally:
             os.chdir(original_cwd)
 
+    @pytest.mark.req("REQ-YG-001")
     def test_data_files_missing_raises_error(self, tmp_path: Path) -> None:
         """Missing data file raises error during graph load."""
         graph_file = tmp_path / "graph.yaml"
@@ -122,6 +126,7 @@ edges:
         with pytest.raises(DataFileError, match="not found"):
             load_graph_config(graph_file)
 
+    @pytest.mark.req("REQ-YG-001")
     def test_data_files_path_traversal_blocked(self, tmp_path: Path) -> None:
         """Path traversal attempts are blocked."""
         # Create a file outside the graph directory
@@ -157,6 +162,7 @@ edges:
 class TestDataFilesSchemaValidation:
     """Test data_files in GraphConfigSchema validation."""
 
+    @pytest.mark.req("REQ-YG-001")
     def test_schema_accepts_data_files(self) -> None:
         """GraphConfigSchema accepts data_files field."""
         from yamlgraph.models.graph_schema import GraphConfigSchema
@@ -171,6 +177,7 @@ class TestDataFilesSchemaValidation:
         schema = GraphConfigSchema.model_validate(config)
         assert schema.data_files == {"schema": "schema.yaml", "config": "config.yaml"}
 
+    @pytest.mark.req("REQ-YG-001")
     def test_schema_data_files_optional(self) -> None:
         """data_files is optional in schema."""
         from yamlgraph.models.graph_schema import GraphConfigSchema
@@ -183,6 +190,7 @@ class TestDataFilesSchemaValidation:
         schema = GraphConfigSchema.model_validate(config)
         assert schema.data_files == {}
 
+    @pytest.mark.req("REQ-YG-001")
     def test_schema_rejects_invalid_data_files_type(self) -> None:
         """data_files must be a dict."""
         from pydantic import ValidationError

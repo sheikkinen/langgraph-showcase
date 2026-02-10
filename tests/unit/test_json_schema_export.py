@@ -12,12 +12,14 @@ import pytest
 class TestExportGraphJsonSchema:
     """Tests for export_graph_json_schema function."""
 
+    @pytest.mark.req("REQ-YG-036")
     def test_import_function(self) -> None:
         """Test function can be imported."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
 
         assert callable(export_graph_json_schema)
 
+    @pytest.mark.req("REQ-YG-036")
     def test_returns_valid_json_schema(self) -> None:
         """Test export returns a valid JSON Schema dict."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -28,6 +30,7 @@ class TestExportGraphJsonSchema:
         assert "$schema" in schema
         assert schema["$schema"] == "http://json-schema.org/draft-07/schema#"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_schema_id(self) -> None:
         """Test schema includes $id."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -37,6 +40,7 @@ class TestExportGraphJsonSchema:
         assert "$id" in schema
         assert "yamlgraph" in schema["$id"]
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_title_and_description(self) -> None:
         """Test schema has title and description."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -46,6 +50,7 @@ class TestExportGraphJsonSchema:
         assert "title" in schema
         assert "description" in schema
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_required_properties(self) -> None:
         """Test schema defines required properties."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -57,6 +62,7 @@ class TestExportGraphJsonSchema:
         assert "nodes" in props
         assert "edges" in props
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_node_types_enum(self) -> None:
         """Test schema includes node type reference."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -70,6 +76,7 @@ class TestExportGraphJsonSchema:
         # The default value shows llm is a valid type
         assert "llm" in schema_json
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_on_error_enum(self) -> None:
         """Test schema includes on_error field."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -80,6 +87,7 @@ class TestExportGraphJsonSchema:
         # on_error field exists in schema
         assert "on_error" in schema_json
 
+    @pytest.mark.req("REQ-YG-036")
     def test_includes_field_descriptions(self) -> None:
         """Test schema includes Pydantic Field descriptions."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -90,6 +98,7 @@ class TestExportGraphJsonSchema:
         schema_json = json.dumps(schema)
         assert "description" in schema_json
 
+    @pytest.mark.req("REQ-YG-036")
     def test_schema_is_serializable(self) -> None:
         """Test schema can be serialized to JSON string."""
         from yamlgraph.models.graph_schema import export_graph_json_schema
@@ -108,12 +117,14 @@ class TestExportGraphJsonSchema:
 class TestGetSchemaPath:
     """Tests for get_schema_path function."""
 
+    @pytest.mark.req("REQ-YG-036")
     def test_import_function(self) -> None:
         """Test function can be imported from package."""
         from yamlgraph import get_schema_path
 
         assert callable(get_schema_path)
 
+    @pytest.mark.req("REQ-YG-036")
     def test_returns_path(self) -> None:
         """Test function returns a Path object."""
         from yamlgraph import get_schema_path
@@ -122,6 +133,7 @@ class TestGetSchemaPath:
 
         assert isinstance(result, Path)
 
+    @pytest.mark.req("REQ-YG-036")
     def test_path_ends_with_json(self) -> None:
         """Test path points to JSON file."""
         from yamlgraph import get_schema_path
@@ -130,6 +142,7 @@ class TestGetSchemaPath:
 
         assert result.suffix == ".json"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_bundled_schema_exists(self) -> None:
         """Test bundled schema file exists at returned path."""
         from yamlgraph import get_schema_path
@@ -138,6 +151,7 @@ class TestGetSchemaPath:
 
         assert result.exists(), f"Bundled schema not found at {result}"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_bundled_schema_is_valid_json(self) -> None:
         """Test bundled schema is valid JSON."""
         from yamlgraph import get_schema_path
@@ -152,6 +166,7 @@ class TestGetSchemaPath:
 class TestSchemaCliCommands:
     """Tests for CLI schema commands."""
 
+    @pytest.mark.req("REQ-YG-036")
     def test_schema_export_command_exists(self) -> None:
         """Test schema export CLI command is registered."""
         from yamlgraph.cli import create_parser
@@ -161,6 +176,7 @@ class TestSchemaCliCommands:
         args = parser.parse_args(["schema", "export"])
         assert args.schema_command == "export"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_schema_export_with_output_flag(self) -> None:
         """Test schema export accepts --output flag."""
         from yamlgraph.cli import create_parser
@@ -169,6 +185,7 @@ class TestSchemaCliCommands:
         args = parser.parse_args(["schema", "export", "--output", "schema.json"])
         assert args.output == "schema.json"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_schema_path_command_exists(self) -> None:
         """Test schema path CLI command is registered."""
         from yamlgraph.cli import create_parser
@@ -177,18 +194,21 @@ class TestSchemaCliCommands:
         args = parser.parse_args(["schema", "path"])
         assert args.schema_command == "path"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_export_function(self) -> None:
         """Test cmd_schema_export handler exists."""
         from yamlgraph.cli.schema_commands import cmd_schema_export
 
         assert callable(cmd_schema_export)
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_path_function(self) -> None:
         """Test cmd_schema_path handler exists."""
         from yamlgraph.cli.schema_commands import cmd_schema_path
 
         assert callable(cmd_schema_path)
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_export_outputs_json(
         self, capsys: pytest.CaptureFixture
     ) -> None:
@@ -204,6 +224,7 @@ class TestSchemaCliCommands:
         schema = json.loads(captured.out)
         assert "$schema" in schema
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_export_writes_file(self, tmp_path: Path) -> None:
         """Test schema export writes to file when --output given."""
         from argparse import Namespace
@@ -218,6 +239,7 @@ class TestSchemaCliCommands:
         schema = json.loads(output_file.read_text())
         assert "$schema" in schema
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_path_prints_path(self, capsys: pytest.CaptureFixture) -> None:
         """Test schema path prints path to bundled schema."""
         from argparse import Namespace
@@ -231,6 +253,7 @@ class TestSchemaCliCommands:
         path = Path(captured.out.strip())
         assert path.suffix == ".json"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_dispatch_export(self, capsys: pytest.CaptureFixture) -> None:
         """Test schema dispatch routes to export command."""
         from argparse import Namespace
@@ -245,6 +268,7 @@ class TestSchemaCliCommands:
         schema = json.loads(captured.out)
         assert "$schema" in schema
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_dispatch_path(self, capsys: pytest.CaptureFixture) -> None:
         """Test schema dispatch routes to path command."""
         from argparse import Namespace
@@ -258,6 +282,7 @@ class TestSchemaCliCommands:
         path = Path(captured.out.strip())
         assert path.suffix == ".json"
 
+    @pytest.mark.req("REQ-YG-036")
     def test_cmd_schema_dispatch_unknown_command(
         self, capsys: pytest.CaptureFixture
     ) -> None:

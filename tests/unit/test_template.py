@@ -6,6 +6,7 @@ import pytest
 class TestExtractVariables:
     """Tests for extract_variables function."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_simple_variables(self):
         """Should extract {var} placeholders."""
         from yamlgraph.utils.template import extract_variables
@@ -14,6 +15,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert variables == {"name", "style"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_single_variable(self):
         """Should extract a single variable."""
         from yamlgraph.utils.template import extract_variables
@@ -22,6 +24,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert variables == {"user"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_no_variables(self):
         """Should return empty set when no variables."""
         from yamlgraph.utils.template import extract_variables
@@ -30,6 +33,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert variables == set()
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_duplicate_variables(self):
         """Should deduplicate variables."""
         from yamlgraph.utils.template import extract_variables
@@ -38,6 +42,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert variables == {"name"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_jinja2_variable(self):
         """Should extract {{ var }} Jinja2 variables."""
         from yamlgraph.utils.template import extract_variables
@@ -46,6 +51,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert "name" in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_jinja2_variable_with_field_access(self):
         """Should extract base variable from {{ var.field }}."""
         from yamlgraph.utils.template import extract_variables
@@ -54,6 +60,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert "user" in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_jinja2_loop_variable(self):
         """Should extract iterable from {% for x in items %}."""
         from yamlgraph.utils.template import extract_variables
@@ -64,6 +71,7 @@ class TestExtractVariables:
         # 'item' is a loop variable, not a required input
         assert "item" not in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_extract_jinja2_if_variable(self):
         """Should extract variable from {% if condition %}."""
         from yamlgraph.utils.template import extract_variables
@@ -72,6 +80,7 @@ class TestExtractVariables:
         variables = extract_variables(template)
         assert "show_details" in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_exclude_state_variable(self):
         """State is injected by framework, not a required input."""
         from yamlgraph.utils.template import extract_variables
@@ -81,6 +90,7 @@ class TestExtractVariables:
         # state is excluded - it's injected by node_factory
         assert "state" not in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_exclude_jinja2_builtins(self):
         """Should exclude Jinja2 builtins like loop, range."""
         from yamlgraph.utils.template import extract_variables
@@ -90,6 +100,7 @@ class TestExtractVariables:
         assert "range" not in variables
         assert "loop" not in variables
 
+    @pytest.mark.req("REQ-YG-013")
     def test_mixed_simple_and_jinja2(self):
         """Should handle templates mixing {var} and {{ var }}."""
         from yamlgraph.utils.template import extract_variables
@@ -103,6 +114,7 @@ class TestExtractVariables:
 class TestValidateVariables:
     """Tests for validate_variables function."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_all_provided(self):
         """Should not raise when all variables provided."""
         from yamlgraph.utils.template import validate_variables
@@ -111,6 +123,7 @@ class TestValidateVariables:
         # Should not raise
         validate_variables(template, {"name": "World", "style": "formal"}, "greet")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_missing_single_variable(self):
         """Should raise ValueError for single missing variable."""
         from yamlgraph.utils.template import validate_variables
@@ -119,6 +132,7 @@ class TestValidateVariables:
         with pytest.raises(ValueError, match="Missing required variable.*name"):
             validate_variables(template, {"style": "formal"}, "greet")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_missing_multiple_variables(self):
         """Should list ALL missing variables in error."""
         from yamlgraph.utils.template import validate_variables
@@ -130,6 +144,7 @@ class TestValidateVariables:
         assert "name" in error_msg
         assert "style" in error_msg
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_extra_variables_ok(self):
         """Should not raise when extra variables provided."""
         from yamlgraph.utils.template import validate_variables
@@ -138,6 +153,7 @@ class TestValidateVariables:
         # Should not raise - extra vars are fine
         validate_variables(template, {"name": "World", "extra": "ignored"}, "greet")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_prompt_name_in_error(self):
         """Error message should include prompt name."""
         from yamlgraph.utils.template import validate_variables
@@ -146,6 +162,7 @@ class TestValidateVariables:
         with pytest.raises(ValueError, match="greet"):
             validate_variables(template, {}, "greet")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_empty_template(self):
         """Should not raise for template without variables."""
         from yamlgraph.utils.template import validate_variables
@@ -154,6 +171,7 @@ class TestValidateVariables:
         # Should not raise
         validate_variables(template, {}, "static")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_validate_jinja2_template(self):
         """Should validate Jinja2 templates correctly."""
         from yamlgraph.utils.template import validate_variables
@@ -166,6 +184,7 @@ class TestValidateVariables:
 class TestExecutePromptValidation:
     """Integration tests for validation in execute_prompt."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_execute_prompt_raises_on_missing_variable(self):
         """Should raise clear error when required variable is missing."""
         from yamlgraph.executor import execute_prompt
@@ -176,6 +195,7 @@ class TestExecutePromptValidation:
                 variables={"style": "formal"},  # Missing 'name'
             )
 
+    @pytest.mark.req("REQ-YG-013")
     def test_execute_prompt_lists_all_missing_variables(self):
         """Error should list ALL missing variables, not just first."""
         from yamlgraph.executor import execute_prompt

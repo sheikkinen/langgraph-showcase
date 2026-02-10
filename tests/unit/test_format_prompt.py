@@ -8,6 +8,7 @@ from yamlgraph.executor import format_prompt
 class TestFormatPrompt:
     """Test the format_prompt function with both simple and Jinja2 templates."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_simple_format_basic(self):
         """Test basic string formatting with {variable} syntax."""
         template = "Hello {name}!"
@@ -15,6 +16,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Hello World!"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_simple_format_multiple_variables(self):
         """Test formatting with multiple variables."""
         template = "Topic: {topic}, Style: {style}, Words: {word_count}"
@@ -22,6 +24,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Topic: AI, Style: casual, Words: 500"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_simple_format_missing_variable(self):
         """Test that missing variables raise KeyError."""
         template = "Hello {name}!"
@@ -29,6 +32,7 @@ class TestFormatPrompt:
         with pytest.raises(KeyError):
             format_prompt(template, variables)
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_basic_variable(self):
         """Test Jinja2 template with basic {{ variable }} syntax."""
         template = "Hello {{ name }}!"
@@ -36,6 +40,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Hello World!"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_for_loop(self):
         """Test Jinja2 template with for loop."""
         template = """{% for item in items %}
@@ -48,6 +53,7 @@ class TestFormatPrompt:
         assert "- banana" in result
         assert "- cherry" in result
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_conditional(self):
         """Test Jinja2 template with if/else."""
         template = """{% if premium %}Premium User{% else %}Regular User{% endif %}"""
@@ -58,6 +64,7 @@ class TestFormatPrompt:
         result_regular = format_prompt(template, {"premium": False})
         assert result_regular == "Regular User"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_filter_slice(self):
         """Test Jinja2 template with slice filter."""
         template = "Summary: {{ text[:50] }}..."
@@ -72,6 +79,7 @@ class TestFormatPrompt:
         assert result.endswith("...")
         assert len(result) < len(variables["text"]) + len("Summary: ...")
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_filter_upper(self):
         """Test Jinja2 template with upper filter."""
         template = "{{ name | upper }}"
@@ -79,6 +87,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "WORLD"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_complex_template(self):
         """Test complex Jinja2 template with loops and conditionals."""
         template = """Items in {{ category }}:
@@ -100,6 +109,7 @@ class TestFormatPrompt:
         assert "Cherry: $2.0" in result
         assert "Banana" not in result
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_missing_variable_graceful(self):
         """Test that Jinja2 missing variables are handled (rendered as empty by default)."""
         template = "Hello {{ name }}!"
@@ -108,6 +118,7 @@ class TestFormatPrompt:
         # Jinja2 by default renders undefined variables as empty strings
         assert result == "Hello !"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_detection_uses_jinja2_for_double_braces(self):
         """Test that {{ triggers Jinja2 mode."""
         template = "Value: {{ x }}"
@@ -115,6 +126,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Value: 42"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_detection_uses_jinja2_for_statements(self):
         """Test that {% triggers Jinja2 mode."""
         template = "{% if true %}Yes{% endif %}"
@@ -122,6 +134,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Yes"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_backward_compatibility_no_jinja2_syntax(self):
         """Test that templates without Jinja2 syntax still use simple format."""
         # This ensures backward compatibility
@@ -130,6 +143,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == "Simple test template"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_empty_template(self):
         """Test formatting empty template."""
         template = ""
@@ -137,6 +151,7 @@ class TestFormatPrompt:
         result = format_prompt(template, variables)
         assert result == ""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_template_with_no_placeholders(self):
         """Test template with no variables."""
         template = "Just plain text"

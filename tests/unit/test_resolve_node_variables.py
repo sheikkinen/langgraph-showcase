@@ -1,11 +1,14 @@
 """Tests for resolve_node_variables shared utility."""
 
+import pytest
+
 from yamlgraph.utils.expressions import resolve_node_variables
 
 
 class TestResolveNodeVariables:
     """Test resolve_node_variables function."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_with_templates_resolves_state_expressions(self):
         """Variables with templates should resolve state expressions."""
         state = {"name": "Alice", "age": 30}
@@ -15,6 +18,7 @@ class TestResolveNodeVariables:
 
         assert result == {"user": "Alice", "years": 30}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_with_templates_preserves_types(self):
         """Templates should preserve original types (lists, dicts)."""
         state = {"items": [1, 2, 3], "config": {"key": "value"}}
@@ -24,6 +28,7 @@ class TestResolveNodeVariables:
 
         assert result == {"list_var": [1, 2, 3], "dict_var": {"key": "value"}}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_with_templates_supports_nested_state(self):
         """Templates should resolve nested state paths."""
         state = {"user": {"profile": {"name": "Bob"}}}
@@ -33,6 +38,7 @@ class TestResolveNodeVariables:
 
         assert result == {"username": "Bob"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_without_templates_returns_filtered_state(self):
         """Empty templates should return filtered state (no _ keys, no None)."""
         state = {
@@ -49,6 +55,7 @@ class TestResolveNodeVariables:
         assert "_internal" not in result
         assert "empty" not in result
 
+    @pytest.mark.req("REQ-YG-013")
     def test_without_templates_none_returns_filtered_state(self):
         """None templates should behave like empty templates."""
         state = {"name": "Alice", "_secret": "hidden"}
@@ -57,6 +64,7 @@ class TestResolveNodeVariables:
 
         assert result == {"name": "Alice"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_with_templates_keeps_static_values(self):
         """Non-expression values in templates should be kept as-is."""
         state = {"name": "Alice"}
@@ -66,6 +74,7 @@ class TestResolveNodeVariables:
 
         assert result == {"greeting": "Hello", "user": "Alice"}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_with_missing_state_key_returns_none(self):
         """Missing state keys should return None."""
         state = {}
@@ -76,6 +85,7 @@ class TestResolveNodeVariables:
         # resolve_template returns None for missing keys
         assert result == {"missing": None}
 
+    @pytest.mark.req("REQ-YG-013")
     def test_empty_state_without_templates(self):
         """Empty state without templates should return empty dict."""
         result = resolve_node_variables({}, {})

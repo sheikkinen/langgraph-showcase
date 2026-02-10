@@ -17,6 +17,7 @@ class TestStreamingNodeResolution:
     """Tests for streaming node prompt resolution."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_streaming_node_passes_graph_path(self) -> None:
         """Streaming node should pass graph_path for relative prompt resolution."""
         captured_calls = []
@@ -53,6 +54,7 @@ class TestStreamingNodeResolution:
             assert call_kwargs["graph_path"] == Path("/test/graph.yaml")
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_streaming_node_passes_state_for_jinja2(self) -> None:
         """Streaming node should pass state for Jinja2 {{ state.* }} templates."""
         captured_calls = []
@@ -91,6 +93,7 @@ class TestStreamingNodeResolution:
 class TestStreamingVsNonStreamingParity:
     """Tests for parity between streaming and non-streaming nodes."""
 
+    @pytest.mark.req("REQ-YG-009")
     def test_streaming_node_config_missing_resolution_params(self) -> None:
         """Streaming node creation doesn't accept prompt resolution params."""
         import inspect
@@ -111,6 +114,7 @@ class TestStreamingVsNonStreamingParity:
         )
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_streaming_dispatch_loses_resolution_context(self) -> None:
         """When llm_nodes dispatches to streaming, resolution context is lost."""
         # This test validates the dispatch in llm_nodes.py:57-60

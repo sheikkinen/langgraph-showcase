@@ -735,6 +735,20 @@ nodes:
     config = load_graph_config(graph_yaml)
 ```
 
+### Requirement Traceability (ADR-001)
+
+Every test function is linked to one or more requirements via `@pytest.mark.req`:
+
+```python
+@pytest.mark.req("REQ-YG-014", "REQ-YG-031")
+def test_invoke_with_retry_succeeds_after_transient_failure(mock_llm):
+    ...
+```
+
+**Coverage report**: `python scripts/req-coverage.py` (add `--detail` for per-test breakdown, `--strict` for CI gate).
+
+All 46 requirements across 12 capabilities are covered. See `docs/adr/001-test-requirement-traceability.md` for decision rationale.
+
 ---
 
 ## Code Quality Rules

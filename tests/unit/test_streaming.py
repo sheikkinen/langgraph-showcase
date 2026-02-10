@@ -13,6 +13,7 @@ import pytest
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_yields_tokens():
     """execute_prompt_streaming yields tokens from LLM stream."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -49,6 +50,7 @@ async def test_execute_prompt_streaming_yields_tokens():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_with_variables():
     """execute_prompt_streaming formats template with variables."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -84,6 +86,7 @@ async def test_execute_prompt_streaming_with_variables():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_uses_provider():
     """execute_prompt_streaming passes provider to create_llm."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -116,6 +119,7 @@ async def test_execute_prompt_streaming_uses_provider():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_handles_empty_chunks():
     """execute_prompt_streaming skips empty chunks."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -151,6 +155,7 @@ async def test_execute_prompt_streaming_handles_empty_chunks():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_propagates_errors():
     """execute_prompt_streaming propagates LLM errors."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -183,6 +188,7 @@ async def test_execute_prompt_streaming_propagates_errors():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_execute_prompt_streaming_collect():
     """execute_prompt_streaming can collect all tokens into string."""
     from yamlgraph.executor_async import execute_prompt_streaming
@@ -216,6 +222,7 @@ async def test_execute_prompt_streaming_collect():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_create_streaming_node_yields_tokens():
     """create_streaming_node creates node that yields tokens."""
     from yamlgraph.node_factory import create_streaming_node
@@ -242,6 +249,7 @@ async def test_create_streaming_node_yields_tokens():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-009")
 async def test_streaming_node_with_callback():
     """Streaming node can use callback for each token."""
     from yamlgraph.node_factory import create_streaming_node
@@ -275,6 +283,7 @@ async def test_streaming_node_with_callback():
 # ==============================================================================
 
 
+@pytest.mark.req("REQ-YG-009")
 def test_node_config_stream_true_creates_streaming_node():
     """Node with stream: true creates streaming node."""
     from yamlgraph.node_factory import create_node_function
@@ -300,6 +309,7 @@ def test_node_config_stream_true_creates_streaming_node():
         assert "prompts_relative" in call_args[1]
 
 
+@pytest.mark.req("REQ-YG-009")
 def test_node_config_stream_false_creates_regular_node():
     """Node with stream: false creates regular node."""
     from yamlgraph.node_factory import create_node_function

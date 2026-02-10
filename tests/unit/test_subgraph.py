@@ -16,6 +16,7 @@ import pytest
 class TestSubgraphNodeConfig:
     """Tests for SubgraphNodeConfig schema validation."""
 
+    @pytest.mark.req("REQ-YG-042")
     def test_valid_invoke_mode_config(self):
         """Valid config with invoke mode and mappings."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -30,6 +31,7 @@ class TestSubgraphNodeConfig:
         assert config.mode == "invoke"
         assert config.graph == "subgraphs/child.yaml"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_valid_direct_mode_config(self):
         """Valid config with direct mode (no mappings)."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -43,6 +45,7 @@ class TestSubgraphNodeConfig:
         assert config.input_mapping == {}
         assert config.output_mapping == {}
 
+    @pytest.mark.req("REQ-YG-042")
     def test_default_mode_is_invoke(self):
         """Mode defaults to 'invoke' when not specified."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -53,6 +56,7 @@ class TestSubgraphNodeConfig:
         )
         assert config.mode == "invoke"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_rejects_non_yaml_graph_path(self):
         """Rejects graph paths that don't end in .yaml or .yml."""
         from pydantic import ValidationError
@@ -66,6 +70,7 @@ class TestSubgraphNodeConfig:
             )
         assert "YAML file" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-042")
     def test_rejects_mappings_with_direct_mode(self):
         """Direct mode does not allow input/output mappings."""
         from pydantic import ValidationError
@@ -81,6 +86,7 @@ class TestSubgraphNodeConfig:
             )
         assert "direct" in str(exc_info.value).lower()
 
+    @pytest.mark.req("REQ-YG-042")
     def test_accepts_yml_extension(self):
         """Accepts .yml extension for graph path."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -91,6 +97,7 @@ class TestSubgraphNodeConfig:
         )
         assert config.graph == "child.yml"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_accepts_checkpointer_override(self):
         """Accepts optional checkpointer override."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -135,6 +142,7 @@ edges:
         """Return path to parent graph (for relative resolution)."""
         return tmp_path / "parent.yaml"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_creates_callable_node_invoke_mode(
         self, child_graph_yaml: Path, parent_graph_path: Path
     ):
@@ -156,6 +164,7 @@ edges:
         )
         assert callable(node)
 
+    @pytest.mark.req("REQ-YG-042")
     def test_raises_file_not_found_for_missing_graph(self, parent_graph_path: Path):
         """Raises FileNotFoundError when subgraph doesn't exist."""
         from yamlgraph.node_factory import create_subgraph_node
@@ -173,6 +182,7 @@ edges:
             )
         assert "nonexistent.yaml" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-042")
     def test_resolves_path_relative_to_parent(
         self, child_graph_yaml: Path, parent_graph_path: Path
     ):
@@ -203,6 +213,7 @@ class TestSubgraphStateMapping:
         mock.invoke.return_value = {"output_text": "result from child"}
         return mock
 
+    @pytest.mark.req("REQ-YG-042")
     def test_maps_input_state_explicit(self, mock_compiled_graph):
         """Explicit input mapping transforms parent state to child input."""
         from yamlgraph.node_factory import _map_input_state
@@ -215,6 +226,7 @@ class TestSubgraphStateMapping:
         assert child_input == {"user_input": "hello", "conversation": "world"}
         assert "other" not in child_input
 
+    @pytest.mark.req("REQ-YG-042")
     def test_maps_input_state_auto(self, mock_compiled_graph):
         """Auto mapping copies all parent state fields."""
         from yamlgraph.node_factory import _map_input_state
@@ -226,6 +238,7 @@ class TestSubgraphStateMapping:
         assert child_input == {"query": "hello", "context": "world"}
         assert child_input is not parent_state  # Should be a copy
 
+    @pytest.mark.req("REQ-YG-042")
     def test_maps_input_state_full(self, mock_compiled_graph):
         """Star mapping passes entire state (same reference)."""
         from yamlgraph.node_factory import _map_input_state
@@ -236,6 +249,7 @@ class TestSubgraphStateMapping:
 
         assert child_input is parent_state
 
+    @pytest.mark.req("REQ-YG-042")
     def test_maps_output_state_explicit(self):
         """Explicit output mapping transforms child output to parent updates."""
         from yamlgraph.node_factory import _map_output_state
@@ -252,6 +266,7 @@ class TestSubgraphStateMapping:
 class TestCircularReferenceDetection:
     """Tests for circular subgraph reference detection."""
 
+    @pytest.mark.req("REQ-YG-042")
     def test_detects_direct_self_reference(self, tmp_path: Path):
         """Detects A → A cycle (graph references itself)."""
         from yamlgraph.node_factory import create_subgraph_node
@@ -281,6 +296,7 @@ edges:
 
         assert "Circular" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-042")
     def test_detects_indirect_cycle(self, tmp_path: Path):
         """Detects A → B → A cycle."""
         from yamlgraph.node_factory import create_subgraph_node
@@ -330,6 +346,7 @@ edges:
         assert "Circular" in error_msg
         assert "a.yaml" in error_msg
 
+    @pytest.mark.req("REQ-YG-042")
     def test_allows_diamond_pattern(self, tmp_path: Path):
         """Allows diamond pattern: A→B, A→C, B→D, C→D (not circular)."""
         from yamlgraph.node_factory import create_subgraph_node
@@ -405,6 +422,7 @@ edges:
 class TestThreadIdPropagation:
     """Tests for thread ID propagation to child graphs."""
 
+    @pytest.mark.req("REQ-YG-042")
     def test_propagates_thread_id_from_config(self):
         """Thread ID is propagated as parent_thread:node_name."""
         from yamlgraph.node_factory import _build_child_config
@@ -416,6 +434,7 @@ class TestThreadIdPropagation:
 
         assert child_config["configurable"]["thread_id"] == "main-123:summarizer"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_creates_thread_id_when_parent_has_none(self):
         """Creates thread ID from node name when parent has none."""
         from yamlgraph.node_factory import _build_child_config
@@ -427,6 +446,7 @@ class TestThreadIdPropagation:
 
         assert child_config["configurable"]["thread_id"] == "summarizer"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_preserves_other_config_values(self):
         """Other config values are preserved in child config."""
         from yamlgraph.node_factory import _build_child_config
@@ -446,6 +466,7 @@ class TestThreadIdPropagation:
 class TestInterruptOutputMapping:
     """Tests for interrupt_output_mapping feature (FR-006)."""
 
+    @pytest.mark.req("REQ-YG-042")
     def test_schema_accepts_interrupt_output_mapping(self):
         """SubgraphNodeConfig accepts interrupt_output_mapping."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -459,6 +480,7 @@ class TestInterruptOutputMapping:
         )
         assert config.interrupt_output_mapping == {"current_phase": "phase"}
 
+    @pytest.mark.req("REQ-YG-042")
     def test_schema_default_interrupt_output_mapping_empty(self):
         """interrupt_output_mapping defaults to empty dict."""
         from yamlgraph.models.graph_schema import SubgraphNodeConfig
@@ -469,6 +491,7 @@ class TestInterruptOutputMapping:
         )
         assert config.interrupt_output_mapping == {}
 
+    @pytest.mark.req("REQ-YG-042")
     def test_applies_interrupt_mapping_when_subgraph_interrupts(self, tmp_path):
         """interrupt_output_mapping is applied when subgraph returns __interrupt__."""
         from unittest.mock import MagicMock, patch
@@ -532,6 +555,7 @@ edges:
         # Should forward the interrupt marker
         assert "__interrupt__" in result
 
+    @pytest.mark.req("REQ-YG-042")
     def test_applies_output_mapping_when_subgraph_completes(self, tmp_path):
         """output_mapping is applied when subgraph completes (no __interrupt__)."""
         from unittest.mock import MagicMock, patch

@@ -47,6 +47,7 @@ class _OutputModel(BaseModel):
 class TestInvokeWithRetrySuccess:
     """Happy path for _invoke_with_retry."""
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_returns_string_on_first_attempt(self):
         """Successful first call returns content string."""
         executor = PromptExecutor(max_retries=3)
@@ -58,6 +59,7 @@ class TestInvokeWithRetrySuccess:
         assert result == "hello world"
         assert mock_llm.invoke.call_count == 1
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_returns_structured_output_on_first_attempt(self):
         """Successful first call with output_model returns parsed model."""
         executor = PromptExecutor(max_retries=3)
@@ -81,6 +83,7 @@ class TestInvokeWithRetryRetries:
     """Retry behaviour for transient failures."""
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_retries_on_retryable_error_then_succeeds(self, mock_sleep):
         """Retryable error triggers retry; second attempt succeeds."""
         executor = PromptExecutor(max_retries=3)
@@ -97,6 +100,7 @@ class TestInvokeWithRetryRetries:
         mock_sleep.assert_called_once()  # backoff delay applied
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_exponential_backoff_delays(self, mock_sleep):
         """Each retry doubles the delay (capped at RETRY_MAX_DELAY)."""
         executor = PromptExecutor(max_retries=4)
@@ -117,6 +121,7 @@ class TestInvokeWithRetryRetries:
         assert delays[0] <= delays[1] <= delays[2]
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_raises_after_all_retries_exhausted(self, mock_sleep):
         """All retries fail → raises the last exception."""
         executor = PromptExecutor(max_retries=3)
@@ -130,6 +135,7 @@ class TestInvokeWithRetryRetries:
         assert mock_sleep.call_count == 2  # no sleep after final attempt
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_structured_output_retries(self, mock_sleep):
         """Retries also work through the structured-output path."""
         executor = PromptExecutor(max_retries=3)
@@ -154,6 +160,7 @@ class TestInvokeWithRetryRetries:
 class TestInvokeWithRetryNonRetryable:
     """Non-retryable errors raise immediately."""
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_value_error_not_retried(self):
         """ValueError raises immediately without retry."""
         executor = PromptExecutor(max_retries=3)
@@ -165,6 +172,7 @@ class TestInvokeWithRetryNonRetryable:
 
         assert mock_llm.invoke.call_count == 1
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_type_error_not_retried(self):
         """TypeError raises immediately without retry."""
         executor = PromptExecutor(max_retries=3)
@@ -176,6 +184,7 @@ class TestInvokeWithRetryNonRetryable:
 
         assert mock_llm.invoke.call_count == 1
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_generic_exception_not_retried(self):
         """Unrecognised exception raises immediately."""
         executor = PromptExecutor(max_retries=3)
@@ -192,6 +201,7 @@ class TestInvokeWithRetryMaxRetriesConfig:
     """max_retries parameter respected."""
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_max_retries_one_means_no_retries(self, mock_sleep):
         """max_retries=1 means single attempt, no retries."""
         executor = PromptExecutor(max_retries=1)
@@ -205,6 +215,7 @@ class TestInvokeWithRetryMaxRetriesConfig:
         mock_sleep.assert_not_called()
 
     @patch("yamlgraph.executor.time.sleep")
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_api_connection_error_is_retried(self, mock_sleep):
         """APIConnectionError is retryable by name."""
         executor = PromptExecutor(max_retries=2)
@@ -223,6 +234,7 @@ class TestInvokeWithRetryMaxRetriesConfig:
 class TestGetExecutorSingleton:
     """Thread-safe singleton access."""
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_get_executor_returns_instance(self):
         """get_executor() returns a PromptExecutor."""
         import yamlgraph.executor as mod
@@ -235,6 +247,7 @@ class TestGetExecutorSingleton:
         finally:
             mod._executor = None
 
+    @pytest.mark.req("REQ-YG-014", "REQ-YG-031")
     def test_get_executor_returns_same_instance(self):
         """Repeated calls return the same object."""
         import yamlgraph.executor as mod

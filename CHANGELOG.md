@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.19] - 2026-02-10
+
+### Added
+- **Test requirement traceability (ADR-001)** - All 1197 unit tests tagged with `@pytest.mark.req("REQ-YG-XXX")` markers, linking 1623 test-requirement pairs across 46 requirements and 12 capabilities. See `docs/adr/001-test-requirement-traceability.md`.
+- **Requirement coverage report** - `scripts/req-coverage.py` generates traceability matrix showing per-capability coverage. Supports `--detail` and `--strict` (CI gate) modes.
+- **`req` pytest marker** - Registered in `pyproject.toml` for `@pytest.mark.req(id)` usage.
+
 ## [0.4.18] - 2026-02-10
 
 ### Changed

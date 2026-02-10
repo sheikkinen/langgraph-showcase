@@ -7,10 +7,13 @@ state-driven variables.
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 
 class TestAgentPromptFormatting:
     """Tests for agent prompt variable formatting."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_formats_simple_variables(self) -> None:
         """Agent should format simple {var} placeholders."""
         from yamlgraph.tools.agent import create_agent_node
@@ -55,6 +58,7 @@ class TestAgentPromptFormatting:
             assert "{input}" not in user_message
             assert "{task}" not in user_message
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_formats_dot_notation_variables(self) -> None:
         """Agent should format {state.field} style placeholders via Jinja2."""
         from yamlgraph.tools.agent import create_agent_node
@@ -100,6 +104,7 @@ class TestAgentPromptFormatting:
                 "healthcare" in user_message
             ), f"Jinja2 {{{{ context.domain }}}} not replaced. Got: {user_message}"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_formats_jinja2_templates(self) -> None:
         """Agent should format Jinja2 {{ state.field }} templates."""
         from yamlgraph.tools.agent import create_agent_node
@@ -141,6 +146,7 @@ class TestAgentPromptFormatting:
             ), f"Jinja2 {{{{ state.topic }}}} not rendered. Got: {user_message}"
             assert "{{ state.topic }}" not in user_message
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_consistent_with_format_prompt(self) -> None:
         """Agent formatting should be consistent with format_prompt."""
         from yamlgraph.executor_base import format_prompt
@@ -173,6 +179,7 @@ class TestAgentPromptFormatting:
 class TestAgentSystemPromptFormatting:
     """Tests for agent system prompt formatting."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_formats_system_prompt_jinja2(self) -> None:
         """Agent should format Jinja2 in system prompts too."""
         from yamlgraph.tools.agent import create_agent_node

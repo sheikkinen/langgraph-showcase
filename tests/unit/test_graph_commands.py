@@ -17,6 +17,7 @@ import pytest
 class TestGraphSubcommand:
     """Tests for graph subcommand group."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_graph_subparser_exists(self):
         """graph subparser should be configured."""
         from yamlgraph.cli import create_parser
@@ -28,6 +29,7 @@ class TestGraphSubcommand:
         )
         assert args.command == "graph"
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_graph_run_subcommand_exists(self):
         """graph run subcommand should exist."""
         from yamlgraph.cli import create_parser
@@ -39,6 +41,7 @@ class TestGraphSubcommand:
         assert args.graph_command == "run"
         assert args.graph_path == "graphs/yamlgraph.yaml"
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_graph_info_subcommand_exists(self):
         """graph info subcommand should exist."""
         from yamlgraph.cli import create_parser
@@ -57,6 +60,7 @@ class TestGraphSubcommand:
 class TestGraphRunArgs:
     """Tests for graph run argument parsing."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_var_single_value(self):
         """--var key=value should parse correctly."""
         from yamlgraph.cli import create_parser
@@ -67,6 +71,7 @@ class TestGraphRunArgs:
         )
         assert args.var == ["topic=AI"]
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_var_multiple_values(self):
         """Multiple --var flags should accumulate."""
         from yamlgraph.cli import create_parser
@@ -85,6 +90,7 @@ class TestGraphRunArgs:
         )
         assert args.var == ["topic=AI", "style=casual"]
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_thread_argument(self):
         """--thread should set thread ID."""
         from yamlgraph.cli import create_parser
@@ -95,6 +101,7 @@ class TestGraphRunArgs:
         )
         assert args.thread == "abc123"
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_export_flag(self):
         """--export flag should enable export."""
         from yamlgraph.cli import create_parser
@@ -103,6 +110,7 @@ class TestGraphRunArgs:
         args = parser.parse_args(["graph", "run", "graphs/test.yaml", "--export"])
         assert args.export is True
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_graph_path_required(self):
         """graph run requires a path argument."""
         from yamlgraph.cli import create_parser
@@ -120,6 +128,7 @@ class TestGraphRunArgs:
 class TestParseVars:
     """Tests for --var parsing helper."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_single_var(self):
         """Single var should parse to dict."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -127,6 +136,7 @@ class TestParseVars:
         result = parse_vars(["topic=AI"])
         assert result == {"topic": "AI"}
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_multiple_vars(self):
         """Multiple vars should parse to dict."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -134,6 +144,7 @@ class TestParseVars:
         result = parse_vars(["topic=AI", "style=casual", "count=5"])
         assert result == {"topic": "AI", "style": "casual", "count": "5"}
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_empty_list(self):
         """Empty list returns empty dict."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -141,6 +152,7 @@ class TestParseVars:
         result = parse_vars([])
         assert result == {}
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_none_returns_empty(self):
         """None returns empty dict."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -148,6 +160,7 @@ class TestParseVars:
         result = parse_vars(None)
         assert result == {}
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_value_with_equals(self):
         """Value containing = should preserve it."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -155,6 +168,7 @@ class TestParseVars:
         result = parse_vars(["equation=a=b+c"])
         assert result == {"equation": "a=b+c"}
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_parse_invalid_format_raises(self):
         """Invalid format (no =) should raise ValueError."""
         from yamlgraph.cli.graph_commands import parse_vars
@@ -171,12 +185,14 @@ class TestParseVars:
 class TestCmdGraphRun:
     """Tests for cmd_graph_run function."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_cmd_graph_run_exists(self):
         """cmd_graph_run function should exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_run
 
         assert callable(cmd_graph_run)
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_graph_not_found_error(self):
         """Should error if graph file doesn't exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_run
@@ -194,6 +210,7 @@ class TestCmdGraphRun:
     @patch("yamlgraph.graph_loader.get_checkpointer_for_graph")
     @patch("yamlgraph.graph_loader.compile_graph")
     @patch("yamlgraph.graph_loader.load_graph_config")
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_invokes_graph_with_vars(self, mock_load_config, mock_compile, mock_get_cp):
         """Should invoke graph with parsed vars as initial state."""
         from yamlgraph.cli.graph_commands import cmd_graph_run
@@ -229,6 +246,7 @@ class TestCmdGraphRun:
     @patch("yamlgraph.graph_loader.get_checkpointer_for_graph")
     @patch("yamlgraph.graph_loader.compile_graph")
     @patch("yamlgraph.graph_loader.load_graph_config")
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_uses_checkpointer_from_graph(
         self, mock_load_config, mock_compile, mock_get_cp
     ):
@@ -270,6 +288,7 @@ class TestCmdGraphRun:
     @patch("yamlgraph.graph_loader.get_checkpointer_for_graph")
     @patch("yamlgraph.graph_loader.compile_graph")
     @patch("yamlgraph.graph_loader.load_graph_config")
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_uses_checkpointer_even_without_thread(
         self, mock_load_config, mock_compile, mock_get_cp
     ):
@@ -312,12 +331,14 @@ class TestCmdGraphRun:
 class TestCmdGraphInfo:
     """Tests for cmd_graph_info function."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_cmd_graph_info_exists(self):
         """cmd_graph_info function should exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_info
 
         assert callable(cmd_graph_info)
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_info_file_not_found(self):
         """Should error if graph file doesn't exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_info
@@ -336,12 +357,14 @@ class TestCmdGraphInfo:
 class TestCmdGraphValidate:
     """Tests for cmd_graph_validate function."""
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_cmd_graph_validate_exists(self):
         """cmd_graph_validate function should exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_validate
 
         assert callable(cmd_graph_validate)
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_validate_file_not_found(self):
         """Should error if graph file doesn't exist."""
         from yamlgraph.cli.graph_commands import cmd_graph_validate
@@ -351,6 +374,7 @@ class TestCmdGraphValidate:
         with pytest.raises(SystemExit):
             cmd_graph_validate(args)
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_validate_valid_graph(self):
         """Should validate a correct graph without errors."""
         from yamlgraph.cli.graph_commands import cmd_graph_validate
@@ -360,6 +384,7 @@ class TestCmdGraphValidate:
         # Should not raise
         cmd_graph_validate(args)
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-036")
     def test_validate_subparser_exists(self):
         """graph validate subcommand should exist."""
         from yamlgraph.cli import create_parser

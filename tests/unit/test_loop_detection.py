@@ -4,12 +4,15 @@ These tests validate the bug where detect_loop_nodes marks ALL ancestors
 as loop nodes, not just the nodes in the actual cycle.
 """
 
+import pytest
+
 from yamlgraph.graph_loader import detect_loop_nodes
 
 
 class TestDetectLoopNodes:
     """Tests for detect_loop_nodes function."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_simple_cycle_only_marks_cycle_nodes(self) -> None:
         """Test that only cycle nodes are marked, not ancestors.
 
@@ -39,6 +42,7 @@ class TestDetectLoopNodes:
         assert "START" not in loop_nodes, "START should NOT be marked as loop node"
         assert "END" not in loop_nodes, "END should NOT be marked as loop node"
 
+    @pytest.mark.req("REQ-YG-006")
     def test_self_loop_only_marks_self(self) -> None:
         """Test that a self-loop only marks the looping node.
 
@@ -55,6 +59,7 @@ class TestDetectLoopNodes:
 
         assert loop_nodes == {"B"}, f"Only B should be in loop, got: {loop_nodes}"
 
+    @pytest.mark.req("REQ-YG-006")
     def test_longer_chain_with_deep_cycle(self) -> None:
         """Test a longer chain with a cycle deep in the graph.
 
@@ -81,6 +86,7 @@ class TestDetectLoopNodes:
         assert "B" not in loop_nodes, "B is not in the cycle"
         assert "C" not in loop_nodes, "C is not in the cycle"
 
+    @pytest.mark.req("REQ-YG-006")
     def test_multiple_cycles_correctly_identified(self) -> None:
         """Test graph with multiple independent cycles.
 
@@ -109,6 +115,7 @@ class TestDetectLoopNodes:
         assert "START" not in loop_nodes
         assert "END" not in loop_nodes
 
+    @pytest.mark.req("REQ-YG-006")
     def test_no_cycle_returns_empty(self) -> None:
         """Test linear graph returns no loop nodes."""
         edges = [
@@ -120,6 +127,7 @@ class TestDetectLoopNodes:
         loop_nodes = detect_loop_nodes(edges)
         assert loop_nodes == set()
 
+    @pytest.mark.req("REQ-YG-006")
     def test_reflexion_pattern(self) -> None:
         """Test real-world reflexion pattern (critique → refine → critique).
 

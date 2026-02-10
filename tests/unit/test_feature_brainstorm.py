@@ -5,6 +5,7 @@ TDD: Write tests first, then implement graph and prompts.
 
 from pathlib import Path
 
+import pytest
 import yaml
 
 from yamlgraph.linter import lint_graph
@@ -18,6 +19,7 @@ PROMPTS_DIR = PROJECT_ROOT / "examples/demos/feature-brainstorm/prompts"
 class TestFeatureBrainstormStructure:
     """Test graph file structure and validity."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_graph_file_exists(self):
         """Graph file should exist."""
         assert GRAPH_PATH.exists(), f"Missing {GRAPH_PATH}"
@@ -27,6 +29,7 @@ class TestFeatureBrainstormStructure:
         result = lint_graph(GRAPH_PATH, project_root=PROJECT_ROOT)
         assert result.valid, f"Lint errors: {[i.message for i in result.issues]}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_graph_has_required_fields(self):
         """Graph should have name, description, state, tools, nodes, edges."""
         with open(GRAPH_PATH) as f:
@@ -39,6 +42,7 @@ class TestFeatureBrainstormStructure:
         assert "nodes" in graph, "Missing 'nodes'"
         assert "edges" in graph, "Missing 'edges'"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_graph_has_focus_state_variable(self):
         """Graph should have optional 'focus' state variable."""
         with open(GRAPH_PATH) as f:
@@ -51,6 +55,7 @@ class TestFeatureBrainstormStructure:
 class TestFeatureBrainstormTools:
     """Test tool definitions."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_codebase_reading_tools(self):
         """Graph should have tools to read codebase."""
         with open(GRAPH_PATH) as f:
@@ -64,6 +69,7 @@ class TestFeatureBrainstormTools:
         missing = expected - tool_names
         assert not missing, f"Missing tools: {missing}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_search_web_tool(self):
         """Graph should have search_web tool for research."""
         with open(GRAPH_PATH) as f:
@@ -80,6 +86,7 @@ class TestFeatureBrainstormTools:
 class TestFeatureBrainstormNodes:
     """Test node definitions."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_gather_context_node(self):
         """Graph should have gather_context agent node."""
         with open(GRAPH_PATH) as f:
@@ -89,6 +96,7 @@ class TestFeatureBrainstormNodes:
         assert "gather_context" in nodes, "Missing 'gather_context' node"
         assert nodes["gather_context"]["type"] == "agent"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_research_node(self):
         """Graph should have research agent node."""
         with open(GRAPH_PATH) as f:
@@ -97,6 +105,7 @@ class TestFeatureBrainstormNodes:
         nodes = graph.get("nodes", {})
         assert "research_alternatives" in nodes, "Missing 'research_alternatives' node"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_brainstorm_node(self):
         """Graph should have brainstorm LLM node."""
         with open(GRAPH_PATH) as f:
@@ -106,6 +115,7 @@ class TestFeatureBrainstormNodes:
         assert "brainstorm" in nodes, "Missing 'brainstorm' node"
         assert nodes["brainstorm"]["type"] == "llm"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_prioritize_node(self):
         """Graph should have prioritize LLM node."""
         with open(GRAPH_PATH) as f:
@@ -118,6 +128,7 @@ class TestFeatureBrainstormNodes:
 class TestFeatureBrainstormPrompts:
     """Test prompt files exist and are valid."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_prompts_directory_exists(self):
         """Prompts directory should exist."""
         assert PROMPTS_DIR.exists(), f"Missing {PROMPTS_DIR}"
@@ -127,21 +138,25 @@ class TestFeatureBrainstormPrompts:
         prompt_path = PROMPTS_DIR / "gather.yaml"
         assert prompt_path.exists(), f"Missing {prompt_path}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_research_prompt_exists(self):
         """research.yaml prompt should exist."""
         prompt_path = PROMPTS_DIR / "research.yaml"
         assert prompt_path.exists(), f"Missing {prompt_path}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_ideate_prompt_exists(self):
         """ideate.yaml prompt should exist."""
         prompt_path = PROMPTS_DIR / "ideate.yaml"
         assert prompt_path.exists(), f"Missing {prompt_path}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_prioritize_prompt_exists(self):
         """prioritize.yaml prompt should exist."""
         prompt_path = PROMPTS_DIR / "prioritize.yaml"
         assert prompt_path.exists(), f"Missing {prompt_path}"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_prompts_have_required_fields(self):
         """All prompts should have system and user fields."""
         for prompt_file in PROMPTS_DIR.glob("*.yaml"):
@@ -156,6 +171,7 @@ class TestFeatureBrainstormPrompts:
 class TestFeatureBrainstormEdges:
     """Test edge definitions create valid flow."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_starts_with_gather_context(self):
         """Graph should start with gather_context."""
         with open(GRAPH_PATH) as f:
@@ -167,6 +183,7 @@ class TestFeatureBrainstormEdges:
         assert start_edges, "Missing START edge"
         assert start_edges[0]["to"] == "gather_context"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_ends_with_prioritize(self):
         """Graph should end after prioritize."""
         with open(GRAPH_PATH) as f:
@@ -179,6 +196,7 @@ class TestFeatureBrainstormEdges:
         # Last node before END should be prioritize
         assert any(e["from"] == "prioritize" for e in end_edges)
 
+    @pytest.mark.req("REQ-YG-014")
     def test_has_complete_flow(self):
         """Graph should have edges connecting all nodes."""
         with open(GRAPH_PATH) as f:

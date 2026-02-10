@@ -13,6 +13,7 @@ from yamlgraph.tools.python_tool import (
 class TestPythonToolConfig:
     """Tests for PythonToolConfig dataclass."""
 
+    @pytest.mark.req("REQ-YG-020")
     def test_basic_config(self):
         """Can create config with required fields."""
         config = PythonToolConfig(
@@ -23,6 +24,7 @@ class TestPythonToolConfig:
         assert config.function == "join"
         assert config.description == ""
 
+    @pytest.mark.req("REQ-YG-020")
     def test_config_with_description(self):
         """Can create config with description."""
         config = PythonToolConfig(
@@ -36,6 +38,7 @@ class TestPythonToolConfig:
 class TestLoadPythonFunction:
     """Tests for load_python_function."""
 
+    @pytest.mark.req("REQ-YG-020")
     def test_loads_stdlib_function(self):
         """Can load function from stdlib."""
         config = PythonToolConfig(module="os.path", function="join")
@@ -43,24 +46,28 @@ class TestLoadPythonFunction:
         assert callable(func)
         assert func("a", "b") == "a/b"
 
+    @pytest.mark.req("REQ-YG-020")
     def test_loads_json_dumps(self):
         """Can load json.dumps."""
         config = PythonToolConfig(module="json", function="dumps")
         func = load_python_function(config)
         assert func({"a": 1}) == '{"a": 1}'
 
+    @pytest.mark.req("REQ-YG-020")
     def test_raises_on_invalid_module(self):
         """Raises ImportError for non-existent module."""
         config = PythonToolConfig(module="nonexistent.module", function="foo")
         with pytest.raises(ImportError, match="Cannot import module"):
             load_python_function(config)
 
+    @pytest.mark.req("REQ-YG-020")
     def test_raises_on_invalid_function(self):
         """Raises AttributeError for non-existent function."""
         config = PythonToolConfig(module="os.path", function="nonexistent_func")
         with pytest.raises(AttributeError, match="not found in module"):
             load_python_function(config)
 
+    @pytest.mark.req("REQ-YG-020")
     def test_raises_on_non_callable(self):
         """Raises TypeError if attribute is not callable."""
         config = PythonToolConfig(module="os", function="name")
@@ -71,6 +78,7 @@ class TestLoadPythonFunction:
 class TestParsePythonTools:
     """Tests for parse_python_tools."""
 
+    @pytest.mark.req("REQ-YG-020")
     def test_parses_python_tools(self):
         """Extracts only type: python tools."""
         tools_config = {
@@ -88,6 +96,7 @@ class TestParsePythonTools:
         assert result["python_tool"].module == "json"
         assert result["python_tool"].function == "dumps"
 
+    @pytest.mark.req("REQ-YG-020")
     def test_skips_shell_tools(self):
         """Does not include shell tools."""
         tools_config = {
@@ -99,6 +108,7 @@ class TestParsePythonTools:
         result = parse_python_tools(tools_config)
         assert len(result) == 0
 
+    @pytest.mark.req("REQ-YG-020")
     def test_skips_incomplete_python_tools(self):
         """Skips Python tools missing module or function."""
         tools_config = {
@@ -108,6 +118,7 @@ class TestParsePythonTools:
         result = parse_python_tools(tools_config)
         assert len(result) == 0
 
+    @pytest.mark.req("REQ-YG-020")
     def test_includes_description(self):
         """Parses description field."""
         tools_config = {
@@ -125,6 +136,7 @@ class TestParsePythonTools:
 class TestCreatePythonNode:
     """Tests for create_python_node."""
 
+    @pytest.mark.req("REQ-YG-020")
     def test_creates_node_function(self):
         """Creates callable node function."""
         python_tools = {
@@ -138,6 +150,7 @@ class TestCreatePythonNode:
         node_fn = create_python_node("test_node", node_config, python_tools)
         assert callable(node_fn)
 
+    @pytest.mark.req("REQ-YG-020")
     def test_raises_on_missing_tool(self):
         """Raises if tool not in registry."""
         python_tools = {}
@@ -146,6 +159,7 @@ class TestCreatePythonNode:
         with pytest.raises(KeyError, match="not found"):
             create_python_node("test_node", node_config, python_tools)
 
+    @pytest.mark.req("REQ-YG-020")
     def test_raises_on_missing_tool_key(self):
         """Raises if node config missing tool key."""
         python_tools = {}
@@ -154,6 +168,7 @@ class TestCreatePythonNode:
         with pytest.raises(ValueError, match="must specify"):
             create_python_node("test_node", node_config, python_tools)
 
+    @pytest.mark.req("REQ-YG-020")
     def test_node_returns_dict_from_function(self):
         """Node returns function's dict result with current_step."""
         python_tools = {
@@ -170,6 +185,7 @@ class TestCreatePythonNode:
         assert result["current_step"] == "test_node"
         assert "output" in result
 
+    @pytest.mark.req("REQ-YG-020")
     def test_node_wraps_non_dict_return(self):
         """Node wraps non-dict return in state_key."""
         python_tools = {

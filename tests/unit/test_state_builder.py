@@ -6,37 +6,45 @@ TDD: Red phase - these tests define the expected behavior.
 from operator import add
 from typing import Annotated, get_args, get_origin
 
+import pytest
+
 from yamlgraph.models.state_builder import sorted_add
 
 
 class TestSortedAdd:
     """Test the sorted_add reducer for map node fan-in."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_concatenates_lists(self):
         """Should concatenate two lists."""
         result = sorted_add([1, 2], [3, 4])
         assert result == [1, 2, 3, 4]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_handles_empty_existing(self):
         """Should handle empty existing list."""
         result = sorted_add([], [1, 2])
         assert result == [1, 2]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_handles_none_existing(self):
         """Should handle None as existing list."""
         result = sorted_add(None, [1, 2])
         assert result == [1, 2]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_handles_empty_new(self):
         """Should handle empty new list."""
         result = sorted_add([1, 2], [])
         assert result == [1, 2]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_handles_none_new(self):
         """Should handle None as new list."""
         result = sorted_add([1, 2], None)
         assert result == [1, 2]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_sorts_by_map_index(self):
         """Should sort results by _map_index for map fan-in."""
         # Simulate out-of-order parallel results
@@ -49,6 +57,7 @@ class TestSortedAdd:
         assert result[1]["_map_index"] == 2
         assert result[1]["value"] == "third"
 
+    @pytest.mark.req("REQ-YG-024")
     def test_sorts_multiple_out_of_order(self):
         """Should sort many out-of-order items correctly."""
         # Simulate 5 items arriving in random order
@@ -63,11 +72,13 @@ class TestSortedAdd:
 
         assert [r["data"] for r in result] == ["a", "b", "c", "d", "e"]
 
+    @pytest.mark.req("REQ-YG-024")
     def test_no_sort_for_non_dict_items(self):
         """Should not sort if items are not dicts."""
         result = sorted_add([3, 1], [2])
         assert result == [3, 1, 2]  # Preserved insertion order
 
+    @pytest.mark.req("REQ-YG-024")
     def test_no_sort_for_dicts_without_map_index(self):
         """Should not sort if dicts lack _map_index."""
         result = sorted_add([{"a": 1}], [{"b": 2}])
@@ -77,6 +88,7 @@ class TestSortedAdd:
 class TestBuildStateClass:
     """Test dynamic TypedDict generation from graph config."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_base_infrastructure_fields(self):
         """State always has infrastructure fields."""
         from yamlgraph.models.state_builder import build_state_class
@@ -90,6 +102,7 @@ class TestBuildStateClass:
         assert "errors" in annotations
         assert "messages" in annotations
 
+    @pytest.mark.req("REQ-YG-024")
     def test_errors_has_reducer(self):
         """errors field uses Annotated[list, add] reducer."""
         from yamlgraph.models.state_builder import build_state_class
@@ -103,6 +116,7 @@ class TestBuildStateClass:
         assert args[0] is list
         assert args[1] is add
 
+    @pytest.mark.req("REQ-YG-024")
     def test_messages_has_reducer(self):
         """messages field uses Annotated[list, add] reducer."""
         from yamlgraph.models.state_builder import build_state_class
@@ -116,6 +130,7 @@ class TestBuildStateClass:
         assert args[0] is list
         assert args[1] is add
 
+    @pytest.mark.req("REQ-YG-024")
     def test_extracts_state_key_from_nodes(self):
         """state_key in node config becomes state field."""
         from yamlgraph.models.state_builder import build_state_class
@@ -132,6 +147,7 @@ class TestBuildStateClass:
         assert "generated" in State.__annotations__
         assert "analysis" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_agent_node_adds_input_field(self):
         """Agent nodes automatically add 'input' field."""
         from yamlgraph.models.state_builder import build_state_class
@@ -146,6 +162,7 @@ class TestBuildStateClass:
 
         assert "input" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_agent_node_adds_tool_results_field(self):
         """Agent nodes add _tool_results field."""
         from yamlgraph.models.state_builder import build_state_class
@@ -160,6 +177,7 @@ class TestBuildStateClass:
 
         assert "_tool_results" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_router_node_adds_route_field(self):
         """Router nodes add _route field."""
         from yamlgraph.models.state_builder import build_state_class
@@ -178,6 +196,7 @@ class TestBuildStateClass:
 
         assert "_route" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_loop_tracking_fields_included(self):
         """Loop tracking fields are always included."""
         from yamlgraph.models.state_builder import build_state_class
@@ -190,6 +209,7 @@ class TestBuildStateClass:
         assert "_agent_iterations" in State.__annotations__
         assert "_agent_limit_reached" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_state_is_typeddict_total_false(self):
         """Generated state is TypedDict with total=False (all optional)."""
         from yamlgraph.models.state_builder import build_state_class
@@ -200,6 +220,7 @@ class TestBuildStateClass:
         # TypedDict with total=False has __total__ = False
         assert State.__total__ is False
 
+    @pytest.mark.req("REQ-YG-024")
     def test_state_works_with_langgraph(self):
         """Generated state class works with LangGraph StateGraph."""
         from langgraph.graph import StateGraph
@@ -225,6 +246,7 @@ class TestBuildStateClass:
         result = compiled.invoke({"input": "hello"})
         assert "result" in result
 
+    @pytest.mark.req("REQ-YG-024")
     def test_reducer_accumulates_messages(self):
         """Messages reducer accumulates across nodes."""
         from langgraph.graph import StateGraph
@@ -249,6 +271,7 @@ class TestBuildStateClass:
 class TestExtractNodeFields:
     """Test field extraction from node configurations."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_extracts_state_key(self):
         """Extracts state_key from nodes."""
         from yamlgraph.models.state_builder import extract_node_fields
@@ -262,6 +285,7 @@ class TestExtractNodeFields:
         assert "generated" in fields
         assert "analysis" in fields
 
+    @pytest.mark.req("REQ-YG-024")
     def test_agent_adds_special_fields(self):
         """Agent nodes add input and _tool_results."""
         from yamlgraph.models.state_builder import extract_node_fields
@@ -272,6 +296,7 @@ class TestExtractNodeFields:
         assert "input" in fields
         assert "_tool_results" in fields
 
+    @pytest.mark.req("REQ-YG-024")
     def test_router_adds_route_field(self):
         """Router nodes add _route."""
         from yamlgraph.models.state_builder import extract_node_fields
@@ -285,6 +310,7 @@ class TestExtractNodeFields:
 class TestCommonInputFields:
     """Test that common input fields are included."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_topic_field(self):
         """topic field included for content generation."""
         from yamlgraph.models.state_builder import build_state_class
@@ -294,6 +320,7 @@ class TestCommonInputFields:
 
         assert "topic" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_style_field(self):
         """style field included for content generation."""
         from yamlgraph.models.state_builder import build_state_class
@@ -303,6 +330,7 @@ class TestCommonInputFields:
 
         assert "style" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_word_count_field(self):
         """word_count field included for content generation."""
         from yamlgraph.models.state_builder import build_state_class
@@ -312,6 +340,7 @@ class TestCommonInputFields:
 
         assert "word_count" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_message_field(self):
         """message field included for router."""
         from yamlgraph.models.state_builder import build_state_class
@@ -321,6 +350,7 @@ class TestCommonInputFields:
 
         assert "message" in State.__annotations__
 
+    @pytest.mark.req("REQ-YG-024")
     def test_includes_input_field(self):
         """input field included for agents."""
         from yamlgraph.models.state_builder import build_state_class

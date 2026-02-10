@@ -19,11 +19,13 @@ class TestGetExecutor:
         """Clean up executor after each test."""
         shutdown_executor()
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_creates_executor(self):
         """Should create a ThreadPoolExecutor."""
         executor = get_executor()
         assert executor is not None
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_returns_same_executor(self):
         """Should return the same executor on subsequent calls."""
         executor1 = get_executor()
@@ -34,6 +36,7 @@ class TestGetExecutor:
 class TestShutdownExecutor:
     """Tests for shutdown_executor function."""
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_shutdown_cleans_up(self):
         """Shutdown should clean up executor."""
         # Create an executor
@@ -47,6 +50,7 @@ class TestShutdownExecutor:
         executor2 = get_executor()
         assert executor2 is not executor1
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_shutdown_when_none(self):
         """Shutdown when no executor should not raise."""
         shutdown_executor()  # Ensure clean state
@@ -61,6 +65,7 @@ class TestCreateLLMAsync:
         shutdown_executor()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     async def test_creates_llm(self):
         """Should create an LLM instance."""
         llm = await create_llm_async(provider="anthropic", temperature=0.5)
@@ -68,6 +73,7 @@ class TestCreateLLMAsync:
         assert llm.temperature == 0.5
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     async def test_uses_default_provider(self):
         """Should use default provider when not specified."""
         with patch.dict("os.environ", {"PROVIDER": ""}, clear=False):
@@ -84,6 +90,7 @@ class TestInvokeAsync:
         shutdown_executor()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     async def test_invoke_returns_string(self):
         """Should return string content when no output model."""
         mock_llm = MagicMock()
@@ -98,6 +105,7 @@ class TestInvokeAsync:
         mock_llm.invoke.assert_called_once_with(messages)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     async def test_invoke_with_output_model(self):
         """Should use structured output when model provided."""
         from pydantic import BaseModel

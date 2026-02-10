@@ -6,6 +6,8 @@ Tests create_interrupt_node() and interrupt YAML handling.
 
 from unittest.mock import patch
 
+import pytest
+
 from yamlgraph.constants import NodeType
 from yamlgraph.node_factory import create_interrupt_node
 
@@ -13,11 +15,13 @@ from yamlgraph.node_factory import create_interrupt_node
 class TestNodeTypeInterrupt:
     """Test NodeType.INTERRUPT constant exists."""
 
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_constant_exists(self):
         """NodeType should have INTERRUPT constant."""
         assert hasattr(NodeType, "INTERRUPT")
         assert NodeType.INTERRUPT == "interrupt"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_not_requires_prompt(self):
         """Interrupt nodes don't require prompt (can use message)."""
         assert not NodeType.requires_prompt("interrupt")
@@ -26,6 +30,7 @@ class TestNodeTypeInterrupt:
 class TestCreateInterruptNode:
     """Test create_interrupt_node() factory function."""
 
+    @pytest.mark.req("REQ-YG-021")
     def test_create_interrupt_node_with_static_message(self):
         """Interrupt node with static message should work."""
         config = {
@@ -35,6 +40,7 @@ class TestCreateInterruptNode:
         node_fn = create_interrupt_node("ask_name", config)
         assert callable(node_fn)
 
+    @pytest.mark.req("REQ-YG-021")
     def test_create_interrupt_node_with_prompt(self):
         """Interrupt node with prompt should work."""
         config = {
@@ -46,6 +52,7 @@ class TestCreateInterruptNode:
         assert callable(node_fn)
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_calls_native_interrupt(self, mock_interrupt):
         """Node should call LangGraph's native interrupt()."""
         mock_interrupt.return_value = "Alice"  # Simulates resume value
@@ -60,6 +67,7 @@ class TestCreateInterruptNode:
         assert result["user_input"] == "Alice"
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_stores_payload_in_state_key(self, mock_interrupt):
         """Payload should be stored in state_key for idempotency."""
         mock_interrupt.return_value = "blue"
@@ -78,6 +86,7 @@ class TestCreateInterruptNode:
         assert result["color_choice"] == "blue"
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_idempotency_skips_prompt_on_resume(self, mock_interrupt):
         """When state_key exists, should not re-execute prompt."""
         mock_interrupt.return_value = "resumed_value"
@@ -104,6 +113,7 @@ class TestCreateInterruptNode:
 
     @patch("langgraph.types.interrupt")
     @patch("yamlgraph.executor.execute_prompt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_with_prompt_calls_execute_prompt(
         self, mock_execute_prompt, mock_interrupt
     ):
@@ -127,6 +137,7 @@ class TestCreateInterruptNode:
         assert result["user_response"] == "user answer"
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_sets_current_step(self, mock_interrupt):
         """Result should include current_step for tracking."""
         mock_interrupt.return_value = "answer"
@@ -138,6 +149,7 @@ class TestCreateInterruptNode:
 
         assert result["current_step"] == "my_node"
 
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_default_keys(self):
         """Default state_key and resume_key should be used if not specified."""
         config = {"message": "Question?"}
@@ -151,6 +163,7 @@ class TestInterruptNodeEdgeCases:
     """Edge cases for interrupt node handling."""
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_with_dict_payload(self, mock_interrupt):
         """Interrupt should support dict payloads for structured questions."""
         mock_interrupt.return_value = {"choice": "A", "reason": "because"}
@@ -169,6 +182,7 @@ class TestInterruptNodeEdgeCases:
         assert result["user_choice"] == {"choice": "A", "reason": "because"}
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_no_message_uses_node_name(self, mock_interrupt):
         """If no message or prompt, use node name as fallback payload."""
         mock_interrupt.return_value = "answer"
@@ -182,6 +196,7 @@ class TestInterruptNodeEdgeCases:
         mock_interrupt.assert_called_once_with({"node": "approval_gate"})
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_message_with_jinja2_template(self, mock_interrupt):
         """Message with Jinja2 {{var}} should interpolate from state."""
         mock_interrupt.return_value = "user response"
@@ -198,6 +213,7 @@ class TestInterruptNodeEdgeCases:
         mock_interrupt.assert_called_once_with("Hello! How can I help you today?")
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_message_with_simple_template(self, mock_interrupt):
         """Message with simple {var} should interpolate from state."""
         mock_interrupt.return_value = "user response"
@@ -214,6 +230,7 @@ class TestInterruptNodeEdgeCases:
         mock_interrupt.assert_called_once_with("Welcome to Health Clinic!")
 
     @patch("langgraph.types.interrupt")
+    @pytest.mark.req("REQ-YG-021")
     def test_interrupt_node_message_without_template(self, mock_interrupt):
         """Message without template syntax should pass through unchanged."""
         mock_interrupt.return_value = "response"

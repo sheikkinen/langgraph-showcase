@@ -17,6 +17,7 @@ from yamlgraph.node_factory.base import get_output_model_for_node, resolve_class
 class TestResolveClassShortName:
     """Short names without dots try yamlgraph.models.schemas."""
 
+    @pytest.mark.req("REQ-YG-045")
     def test_short_name_resolves_generic_report(self):
         """'GenericReport' resolves via schemas module."""
         from yamlgraph.models.schemas import GenericReport
@@ -24,6 +25,7 @@ class TestResolveClassShortName:
         cls = resolve_class("GenericReport")
         assert cls is GenericReport
 
+    @pytest.mark.req("REQ-YG-045")
     def test_short_name_resolves_pipeline_error(self):
         """'PipelineError' resolves via schemas module."""
         from yamlgraph.models.schemas import PipelineError
@@ -31,11 +33,13 @@ class TestResolveClassShortName:
         cls = resolve_class("PipelineError")
         assert cls is PipelineError
 
+    @pytest.mark.req("REQ-YG-045")
     def test_short_name_not_in_schemas_raises(self):
         """Short name not found in schemas raises ValueError."""
         with pytest.raises(ValueError, match="Invalid class path"):
             resolve_class("CompletelyFakeModel")
 
+    @pytest.mark.req("REQ-YG-045")
     def test_dotted_path_still_works(self):
         """Full dotted path bypasses short-name logic."""
         cls = resolve_class("yamlgraph.models.schemas.GenericReport")
@@ -52,6 +56,7 @@ class TestResolveClassShortName:
 class TestGetOutputModelForNode:
     """Tests for the three-level resolution: explicit → inline schema → None."""
 
+    @pytest.mark.req("REQ-YG-045")
     def test_explicit_output_model_resolved(self):
         """Priority 1: explicit output_model in node config."""
         node_config = {
@@ -65,6 +70,7 @@ class TestGetOutputModelForNode:
 
         assert result is GenericReport
 
+    @pytest.mark.req("REQ-YG-045")
     def test_explicit_output_model_short_name(self):
         """Priority 1: short name also works for output_model."""
         node_config = {"output_model": "GenericReport", "prompt": "some_prompt"}
@@ -75,6 +81,7 @@ class TestGetOutputModelForNode:
 
         assert result is GenericReport
 
+    @pytest.mark.req("REQ-YG-045")
     def test_inline_schema_from_prompt(self, tmp_path):
         """Priority 2: inline schema in prompt YAML."""
         prompts_dir = tmp_path / "prompts"
@@ -98,6 +105,7 @@ class TestGetOutputModelForNode:
         assert result is not None
         assert result.__name__ == "AnalysisResult"
 
+    @pytest.mark.req("REQ-YG-045")
     def test_no_model_returns_none(self, tmp_path):
         """Priority 3: no output_model and no schema → None."""
         prompts_dir = tmp_path / "prompts"
@@ -111,6 +119,7 @@ class TestGetOutputModelForNode:
 
         assert result is None
 
+    @pytest.mark.req("REQ-YG-045")
     def test_no_prompt_no_model_returns_none(self):
         """Neither prompt nor output_model → None."""
         node_config = {"state_key": "something"}
@@ -119,6 +128,7 @@ class TestGetOutputModelForNode:
 
         assert result is None
 
+    @pytest.mark.req("REQ-YG-045")
     def test_missing_prompt_file_returns_none(self, tmp_path):
         """Prompt file doesn't exist → gracefully returns None (deferred error)."""
         prompts_dir = tmp_path / "prompts"
@@ -130,6 +140,7 @@ class TestGetOutputModelForNode:
 
         assert result is None
 
+    @pytest.mark.req("REQ-YG-045")
     def test_graph_relative_prompt_resolution(self, tmp_path):
         """With prompts_relative=True, prompts resolve relative to graph_path."""
         graph_dir = tmp_path / "project"

@@ -2,6 +2,8 @@
 
 from typing import Annotated, get_args, get_origin
 
+import pytest
+
 from yamlgraph.models.state_builder import (
     build_state_class,
     extract_node_fields,
@@ -12,6 +14,7 @@ from yamlgraph.models.state_builder import (
 class TestExtractNodeFieldsMap:
     """Tests for map node collect field extraction."""
 
+    @pytest.mark.req("REQ-YG-024", "REQ-YG-040")
     def test_map_node_collect_field_added(self) -> None:
         """Map node adds collect field to extracted fields."""
         nodes = {
@@ -25,6 +28,7 @@ class TestExtractNodeFieldsMap:
         fields = extract_node_fields(nodes)
         assert "expanded_frames" in fields
 
+    @pytest.mark.req("REQ-YG-024", "REQ-YG-040")
     def test_map_node_collect_has_sorted_reducer(self) -> None:
         """Map node collect field has Annotated[list, sorted_add] type."""
         nodes = {
@@ -46,6 +50,7 @@ class TestExtractNodeFieldsMap:
         assert args[0] is list
         assert args[1] is sorted_add
 
+    @pytest.mark.req("REQ-YG-024", "REQ-YG-040")
     def test_map_node_without_collect_no_field(self) -> None:
         """Map node without collect key doesn't add field."""
         nodes = {
@@ -65,6 +70,7 @@ class TestExtractNodeFieldsMap:
 class TestBuildStateClassMap:
     """Tests for build_state_class with map nodes."""
 
+    @pytest.mark.req("REQ-YG-024", "REQ-YG-040")
     def test_build_state_includes_collect_field(self) -> None:
         """Built state class includes map node collect field."""
         config = {
@@ -82,6 +88,7 @@ class TestBuildStateClassMap:
 
         assert "expanded_frames" in annotations
 
+    @pytest.mark.req("REQ-YG-024", "REQ-YG-040")
     def test_build_state_collect_has_sorted_reducer(self) -> None:
         """Built state class has sorted_add reducer for collect field."""
         config = {

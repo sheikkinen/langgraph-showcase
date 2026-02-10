@@ -13,6 +13,7 @@ import pytest
 class TestEmptyYamlHandling:
     """Tests for empty/invalid YAML file error handling."""
 
+    @pytest.mark.req("REQ-YG-004")
     def test_empty_yaml_throws_attributeerror(self) -> None:
         """Empty YAML file throws AttributeError instead of ValueError.
 
@@ -37,6 +38,7 @@ class TestEmptyYamlHandling:
         finally:
             tmpfile.unlink()
 
+    @pytest.mark.req("REQ-YG-004")
     def test_yaml_with_only_comments_throws_valueerror(self) -> None:
         """YAML with only comments is effectively empty."""
         from yamlgraph.graph_loader import load_graph_config
@@ -54,6 +56,7 @@ class TestEmptyYamlHandling:
         finally:
             tmpfile.unlink()
 
+    @pytest.mark.req("REQ-YG-004")
     def test_yaml_with_null_throws_valueerror(self) -> None:
         """YAML containing just 'null' should give clear error."""
         from yamlgraph.graph_loader import load_graph_config

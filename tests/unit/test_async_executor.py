@@ -25,6 +25,7 @@ class MockResponse(BaseModel):
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_execute_prompt_async_returns_string():
     """execute_prompt_async returns string when no output_model."""
     mock_llm = MagicMock()
@@ -54,6 +55,7 @@ async def test_execute_prompt_async_returns_string():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_execute_prompt_async_with_output_model():
     """execute_prompt_async returns parsed model when output_model provided."""
     mock_llm = MagicMock()
@@ -84,6 +86,7 @@ async def test_execute_prompt_async_with_output_model():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_execute_prompt_async_uses_provider_from_yaml():
     """execute_prompt_async extracts provider from YAML metadata."""
     mock_llm = MagicMock()
@@ -118,6 +121,7 @@ async def test_execute_prompt_async_uses_provider_from_yaml():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graph_async_executes_graph():
     """run_graph_async invokes graph asynchronously."""
     from yamlgraph.executor_async import run_graph_async
@@ -140,6 +144,7 @@ async def test_run_graph_async_executes_graph():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graph_async_with_checkpointer():
     """run_graph_async works with checkpointer in config."""
     from yamlgraph.executor_async import run_graph_async
@@ -157,6 +162,7 @@ async def test_run_graph_async_with_checkpointer():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graph_async_handles_interrupt():
     """run_graph_async returns interrupt payload when graph pauses."""
     from yamlgraph.executor_async import run_graph_async
@@ -178,6 +184,7 @@ async def test_run_graph_async_handles_interrupt():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graph_async_resume_with_command():
     """run_graph_async can resume with Command."""
     from langgraph.types import Command
@@ -203,6 +210,7 @@ async def test_run_graph_async_resume_with_command():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_compile_graph_async_with_memory_checkpointer():
     """compile_graph_async compiles graph with memory checkpointer."""
     from yamlgraph.executor_async import compile_graph_async
@@ -229,6 +237,7 @@ async def test_compile_graph_async_with_memory_checkpointer():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_compile_graph_async_uses_async_factory():
     """compile_graph_async uses get_checkpointer_async."""
     from yamlgraph.executor_async import compile_graph_async
@@ -255,6 +264,7 @@ async def test_compile_graph_async_uses_async_factory():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_load_and_compile_async_returns_compiled_graph():
     """load_and_compile_async loads YAML and returns compiled graph."""
     from yamlgraph.executor_async import load_and_compile_async
@@ -289,6 +299,7 @@ async def test_load_and_compile_async_returns_compiled_graph():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graphs_concurrent():
     """Multiple graphs can run concurrently."""
     from yamlgraph.executor_async import run_graph_async
@@ -314,6 +325,7 @@ async def test_run_graphs_concurrent():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_run_graph_async_propagates_errors():
     """run_graph_async propagates exceptions from graph execution."""
     from yamlgraph.executor_async import run_graph_async
@@ -330,6 +342,7 @@ async def test_run_graph_async_propagates_errors():
 
 
 @pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-015")
 async def test_compile_graph_async_without_checkpointer():
     """compile_graph_async works without checkpointer config."""
     from yamlgraph.executor_async import compile_graph_async

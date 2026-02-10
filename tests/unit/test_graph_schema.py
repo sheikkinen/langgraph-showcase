@@ -13,21 +13,25 @@ from yamlgraph.models.graph_schema import (
 class TestNodeConfig:
     """Tests for NodeConfig validation."""
 
+    @pytest.mark.req("REQ-YG-002")
     def test_default_node_type_is_llm(self):
         """Default node type is llm."""
         node = NodeConfig(prompt="test")
         assert node.type == "llm"
 
+    @pytest.mark.req("REQ-YG-002")
     def test_llm_node_requires_prompt(self):
         """LLM node must have prompt."""
         with pytest.raises(ValidationError, match="requires 'prompt'"):
             NodeConfig(type="llm")
 
+    @pytest.mark.req("REQ-YG-002")
     def test_router_requires_routes(self):
         """Router node must have routes."""
         with pytest.raises(ValidationError, match="requires 'routes'"):
             NodeConfig(type="router", prompt="classify")
 
+    @pytest.mark.req("REQ-YG-002")
     def test_router_with_routes_valid(self):
         """Router with routes is valid."""
         node = NodeConfig(
@@ -37,6 +41,7 @@ class TestNodeConfig:
         )
         assert node.routes == {"positive": "happy", "negative": "sad"}
 
+    @pytest.mark.req("REQ-YG-002")
     def test_map_requires_all_fields(self):
         """Map node requires over, as, node, collect."""
         # Missing 'as'
@@ -48,6 +53,7 @@ class TestNodeConfig:
                 collect="results",
             )
 
+    @pytest.mark.req("REQ-YG-002")
     def test_map_with_all_fields_valid(self):
         """Map node with all fields is valid."""
         node = NodeConfig.model_validate(
@@ -62,17 +68,20 @@ class TestNodeConfig:
         assert node.item_var == "item"
         assert node.collect == "results"
 
+    @pytest.mark.req("REQ-YG-002")
     def test_invalid_on_error_rejected(self):
         """Invalid on_error value is rejected."""
         with pytest.raises(ValidationError, match="Invalid on_error"):
             NodeConfig(prompt="test", on_error="invalid_handler")
 
+    @pytest.mark.req("REQ-YG-002")
     def test_valid_on_error_accepted(self):
         """Valid on_error values accepted."""
         for handler in ["skip", "retry", "fail", "fallback"]:
             node = NodeConfig(prompt="test", on_error=handler)
             assert node.on_error == handler
 
+    @pytest.mark.req("REQ-YG-002")
     def test_temperature_range(self):
         """Temperature must be 0-2."""
         NodeConfig(prompt="test", temperature=0.5)  # Valid
@@ -87,12 +96,14 @@ class TestNodeConfig:
 class TestEdgeConfig:
     """Tests for EdgeConfig validation."""
 
+    @pytest.mark.req("REQ-YG-002")
     def test_simple_edge(self):
         """Simple from/to edge."""
         edge = EdgeConfig.model_validate({"from": "a", "to": "b"})
         assert edge.from_node == "a"
         assert edge.to == "b"
 
+    @pytest.mark.req("REQ-YG-002")
     def test_edge_with_condition(self):
         """Edge with condition expression."""
         edge = EdgeConfig.model_validate(
@@ -104,6 +115,7 @@ class TestEdgeConfig:
         )
         assert edge.condition == "score < 0.8"
 
+    @pytest.mark.req("REQ-YG-002")
     def test_edge_to_multiple_targets(self):
         """Edge can have list of targets."""
         edge = EdgeConfig.model_validate(
@@ -118,6 +130,7 @@ class TestEdgeConfig:
 class TestGraphConfigSchema:
     """Tests for full graph schema validation."""
 
+    @pytest.mark.req("REQ-YG-002")
     def test_minimal_valid_graph(self):
         """Minimal valid graph configuration."""
         config = {
@@ -133,6 +146,7 @@ class TestGraphConfigSchema:
         assert schema.name == "unnamed"
         assert "greet" in schema.nodes
 
+    @pytest.mark.req("REQ-YG-002")
     def test_full_graph_config(self):
         """Full graph with all optional fields."""
         config = {
@@ -153,6 +167,7 @@ class TestGraphConfigSchema:
         assert schema.name == "test-graph"
         assert schema.defaults == {"provider": "anthropic"}
 
+    @pytest.mark.req("REQ-YG-002")
     def test_router_targets_validated(self):
         """Router targets must exist as nodes."""
         config = {
@@ -168,6 +183,7 @@ class TestGraphConfigSchema:
         with pytest.raises(ValidationError, match="nonexistent"):
             validate_graph_schema(config)
 
+    @pytest.mark.req("REQ-YG-002")
     def test_edge_nodes_validated(self):
         """Edge nodes must exist."""
         config = {
@@ -180,6 +196,7 @@ class TestGraphConfigSchema:
         with pytest.raises(ValidationError, match="missing"):
             validate_graph_schema(config)
 
+    @pytest.mark.req("REQ-YG-002")
     def test_start_end_always_valid(self):
         """START and END are always valid node references."""
         config = {

@@ -106,6 +106,7 @@ edges:
 class TestSubgraphIntegration:
     """End-to-end subgraph tests with mocked LLM."""
 
+    @pytest.mark.req("REQ-YG-042")
     def test_runs_parent_to_subgraph_to_parent(self, subgraph_graphs, monkeypatch):
         """Runs parent → subgraph → parent flow successfully."""
 
@@ -145,6 +146,7 @@ class TestSubgraphIntegration:
         assert result["final"] == "final text"
         assert call_count["count"] == 3  # prepare + process (subgraph) + finalize
 
+    @pytest.mark.req("REQ-YG-042")
     def test_subgraph_state_mapping_works(self, subgraph_graphs, monkeypatch):
         """Input/output mapping correctly transforms state."""
         from yamlgraph.graph_loader import compile_graph, load_graph_config
@@ -183,6 +185,7 @@ class TestSubgraphIntegration:
         # Check output was mapped back
         assert result["processed"] == "PROCESSED"
 
+    @pytest.mark.req("REQ-YG-042")
     def test_nested_subgraphs(self, tmp_path, monkeypatch):
         """Supports subgraph within subgraph (2 levels deep)."""
         prompts_dir = tmp_path / "prompts"

@@ -16,6 +16,7 @@ class TestCreateLLM:
         """Clear cache and environment before each test."""
         clear_cache()
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_default_provider_is_anthropic(self):
         """Should use Anthropic by default."""
         # Clear PROVIDER from environment to ensure default behavior
@@ -24,12 +25,14 @@ class TestCreateLLM:
             assert isinstance(llm, ChatAnthropic)
             assert llm.temperature == 0.7
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_explicit_anthropic_provider(self):
         """Should create Anthropic LLM when provider='anthropic'."""
         llm = create_llm(provider="anthropic", temperature=0.5)
         assert isinstance(llm, ChatAnthropic)
         assert llm.temperature == 0.5
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_mistral_provider(self):
         """Should create Mistral LLM when provider='mistral'."""
         with patch.dict(os.environ, {"MISTRAL_API_KEY": "test-key"}):
@@ -38,6 +41,7 @@ class TestCreateLLM:
             assert llm.__class__.__name__ == "ChatMistralAI"
             assert llm.temperature == 0.8
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_openai_provider(self):
         """Should create OpenAI LLM when provider='openai'."""
         with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
@@ -45,6 +49,7 @@ class TestCreateLLM:
             assert llm.__class__.__name__ == "ChatOpenAI"
             assert llm.temperature == 0.6
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_xai_provider(self):
         """Should create xAI LLM when provider='xai'."""
         with patch.dict(os.environ, {"XAI_API_KEY": "test-key"}):
@@ -53,6 +58,7 @@ class TestCreateLLM:
             assert llm.temperature == 0.6
             assert llm.openai_api_base == "https://api.x.ai/v1"
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_provider_from_environment(self):
         """Should use PROVIDER env var when no provider specified."""
         with patch.dict(
@@ -61,6 +67,7 @@ class TestCreateLLM:
             llm = create_llm(temperature=0.7)
             assert llm.__class__.__name__ == "ChatMistralAI"
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_custom_model(self):
         """Should use custom model when specified."""
         with patch.dict(os.environ, {"PROVIDER": ""}, clear=False):
@@ -68,11 +75,13 @@ class TestCreateLLM:
             assert isinstance(llm, ChatAnthropic)
             assert llm.model == "claude-opus-4"
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_model_override_parameter(self):
         """Should prefer model parameter over default."""
         llm = create_llm(provider="anthropic", model="claude-sonnet-4", temperature=0.7)
         assert llm.model == "claude-sonnet-4"
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_default_models(self):
         """Should use correct default models for each provider."""
         # Anthropic default - use the configured default from config.py
@@ -91,11 +100,13 @@ class TestCreateLLM:
             llm_openai = create_llm(provider="openai", temperature=0.7)
             assert llm_openai.model_name == "gpt-4o"
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_invalid_provider(self):
         """Should raise error for invalid provider."""
         with pytest.raises((ValueError, KeyError)):
             create_llm(provider="invalid-provider", temperature=0.7)
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_caching(self):
         """Should cache LLM instances for same parameters."""
         llm1 = create_llm(provider="anthropic", temperature=0.7)
@@ -106,6 +117,7 @@ class TestCreateLLM:
         llm3 = create_llm(provider="anthropic", temperature=0.5)
         assert llm1 is not llm3
 
+    @pytest.mark.req("REQ-YG-010", "REQ-YG-011")
     def test_cache_key_includes_all_params(self):
         """Cache should differentiate on provider, model, temperature."""
         llm1 = create_llm(

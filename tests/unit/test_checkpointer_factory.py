@@ -18,18 +18,21 @@ from yamlgraph.storage.checkpointer_factory import (
 class TestExpandEnvVars:
     """Test environment variable expansion."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_single_var(self):
         """Should expand ${VAR} pattern."""
         with patch.dict(os.environ, {"REDIS_URL": "redis://localhost:6379"}):
             result = expand_env_vars("${REDIS_URL}")
             assert result == "redis://localhost:6379"
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_multiple_vars(self):
         """Should expand multiple ${VAR} patterns."""
         with patch.dict(os.environ, {"HOST": "localhost", "PORT": "6379"}):
             result = expand_env_vars("redis://${HOST}:${PORT}/0")
             assert result == "redis://localhost:6379/0"
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_missing_var_keeps_original(self):
         """Missing env vars should keep original ${VAR} pattern."""
         # Ensure NONEXISTENT is not set
@@ -37,17 +40,20 @@ class TestExpandEnvVars:
         result = expand_env_vars("${NONEXISTENT}")
         assert result == "${NONEXISTENT}"
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_non_string_returns_unchanged(self):
         """Non-string values should pass through unchanged."""
         assert expand_env_vars(123) == 123
         assert expand_env_vars(None) is None
         assert expand_env_vars(["a", "b"]) == ["a", "b"]
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_no_vars_returns_original(self):
         """String without ${} should return unchanged."""
         result = expand_env_vars("redis://localhost:6379")
         assert result == "redis://localhost:6379"
 
+    @pytest.mark.req("REQ-YG-025")
     def test_expand_empty_string(self):
         """Empty string should return empty string."""
         assert expand_env_vars("") == ""
@@ -56,6 +62,7 @@ class TestExpandEnvVars:
 class TestGetCheckpointerMemory:
     """Test in-memory checkpointer (default)."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_memory_checkpointer_default(self):
         """Default type should be memory."""
         config = {"type": "memory"}  # Empty config defaults to memory via get
@@ -65,6 +72,7 @@ class TestGetCheckpointerMemory:
 
         assert isinstance(saver, InMemorySaver)
 
+    @pytest.mark.req("REQ-YG-025")
     def test_memory_checkpointer_explicit(self):
         """Explicit type: memory should work."""
         config = {"type": "memory"}
@@ -74,6 +82,7 @@ class TestGetCheckpointerMemory:
 
         assert isinstance(saver, InMemorySaver)
 
+    @pytest.mark.req("REQ-YG-025")
     def test_none_config_returns_none(self):
         """None config should return None."""
         assert get_checkpointer(None) is None
@@ -82,6 +91,7 @@ class TestGetCheckpointerMemory:
 class TestGetCheckpointerSqlite:
     """Test SQLite checkpointer."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_sqlite_checkpointer_memory(self):
         """SQLite with :memory: should work."""
         config = {"type": "sqlite", "path": ":memory:"}
@@ -91,6 +101,7 @@ class TestGetCheckpointerSqlite:
 
         assert isinstance(saver, SqliteSaver)
 
+    @pytest.mark.req("REQ-YG-025")
     def test_sqlite_expands_env_var(self):
         """SQLite path should expand env vars."""
         with patch.dict(os.environ, {"DB_PATH": ":memory:"}):
@@ -105,6 +116,7 @@ class TestGetCheckpointerSqlite:
 class TestGetCheckpointerRedis:
     """Test Redis checkpointer (mocked)."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_redis_checkpointer_sync(self):
         """Redis sync saver should be created using direct instantiation."""
         mock_saver = MagicMock()
@@ -133,6 +145,7 @@ class TestGetCheckpointerRedis:
                 mock_saver.setup.assert_called_once()
                 assert saver is mock_saver
 
+    @pytest.mark.req("REQ-YG-025")
     def test_redis_import_error_helpful_message(self):
         """Missing redis package should give helpful error."""
         import importlib
@@ -161,6 +174,7 @@ class TestGetCheckpointerRedis:
         sys.modules.update(saved_modules)
         importlib.reload(checkpointer_factory)
 
+    @pytest.mark.req("REQ-YG-025")
     def test_redis_default_ttl(self):
         """Redis should use default TTL of 60 if not specified."""
         mock_saver = MagicMock()
@@ -189,6 +203,7 @@ class TestGetCheckpointerRedis:
 class TestGetCheckpointerErrors:
     """Test error handling."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_unknown_type_raises_error(self):
         """Unknown checkpointer type should raise ValueError."""
         config = {"type": "unknown_db"}
@@ -207,6 +222,7 @@ class TestGetCheckpointerErrors:
 class TestRedisSyncDirectInstantiation:
     """Test that sync Redis uses direct instantiation, not context manager."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_sync_redis_returns_saver_not_context_manager(self):
         """Sync Redis should return RedisSaver instance, not context manager."""
         mock_saver_instance = MagicMock()
@@ -243,6 +259,7 @@ class TestGetCheckpointerAsync:
     """Test async checkpointer factory function."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_get_checkpointer_async_exists(self):
         """get_checkpointer_async() function should exist."""
         from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
@@ -250,6 +267,7 @@ class TestGetCheckpointerAsync:
         assert callable(get_checkpointer_async)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_get_checkpointer_async_redis_returns_saver(self):
         """Async Redis should return AsyncRedisSaver instance."""
         mock_saver_instance = MagicMock()
@@ -281,6 +299,7 @@ class TestGetCheckpointerAsync:
             assert saver is mock_saver_instance
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_get_checkpointer_async_fallback_no_url(self):
         """Should fall back to MemorySaver when REDIS_URL not set."""
         from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
@@ -296,6 +315,7 @@ class TestGetCheckpointerAsync:
         assert isinstance(saver, MemorySaver)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_get_checkpointer_async_memory_type(self):
         """Async memory checkpointer should work."""
         from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
@@ -308,6 +328,7 @@ class TestGetCheckpointerAsync:
         assert isinstance(saver, MemorySaver)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_get_checkpointer_async_none_config(self):
         """None config should return None."""
         from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
@@ -319,6 +340,7 @@ class TestGetCheckpointerAsync:
 class TestRedisSimpleCheckpointer:
     """Test redis-simple checkpointer type."""
 
+    @pytest.mark.req("REQ-YG-025")
     def test_redis_simple_type_recognized(self):
         """redis-simple type should be recognized and return a checkpointer."""
         config = {"type": "redis-simple", "url": "redis://localhost:6379"}
@@ -331,6 +353,7 @@ class TestRedisSimpleCheckpointer:
         assert isinstance(saver, SimpleRedisCheckpointer)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_redis_simple_async_returns_checkpointer(self):
         """redis-simple async should return SimpleRedisCheckpointer."""
         from yamlgraph.storage.checkpointer_factory import get_checkpointer_async
@@ -348,6 +371,7 @@ class TestRedisSimpleCheckpointer:
 
         assert isinstance(saver, SimpleRedisCheckpointer)
 
+    @pytest.mark.req("REQ-YG-025")
     def test_redis_simple_sync_returns_checkpointer(self):
         """redis-simple sync should return SimpleRedisCheckpointer."""
         config = {
@@ -368,6 +392,7 @@ class TestShutdownCheckpointers:
     """Test shutdown_checkpointers cleanup function."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_shutdown_checkpointers_exists(self):
         """shutdown_checkpointers() function should exist."""
         from yamlgraph.storage.checkpointer_factory import shutdown_checkpointers
@@ -375,6 +400,7 @@ class TestShutdownCheckpointers:
         assert callable(shutdown_checkpointers)
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-025")
     async def test_shutdown_checkpointers_clears_active_savers(self):
         """shutdown_checkpointers() should clear all active savers."""
         from yamlgraph.storage.checkpointer_factory import (

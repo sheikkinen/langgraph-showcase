@@ -26,12 +26,14 @@ class TestToneClassificationModel:
     These tests use the fixture model to prove the pattern still works.
     """
 
+    @pytest.mark.req("REQ-YG-022")
     def test_tone_classification_model_exists(self):
         """ToneClassification-like fixture model can be created."""
         from tests.conftest import FixtureToneClassification
 
         assert FixtureToneClassification is not None
 
+    @pytest.mark.req("REQ-YG-022")
     def test_tone_classification_has_required_fields(self):
         """ToneClassification-like model has tone, confidence, reasoning fields."""
         from tests.conftest import FixtureToneClassification
@@ -54,6 +56,7 @@ class TestToneClassificationModel:
 class TestRouterNodeParsing:
     """Tests for parsing router node configuration."""
 
+    @pytest.mark.req("REQ-YG-022")
     def test_parses_router_type(self):
         """Node with type: router is parsed."""
         config_dict = {
@@ -89,6 +92,7 @@ class TestRouterNodeParsing:
         assert config.nodes["classify"]["type"] == "router"
         assert config.nodes["classify"]["routes"]["positive"] == "handle_positive"
 
+    @pytest.mark.req("REQ-YG-022")
     def test_validates_router_has_routes(self):
         """Router node without routes raises ValueError."""
         config_dict = {
@@ -109,6 +113,7 @@ class TestRouterNodeParsing:
         with pytest.raises(ValueError, match="routes"):
             GraphConfig(config_dict)
 
+    @pytest.mark.req("REQ-YG-022")
     def test_validates_route_targets_exist(self):
         """Router routes must point to existing nodes."""
         config_dict = {
@@ -141,6 +146,7 @@ class TestRouterNodeFunction:
     """Tests for router node execution."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-022")
     def test_router_returns_route_in_state(self, mock_execute):
         """Router node adds _route to state based on classification."""
         mock_classification = MagicMock()
@@ -168,6 +174,7 @@ class TestRouterNodeFunction:
         assert "classification" in result
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-022")
     def test_router_uses_default_route_for_unknown(self, mock_execute):
         """Router uses default_route when tone not in routes."""
         mock_classification = MagicMock()
@@ -201,6 +208,7 @@ class TestRouterNodeFunction:
 class TestConditionalEdges:
     """Tests for multi-target conditional edge routing."""
 
+    @pytest.mark.req("REQ-YG-022")
     def test_parses_conditional_edge_with_list_targets(self):
         """Edge with to: [a, b, c] and type: conditional is parsed."""
         config_dict = {
@@ -229,6 +237,7 @@ class TestConditionalEdges:
         assert conditional_edge["to"] == ["node_a", "node_b"]
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-022")
     def test_graph_routes_to_correct_node(self, mock_execute):
         """Compiled graph routes based on _route in state."""
         # Mock classifier returns "positive"
@@ -282,6 +291,7 @@ class TestConditionalEdges:
 class TestRouterDemoGraph:
     """Tests for the router-demo.yaml graph."""
 
+    @pytest.mark.req("REQ-YG-022")
     def test_demo_graph_loads(self):
         """router-demo.yaml loads without error."""
         config = load_graph_config("examples/demos/router/graph.yaml")
@@ -289,6 +299,7 @@ class TestRouterDemoGraph:
         assert "classify" in config.nodes
         assert config.nodes["classify"]["type"] == "router"
 
+    @pytest.mark.req("REQ-YG-022")
     def test_demo_graph_compiles(self):
         """router-demo.yaml compiles to StateGraph."""
         config = load_graph_config("examples/demos/router/graph.yaml")

@@ -10,6 +10,7 @@ from yamlgraph.map_compiler import compile_map_node, wrap_for_reducer
 class TestWrapForReducer:
     """Tests for wrap_for_reducer helper."""
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_wraps_result_in_list(self):
         """Wrap node output for reducer aggregation."""
 
@@ -21,6 +22,7 @@ class TestWrapForReducer:
 
         assert result == {"collected": [10]}
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_preserves_map_index(self):
         """Preserve _map_index in wrapped output."""
 
@@ -32,6 +34,7 @@ class TestWrapForReducer:
 
         assert result == {"results": [{"_map_index": 2, "value": "test"}]}
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_extracts_state_key(self):
         """Extract specific state_key from node result."""
 
@@ -47,6 +50,7 @@ class TestWrapForReducer:
 class TestCompileMapNode:
     """Tests for compile_map_node function."""
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_creates_map_edge_function(self):
         """compile_map_node returns a map edge function."""
         config = {
@@ -64,6 +68,7 @@ class TestCompileMapNode:
         assert callable(map_edge)
         assert sub_node_name == "_map_expand_sub"
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_map_edge_returns_send_list(self):
         """Map edge function returns list of Send objects."""
         from langgraph.types import Send
@@ -90,6 +95,7 @@ class TestCompileMapNode:
         assert sends[1].arg["item"] == "b"
         assert sends[1].arg["_map_index"] == 1
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_map_edge_empty_list(self):
         """Empty list returns empty Send list."""
         config = {
@@ -108,6 +114,7 @@ class TestCompileMapNode:
 
         assert sends == []
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_adds_wrapped_sub_node_to_builder(self):
         """compile_map_node adds wrapped sub-node to builder."""
         config = {
@@ -126,6 +133,7 @@ class TestCompileMapNode:
         call_args = builder.add_node.call_args
         assert call_args[0][0] == "_map_expand_sub"
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_validates_over_is_list(self):
         """Map edge validates that 'over' resolves to a list."""
         config = {
@@ -147,6 +155,7 @@ class TestCompileMapNode:
 class TestWrapForReducerErrorHandling:
     """Tests for error handling in wrap_for_reducer."""
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_exception_captured_with_map_index(self):
         """Exceptions should be captured with _map_index."""
 
@@ -166,6 +175,7 @@ class TestWrapForReducerErrorHandling:
         # Should also propagate to errors list
         assert "errors" in result
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_error_in_result_handled(self):
         """Nodes returning 'error' in result should be handled."""
 
@@ -179,6 +189,7 @@ class TestWrapForReducerErrorHandling:
         assert result["results"][0]["_map_index"] == 2
         assert "_error" in result["results"][0]
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_errors_list_in_result_handled(self):
         """Nodes returning 'errors' list should be handled."""
 
@@ -192,6 +203,7 @@ class TestWrapForReducerErrorHandling:
         assert "errors" in result
         assert result["results"][0]["_map_index"] == 1
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_pydantic_model_converted(self):
         """Pydantic models should be converted to dicts."""
         from pydantic import BaseModel
@@ -213,6 +225,7 @@ class TestWrapForReducerErrorHandling:
 class TestCompileMapNodeToolCall:
     """Tests for tool_call sub-nodes in map nodes."""
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_tool_call_subnode_requires_registry(self):
         """Tool call sub-node requires tools_registry."""
         config = {
@@ -231,6 +244,7 @@ class TestCompileMapNodeToolCall:
 class TestCompileMapNodePython:
     """Tests for python sub-nodes in map nodes (FR-021)."""
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_python_subnode_requires_registry(self):
         """Python sub-node requires python_tools registry."""
         config = {
@@ -245,6 +259,7 @@ class TestCompileMapNodePython:
         with pytest.raises(ValueError, match="no python_tools"):
             compile_map_node("expand", config, builder, defaults)
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_python_subnode_unknown_tool_error(self):
         """Unknown python tool in map sub-node raises error."""
         from yamlgraph.tools.python_tool import PythonToolConfig
@@ -265,6 +280,7 @@ class TestCompileMapNodePython:
                 "expand", config, builder, defaults, python_tools=python_tools
             )
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_python_subnode_creates_wrapped_node(self):
         """Python sub-node is wrapped and added to builder."""
         from unittest.mock import patch
@@ -295,6 +311,7 @@ class TestCompileMapNodePython:
         assert sub_node_name == "_map_process_sub"
         builder.add_node.assert_called_once()
 
+    @pytest.mark.req("REQ-YG-040", "REQ-YG-041")
     def test_python_subnode_returns_correct_result(self):
         """Python sub-node result is collected correctly."""
         from unittest.mock import patch

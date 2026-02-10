@@ -18,6 +18,7 @@ EXAMPLES_DEMOS = PROJECT_ROOT / "examples" / "demos"
 class TestDemoDirectoryStructure:
     """Verify demos are organized under examples/demos/."""
 
+    @pytest.mark.req("REQ-YG-001")
     def test_demos_directory_exists(self) -> None:
         """examples/demos/ directory should exist."""
         assert EXAMPLES_DEMOS.exists(), f"Missing {EXAMPLES_DEMOS}"
@@ -40,6 +41,7 @@ class TestDemoDirectoryStructure:
             "feature-brainstorm",
         ],
     )
+    @pytest.mark.req("REQ-YG-001")
     def test_demo_has_graph_yaml(self, demo_name: str) -> None:
         """Each demo should have a graph.yaml file."""
         demo_dir = EXAMPLES_DEMOS / demo_name
@@ -55,6 +57,7 @@ class TestDemoDirectoryStructure:
             "reflexion",
         ],
     )
+    @pytest.mark.req("REQ-YG-001")
     def test_demo_has_prompts_directory(self, demo_name: str) -> None:
         """Demos with prompts should have a prompts/ subdirectory."""
         demo_dir = EXAMPLES_DEMOS / demo_name
@@ -69,11 +72,13 @@ class TestDemoDirectoryStructure:
 class TestDemoScriptLocation:
     """Verify demo.sh is in examples/demos/."""
 
+    @pytest.mark.req("REQ-YG-001")
     def test_demo_script_exists(self) -> None:
         """demo.sh should exist in examples/demos/."""
         demo_script = EXAMPLES_DEMOS / "demo.sh"
         assert demo_script.exists(), f"Missing {demo_script}"
 
+    @pytest.mark.req("REQ-YG-001")
     def test_demo_script_is_executable(self) -> None:
         """demo.sh should be executable."""
         demo_script = EXAMPLES_DEMOS / "demo.sh"
@@ -86,6 +91,7 @@ class TestDemoScriptLocation:
 class TestCoreMinimal:
     """Verify core graphs/ only has minimal examples."""
 
+    @pytest.mark.req("REQ-YG-001")
     def test_core_graphs_minimal(self) -> None:
         """Core graphs/ should only have hello.yaml."""
         core_graphs = PROJECT_ROOT / "graphs"
@@ -106,6 +112,7 @@ class TestDemosLoadable:
             "router",
         ],
     )
+    @pytest.mark.req("REQ-YG-001")
     def test_demo_graph_loads(self, demo_name: str) -> None:
         """Demo graphs should load without errors."""
         from yamlgraph.graph_loader import load_and_compile

@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add examples to path for testing
 examples_path = Path(__file__).parent.parent.parent / "examples" / "book_translator"
 sys.path.insert(0, str(examples_path))
@@ -13,12 +15,14 @@ from nodes.tools import get_map_result, merge_terms  # noqa: E402
 class TestGetMapResult:
     """Tests for the get_map_result helper function."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_extracts_map_result(self):
         """Extract result from standard map node output."""
         item = {"_map_some_node_sub": {"data": "value"}}
         result = get_map_result(item)
         assert result == {"data": "value"}
 
+    @pytest.mark.req("REQ-YG-014")
     def test_returns_none_for_none_input(self):
         """Return None when input is None."""
         assert get_map_result(None) is None
@@ -29,6 +33,7 @@ class TestGetMapResult:
         assert get_map_result(123) is None
         assert get_map_result([1, 2, 3]) is None
 
+    @pytest.mark.req("REQ-YG-014")
     def test_returns_none_for_empty_dict(self):
         """Return None when dict has no map keys."""
         assert get_map_result({}) is None
@@ -38,12 +43,14 @@ class TestGetMapResult:
         item = {"other_key": "value", "another": 123}
         assert get_map_result(item) is None
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handles_various_node_names(self):
         """Handle different node name patterns."""
         assert get_map_result({"_map_translate_all_sub": "x"}) == "x"
         assert get_map_result({"_map_a_sub": "y"}) == "y"
         assert get_map_result({"_map_long_node_name_sub": "z"}) == "z"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_returns_first_match_if_multiple(self):
         """Return a result if multiple map keys exist (edge case)."""
         item = {"_map_first_sub": "first", "_map_second_sub": "second"}
@@ -51,6 +58,7 @@ class TestGetMapResult:
         # Should return one of them (order not guaranteed)
         assert result in ("first", "second")
 
+    @pytest.mark.req("REQ-YG-014")
     def test_preserves_pydantic_like_objects(self):
         """Return Pydantic-like objects as-is."""
 
@@ -66,6 +74,7 @@ class TestGetMapResult:
 class TestMergeTerms:
     """Tests for glossary term merging."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_merge_empty_state(self):
         """Handle empty state gracefully."""
         state = {}
@@ -74,6 +83,7 @@ class TestMergeTerms:
         assert "glossary" in result
         assert result["glossary"] == {}
 
+    @pytest.mark.req("REQ-YG-014")
     def test_merge_with_existing_glossary(self):
         """Preserve existing glossary terms."""
         state = {
@@ -85,6 +95,7 @@ class TestMergeTerms:
         assert result["glossary"]["Hello"] == "Hola"
         assert result["glossary"]["World"] == "Mundo"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_merge_new_extractions(self):
         """Add new terms from extractions (map node format)."""
         state = {
@@ -107,6 +118,7 @@ class TestMergeTerms:
         assert result["glossary"]["Hello"] == "Hola"
         assert result["glossary"]["World"] == "Mundo"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_existing_terms_not_overwritten(self):
         """Existing terms take priority over new extractions."""
         state = {
@@ -126,6 +138,7 @@ class TestMergeTerms:
         # Existing translation should be preserved
         assert result["glossary"]["Hello"] == "existing_translation"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_empty_extractions(self):
         """Handle empty term_extractions list."""
         state = {
@@ -136,6 +149,7 @@ class TestMergeTerms:
 
         assert result["glossary"]["existing"] == "value"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_none_extraction_items(self):
         """Handle None values in extractions list."""
         state = {
@@ -154,6 +168,7 @@ class TestMergeTerms:
 
         assert result["glossary"]["Valid"] == "Válido"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_missing_map_key(self):
         """Handle extractions without the map node key."""
         state = {
@@ -172,6 +187,7 @@ class TestMergeTerms:
         assert result["glossary"]["Test"] == "Prueba"
         assert len(result["glossary"]) == 1
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_malformed_terms(self):
         """Handle terms missing required fields."""
         state = {
@@ -194,6 +210,7 @@ class TestMergeTerms:
         assert "" not in result["glossary"]
         assert len(result["glossary"]) == 1
 
+    @pytest.mark.req("REQ-YG-014")
     def test_multiple_terms_per_extraction(self):
         """Handle multiple terms in single extraction."""
         state = {
@@ -217,6 +234,7 @@ class TestMergeTerms:
         assert result["glossary"]["Two"] == "Dos"
         assert result["glossary"]["Three"] == "Tres"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_glossary_from_json_string(self):
         """Handle glossary passed as JSON string from CLI."""
         state = {

@@ -15,6 +15,7 @@ from yamlgraph.graph_loader import load_graph_config
 class TestConditionsFromYAML:
     """Issue 2: Conditions block was dead config - now uses expression routing."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_conditions_block_not_in_schema(self):
         """GraphConfig no longer parses conditions block."""
         from yamlgraph.config import DEFAULT_GRAPH
@@ -22,9 +23,9 @@ class TestConditionsFromYAML:
         config = load_graph_config(DEFAULT_GRAPH)
 
         # conditions attribute should not exist
-        assert not hasattr(config, "conditions"), (
-            "GraphConfig should not have 'conditions' attribute - it's dead config"
-        )
+        assert not hasattr(
+            config, "conditions"
+        ), "GraphConfig should not have 'conditions' attribute - it's dead config"
 
 
 # =============================================================================
@@ -57,6 +58,7 @@ edges:
         yaml_file.write_text(yaml_content)
         return yaml_file
 
+    @pytest.mark.req("REQ-YG-014")
     def test_entry_point_accessible_via_behavior(self, simple_yaml):
         """Entry point should be testable via graph behavior, not private attrs.
 

@@ -16,6 +16,7 @@ from yamlgraph.node_factory import create_node_function
 class TestRouterDictOutputRouting:
     """Tests for router handling of dict outputs."""
 
+    @pytest.mark.req("REQ-YG-022")
     def test_router_routes_pydantic_model_tone(self) -> None:
         """Router should route based on Pydantic model tone attribute."""
 
@@ -52,6 +53,7 @@ class TestRouterDictOutputRouting:
                 result.get("_route") == "celebrate"
             ), f"Router should route to 'celebrate' for tone='positive'. Got: {result}"
 
+    @pytest.mark.req("REQ-YG-022")
     def test_router_routes_dict_output_tone(self) -> None:
         """Router should route based on dict output tone key."""
         with (
@@ -84,6 +86,7 @@ class TestRouterDictOutputRouting:
                 f"Got: {result}"
             )
 
+    @pytest.mark.req("REQ-YG-022")
     def test_router_routes_dict_output_intent(self) -> None:
         """Router should check intent key if tone is not present."""
         with (
@@ -114,6 +117,7 @@ class TestRouterDictOutputRouting:
                 f"Got: {result}"
             )
 
+    @pytest.mark.req("REQ-YG-022")
     def test_router_falls_back_when_key_missing(self) -> None:
         """Router should fall back to default_route when tone/intent missing."""
         with (
@@ -149,6 +153,7 @@ class TestRouterCustomRouteKey:
     """Tests for custom route_key configuration."""
 
     @pytest.mark.xfail(reason="route_key config not yet implemented")
+    @pytest.mark.req("REQ-YG-022")
     def test_router_uses_custom_route_key(self) -> None:
         """Router should support custom route_key config for dict/model lookup."""
         with (

@@ -9,18 +9,21 @@ from yamlgraph.utils.prompts import load_prompt
 class TestLoadPrompt:
     """Tests for load_prompt function."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_load_existing_prompt(self):
         """Should load an existing prompt file."""
         prompt = load_prompt("generate")
         assert "system" in prompt
         assert "user" in prompt
 
+    @pytest.mark.req("REQ-YG-014")
     def test_load_analyze_prompt(self):
         """Should load analyze prompt."""
         prompt = load_prompt("analyze")
         assert "system" in prompt
         assert "{content}" in prompt["user"]
 
+    @pytest.mark.req("REQ-YG-014")
     def test_load_nonexistent_prompt(self):
         """Should raise FileNotFoundError for missing prompt."""
         with pytest.raises(FileNotFoundError):
@@ -30,30 +33,35 @@ class TestLoadPrompt:
 class TestFormatPrompt:
     """Tests for format_prompt function."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_format_single_variable(self):
         """Should format single variable."""
         template = "Hello, {name}!"
         result = format_prompt(template, {"name": "World"})
         assert result == "Hello, World!"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_format_multiple_variables(self):
         """Should format multiple variables."""
         template = "Topic: {topic}, Style: {style}"
         result = format_prompt(template, {"topic": "AI", "style": "casual"})
         assert result == "Topic: AI, Style: casual"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_format_empty_variables(self):
         """Should handle empty variables dict."""
         template = "No variables here"
         result = format_prompt(template, {})
         assert result == "No variables here"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_format_missing_variable_raises(self):
         """Should raise KeyError for missing variable."""
         template = "Hello, {name}!"
         with pytest.raises(KeyError):
             format_prompt(template, {})
 
+    @pytest.mark.req("REQ-YG-014")
     def test_format_with_numbers(self):
         """Should handle numeric variables."""
         template = "Count: {word_count}"
@@ -64,6 +72,7 @@ class TestFormatPrompt:
 class TestPromptExecutorGraphRelative:
     """Tests for PromptExecutor with graph-relative prompts."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_execute_with_graph_path_and_prompts_relative(self, tmp_path):
         """Executor should resolve prompts relative to graph when configured."""
         from unittest.mock import MagicMock, patch
@@ -105,6 +114,7 @@ user: Generate opening for {questionnaire_name}.
         assert result == "Welcome to the audit."
         mock_llm.invoke.assert_called_once()
 
+    @pytest.mark.req("REQ-YG-014")
     def test_execute_with_prompts_dir_override(self, tmp_path):
         """Executor should use explicit prompts_dir when provided."""
         from unittest.mock import MagicMock, patch
@@ -137,6 +147,7 @@ user: Say hello to {name}.
 
         assert result == "Hello!"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_execute_prompt_function_passes_path_params(self, tmp_path):
         """execute_prompt() should accept and forward path params."""
         from unittest.mock import MagicMock, patch

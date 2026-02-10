@@ -16,12 +16,14 @@ import pytest
 class TestSimpleRedisCheckpointerInit:
     """Test SimpleRedisCheckpointer initialization."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_import_simple_redis_checkpointer(self):
         """SimpleRedisCheckpointer should be importable."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
 
         assert SimpleRedisCheckpointer is not None
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_init_with_url(self):
         """Should initialize with redis_url."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -29,6 +31,7 @@ class TestSimpleRedisCheckpointerInit:
         saver = SimpleRedisCheckpointer(redis_url="redis://localhost:6379")
         assert saver.redis_url == "redis://localhost:6379"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_init_with_key_prefix(self):
         """Should accept key_prefix parameter."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -39,6 +42,7 @@ class TestSimpleRedisCheckpointerInit:
         )
         assert saver.key_prefix == "myapp:"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_init_default_key_prefix(self):
         """Default key_prefix should be 'lg:'."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -46,6 +50,7 @@ class TestSimpleRedisCheckpointerInit:
         saver = SimpleRedisCheckpointer(redis_url="redis://localhost:6379")
         assert saver.key_prefix == "lg:"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_init_with_ttl(self):
         """Should accept ttl parameter."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -56,6 +61,7 @@ class TestSimpleRedisCheckpointerInit:
         )
         assert saver.ttl == 3600
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_init_default_ttl_none(self):
         """Default ttl should be None (no expiry)."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -67,6 +73,7 @@ class TestSimpleRedisCheckpointerInit:
 class TestSimpleRedisCheckpointerIsBaseCheckpointSaver:
     """Test that SimpleRedisCheckpointer inherits from BaseCheckpointSaver."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_inherits_from_base(self):
         """Should inherit from BaseCheckpointSaver."""
         from langgraph.checkpoint.base import BaseCheckpointSaver
@@ -80,6 +87,7 @@ class TestSimpleRedisCheckpointerIsBaseCheckpointSaver:
 class TestSimpleRedisCheckpointerAsyncMethods:
     """Test async methods of SimpleRedisCheckpointer."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_aget_tuple_method(self):
         """Should have aget_tuple method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -88,6 +96,7 @@ class TestSimpleRedisCheckpointerAsyncMethods:
         assert hasattr(saver, "aget_tuple")
         assert callable(saver.aget_tuple)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_aput_method(self):
         """Should have aput method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -96,6 +105,7 @@ class TestSimpleRedisCheckpointerAsyncMethods:
         assert hasattr(saver, "aput")
         assert callable(saver.aput)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_alist_method(self):
         """Should have alist method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -104,6 +114,7 @@ class TestSimpleRedisCheckpointerAsyncMethods:
         assert hasattr(saver, "alist")
         assert callable(saver.alist)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_aclose_method(self):
         """Should have aclose method for cleanup."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -116,6 +127,7 @@ class TestSimpleRedisCheckpointerAsyncMethods:
 class TestSimpleRedisCheckpointerSyncMethods:
     """Test sync methods of SimpleRedisCheckpointer."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_get_tuple_method(self):
         """Should have get_tuple method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -124,6 +136,7 @@ class TestSimpleRedisCheckpointerSyncMethods:
         assert hasattr(saver, "get_tuple")
         assert callable(saver.get_tuple)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_put_method(self):
         """Should have put method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -132,6 +145,7 @@ class TestSimpleRedisCheckpointerSyncMethods:
         assert hasattr(saver, "put")
         assert callable(saver.put)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_has_list_method(self):
         """Should have list method."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -144,6 +158,7 @@ class TestSimpleRedisCheckpointerSyncMethods:
 class TestSimpleRedisCheckpointerKeyGeneration:
     """Test key generation for Redis storage."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_make_key_with_thread_id(self):
         """Should generate key with thread_id."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -155,6 +170,7 @@ class TestSimpleRedisCheckpointerKeyGeneration:
         key = saver._make_key("thread-123")
         assert key == "test:thread-123:"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_make_key_with_checkpoint_ns(self):
         """Should include checkpoint_ns in key."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -171,6 +187,7 @@ class TestSimpleRedisCheckpointerSerialization:
     """Test that SimpleRedisCheckpointer uses orjson, not pickle."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aput_uses_orjson(self):
         """Should use orjson for serialization, not pickle."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -208,6 +225,7 @@ class TestSimpleRedisCheckpointerSerialization:
         assert decoded["checkpoint"]["id"] == "cp-123"
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aget_tuple_uses_orjson(self):
         """Should use orjson for deserialization."""
         import orjson
@@ -239,6 +257,7 @@ class TestSimpleRedisCheckpointerSerialization:
 class TestSerializationHelpers:
     """Test serialize_value and deserialize_value functions."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_serialize_uuid(self):
         """Should serialize UUID to dict with __type__."""
         from yamlgraph.storage.serializers import serialize_value
@@ -250,6 +269,7 @@ class TestSerializationHelpers:
             "value": "12345678-1234-5678-1234-567812345678",
         }
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_serialize_datetime(self):
         """Should serialize datetime to ISO format."""
         from yamlgraph.storage.serializers import serialize_value
@@ -258,6 +278,7 @@ class TestSerializationHelpers:
         result = serialize_value(dt)
         assert result == {"__type__": "datetime", "value": "2026-01-21T12:30:45"}
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_serialize_bytes(self):
         """Should serialize bytes to base64."""
         from yamlgraph.storage.serializers import serialize_value
@@ -267,6 +288,7 @@ class TestSerializationHelpers:
         assert result["__type__"] == "bytes"
         assert base64.b64decode(result["value"]) == b"hello world"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_serialize_unknown_type_raises(self):
         """Should raise TypeError for unknown types."""
         from yamlgraph.storage.serializers import serialize_value
@@ -277,6 +299,7 @@ class TestSerializationHelpers:
         with pytest.raises(TypeError, match="Cannot serialize"):
             serialize_value(CustomClass())
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_deserialize_uuid(self):
         """Should deserialize UUID from dict."""
         from yamlgraph.storage.serializers import deserialize_value
@@ -285,6 +308,7 @@ class TestSerializationHelpers:
         result = deserialize_value(data)
         assert result == UUID("12345678-1234-5678-1234-567812345678")
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_deserialize_datetime(self):
         """Should deserialize datetime from ISO format."""
         from yamlgraph.storage.serializers import deserialize_value
@@ -293,6 +317,7 @@ class TestSerializationHelpers:
         result = deserialize_value(data)
         assert result == datetime(2026, 1, 21, 12, 30, 45)
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_deserialize_bytes(self):
         """Should deserialize bytes from base64."""
         from yamlgraph.storage.serializers import deserialize_value
@@ -302,6 +327,7 @@ class TestSerializationHelpers:
         result = deserialize_value(data)
         assert result == b"hello world"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_deserialize_regular_dict_unchanged(self):
         """Should return regular dicts unchanged."""
         from yamlgraph.storage.serializers import deserialize_value
@@ -357,6 +383,7 @@ class TestDeepDeserialize:
 class TestSyncMethods:
     """Test sync methods with mocked Redis client."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_put_without_ttl(self):
         """Should use set() when no TTL configured."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -374,6 +401,7 @@ class TestSyncMethods:
         mock_client.set.assert_called_once()
         mock_client.setex.assert_not_called()
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_put_with_ttl(self):
         """Should use setex() when TTL configured."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -393,6 +421,7 @@ class TestSyncMethods:
         call_args = mock_client.setex.call_args[0]
         assert call_args[1] == 3600
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_get_tuple_returns_none_for_missing(self):
         """Should return None when key not found."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -407,6 +436,7 @@ class TestSyncMethods:
 
         assert result is None
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_get_tuple_deserializes_data(self):
         """Should deserialize stored checkpoint."""
         import orjson
@@ -429,6 +459,7 @@ class TestSyncMethods:
         assert result is not None
         assert result.checkpoint["id"] == "cp-123"
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_list_with_limit(self):
         """Should respect limit parameter."""
         import orjson
@@ -451,6 +482,7 @@ class TestSyncMethods:
 
         assert len(results) == 2
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_list_with_thread_filter(self):
         """Should filter by thread_id in pattern."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -475,6 +507,7 @@ class TestAsyncMethodsWithTTL:
     """Test async methods with TTL."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aput_with_ttl(self):
         """Should use setex() when TTL configured."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -492,6 +525,7 @@ class TestAsyncMethodsWithTTL:
         mock_client.setex.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aget_tuple_returns_none_for_missing(self):
         """Should return None when key not found."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -507,6 +541,7 @@ class TestAsyncMethodsWithTTL:
         assert result is None
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aclose_closes_client(self):
         """Should close Redis client on aclose()."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -521,6 +556,7 @@ class TestAsyncMethodsWithTTL:
         assert saver._client is None
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_aclose_noop_if_no_client(self):
         """Should not error if client not initialized."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -533,6 +569,7 @@ class TestChainMapSerialization:
     """Test ChainMap serialization/deserialization."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_chainmap_serialization(self):
         """Should serialize and deserialize ChainMap correctly."""
         from yamlgraph.storage.serializers import (
@@ -550,6 +587,7 @@ class TestChainMapSerialization:
         assert dict(deserialized) == {"a": 1, "b": 2}
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_chainmap_in_checkpoint(self):
         """Should handle ChainMap in checkpoint state."""
         import orjson
@@ -589,6 +627,7 @@ class TestChainMapSerialization:
 class TestFunctionSerialization:
     """Test function/callable serialization handling."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_function_serialization_returns_marker(self):
         """Should serialize functions as null marker."""
         from yamlgraph.storage.serializers import serialize_value
@@ -599,6 +638,7 @@ class TestFunctionSerialization:
         serialized = serialize_value(my_func)
         assert serialized == {"__type__": "function", "value": None}
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_lambda_serialization(self):
         """Should serialize lambdas as null marker."""
         from yamlgraph.storage.serializers import serialize_value
@@ -606,6 +646,7 @@ class TestFunctionSerialization:
         serialized = serialize_value(lambda x: x)
         assert serialized == {"__type__": "function", "value": None}
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_class_not_treated_as_function(self):
         """Classes should not be treated as functions."""
         from yamlgraph.storage.serializers import serialize_value
@@ -623,6 +664,7 @@ class TestFunctionSerialization:
 class TestTupleKeySerialization:
     """Test tuple dict key serialization/deserialization."""
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_tuple_key_serialization(self):
         """Should serialize tuple keys to strings."""
         from yamlgraph.storage.serializers import deserialize_key, serialize_key
@@ -636,6 +678,7 @@ class TestTupleKeySerialization:
         deserialized = deserialize_key(serialized)
         assert deserialized == key
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_string_key_passthrough(self):
         """String keys should pass through unchanged."""
         from yamlgraph.storage.serializers import deserialize_key, serialize_key
@@ -672,6 +715,7 @@ class TestTupleKeySerialization:
         restored = unstringify_keys(stringified)
         assert restored == data
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_tuple_key_in_checkpoint(self):
         """Should handle tuple keys in actual checkpoint data."""
         import orjson
@@ -714,6 +758,7 @@ class TestDeleteThread:
     """Test thread deletion functionality."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_adelete_thread_removes_keys(self):
         """Should delete all keys for a thread."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -742,6 +787,7 @@ class TestDeleteThread:
         assert len(call_args) >= 1  # At least the base key
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     async def test_adelete_thread_no_keys(self):
         """Should handle case when no keys exist."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer
@@ -759,6 +805,7 @@ class TestDeleteThread:
         # Should not call delete when no keys found
         mock_client.delete.assert_not_called()
 
+    @pytest.mark.req("REQ-YG-026", "REQ-YG-039")
     def test_delete_thread_sync(self):
         """Should delete all keys for a thread (sync)."""
         from yamlgraph.storage.simple_redis import SimpleRedisCheckpointer

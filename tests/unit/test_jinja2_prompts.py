@@ -4,6 +4,8 @@ Tests the format_prompt function's Jinja2 rendering capabilities
 without requiring external prompt files.
 """
 
+import pytest
+
 from yamlgraph.executor_base import format_prompt
 
 # Jinja2 template for testing - matches what analyze_list.yaml would contain
@@ -27,6 +29,7 @@ Only include results with confidence >= {{ min_confidence }}.
 """
 
 
+@pytest.mark.req("REQ-YG-012", "REQ-YG-013")
 def test_jinja2_analyze_list_prompt():
     """Test Jinja2 template with loops, filters, and conditionals."""
     # Test data
@@ -66,6 +69,7 @@ def test_jinja2_analyze_list_prompt():
     assert "### 2." in result
 
 
+@pytest.mark.req("REQ-YG-012", "REQ-YG-013")
 def test_jinja2_prompt_with_empty_list():
     """Test Jinja2 template with empty items."""
     variables = {"items": [], "min_confidence": None}
@@ -77,6 +81,7 @@ def test_jinja2_prompt_with_empty_list():
     assert "### 1." not in result  # No items to iterate
 
 
+@pytest.mark.req("REQ-YG-012", "REQ-YG-013")
 def test_jinja2_prompt_without_optional_fields():
     """Test Jinja2 template without optional fields."""
     variables = {

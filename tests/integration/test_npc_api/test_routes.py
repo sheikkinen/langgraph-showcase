@@ -30,6 +30,7 @@ class TestEncounterStart:
     """Tests for POST /encounter/start endpoint."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_start_requires_session_id(self):
         """Start endpoint validates required session_id."""
         from examples.npc.api.routes.encounter import router
@@ -48,6 +49,7 @@ class TestEncounterStart:
         assert response.status_code == 422
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_start_accepts_valid_input(self, mock_turn_result):
         """Start endpoint accepts valid form data."""
         from examples.npc.api.routes import encounter
@@ -95,6 +97,7 @@ class TestEncounterStart:
             assert mock_session.start.called
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_start_creates_npcs_from_concepts(self, mock_turn_result):
         """Start endpoint creates NPCs from concept strings."""
         from examples.npc.api.routes import encounter
@@ -144,6 +147,7 @@ class TestEncounterTurn:
     """Tests for POST /encounter/turn endpoint."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_turn_requires_dm_input(self):
         """Turn endpoint validates required dm_input."""
         from examples.npc.api.routes.encounter import router
@@ -162,6 +166,7 @@ class TestEncounterTurn:
         assert response.status_code == 422
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_turn_resumes_existing_session(self, mock_turn_result):
         """Turn endpoint resumes existing session."""
         from examples.npc.api.routes import encounter
@@ -200,6 +205,7 @@ class TestEncounterTurn:
             mock_session.turn.assert_called_once_with("The party enters the tavern")
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_turn_handles_no_session(self, mock_turn_result):
         """Turn on non-existent session returns error."""
         from examples.npc.api.routes import encounter
@@ -241,6 +247,7 @@ class TestEncounterState:
     """Tests for GET /encounter/{session_id} endpoint."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_get_nonexistent_session_returns_404(self):
         """GET non-existent session returns 404."""
         from examples.npc.api.routes import encounter
@@ -263,6 +270,7 @@ class TestEncounterState:
             assert response.status_code == 404
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_get_state_returns_current_state(self):
         """GET state endpoint returns current session state."""
         from examples.npc.api.routes import encounter
@@ -312,6 +320,7 @@ class TestHtmxIntegration:
     """Tests for HTMX-specific behavior."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-009")
     async def test_response_has_hx_trigger_header(self, mock_turn_result):
         """Responses include HX-Trigger for client-side updates."""
         from examples.npc.api.routes import encounter

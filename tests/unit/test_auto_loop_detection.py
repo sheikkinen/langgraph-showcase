@@ -1,3 +1,5 @@
+import pytest
+
 """Tests for FR-010: Auto-detect Loop Nodes for skip_if_exists.
 
 TDD RED phase - these tests will fail until implementation.
@@ -7,12 +9,14 @@ TDD RED phase - these tests will fail until implementation.
 class TestDetectLoopNodes:
     """Tests for detect_loop_nodes function."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_import_function(self) -> None:
         """Test function can be imported."""
         from yamlgraph.graph_loader import detect_loop_nodes
 
         assert callable(detect_loop_nodes)
 
+    @pytest.mark.req("REQ-YG-006")
     def test_simple_two_node_loop(self) -> None:
         """Test detection of A -> B -> A cycle."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -24,6 +28,7 @@ class TestDetectLoopNodes:
         result = detect_loop_nodes(edges)
         assert result == {"A", "B"}
 
+    @pytest.mark.req("REQ-YG-006")
     def test_no_loop_linear_graph(self) -> None:
         """Test linear graph has no loop nodes."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -36,6 +41,7 @@ class TestDetectLoopNodes:
         result = detect_loop_nodes(edges)
         assert result == set()
 
+    @pytest.mark.req("REQ-YG-006")
     def test_self_loop(self) -> None:
         """Test node pointing to itself."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -46,6 +52,7 @@ class TestDetectLoopNodes:
         result = detect_loop_nodes(edges)
         assert result == {"A"}
 
+    @pytest.mark.req("REQ-YG-006")
     def test_reflexion_pattern(self) -> None:
         """Test classic reflexion loop pattern."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -63,6 +70,7 @@ class TestDetectLoopNodes:
         # END is not in the loop
         assert "END" not in result
 
+    @pytest.mark.req("REQ-YG-006")
     def test_three_node_cycle(self) -> None:
         """Test A -> B -> C -> A cycle."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -75,6 +83,7 @@ class TestDetectLoopNodes:
         result = detect_loop_nodes(edges)
         assert result == {"A", "B", "C"}
 
+    @pytest.mark.req("REQ-YG-006")
     def test_mixed_loop_and_linear(self) -> None:
         """Test graph with both loop and linear parts."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -96,6 +105,7 @@ class TestDetectLoopNodes:
         assert "finalize" not in result
         assert "END" not in result
 
+    @pytest.mark.req("REQ-YG-006")
     def test_multiple_to_targets(self) -> None:
         """Test edge with list of targets."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -109,6 +119,7 @@ class TestDetectLoopNodes:
         assert "B" in result
         assert "C" not in result
 
+    @pytest.mark.req("REQ-YG-006")
     def test_empty_edges(self) -> None:
         """Test empty edge list."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -117,6 +128,7 @@ class TestDetectLoopNodes:
         result = detect_loop_nodes(edges)
         assert result == set()
 
+    @pytest.mark.req("REQ-YG-006")
     def test_conditional_edges_detected(self) -> None:
         """Test edges with conditions are still detected."""
         from yamlgraph.graph_loader import detect_loop_nodes
@@ -133,6 +145,7 @@ class TestDetectLoopNodes:
 class TestAutoApplySkipIfExists:
     """Tests for auto-applying skip_if_exists to loop nodes."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_auto_applies_to_loop_nodes(self) -> None:
         """Test skip_if_exists=false is auto-applied to loop nodes."""
         from yamlgraph.graph_loader import apply_loop_node_defaults
@@ -152,6 +165,7 @@ class TestAutoApplySkipIfExists:
         assert result["nodes"]["generate"].get("skip_if_exists") is False
         assert result["nodes"]["evaluate"].get("skip_if_exists") is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_preserves_explicit_true(self) -> None:
         """Test explicit skip_if_exists=true is preserved (user override)."""
         from yamlgraph.graph_loader import apply_loop_node_defaults
@@ -173,6 +187,7 @@ class TestAutoApplySkipIfExists:
         # No explicit setting - should be auto-set to false
         assert result["nodes"]["evaluate"].get("skip_if_exists") is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_preserves_explicit_false(self) -> None:
         """Test explicit skip_if_exists=false is preserved."""
         from yamlgraph.graph_loader import apply_loop_node_defaults
@@ -189,6 +204,7 @@ class TestAutoApplySkipIfExists:
 
         assert result["nodes"]["generate"].get("skip_if_exists") is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_linear_nodes_unchanged(self) -> None:
         """Test linear nodes don't get skip_if_exists modified."""
         from yamlgraph.graph_loader import apply_loop_node_defaults
@@ -208,6 +224,7 @@ class TestAutoApplySkipIfExists:
         assert "skip_if_exists" not in result["nodes"]["step1"]
         assert "skip_if_exists" not in result["nodes"]["step2"]
 
+    @pytest.mark.req("REQ-YG-006")
     def test_returns_modified_copy(self) -> None:
         """Test function returns modified config, not mutating original."""
         from yamlgraph.graph_loader import apply_loop_node_defaults
@@ -230,6 +247,7 @@ class TestAutoApplySkipIfExists:
 class TestIntegrationWithGraphLoader:
     """Tests for integration with load_graph_config."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_reflexion_demo_auto_detected(self, tmp_path) -> None:
         """Test reflexion-demo pattern works without explicit skip_if_exists."""
         from yamlgraph.graph_loader import load_graph_config

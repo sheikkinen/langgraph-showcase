@@ -7,12 +7,15 @@ failures invisible in downstream logic.
 
 from unittest.mock import patch
 
+import pytest
+
 from yamlgraph.node_factory import create_node_function
 
 
 class TestOnErrorSkipBehavior:
     """Tests for on_error: skip handling."""
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-028")
     def test_skip_leaves_stale_state_key(self) -> None:
         """on_error: skip should clear or mark state_key to prevent stale data."""
         with (
@@ -53,6 +56,7 @@ class TestOnErrorSkipBehavior:
                 f"Got result keys: {list(result.keys())}"
             )
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-028")
     def test_skip_provides_error_indicator(self) -> None:
         """on_error: skip should provide some indicator that node was skipped."""
         with (
@@ -88,6 +92,7 @@ class TestOnErrorSkipBehavior:
                 f"Got: {result}"
             )
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-028")
     def test_skip_clears_state_key_to_none(self) -> None:
         """on_error: skip should set state_key to None to prevent stale data."""
         with (
@@ -127,6 +132,7 @@ class TestOnErrorSkipBehavior:
 class TestOnErrorSkipWithSkipIfExists:
     """Tests for on_error: skip interaction with skip_if_exists."""
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-028")
     def test_skip_error_distinguishable_from_skip_if_exists(self) -> None:
         """Skipped-due-to-error should be distinguishable from skip_if_exists."""
         with (
@@ -168,6 +174,7 @@ class TestOnErrorSkipWithSkipIfExists:
 class TestOnErrorSkipLogging:
     """Tests for on_error: skip logging behavior."""
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-028")
     def test_skip_logs_error_details(self) -> None:
         """on_error: skip should log error details for debugging."""
 

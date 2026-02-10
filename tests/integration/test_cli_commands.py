@@ -7,10 +7,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 class TestGraphCommands:
     """Integration tests for graph subcommands."""
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_validate_valid_graph(self):
         """'graph validate' succeeds for valid graph."""
         result = subprocess.run(
@@ -29,6 +32,7 @@ class TestGraphCommands:
         assert result.returncode == 0
         assert "VALID" in result.stdout
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_validate_all_demos(self):
         """'graph validate' succeeds for all demo graphs."""
         demos = [
@@ -48,6 +52,7 @@ class TestGraphCommands:
             )
             assert result.returncode == 0, f"Failed to validate {demo}: {result.stderr}"
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_validate_invalid_path(self):
         """'graph validate' fails for missing file."""
         result = subprocess.run(
@@ -65,6 +70,7 @@ class TestGraphCommands:
         )
         assert result.returncode != 0
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_info_shows_nodes(self):
         """'graph info' shows node details."""
         result = subprocess.run(
@@ -83,6 +89,7 @@ class TestGraphCommands:
         assert result.returncode == 0
         assert "Nodes:" in result.stdout or "nodes" in result.stdout.lower()
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_info_shows_edges(self):
         """'graph info' shows edge details."""
         result = subprocess.run(
@@ -101,6 +108,7 @@ class TestGraphCommands:
         assert result.returncode == 0
         assert "Edges:" in result.stdout or "edges" in result.stdout.lower()
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_info_router_demo(self):
         """'graph info' shows router-demo structure."""
         result = subprocess.run(
@@ -120,6 +128,7 @@ class TestGraphCommands:
         assert "classify" in result.stdout
         assert "router" in result.stdout.lower()
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_run_nonexistent_file_shows_error(self):
         """'graph run' with nonexistent file shows error."""
         result = subprocess.run(
@@ -142,6 +151,7 @@ class TestGraphCommands:
             or "Error" in result.stdout + result.stderr
         )
 
+    @pytest.mark.req("REQ-YG-032")
     def test_graph_run_invalid_var_format(self):
         """'graph run' with invalid --var format shows error."""
         result = subprocess.run(
@@ -169,6 +179,7 @@ class TestGraphCommands:
 class TestHelpOutput:
     """Test help messages work correctly."""
 
+    @pytest.mark.req("REQ-YG-032")
     def test_main_help(self):
         """Main --help shows available commands."""
         result = subprocess.run(
@@ -180,6 +191,7 @@ class TestHelpOutput:
         assert "graph" in result.stdout
         assert "schema" in result.stdout
 
+    @pytest.mark.req("REQ-YG-032", "REQ-YG-037")
     def test_graph_help(self):
         """'graph --help' shows subcommands."""
         result = subprocess.run(

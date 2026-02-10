@@ -10,6 +10,7 @@ from pydantic import ValidationError
 class TestBuildPydanticModel:
     """Tests for build_pydantic_model function."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_simple_string_field(self):
         """Build model with single string field."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -30,6 +31,7 @@ class TestBuildPydanticModel:
         instance = Model(message="hello")
         assert instance.message == "hello"
 
+    @pytest.mark.req("REQ-YG-044")
     def test_multiple_fields(self):
         """Build model with multiple field types."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -52,6 +54,7 @@ class TestBuildPydanticModel:
         assert instance.score == 0.9
         assert instance.active is True
 
+    @pytest.mark.req("REQ-YG-044")
     def test_list_field(self):
         """Build model with list field."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -68,6 +71,7 @@ class TestBuildPydanticModel:
         instance = Model(items=["a", "b", "c"])
         assert instance.items == ["a", "b", "c"]
 
+    @pytest.mark.req("REQ-YG-044")
     def test_optional_field(self):
         """Build model with optional field."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -91,6 +95,7 @@ class TestBuildPydanticModel:
         assert instance.required_field == "hello"
         assert instance.optional_field is None
 
+    @pytest.mark.req("REQ-YG-044")
     def test_field_with_default(self):
         """Build model with default value."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -108,6 +113,7 @@ class TestBuildPydanticModel:
         instance = Model(name="test")
         assert instance.count == 10
 
+    @pytest.mark.req("REQ-YG-044")
     def test_constraints_ge_le(self):
         """Build model with ge/le constraints."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -137,6 +143,7 @@ class TestBuildPydanticModel:
         with pytest.raises(ValidationError):
             Model(score=1.5)
 
+    @pytest.mark.req("REQ-YG-044")
     def test_field_description_in_schema(self):
         """Field descriptions should be accessible."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -161,6 +168,7 @@ class TestBuildPydanticModel:
 class TestToneClassificationSchema:
     """Test building ToneClassification model from YAML schema."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_tone_classification_schema(self):
         """Build ToneClassification equivalent from schema."""
         from yamlgraph.schema_loader import build_pydantic_model
@@ -200,6 +208,7 @@ class TestToneClassificationSchema:
 class TestLoadSchemaFromYaml:
     """Tests for loading schema from prompt YAML files."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_load_schema_returns_none_if_no_schema(self, tmp_path):
         """Return None if prompt has no schema block."""
         from yamlgraph.schema_loader import load_schema_from_yaml
@@ -214,6 +223,7 @@ user: "{input}"
         result = load_schema_from_yaml(str(prompt_file))
         assert result is None
 
+    @pytest.mark.req("REQ-YG-044")
     def test_load_schema_builds_model(self, tmp_path):
         """Load and build model from prompt with schema."""
         from yamlgraph.schema_loader import load_schema_from_yaml
@@ -252,6 +262,7 @@ user: "Classify: {message}"
 class TestTypeResolution:
     """Tests for resolving type strings to Python types."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_basic_types(self):
         """Resolve basic type strings."""
         from yamlgraph.schema_loader import resolve_type
@@ -261,6 +272,7 @@ class TestTypeResolution:
         assert resolve_type("float") is float
         assert resolve_type("bool") is bool
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_list_types(self):
         """Resolve list type strings."""
         from yamlgraph.schema_loader import resolve_type
@@ -271,6 +283,7 @@ class TestTypeResolution:
         result = resolve_type("list[int]")
         assert result == list[int]
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_dict_types(self):
         """Resolve dict type strings."""
         from yamlgraph.schema_loader import resolve_type
@@ -278,6 +291,7 @@ class TestTypeResolution:
         result = resolve_type("dict[str, str]")
         assert result == dict[str, str]
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_any_type(self):
         """Resolve Any type."""
         from typing import Any
@@ -287,6 +301,7 @@ class TestTypeResolution:
         result = resolve_type("Any")
         assert result is Any
 
+    @pytest.mark.req("REQ-YG-044")
     def test_invalid_type_raises(self):
         """Invalid type string raises ValueError."""
         from yamlgraph.schema_loader import resolve_type
@@ -298,6 +313,7 @@ class TestTypeResolution:
 class TestBuildPydanticModelFromJsonSchema:
     """Tests for build_pydantic_model_from_json_schema function."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_simple_object_schema(self):
         """Build model from basic JSON Schema."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -318,6 +334,7 @@ class TestBuildPydanticModelFromJsonSchema:
         assert instance.name == "test"
         assert instance.count == 5
 
+    @pytest.mark.req("REQ-YG-044")
     def test_optional_fields_from_required(self):
         """Fields not in required list should be optional."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -338,6 +355,7 @@ class TestBuildPydanticModelFromJsonSchema:
         assert instance.required_field == "hello"
         assert instance.optional_field is None
 
+    @pytest.mark.req("REQ-YG-044")
     def test_array_type(self):
         """Handle array type with items."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -359,6 +377,7 @@ class TestBuildPydanticModelFromJsonSchema:
         instance = Model(tags=["a", "b", "c"])
         assert instance.tags == ["a", "b", "c"]
 
+    @pytest.mark.req("REQ-YG-044")
     def test_enum_type_becomes_string(self):
         """Enum fields should become string type."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -380,6 +399,7 @@ class TestBuildPydanticModelFromJsonSchema:
         instance = Model(status="active")
         assert instance.status == "active"
 
+    @pytest.mark.req("REQ-YG-044")
     def test_all_json_schema_types(self):
         """Handle all JSON Schema basic types."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -403,6 +423,7 @@ class TestBuildPydanticModelFromJsonSchema:
         assert instance.score == 0.9
         assert instance.active is True
 
+    @pytest.mark.req("REQ-YG-044")
     def test_non_object_schema_raises(self):
         """Schema must have type: object."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -412,6 +433,7 @@ class TestBuildPydanticModelFromJsonSchema:
         with pytest.raises(ValueError, match="must have type: object"):
             build_pydantic_model_from_json_schema(schema)
 
+    @pytest.mark.req("REQ-YG-044")
     def test_empty_properties(self):
         """Handle schema with no properties."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -422,6 +444,7 @@ class TestBuildPydanticModelFromJsonSchema:
         instance = Model()
         assert instance is not None
 
+    @pytest.mark.req("REQ-YG-044")
     def test_description_preserved(self):
         """Field descriptions should be accessible."""
         from yamlgraph.schema_loader import build_pydantic_model_from_json_schema
@@ -442,6 +465,7 @@ class TestBuildPydanticModelFromJsonSchema:
 class TestLoadSchemaFromYamlOutputSchema:
     """Tests for loading output_schema (JSON Schema format) from YAML."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_load_output_schema_builds_model(self, tmp_path):
         """Load and build model from prompt with output_schema."""
         from yamlgraph.schema_loader import load_schema_from_yaml
@@ -477,6 +501,7 @@ user: "Analyze: {text}"
         instance = Model(sentiment="positive", confidence=0.9)
         assert instance.sentiment == "positive"
 
+    @pytest.mark.req("REQ-YG-044")
     def test_native_schema_takes_precedence(self, tmp_path):
         """If both schema and output_schema exist, native schema wins."""
         from yamlgraph.schema_loader import load_schema_from_yaml

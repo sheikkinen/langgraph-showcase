@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add examples to path for testing
 examples_path = Path(__file__).parent.parent.parent / "examples" / "book_translator"
 sys.path.insert(0, str(examples_path))
@@ -13,6 +15,7 @@ from nodes.tools import check_scores  # noqa: E402
 class TestCheckScores:
     """Tests for quality score checking."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_empty_state(self):
         """Handle empty state gracefully."""
         state = {}
@@ -23,6 +26,7 @@ class TestCheckScores:
         assert result["flagged_chunks"] == []
         assert result["needs_review"] is False
 
+    @pytest.mark.req("REQ-YG-014")
     def test_all_chunks_pass(self):
         """No flags when all chunks pass threshold."""
         state = {
@@ -46,6 +50,7 @@ class TestCheckScores:
         assert len(result["flagged_chunks"]) == 0
         assert result["needs_review"] is False
 
+    @pytest.mark.req("REQ-YG-014")
     def test_flag_low_score_chunks(self):
         """Flag chunks with scores below threshold."""
         state = {
@@ -79,6 +84,7 @@ class TestCheckScores:
         assert 1 in flagged_indices
         assert 2 in flagged_indices
 
+    @pytest.mark.req("REQ-YG-014")
     def test_flag_not_approved_chunks(self):
         """Flag chunks that are not approved even if score is above threshold."""
         state = {
@@ -96,6 +102,7 @@ class TestCheckScores:
         assert len(result["flagged_chunks"]) == 1
         assert result["needs_review"] is True
 
+    @pytest.mark.req("REQ-YG-014")
     def test_custom_threshold(self):
         """Use custom threshold for flagging."""
         state = {
@@ -117,6 +124,7 @@ class TestCheckScores:
         result_high = check_scores(state, threshold=0.9)
         assert len(result_high["flagged_chunks"]) == 1
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_missing_scores(self):
         """Handle chunks without quality_score field - defaults to 1.0."""
         state = {
@@ -137,6 +145,7 @@ class TestCheckScores:
         # Chunk without score defaults to 1.0 and passes
         assert len(result["flagged_chunks"]) == 0
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handle_pydantic_model(self):
         """Handle Pydantic ProofreadOutput model."""
         from dataclasses import dataclass

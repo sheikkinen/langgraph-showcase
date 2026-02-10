@@ -66,6 +66,7 @@ def minimal_config() -> GraphConfig:
 class TestCompileToolCallNode:
     """Test compile_node with type: tool_call."""
 
+    @pytest.mark.req("REQ-YG-017")
     def test_compiles_tool_call_node(self, minimal_config, tools_registry):
         """Should compile tool_call node and add to graph."""
         from operator import add
@@ -99,6 +100,7 @@ class TestCompileToolCallNode:
         # Node should be in graph
         assert "test_tool_call" in graph.nodes
 
+    @pytest.mark.req("REQ-YG-017")
     def test_tool_call_node_executes(self, tools_registry):
         """Tool call node should execute tool from state."""
         from yamlgraph.node_factory import create_tool_call_node
@@ -126,6 +128,7 @@ class TestCompileToolCallNode:
 class TestMapWithToolCall:
     """Test map node with tool_call sub-node."""
 
+    @pytest.mark.req("REQ-YG-017")
     def test_map_with_tool_call_sub_node(self, tools_registry):
         """Map node should support type: tool_call in sub-node."""
         from operator import add

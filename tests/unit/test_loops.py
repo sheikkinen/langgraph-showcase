@@ -15,12 +15,14 @@ import pytest
 class TestExpressionConditions:
     """Tests for condition expression evaluation."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_evaluate_condition_exists(self):
         """evaluate_condition function should exist."""
         from yamlgraph.utils.conditions import evaluate_condition
 
         assert callable(evaluate_condition)
 
+    @pytest.mark.req("REQ-YG-006")
     def test_less_than_comparison(self):
         """Evaluates 'score < 0.8' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -31,6 +33,7 @@ class TestExpressionConditions:
         state = {"score": 0.9}
         assert evaluate_condition("score < 0.8", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_greater_than_comparison(self):
         """Evaluates 'score > 0.5' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -41,6 +44,7 @@ class TestExpressionConditions:
         state = {"score": 0.3}
         assert evaluate_condition("score > 0.5", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_less_than_or_equal(self):
         """Evaluates 'score <= 0.8' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -51,6 +55,7 @@ class TestExpressionConditions:
         state = {"score": 0.9}
         assert evaluate_condition("score <= 0.8", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_greater_than_or_equal(self):
         """Evaluates 'score >= 0.8' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -61,6 +66,7 @@ class TestExpressionConditions:
         state = {"score": 0.7}
         assert evaluate_condition("score >= 0.8", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_equality_comparison(self):
         """Evaluates 'status == \"approved\"' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -71,6 +77,7 @@ class TestExpressionConditions:
         state = {"status": "pending"}
         assert evaluate_condition('status == "approved"', state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_inequality_comparison(self):
         """Evaluates 'error != null' correctly."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -81,6 +88,7 @@ class TestExpressionConditions:
         state = {"error": None}
         assert evaluate_condition("error != null", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_nested_attribute_access(self):
         """Evaluates 'critique.score >= 0.8' from state."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -94,6 +102,7 @@ class TestExpressionConditions:
         critique.score = 0.7
         assert evaluate_condition("critique.score >= 0.8", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_compound_and_condition(self):
         """Evaluates 'score < 0.8 and iteration < 3'."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -107,6 +116,7 @@ class TestExpressionConditions:
         state = {"score": 0.5, "iteration": 5}
         assert evaluate_condition("score < 0.8 and iteration < 3", state) is False
 
+    @pytest.mark.req("REQ-YG-006")
     def test_compound_or_condition(self):
         """Evaluates 'approved == true or override == true'."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -122,6 +132,7 @@ class TestExpressionConditions:
             evaluate_condition("approved == true or override == true", state) is False
         )
 
+    @pytest.mark.req("REQ-YG-006")
     def test_invalid_expression_raises(self):
         """Malformed expression raises ValueError."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -129,6 +140,7 @@ class TestExpressionConditions:
         with pytest.raises(ValueError):
             evaluate_condition("score <<< 0.8", {})
 
+    @pytest.mark.req("REQ-YG-006")
     def test_missing_attribute_returns_false(self):
         """Missing attribute in state returns False gracefully."""
         from yamlgraph.utils.conditions import evaluate_condition
@@ -146,6 +158,7 @@ class TestExpressionConditions:
 class TestLoopTracking:
     """Tests for loop iteration tracking."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_state_has_loop_counts_field(self):
         """Dynamic state should have _loop_counts field."""
         from yamlgraph.models.state_builder import build_state_class
@@ -158,6 +171,7 @@ class TestLoopTracking:
         state = {"_loop_counts": {"critique": 2}}
         assert state["_loop_counts"]["critique"] == 2
 
+    @pytest.mark.req("REQ-YG-006")
     def test_node_increments_loop_counter(self):
         """Each node execution increments its counter in _loop_counts."""
         from yamlgraph.node_factory import create_node_function
@@ -191,6 +205,7 @@ class TestLoopTracking:
 class TestLoopLimits:
     """Tests for loop_limits configuration."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_parses_loop_limits_from_yaml(self):
         """GraphConfig parses loop_limits section."""
         from yamlgraph.graph_loader import GraphConfig
@@ -214,6 +229,7 @@ class TestLoopLimits:
         config = GraphConfig(config_dict)
         assert config.loop_limits == {"critique": 3}
 
+    @pytest.mark.req("REQ-YG-006")
     def test_loop_limits_defaults_to_empty(self):
         """Missing loop_limits defaults to empty dict."""
         from yamlgraph.graph_loader import GraphConfig
@@ -227,6 +243,7 @@ class TestLoopLimits:
         config = GraphConfig(config_dict)
         assert config.loop_limits == {}
 
+    @pytest.mark.req("REQ-YG-006")
     def test_node_checks_loop_limit(self):
         """Node execution checks loop limit before running."""
         from yamlgraph.node_factory import create_node_function
@@ -261,6 +278,7 @@ class TestLoopLimits:
 class TestCyclicEdges:
     """Tests for cyclic graph support."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_allows_backward_edges(self):
         """Graph config allows edges pointing to earlier nodes."""
         from yamlgraph.graph_loader import GraphConfig
@@ -290,6 +308,7 @@ class TestCyclicEdges:
         config = GraphConfig(config_dict)
         assert config is not None
 
+    @pytest.mark.req("REQ-YG-006")
     def test_compiles_cyclic_graph(self):
         """Cyclic graph compiles to StateGraph."""
         from yamlgraph.graph_loader import GraphConfig, compile_graph
@@ -332,12 +351,14 @@ class TestReflexionModels:
     These tests use fixture models to prove the pattern still works.
     """
 
+    @pytest.mark.req("REQ-YG-006")
     def test_draft_content_model_exists(self):
         """DraftContent-like fixture model can be created."""
         from tests.conftest import FixtureDraftContent
 
         assert FixtureDraftContent is not None
 
+    @pytest.mark.req("REQ-YG-006")
     def test_draft_content_fields(self):
         """DraftContent-like model has content and version fields."""
         from tests.conftest import FixtureDraftContent
@@ -346,12 +367,14 @@ class TestReflexionModels:
         assert draft.content == "Test essay"
         assert draft.version == 1
 
+    @pytest.mark.req("REQ-YG-006")
     def test_critique_model_exists(self):
         """Critique-like fixture model can be created."""
         from tests.conftest import FixtureCritique
 
         assert FixtureCritique is not None
 
+    @pytest.mark.req("REQ-YG-006")
     def test_critique_fields(self):
         """Critique-like model has score, feedback, issues, should_refine fields."""
         from tests.conftest import FixtureCritique
@@ -376,6 +399,7 @@ class TestReflexionModels:
 class TestReflexionDemoGraph:
     """Tests for the reflexion-demo.yaml graph."""
 
+    @pytest.mark.req("REQ-YG-006")
     def test_demo_graph_loads(self):
         """reflexion-demo.yaml loads without error."""
         from yamlgraph.graph_loader import load_graph_config
@@ -386,6 +410,7 @@ class TestReflexionDemoGraph:
         assert "critique" in config.nodes
         assert "refine" in config.nodes
 
+    @pytest.mark.req("REQ-YG-006")
     def test_demo_graph_has_loop_limits(self):
         """reflexion-demo.yaml has loop_limits configured."""
         from yamlgraph.graph_loader import load_graph_config
@@ -394,6 +419,7 @@ class TestReflexionDemoGraph:
         assert "critique" in config.loop_limits
         assert config.loop_limits["critique"] >= 3
 
+    @pytest.mark.req("REQ-YG-006")
     def test_demo_graph_compiles(self):
         """reflexion-demo.yaml compiles to StateGraph."""
         from yamlgraph.graph_loader import compile_graph, load_graph_config

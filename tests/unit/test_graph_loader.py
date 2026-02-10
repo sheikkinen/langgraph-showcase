@@ -75,6 +75,7 @@ def sample_config(sample_yaml_file):
 class TestLoadGraphConfig:
     """Tests for loading YAML graph configs."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_load_valid_yaml(self, sample_yaml_file):
         """Load a valid graph YAML file."""
         config = load_graph_config(sample_yaml_file)
@@ -83,6 +84,7 @@ class TestLoadGraphConfig:
         assert config.name == "test_graph"
         assert config.version == "1.0"
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_load_missing_file_raises(self, tmp_path):
         """FileNotFoundError for missing file."""
         missing = tmp_path / "nonexistent.yaml"
@@ -90,6 +92,7 @@ class TestLoadGraphConfig:
         with pytest.raises(FileNotFoundError):
             load_graph_config(missing)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_parse_nodes(self, sample_config):
         """Nodes parsed with correct attributes."""
         assert "generate" in sample_config.nodes
@@ -99,17 +102,20 @@ class TestLoadGraphConfig:
         assert node["prompt"] == "generate"
         assert node["temperature"] == 0.8
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_parse_edges(self, sample_config):
         """Edges parsed correctly."""
         assert len(sample_config.edges) == 2
         assert sample_config.edges[0]["from"] == "START"
         assert sample_config.edges[0]["to"] == "generate"
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_parse_defaults(self, sample_config):
         """Defaults parsed correctly."""
         assert sample_config.defaults["provider"] == "mistral"
         assert sample_config.defaults["temperature"] == 0.7
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_parse_prompts_relative(self, tmp_path):
         """Should parse prompts_relative from defaults."""
         yaml_content = """
@@ -139,6 +145,7 @@ edges:
         assert config.prompts_relative is True
         assert config.prompts_dir is None
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_parse_prompts_dir(self, tmp_path):
         """Should parse prompts_dir from defaults."""
         yaml_content = """
@@ -177,6 +184,7 @@ edges:
 class TestCompileGraph:
     """Tests for compiling config to LangGraph."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_graph_has_all_nodes(self, sample_config):
         """Compiled graph contains all defined nodes."""
         graph = compile_graph(sample_config)
@@ -184,6 +192,7 @@ class TestCompileGraph:
         # Check node was added (nodes are stored in graph.nodes)
         assert "generate" in graph.nodes
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_entry_point_set(self, sample_config):
         """START edge sets entry point correctly."""
         graph = compile_graph(sample_config)
@@ -196,6 +205,7 @@ class TestCompileGraph:
         # The 'generate' node should be in the graph
         assert "generate" in graph.nodes
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_edges_connected(self, sample_config):
         """Edges create correct topology."""
         graph = compile_graph(sample_config)
@@ -213,6 +223,7 @@ class TestCompileGraph:
 class TestLoadAndCompile:
     """Integration tests for full load-compile flow."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_load_and_compile_yamlgraph(self):
         """Load the actual yamlgraph.yaml and compile it."""
         from yamlgraph.config import GRAPHS_DIR
@@ -226,6 +237,7 @@ class TestLoadAndCompile:
 
         assert compiled is not None
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_compiled_graph_invocable(self, sample_yaml_file):
         """Compiled graph can be invoked with initial state."""
         mock_result = FixtureGeneratedContent(
@@ -262,6 +274,7 @@ class TestLoadAndCompile:
 class TestYAMLSchemaValidation:
     """Tests for YAML schema validation on load."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_missing_nodes_raises_error(self, tmp_path):
         """YAML without nodes should raise ValidationError."""
         yaml_content = """
@@ -277,6 +290,7 @@ edges:
         with pytest.raises(ValueError, match="nodes"):
             load_graph_config(yaml_file)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_missing_edges_raises_error(self, tmp_path):
         """YAML without edges should raise ValidationError."""
         yaml_content = """
@@ -293,6 +307,7 @@ nodes:
         with pytest.raises(ValueError, match="edges"):
             load_graph_config(yaml_file)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_node_missing_prompt_raises_error(self, tmp_path):
         """Node without prompt should raise ValidationError."""
         yaml_content = """
@@ -312,6 +327,7 @@ edges:
         with pytest.raises(ValueError, match="prompt"):
             load_graph_config(yaml_file)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_edge_missing_from_raises_error(self, tmp_path):
         """Edge without 'from' should raise ValidationError."""
         yaml_content = """
@@ -330,6 +346,7 @@ edges:
         with pytest.raises(ValueError, match="from"):
             load_graph_config(yaml_file)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_edge_missing_to_raises_error(self, tmp_path):
         """Edge without 'to' should raise ValidationError."""
         yaml_content = """
@@ -348,6 +365,7 @@ edges:
         with pytest.raises(ValueError, match="to"):
             load_graph_config(yaml_file)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-002", "REQ-YG-005")
     def test_valid_yaml_passes_validation(self, sample_yaml_file):
         """Valid YAML should load without errors."""
         config = load_graph_config(sample_yaml_file)

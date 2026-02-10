@@ -14,6 +14,7 @@ from yamlgraph.cli.helpers import (
 class TestLoadGraphConfig:
     """Test load_graph_config helper."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_loads_valid_yaml(self, tmp_path: Path):
         """Should load valid YAML graph config."""
         graph_file = tmp_path / "test.yaml"
@@ -31,6 +32,7 @@ edges:
         assert config["name"] == "test-graph"
         assert "greet" in config["nodes"]
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_raises_on_missing_file(self, tmp_path: Path):
         """Should raise GraphLoadError for missing file."""
         missing = tmp_path / "nonexistent.yaml"
@@ -41,6 +43,7 @@ edges:
         assert "not found" in str(exc_info.value)
         assert str(missing) in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_raises_on_invalid_yaml(self, tmp_path: Path):
         """Should raise GraphLoadError for invalid YAML."""
         graph_file = tmp_path / "invalid.yaml"
@@ -51,6 +54,7 @@ edges:
 
         assert "Invalid YAML" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_accepts_string_path(self, tmp_path: Path):
         """Should accept string paths as well as Path objects."""
         graph_file = tmp_path / "test.yaml"
@@ -60,6 +64,7 @@ edges:
 
         assert config["name"] == "test"
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_returns_empty_dict_for_empty_yaml(self, tmp_path: Path):
         """Should return None/empty for empty YAML file."""
         graph_file = tmp_path / "empty.yaml"
@@ -73,6 +78,7 @@ edges:
 class TestRequireGraphConfig:
     """Test require_graph_config helper."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_returns_config_for_valid_yaml(self, tmp_path: Path):
         """Should return config dict for valid YAML."""
         graph_file = tmp_path / "test.yaml"
@@ -82,6 +88,7 @@ class TestRequireGraphConfig:
 
         assert config["name"] == "test"
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_raises_on_empty_yaml(self, tmp_path: Path):
         """Should raise GraphLoadError for empty YAML file."""
         graph_file = tmp_path / "empty.yaml"
@@ -92,6 +99,7 @@ class TestRequireGraphConfig:
 
         assert "Empty YAML file" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_raises_on_missing_file(self, tmp_path: Path):
         """Should raise GraphLoadError for missing file."""
         missing = tmp_path / "nonexistent.yaml"

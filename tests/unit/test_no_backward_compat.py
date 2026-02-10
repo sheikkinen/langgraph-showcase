@@ -10,10 +10,13 @@ ensuring deprecated code gets cleaned up rather than accumulating.
 import subprocess
 from pathlib import Path
 
+import pytest
+
 
 class TestNoBackwardCompatibilityMarkers:
     """Ensure no backward compatibility markers exist in source code."""
 
+    @pytest.mark.req("REQ-YG-034")
     def test_no_backward_compat_in_yamlgraph_source(self):
         """Source files should not contain 'backward compatibility' markers.
 

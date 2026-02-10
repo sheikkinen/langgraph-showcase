@@ -9,6 +9,7 @@ from yamlgraph.tools.shell import ShellToolConfig
 class TestCreateToolNode:
     """Tests for create_tool_node function."""
 
+    @pytest.mark.req("REQ-YG-019")
     def test_executes_named_tool(self):
         """Node runs correct tool from registry."""
         tools = {
@@ -23,6 +24,7 @@ class TestCreateToolNode:
         assert result["test_node"].strip() == "hello"
         assert result["current_step"] == "test_node"
 
+    @pytest.mark.req("REQ-YG-019")
     def test_resolves_variables_from_state(self):
         """State values passed to tool."""
         tools = {
@@ -38,6 +40,7 @@ class TestCreateToolNode:
 
         assert "Alice" in result["greet_node"]
 
+    @pytest.mark.req("REQ-YG-019")
     def test_stores_result_in_state_key(self):
         """Tool output saved to custom state_key."""
         tools = {
@@ -54,6 +57,7 @@ class TestCreateToolNode:
         assert "my_data" in result
         assert result["my_data"].strip() == "data_value"
 
+    @pytest.mark.req("REQ-YG-019")
     def test_on_error_skip(self):
         """Failed tool skipped when on_error: skip."""
         tools = {
@@ -71,6 +75,7 @@ class TestCreateToolNode:
         assert result["current_step"] == "fail_node"
         assert "errors" in result or result.get("fail_node") is None
 
+    @pytest.mark.req("REQ-YG-019")
     def test_on_error_fail_raises(self):
         """Failed tool raises when on_error: fail."""
         tools = {
@@ -86,6 +91,7 @@ class TestCreateToolNode:
         with pytest.raises(RuntimeError):
             node_fn({})
 
+    @pytest.mark.req("REQ-YG-019")
     def test_nested_state_variable(self):
         """Nested state values like {state.location.lat} resolved."""
         tools = {
@@ -105,6 +111,7 @@ class TestCreateToolNode:
         assert "37.7749" in result["geo_node"]
         assert "-122.4194" in result["geo_node"]
 
+    @pytest.mark.req("REQ-YG-019")
     def test_missing_tool_raises(self):
         """Unknown tool name raises error."""
         tools = {}
@@ -113,6 +120,7 @@ class TestCreateToolNode:
         with pytest.raises(KeyError):
             create_tool_node("bad_node", node_config, tools)
 
+    @pytest.mark.req("REQ-YG-019")
     def test_json_parse_tool(self):
         """Tool with parse: json returns dict."""
         tools = {

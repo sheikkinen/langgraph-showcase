@@ -17,6 +17,7 @@ class TestPromptsRelativeConfig:
         """Path to a demo graph with prompts_relative: true."""
         return Path("examples/demos/reflexion/graph.yaml")
 
+    @pytest.mark.req("REQ-YG-012")
     def test_graph_config_has_prompts_relative(self, demo_graph_path: Path):
         """GraphConfig exposes prompts_relative from top-level config."""
         from yamlgraph.graph_loader import load_graph_config
@@ -26,6 +27,7 @@ class TestPromptsRelativeConfig:
         assert config.prompts_relative is True
         assert config.prompts_dir == "prompts"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_llm_node_receives_prompts_config(self, demo_graph_path: Path):
         """LLM nodes receive prompts_relative via effective_defaults."""
         from yamlgraph.graph_loader import load_graph_config
@@ -42,6 +44,7 @@ class TestPromptsRelativeConfig:
         assert effective_defaults["prompts_relative"] is True
         assert effective_defaults["prompts_dir"] == "prompts"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_agent_node_receives_prompts_config(self):
         """Agent nodes receive prompts_relative via defaults dict."""
         from yamlgraph.tools.agent import create_agent_node
@@ -68,6 +71,7 @@ class TestPromptsRelativeConfig:
             )
             assert callable(node_fn)
 
+    @pytest.mark.req("REQ-YG-012")
     def test_map_node_receives_prompts_config(self, demo_graph_path: Path):
         """Map nodes receive prompts_relative via defaults dict."""
         from yamlgraph.graph_loader import load_graph_config
@@ -82,6 +86,7 @@ class TestPromptsRelativeConfig:
 class TestEffectiveDefaultsBuilding:
     """Tests for effective_defaults construction in node_compiler."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_effective_defaults_includes_prompts_settings(self):
         """effective_defaults should merge top-level prompts settings."""
         from yamlgraph.graph_loader import load_graph_config
@@ -106,6 +111,7 @@ class TestEffectiveDefaultsBuilding:
         assert effective_defaults["prompts_relative"] is True
         assert effective_defaults["prompts_dir"] == "prompts"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_top_level_overrides_defaults_block(self):
         """Top-level prompts_relative should override defaults block value."""
         from yamlgraph.graph_loader import GraphConfig

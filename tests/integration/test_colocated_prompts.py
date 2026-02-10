@@ -3,12 +3,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from yamlgraph.graph_loader import load_and_compile
 
 
 class TestColocatedPrompts:
     """Test graphs with prompts colocated next to the graph YAML."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_prompts_relative_true(self, tmp_path: Path):
         """Graph with prompts_relative: true resolves prompts from graph dir."""
         # Create colocated structure:
@@ -72,16 +75,17 @@ user: |
             call_kwargs = mock.call_args[1]
             assert call_kwargs["prompt_name"] == "prompts/opening"
             # BUG FIX: These params must be passed to execute_prompt
-            assert call_kwargs.get("prompts_relative") is True, (
-                "prompts_relative should be True"
-            )
-            assert call_kwargs.get("graph_path") is not None, (
-                "graph_path should be passed"
-            )
+            assert (
+                call_kwargs.get("prompts_relative") is True
+            ), "prompts_relative should be True"
+            assert (
+                call_kwargs.get("graph_path") is not None
+            ), "graph_path should be passed"
 
         # Verify result
         assert result["opening"] == mock_result
 
+    @pytest.mark.req("REQ-YG-012")
     def test_explicit_prompts_dir(self, tmp_path: Path):
         """Graph with prompts_dir resolves prompts from explicit path."""
         # Create structure:

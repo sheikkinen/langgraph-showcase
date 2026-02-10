@@ -1,5 +1,7 @@
 """Tests for map pattern linter validations."""
 
+import pytest
+
 from yamlgraph.linter.patterns.map import (
     check_map_node_structure,
     check_map_node_types,
@@ -10,6 +12,7 @@ from yamlgraph.linter.patterns.map import (
 class TestMapNodeStructure:
     """Test map node structural validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_map_structure(self):
         """Should pass valid map structure."""
         node_config = {
@@ -23,6 +26,7 @@ class TestMapNodeStructure:
         issues = check_map_node_structure("test_map", node_config)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_over_field(self):
         """Should error when 'over' field is missing."""
         node_config = {
@@ -38,6 +42,7 @@ class TestMapNodeStructure:
         assert issues[0].code == "E201"
         assert "missing required field 'over'" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_as_field(self):
         """Should error when 'as' field is missing."""
         node_config = {
@@ -53,6 +58,7 @@ class TestMapNodeStructure:
         assert issues[0].code == "E202"
         assert "missing required field 'as'" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_node_field(self):
         """Should error when 'node' field is missing."""
         node_config = {
@@ -68,6 +74,7 @@ class TestMapNodeStructure:
         assert issues[0].code == "E203"
         assert "missing required field 'node'" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_collect_field(self):
         """Should error when 'collect' field is missing."""
         node_config = {
@@ -83,6 +90,7 @@ class TestMapNodeStructure:
         assert issues[0].code == "E204"
         assert "missing required field 'collect'" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_top_level_prompt_error(self):
         """Should error when 'prompt' exists at top level."""
         node_config = {
@@ -100,6 +108,7 @@ class TestMapNodeStructure:
         assert issues[0].code == "E205"
         assert "should not have top-level 'prompt' field" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_multiple_missing_fields(self):
         """Should report all missing required fields."""
         node_config = {
@@ -118,6 +127,7 @@ class TestMapNodeStructure:
 class TestMapNodeTypes:
     """Test map node field type validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_over_field(self):
         """Should pass valid 'over' field format."""
         node_config = {
@@ -131,6 +141,7 @@ class TestMapNodeTypes:
         issues = check_map_node_types("test_map", node_config)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_over_field_warning(self):
         """Should warn when 'over' field doesn't look like state reference."""
         node_config = {
@@ -147,6 +158,7 @@ class TestMapNodeTypes:
         assert issues[0].code == "W201"
         assert "should reference state list" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_nested_node_missing_prompt_warning(self):
         """Should warn when nested node lacks prompt or type."""
         node_config = {
@@ -170,6 +182,7 @@ class TestMapNodeTypes:
 class TestMapPatternsIntegration:
     """Test map pattern validation integration."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_map_graph(self, tmp_path):
         """Should pass valid map graph."""
         graph_content = """
@@ -189,6 +202,7 @@ nodes:
         issues = check_map_patterns(graph_file)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_map_graph(self, tmp_path):
         """Should catch invalid map graph."""
         graph_content = """
@@ -207,6 +221,7 @@ nodes:
         error_codes = {issue.code for issue in error_issues}
         assert error_codes == {"E201", "E202", "E203", "E204"}
 
+    @pytest.mark.req("REQ-YG-003")
     def test_mixed_nodes_only_validates_maps(self, tmp_path):
         """Should only validate map nodes, ignore others."""
         graph_content = """

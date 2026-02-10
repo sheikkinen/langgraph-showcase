@@ -1,5 +1,7 @@
 """Tests for interrupt pattern linter validations."""
 
+import pytest
+
 from yamlgraph.linter.patterns.interrupt import (
     check_interrupt_checkpointer,
     check_interrupt_node_structure,
@@ -11,6 +13,7 @@ from yamlgraph.linter.patterns.interrupt import (
 class TestInterruptNodeStructure:
     """Test interrupt node structural validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_interrupt_with_prompt(self):
         """Should pass valid interrupt structure with prompt."""
         node_config = {
@@ -22,6 +25,7 @@ class TestInterruptNodeStructure:
         issues = check_interrupt_node_structure("ask_user", node_config)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_interrupt_with_message(self):
         """Should pass valid interrupt structure with message."""
         node_config = {
@@ -33,6 +37,7 @@ class TestInterruptNodeStructure:
         issues = check_interrupt_node_structure("ask_user", node_config)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_resume_key(self):
         """Should error when resume_key is missing."""
         node_config = {"type": "interrupt", "prompt": "ask_question"}
@@ -43,6 +48,7 @@ class TestInterruptNodeStructure:
         assert issues[0].code == "E301"
         assert "missing required field 'resume_key'" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_prompt_and_message(self):
         """Should error when both prompt and message are missing."""
         node_config = {"type": "interrupt", "resume_key": "user_answer"}
@@ -53,6 +59,7 @@ class TestInterruptNodeStructure:
         assert issues[0].code == "E302"
         assert "missing 'prompt' or 'message' field" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_has_both_prompt_and_message(self):
         """Should warn when both prompt and message are present."""
         node_config = {
@@ -72,6 +79,7 @@ class TestInterruptNodeStructure:
 class TestInterruptStateDeclarations:
     """Test interrupt node state declaration validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_state_declarations(self):
         """Should pass when state_key and resume_key are declared."""
         node_config = {
@@ -85,6 +93,7 @@ class TestInterruptStateDeclarations:
         issues = check_interrupt_state_declarations("ask_user", node_config, graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_state_key_declaration(self):
         """Should error when state_key is not declared in state section."""
         node_config = {
@@ -106,6 +115,7 @@ class TestInterruptStateDeclarations:
         assert issues[0].code == "E303"
         assert "state_key 'question' not declared" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_resume_key_declaration(self):
         """Should error when resume_key is not declared in state section."""
         node_config = {
@@ -125,6 +135,7 @@ class TestInterruptStateDeclarations:
         assert issues[0].code == "E303"
         assert "resume_key 'user_input' not declared" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_no_state_key_no_error(self):
         """Should pass when state_key is not specified (optional field)."""
         node_config = {
@@ -141,6 +152,7 @@ class TestInterruptStateDeclarations:
 class TestInterruptCheckpointer:
     """Test interrupt checkpointer validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_graph_without_interrupt_no_checkpointer_needed(self):
         """Should pass when graph has no interrupt nodes."""
         graph = {"nodes": {"llm_node": {"type": "llm", "prompt": "hello"}}}
@@ -148,6 +160,7 @@ class TestInterruptCheckpointer:
         issues = check_interrupt_checkpointer(graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_graph_with_interrupt_missing_checkpointer(self):
         """Should warn when graph has interrupt nodes but no checkpointer."""
         graph = {
@@ -166,6 +179,7 @@ class TestInterruptCheckpointer:
         assert issues[0].code == "W301"
         assert "missing checkpointer configuration" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_graph_with_interrupt_valid_checkpointer(self):
         """Should pass when graph has interrupt nodes and valid checkpointer."""
         graph = {
@@ -182,6 +196,7 @@ class TestInterruptCheckpointer:
         issues = check_interrupt_checkpointer(graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_checkpointer_not_dict(self):
         """Should error when checkpointer is not a dict."""
         graph = {
@@ -201,6 +216,7 @@ class TestInterruptCheckpointer:
         assert issues[0].code == "E304"
         assert "checkpointer must be a dict" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_checkpointer_missing_type(self):
         """Should error when checkpointer dict missing type field."""
         graph = {
@@ -224,6 +240,7 @@ class TestInterruptCheckpointer:
 class TestInterruptPatternsIntegration:
     """Test interrupt pattern validation integration."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_interrupt_graph(self, tmp_path):
         """Should pass valid interrupt graph."""
         graph_content = """
@@ -245,6 +262,7 @@ nodes:
         issues = check_interrupt_patterns(graph_file)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_interrupt_graph(self, tmp_path):
         """Should catch multiple interrupt validation issues."""
         graph_content = """
@@ -272,6 +290,7 @@ nodes:
         assert "E302" in error_codes
         assert warning_issues[0].code == "W301"
 
+    @pytest.mark.req("REQ-YG-003")
     def test_mixed_nodes_validates_only_interrupts(self, tmp_path):
         """Should only validate interrupt nodes, ignore others."""
         graph_content = """

@@ -6,6 +6,7 @@ Tests field-based result export with multiple formats.
 import json
 from pathlib import Path
 
+import pytest
 from pydantic import BaseModel, Field
 
 
@@ -20,6 +21,7 @@ class SampleModel(BaseModel):
 class TestExportResult:
     """Tests for export_result function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_json_field(self, tmp_path: Path):
         """Export field as JSON file."""
         from yamlgraph.storage.export import export_result
@@ -43,6 +45,7 @@ class TestExportResult:
         assert data["content"] == "Body"
         assert data["tags"] == ["a", "b"]
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_markdown_field(self, tmp_path: Path):
         """Export field as Markdown file."""
         from yamlgraph.storage.export import export_result
@@ -62,6 +65,7 @@ class TestExportResult:
         content = paths[0].read_text()
         assert "This is the summary content." in content
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_text_field(self, tmp_path: Path):
         """Export field as plain text."""
         from yamlgraph.storage.export import export_result
@@ -80,6 +84,7 @@ class TestExportResult:
         content = paths[0].read_text()
         assert content == "Plain text output"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_creates_thread_directory(self, tmp_path: Path):
         """Files are created in thread-specific subdirectory."""
         from yamlgraph.storage.export import export_result
@@ -96,6 +101,7 @@ class TestExportResult:
         assert paths[0].parent.name == "my-thread-id"
         assert paths[0].parent.parent == tmp_path
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_skips_none_fields(self, tmp_path: Path):
         """Fields with None value are skipped."""
         from yamlgraph.storage.export import export_result
@@ -116,6 +122,7 @@ class TestExportResult:
         assert len(paths) == 1
         assert paths[0].name == "present.txt"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_skips_missing_fields(self, tmp_path: Path):
         """Fields not in state are skipped."""
         from yamlgraph.storage.export import export_result
@@ -127,6 +134,7 @@ class TestExportResult:
 
         assert len(paths) == 0
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_multiple_fields(self, tmp_path: Path):
         """Export multiple fields in one call."""
         from yamlgraph.storage.export import export_result
@@ -152,6 +160,7 @@ class TestExportResult:
 class TestSerializeToJson:
     """Tests for JSON serialization helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serializes_pydantic_model(self):
         """Pydantic models serialize properly."""
         from yamlgraph.storage.export import _serialize_to_json
@@ -163,6 +172,7 @@ class TestSerializeToJson:
         assert data["title"] == "Test"
         assert data["content"] == "Body"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serializes_dict(self):
         """Regular dicts serialize properly."""
         from yamlgraph.storage.export import _serialize_to_json
@@ -173,6 +183,7 @@ class TestSerializeToJson:
         assert data["a"] == 1
         assert data["b"] == [1, 2, 3]
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serializes_with_indent(self):
         """JSON output is indented."""
         from yamlgraph.storage.export import _serialize_to_json
@@ -185,6 +196,7 @@ class TestSerializeToJson:
 class TestPydanticToMarkdown:
     """Tests for Pydantic to Markdown conversion."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_includes_model_name_as_title(self):
         """Model name becomes the markdown title."""
         from yamlgraph.storage.export import _pydantic_to_markdown
@@ -194,6 +206,7 @@ class TestPydanticToMarkdown:
 
         assert result.startswith("# SampleModel")
 
+    @pytest.mark.req("REQ-YG-038")
     def test_formats_list_fields_as_bullets(self):
         """List fields become bullet points."""
         from yamlgraph.storage.export import _pydantic_to_markdown
@@ -204,6 +217,7 @@ class TestPydanticToMarkdown:
         assert "- one" in result
         assert "- two" in result
 
+    @pytest.mark.req("REQ-YG-038")
     def test_formats_scalar_fields_bold(self):
         """Scalar fields use bold labels."""
         from yamlgraph.storage.export import _pydantic_to_markdown
@@ -217,6 +231,7 @@ class TestPydanticToMarkdown:
 class TestSerializeToMarkdown:
     """Tests for markdown serialization."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_pydantic_model_uses_pydantic_to_markdown(self):
         """Pydantic models use _pydantic_to_markdown."""
         from yamlgraph.storage.export import _serialize_to_markdown
@@ -226,6 +241,7 @@ class TestSerializeToMarkdown:
 
         assert "# SampleModel" in result
 
+    @pytest.mark.req("REQ-YG-038")
     def test_string_value_returns_as_is(self):
         """String values return as-is."""
         from yamlgraph.storage.export import _serialize_to_markdown

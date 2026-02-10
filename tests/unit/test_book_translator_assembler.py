@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add examples to path for testing
 examples_path = Path(__file__).parent.parent.parent / "examples" / "book_translator"
 sys.path.insert(0, str(examples_path))
@@ -13,6 +15,7 @@ from nodes.tools import join_chunks  # noqa: E402
 class TestJoinChunks:
     """Tests for chunk reassembly."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_empty_state(self):
         """Handle empty state gracefully."""
         state = {}
@@ -21,6 +24,7 @@ class TestJoinChunks:
         assert "final_text" in result
         assert result["final_text"] == ""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_join_proofread_chunks(self):
         """Join corrected text from proofread chunks (map node output format)."""
         state = {
@@ -36,6 +40,7 @@ class TestJoinChunks:
         assert "Chapter 2 translated." in result["final_text"]
         assert "Chapter 3 translated." in result["final_text"]
 
+    @pytest.mark.req("REQ-YG-014")
     def test_human_reviewed_chunks_override(self):
         """Human-reviewed chunks take priority."""
         state = {
@@ -53,6 +58,7 @@ class TestJoinChunks:
         assert "Auto translation 2." in result["final_text"]
         assert "Auto translation." not in result["final_text"]
 
+    @pytest.mark.req("REQ-YG-014")
     def test_chunks_joined_with_double_newline(self):
         """Chunks should be joined with double newline."""
         state = {
@@ -65,6 +71,7 @@ class TestJoinChunks:
 
         assert result["final_text"] == "Part 1\n\nPart 2"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_empty_proofread_chunks(self):
         """Handle empty proofread_chunks list."""
         state = {"proofread_chunks": []}
@@ -72,6 +79,7 @@ class TestJoinChunks:
 
         assert result["final_text"] == ""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_reviewed_chunks_with_string_keys(self):
         """Human review uses string keys for chunk indices."""
         state = {

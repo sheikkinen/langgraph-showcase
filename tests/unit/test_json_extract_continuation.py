@@ -4,12 +4,15 @@ Bug: find_balanced_json stops after the first balanced candidate even if
 it is invalid JSON, so a later valid JSON block is never discovered.
 """
 
+import pytest
+
 from yamlgraph.utils.json_extract import extract_json, find_balanced_json
 
 
 class TestFindBalancedJsonContinuation:
     """Tests for find_balanced_json continuing after invalid candidates."""
 
+    @pytest.mark.req("REQ-YG-016")
     def test_stops_at_first_invalid_balanced_json(self) -> None:
         """Bug: Returns None when first balanced candidate is invalid JSON.
 
@@ -25,6 +28,7 @@ class TestFindBalancedJsonContinuation:
             result == '{"valid": true}'
         ), f"Should continue after invalid balanced candidate. Got: {result}"
 
+    @pytest.mark.req("REQ-YG-016")
     def test_multiple_invalid_before_valid(self) -> None:
         """Should skip multiple invalid balanced structures."""
         text = '{a b c} {x y z} {"finally": "valid"}'
@@ -35,6 +39,7 @@ class TestFindBalancedJsonContinuation:
             result == '{"finally": "valid"}'
         ), f"Should find valid JSON after multiple invalid. Got: {result}"
 
+    @pytest.mark.req("REQ-YG-016")
     def test_nested_invalid_before_valid(self) -> None:
         """Nested but invalid JSON followed by valid."""
         text = '{outer {inner}} {"valid": 123}'
@@ -45,6 +50,7 @@ class TestFindBalancedJsonContinuation:
             result == '{"valid": 123}'
         ), f"Should skip nested invalid structure. Got: {result}"
 
+    @pytest.mark.req("REQ-YG-016")
     def test_array_invalid_before_valid(self) -> None:
         """Same bug applies to array extraction."""
         text = "[not, valid, array] [1, 2, 3]"
@@ -57,6 +63,7 @@ class TestFindBalancedJsonContinuation:
 class TestExtractJsonWithNoisy:
     """Tests for extract_json with noisy LLM outputs."""
 
+    @pytest.mark.req("REQ-YG-016")
     def test_extract_json_with_invalid_prefix(self) -> None:
         """extract_json should find valid JSON after invalid structures."""
         # Common LLM pattern: thinking aloud with curly braces before answer
@@ -72,6 +79,7 @@ Here's the answer:
             "count": 42,
         }, f"Should extract valid JSON despite noise. Got: {result}"
 
+    @pytest.mark.req("REQ-YG-016")
     def test_extract_json_code_block_takes_priority(self) -> None:
         """Markdown code block should still take priority."""
         text = """

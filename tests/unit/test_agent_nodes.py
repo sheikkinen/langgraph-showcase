@@ -33,6 +33,7 @@ def mock_load_prompt():
 class TestBuildLangchainTool:
     """Tests for build_langchain_tool function."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_creates_tool_with_name(self):
         """Tool has correct name."""
         config = ShellToolConfig(
@@ -42,6 +43,7 @@ class TestBuildLangchainTool:
         tool = build_langchain_tool("my_tool", config)
         assert tool.name == "my_tool"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_creates_tool_with_description(self):
         """Tool has correct description."""
         config = ShellToolConfig(
@@ -51,6 +53,7 @@ class TestBuildLangchainTool:
         tool = build_langchain_tool("test", config)
         assert tool.description == "A helpful test tool"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_tool_executes_command(self):
         """Tool invocation runs shell command."""
         config = ShellToolConfig(
@@ -66,6 +69,7 @@ class TestCreateAgentNode:
     """Tests for create_agent_node function."""
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_completes_without_tools(self, mock_create_llm):
         """Agent can finish with no tool calls."""
         # Mock LLM that returns a direct answer (no tool calls)
@@ -94,6 +98,7 @@ class TestCreateAgentNode:
         assert result["_agent_iterations"] == 1
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_calls_tool(self, mock_create_llm):
         """LLM tool call executes shell command."""
         # Mock LLM that first calls a tool, then returns answer
@@ -132,6 +137,7 @@ class TestCreateAgentNode:
         assert result["_agent_iterations"] == 2
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_max_iterations_enforced(self, mock_create_llm):
         """Stops after max_iterations reached."""
         # Mock LLM that always calls a tool (never finishes)
@@ -163,6 +169,7 @@ class TestCreateAgentNode:
         assert mock_llm.invoke.call_count == 3
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_tool_result_returned_to_llm(self, mock_create_llm):
         """LLM sees tool output in next turn."""
         mock_llm = MagicMock()
@@ -204,6 +211,7 @@ class TestCreateAgentNode:
         # Should have: system, user, ai (with tool call), tool result
         assert len(second_call_messages) >= 4
 
+    @pytest.mark.req("REQ-YG-018")
     def test_default_max_iterations(self):
         """Default max_iterations is 5."""
         tools = {
@@ -223,6 +231,7 @@ class TestCreateAgentNode:
 class TestBuildPythonTool:
     """Tests for build_python_tool function."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_creates_tool_with_name(self):
         """Tool has correct name."""
         config = PythonToolConfig(
@@ -233,6 +242,7 @@ class TestBuildPythonTool:
         tool = build_python_tool("load_prompt", config)
         assert tool.name == "load_prompt"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_creates_tool_with_description(self):
         """Tool has correct description."""
         config = PythonToolConfig(
@@ -243,6 +253,7 @@ class TestBuildPythonTool:
         tool = build_python_tool("load_prompt", config)
         assert tool.description == "Load a YAML prompt file"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_tool_is_structured_tool(self):
         """Tool is a LangChain StructuredTool."""
         from langchain_core.tools import StructuredTool
@@ -255,6 +266,7 @@ class TestBuildPythonTool:
         tool = build_python_tool("test_tool", config)
         assert isinstance(tool, StructuredTool)
 
+    @pytest.mark.req("REQ-YG-018")
     def test_tool_executes_function(self):
         """Tool invocation calls the Python function."""
         # Use a simple test function
@@ -272,6 +284,7 @@ class TestAgentWithPythonTools:
     """Tests for agent nodes using Python tools."""
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_calls_python_tool(self, mock_create_llm):
         """Agent can use Python tools."""
         mock_llm = MagicMock()
@@ -317,6 +330,7 @@ class TestAgentWithPythonTools:
         assert result["_agent_iterations"] == 2
 
     @patch("yamlgraph.tools.agent.create_llm")
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_mixes_shell_and_python_tools(self, mock_create_llm):
         """Agent can use both shell and python tools."""
         mock_llm = MagicMock()

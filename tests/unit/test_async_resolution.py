@@ -17,6 +17,7 @@ class TestAsyncGraphRelativePromptResolution:
     """Tests for execute_prompt_async with graph-relative prompts."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_async_resolves_prompt_relative_to_graph(self) -> None:
         """execute_prompt_async should resolve prompts relative to graph path."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -58,6 +59,7 @@ class TestAsyncGraphRelativePromptResolution:
                 mock_invoke.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_async_uses_custom_prompts_dir(self) -> None:
         """execute_prompt_async should use custom prompts_dir."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -91,6 +93,7 @@ user: Custom user {input}
                 mock_invoke.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_async_graph_path_takes_effect(self) -> None:
         """Verify graph_path actually affects prompt resolution."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -125,6 +128,7 @@ class TestStreamingGraphRelativePromptResolution:
     """Tests for execute_prompt_streaming with graph-relative prompts."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_streaming_resolves_prompt_relative_to_graph(self) -> None:
         """execute_prompt_streaming should resolve prompts relative to graph."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -161,6 +165,7 @@ class TestStreamingGraphRelativePromptResolution:
                 assert tokens == ["streamed"]
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_streaming_uses_custom_prompts_dir(self) -> None:
         """execute_prompt_streaming should use custom prompts_dir."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -198,6 +203,7 @@ user: Stream custom {input}
                 assert tokens == ["custom_streamed"]
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_streaming_graph_path_takes_effect(self) -> None:
         """Verify graph_path actually affects streaming prompt resolution."""
         from yamlgraph.executor_async import execute_prompt_streaming
@@ -237,6 +243,7 @@ class TestPromptResolutionPriorityAsync:
     """Tests for prompt resolution priority in async executor."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_prompts_dir_overrides_default_resolution(self) -> None:
         """prompts_dir should override default prompts/ directory."""
         from yamlgraph.executor_async import execute_prompt_async
@@ -260,6 +267,7 @@ class TestPromptResolutionPriorityAsync:
             assert call_kwargs.get("prompts_dir") == custom_dir
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_graph_relative_with_prompts_dir_combined(self) -> None:
         """graph_path and prompts_dir can be used together."""
         from yamlgraph.executor_async import execute_prompt_async

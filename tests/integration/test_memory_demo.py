@@ -11,17 +11,20 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 
 class TestMemoryDemoGraphConfig:
     """Tests for memory-demo.yaml graph configuration."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_config_exists(self):
         """Graph config file exists."""
         config_path = Path("examples/demos/memory/graph.yaml")
         assert config_path.exists(), "examples/demos/memory/graph.yaml should exist"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_config_loads(self):
         """Graph config loads without errors."""
         from yamlgraph.graph_loader import load_graph_config
@@ -29,6 +32,7 @@ class TestMemoryDemoGraphConfig:
         config = load_graph_config("examples/demos/memory/graph.yaml")
         assert config.name == "memory_demo"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_has_agent_node(self):
         """Graph includes an agent node."""
         from yamlgraph.graph_loader import load_graph_config
@@ -37,6 +41,7 @@ class TestMemoryDemoGraphConfig:
         assert "review" in config.nodes
         assert config.nodes["review"]["type"] == "agent"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_has_tools(self):
         """Graph defines git tools."""
         from yamlgraph.graph_loader import load_graph_config
@@ -50,13 +55,15 @@ class TestMemoryDemoGraphConfig:
 class TestCodeReviewPrompt:
     """Tests for code_review.yaml prompt."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_prompt_file_exists(self):
         """Prompt file exists."""
         prompt_path = Path("examples/demos/memory/prompts/code_review.yaml")
-        assert prompt_path.exists(), (
-            "examples/demos/memory/prompts/code_review.yaml should exist"
-        )
+        assert (
+            prompt_path.exists()
+        ), "examples/demos/memory/prompts/code_review.yaml should exist"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_prompt_loads(self):
         """Prompt loads with system and user templates."""
         from pathlib import Path
@@ -76,6 +83,7 @@ class TestCodeReviewPrompt:
 class TestCheckpointerIntegration:
     """Tests for checkpointer integration with graph builder."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_load_and_compile_works(self):
         """load_and_compile returns a valid graph."""
         from yamlgraph.graph_loader import load_and_compile
@@ -85,6 +93,7 @@ class TestCheckpointerIntegration:
         compiled = graph.compile()
         assert compiled is not None
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_with_checkpointer_accepts_thread_id(self):
         """Graph with checkpointer can be invoked with thread_id."""
         import tempfile
@@ -106,6 +115,7 @@ class TestCheckpointerIntegration:
 class TestCLIThreadFlag:
     """Tests for CLI --thread flag."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_run_cli_has_thread_argument(self):
         """Graph run CLI accepts --thread argument."""
         from yamlgraph.cli import create_parser
@@ -117,6 +127,7 @@ class TestCLIThreadFlag:
         )
         assert args.thread == "abc123"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_run_thread_defaults_to_none(self):
         """Thread defaults to None when not specified."""
         from yamlgraph.cli import create_parser
@@ -129,6 +140,7 @@ class TestCLIThreadFlag:
 class TestCLIExportFlag:
     """Tests for CLI --export flag."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_run_cli_has_export_argument(self):
         """Graph run CLI accepts --export flag."""
         from yamlgraph.cli import create_parser
@@ -137,6 +149,7 @@ class TestCLIExportFlag:
         args = parser.parse_args(["graph", "run", "graphs/yamlgraph.yaml", "--export"])
         assert args.export is True
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_graph_run_export_defaults_to_false(self):
         """Export defaults to False when not specified."""
         from yamlgraph.cli import create_parser
@@ -149,6 +162,7 @@ class TestCLIExportFlag:
 class TestMemoryDemoEndToEnd:
     """End-to-end tests for memory demo (mocked LLM)."""
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_single_turn_returns_messages(self):
         """Single turn execution returns messages in state."""
         from yamlgraph.tools.agent import create_agent_node
@@ -185,6 +199,7 @@ class TestMemoryDemoEndToEnd:
         assert "messages" in result
         assert "response" in result
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_multi_turn_preserves_history(self):
         """Multi-turn conversation preserves message history."""
         from yamlgraph.tools.agent import create_agent_node
@@ -223,6 +238,7 @@ class TestMemoryDemoEndToEnd:
         # New messages should be returned
         assert len(result["messages"]) >= 2  # At least human + AI
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_tool_results_stored_in_state(self):
         """Tool execution results are stored in state."""
         from yamlgraph.tools.agent import create_agent_node
@@ -269,6 +285,7 @@ class TestMemoryDemoEndToEnd:
         assert len(result["_tool_results"]) == 1
         assert result["_tool_results"][0]["tool"] == "git_log"
 
+    @pytest.mark.req("REQ-YG-025", "REQ-YG-026")
     def test_export_creates_files(self, tmp_path: Path):
         """Export flag creates output files."""
         from yamlgraph.storage.export import export_result

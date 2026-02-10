@@ -38,6 +38,7 @@ def tools_registry() -> dict:
 class TestNodeTypeConstant:
     """Verify TOOL_CALL is added to NodeType enum."""
 
+    @pytest.mark.req("REQ-YG-017")
     def test_tool_call_in_node_type(self):
         """TOOL_CALL should be a valid node type."""
         assert NodeType.TOOL_CALL == "tool_call"
@@ -46,6 +47,7 @@ class TestNodeTypeConstant:
 class TestCreateToolCallNode:
     """Test create_tool_call_node factory function."""
 
+    @pytest.mark.req("REQ-YG-017")
     def test_creates_callable(self, tools_registry):
         """Should return a callable node function."""
         config = {
@@ -56,6 +58,7 @@ class TestCreateToolCallNode:
         node_fn = create_tool_call_node("test_node", config, tools_registry)
         assert callable(node_fn)
 
+    @pytest.mark.req("REQ-YG-017")
     def test_resolves_tool_from_state(self, tools_registry):
         """Should resolve tool name dynamically from state."""
         config = {
@@ -77,6 +80,7 @@ class TestCreateToolCallNode:
         assert result["result"]["success"] is True
         assert result["result"]["tool"] == "search_file"
 
+    @pytest.mark.req("REQ-YG-017")
     def test_resolves_args_from_state(self, tools_registry):
         """Should resolve args dynamically and pass to tool."""
         config = {
@@ -99,6 +103,7 @@ class TestCreateToolCallNode:
         assert result["result"]["result"]["path"] == "bar.py"
         assert result["result"]["result"]["pattern"] == "class"
 
+    @pytest.mark.req("REQ-YG-017")
     def test_successful_execution(self, tools_registry):
         """Should return success=True with result on success."""
         config = {
@@ -116,6 +121,7 @@ class TestCreateToolCallNode:
         assert result["result"]["error"] is None
         assert "found" in result["result"]["result"]
 
+    @pytest.mark.req("REQ-YG-017")
     def test_unknown_tool_handling(self, tools_registry):
         """Should return success=False for unknown tool."""
         config = {
@@ -132,6 +138,7 @@ class TestCreateToolCallNode:
         assert "Unknown tool" in result["result"]["error"]
         assert result["result"]["tool"] == "nonexistent_tool"
 
+    @pytest.mark.req("REQ-YG-017")
     def test_tool_exception_handling(self, tools_registry):
         """Should catch exceptions and return success=False."""
         config = {
@@ -148,6 +155,7 @@ class TestCreateToolCallNode:
         assert "Cannot process: bad.py" in result["result"]["error"]
         assert result["result"]["task_id"] == 5
 
+    @pytest.mark.req("REQ-YG-017")
     def test_includes_current_step(self, tools_registry):
         """Should include current_step in output for state tracking."""
         config = {
@@ -162,6 +170,7 @@ class TestCreateToolCallNode:
 
         assert result["current_step"] == "my_tool_call"
 
+    @pytest.mark.req("REQ-YG-017")
     def test_empty_args(self, tools_registry):
         """Should work with tools that take no arguments."""
         config = {

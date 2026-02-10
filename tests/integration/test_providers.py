@@ -27,6 +27,7 @@ class TestProviderIntegration:
         """Clear LLM cache before each test."""
         clear_cache()
 
+    @pytest.mark.req("REQ-YG-010")
     def test_execute_prompt_with_anthropic_provider(self):
         """Should execute prompt with explicit Anthropic provider."""
         result = execute_prompt(
@@ -40,6 +41,7 @@ class TestProviderIntegration:
     @pytest.mark.skipif(
         not os.getenv("MISTRAL_API_KEY"), reason="MISTRAL_API_KEY not set"
     )
+    @pytest.mark.req("REQ-YG-010")
     def test_execute_prompt_with_mistral_provider(self):
         """Should execute prompt with Mistral provider."""
         result = execute_prompt(
@@ -53,6 +55,7 @@ class TestProviderIntegration:
     @pytest.mark.skipif(
         not os.getenv("OPENAI_API_KEY"), reason="OPENAI_API_KEY not set"
     )
+    @pytest.mark.req("REQ-YG-010")
     def test_execute_prompt_with_openai_provider(self):
         """Should execute prompt with OpenAI provider."""
         result = execute_prompt(
@@ -63,6 +66,7 @@ class TestProviderIntegration:
         assert isinstance(result, str)
         assert len(result) > 0
 
+    @pytest.mark.req("REQ-YG-010")
     def test_provider_from_environment_variable(self):
         """Should use provider from PROVIDER env var."""
         with patch.dict(os.environ, {"PROVIDER": "anthropic"}):
@@ -73,6 +77,7 @@ class TestProviderIntegration:
             assert isinstance(result, str)
             assert len(result) > 0
 
+    @pytest.mark.req("REQ-YG-010")
     def test_provider_in_yaml_metadata(self):
         """Should extract provider from YAML metadata."""
         # greet.yaml doesn't have provider metadata,
@@ -87,6 +92,7 @@ class TestProviderIntegration:
         )
         assert isinstance(result, str)
 
+    @pytest.mark.req("REQ-YG-010")
     def test_structured_output_with_different_providers(self):
         """Should work with structured outputs across providers."""
         result = execute_prompt(
@@ -103,6 +109,7 @@ class TestProviderIntegration:
         assert result.content
         assert isinstance(result.tags, list)
 
+    @pytest.mark.req("REQ-YG-010")
     def test_temperature_and_provider_together(self):
         """Should handle both temperature and provider parameters."""
         result = execute_prompt(
@@ -114,6 +121,7 @@ class TestProviderIntegration:
         assert isinstance(result, str)
         assert len(result) > 0
 
+    @pytest.mark.req("REQ-YG-010")
     def test_invalid_provider_raises_error(self):
         """Should raise error for invalid provider."""
         with pytest.raises(ValueError, match="Invalid provider"):
@@ -123,6 +131,7 @@ class TestProviderIntegration:
                 provider="invalid-provider",
             )
 
+    @pytest.mark.req("REQ-YG-010")
     def test_caching_across_calls_with_same_provider(self):
         """Should reuse LLM instances for same provider/temperature."""
         # First call
@@ -153,6 +162,7 @@ class TestJinja2WithProviders:
         """Clear LLM cache before each test."""
         clear_cache()
 
+    @pytest.mark.req("REQ-YG-010")
     def test_simple_prompt_template_format(self):
         """Should work with simple {variable} templates on any provider."""
         result = execute_prompt(

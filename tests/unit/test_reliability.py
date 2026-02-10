@@ -19,6 +19,7 @@ from yamlgraph.node_factory import create_node_function
 class TestOnErrorConfigParsing:
     """Tests for parsing on_error config from YAML."""
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_parses_on_error_from_node_config(self):
         """Node config includes on_error field."""
         config_dict = {
@@ -38,6 +39,7 @@ class TestOnErrorConfigParsing:
         config = GraphConfig(config_dict)
         assert config.nodes["generate"]["on_error"] == "skip"
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_parses_max_retries_from_node_config(self):
         """Node config includes max_retries field."""
         config_dict = {
@@ -57,6 +59,7 @@ class TestOnErrorConfigParsing:
         config = GraphConfig(config_dict)
         assert config.nodes["generate"]["max_retries"] == 5
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_parses_fallback_provider_from_node_config(self):
         """Node config includes fallback provider."""
         config_dict = {
@@ -77,6 +80,7 @@ class TestOnErrorConfigParsing:
         config = GraphConfig(config_dict)
         assert config.nodes["generate"]["fallback"]["provider"] == "anthropic"
 
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_validates_on_error_values(self):
         """Invalid on_error value raises ValueError."""
         config_dict = {
@@ -106,6 +110,7 @@ class TestOnErrorSkip:
     """Tests for on_error: skip behavior."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_skip_returns_empty_on_failure(self, mock_execute):
         """Node with on_error: skip returns empty dict on failure."""
         mock_execute.side_effect = Exception("LLM failed")
@@ -124,6 +129,7 @@ class TestOnErrorSkip:
         assert result.get("current_step") == "generate"
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_skip_logs_warning(self, mock_execute):
         """Node with on_error: skip logs a warning."""
         mock_execute.side_effect = Exception("LLM failed")
@@ -149,6 +155,7 @@ class TestOnErrorRetry:
     """Tests for on_error: retry behavior."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_retry_uses_node_max_retries(self, mock_execute):
         """Node uses its own max_retries, not global."""
         # Fail first 2 times, succeed on 3rd
@@ -172,6 +179,7 @@ class TestOnErrorRetry:
         assert "generated" in result
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_retry_exhausted_returns_error(self, mock_execute):
         """After max_retries exhausted, returns error."""
         mock_execute.side_effect = Exception("Always fails")
@@ -201,6 +209,7 @@ class TestOnErrorFail:
     """Tests for on_error: fail behavior."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_fail_raises_exception(self, mock_execute):
         """Node with on_error: fail raises exception."""
         mock_execute.side_effect = Exception("LLM failed")
@@ -225,6 +234,7 @@ class TestOnErrorFallback:
     """Tests for on_error: fallback behavior."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_fallback_tries_alternate_provider(self, mock_execute):
         """Node tries fallback provider on primary failure."""
         # First call (mistral) fails, second call (anthropic) succeeds
@@ -251,6 +261,7 @@ class TestOnErrorFallback:
         assert "generated" in result
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_all_providers_fail_returns_error(self, mock_execute):
         """When all providers fail, returns error with all attempts."""
         mock_execute.side_effect = Exception("All fail")
@@ -280,6 +291,7 @@ class TestDefaultOnError:
     """Tests for default error behavior (no on_error specified)."""
 
     @patch("yamlgraph.node_factory.llm_nodes.execute_prompt")
+    @pytest.mark.req("REQ-YG-027", "REQ-YG-029")
     def test_default_behavior_returns_error(self, mock_execute):
         """Without on_error config, current behavior returns error in state."""
         mock_execute.side_effect = Exception("LLM failed")

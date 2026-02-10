@@ -7,10 +7,13 @@ with other node types and can break mixed-provider graphs.
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 
 class TestAgentLLMConfiguration:
     """Tests for agent node LLM configuration handling."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_uses_provider_from_prompt_yaml(self) -> None:
         """Agent should use provider from prompt YAML."""
         from yamlgraph.tools.agent import create_agent_node
@@ -51,6 +54,7 @@ class TestAgentLLMConfiguration:
                 call_kwargs.get("provider") == "openai"
             ), f"Agent should use provider from YAML. Got call kwargs: {call_kwargs}"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_uses_model_from_prompt_yaml(self) -> None:
         """Agent should use model from prompt YAML."""
         from yamlgraph.tools.agent import create_agent_node
@@ -87,6 +91,7 @@ class TestAgentLLMConfiguration:
                 call_kwargs.get("model") == "claude-3-5-sonnet-20241022"
             ), f"Agent should use model from YAML. Got: {call_kwargs}"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_uses_temperature_from_prompt_yaml(self) -> None:
         """Agent should use temperature from prompt YAML."""
         from yamlgraph.tools.agent import create_agent_node
@@ -122,6 +127,7 @@ class TestAgentLLMConfiguration:
                 call_kwargs.get("temperature") == 0.9
             ), f"Agent should use temperature from YAML. Got: {call_kwargs}"
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_uses_node_config_provider_override(self) -> None:
         """Agent should allow node-level provider override."""
         from yamlgraph.tools.agent import create_agent_node
@@ -165,6 +171,7 @@ class TestAgentLLMConfiguration:
 class TestAgentConsistencyWithLLMNodes:
     """Tests that agent nodes behave consistently with LLM nodes."""
 
+    @pytest.mark.req("REQ-YG-018")
     def test_agent_and_llm_nodes_use_same_config_sources(self) -> None:
         """Agent nodes should read config from same sources as LLM nodes.
 

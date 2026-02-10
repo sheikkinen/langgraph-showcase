@@ -12,6 +12,7 @@ from yamlgraph.data_loader import DataFileError, load_data_files
 class TestLoadDataFiles:
     """Test load_data_files function."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_empty_data_files_returns_empty_dict(self, tmp_path: Path) -> None:
         """No data_files directive returns empty dict."""
         graph_path = tmp_path / "graph.yaml"
@@ -22,6 +23,7 @@ class TestLoadDataFiles:
 
         assert result == {}
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_load_single_yaml_file(self, tmp_path: Path) -> None:
         """Load a single YAML file into state."""
         # Create data file
@@ -36,6 +38,7 @@ class TestLoadDataFiles:
 
         assert result == {"schema": {"fields": [{"name": "age", "type": "int"}]}}
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_load_multiple_yaml_files(self, tmp_path: Path) -> None:
         """Load multiple YAML files."""
         # Create data files
@@ -50,6 +53,7 @@ class TestLoadDataFiles:
 
         assert result == {"schema": {"version": 1}, "config": {"debug": True}}
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_load_from_subdirectory(self, tmp_path: Path) -> None:
         """Load YAML file from subdirectory."""
         subdir = tmp_path / "data"
@@ -68,6 +72,7 @@ class TestLoadDataFiles:
 class TestDataFileErrors:
     """Test error handling."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_missing_file_raises_error(self, tmp_path: Path) -> None:
         """Missing data file raises DataFileError with clear message."""
         graph_path = tmp_path / "graph.yaml"
@@ -84,6 +89,7 @@ class TestDataFileErrors:
         assert "missing.yaml" in error_msg
         assert "Hint:" in error_msg
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_path_traversal_blocked(self, tmp_path: Path) -> None:
         """Path traversal attempts are blocked."""
         # Create a file outside graph directory
@@ -105,6 +111,7 @@ class TestDataFileErrors:
         assert "escapes graph directory" in error_msg
         assert "../secret.yaml" in error_msg
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_deep_path_traversal_blocked(self, tmp_path: Path) -> None:
         """Deep path traversal (../../..) is blocked."""
         graph_dir = tmp_path / "a" / "b" / "c"
@@ -119,6 +126,7 @@ class TestDataFileErrors:
 
         assert "escapes graph directory" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_symlink_traversal_blocked(self, tmp_path: Path) -> None:
         """Symlinks pointing outside graph directory are blocked."""
         # Create secret file outside
@@ -144,6 +152,7 @@ class TestDataFileErrors:
 
         assert "escapes graph directory" in str(exc_info.value)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_empty_file_returns_empty_dict(self, tmp_path: Path) -> None:
         """Empty YAML file returns empty dict, not None."""
         empty_file = tmp_path / "empty.yaml"
@@ -158,6 +167,7 @@ class TestDataFileErrors:
         assert result == {"data": {}}
         assert result["data"] is not None
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_invalid_yaml_raises_error(self, tmp_path: Path) -> None:
         """Invalid YAML syntax raises clear error."""
         bad_file = tmp_path / "bad.yaml"
@@ -171,6 +181,7 @@ class TestDataFileErrors:
         with pytest.raises(DataFileError, match="YAML"):
             load_data_files(config, graph_path)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_non_string_path_raises_error(self, tmp_path: Path) -> None:
         """Non-string path value raises DataFileError."""
         graph_path = tmp_path / "graph.yaml"
@@ -189,6 +200,7 @@ class TestDataFileErrors:
 class TestPathResolution:
     """Test path resolution relative to graph file."""
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_path_relative_to_graph_not_cwd(self, tmp_path: Path) -> None:
         """Paths are resolved relative to graph file, not CWD."""
         # Create graph in subdirectory
@@ -213,6 +225,7 @@ class TestPathResolution:
         finally:
             os.chdir(original_cwd)
 
+    @pytest.mark.req("REQ-YG-001", "REQ-YG-004")
     def test_nested_subdirectory_works(self, tmp_path: Path) -> None:
         """Nested subdirectories work correctly."""
         # Create nested structure

@@ -1,5 +1,6 @@
 """Tests for router pattern linter validations."""
 
+import pytest
 import yaml
 
 from yamlgraph.linter.patterns.router import (
@@ -13,6 +14,7 @@ from yamlgraph.linter.patterns.router import (
 class TestRouterNodeStructure:
     """Test router node structural validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_router_structure(self):
         """Should pass valid router structure."""
         node_config = {
@@ -24,6 +26,7 @@ class TestRouterNodeStructure:
         issues = check_router_node_structure("test_router", node_config)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_routes_as_list_error(self):
         """Should error when routes is a list instead of dict."""
         node_config = {
@@ -40,6 +43,7 @@ class TestRouterNodeStructure:
         assert "routes as list" in error_issues[0].message
         assert "dict mapping" in error_issues[0].fix
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_default_route_warning(self):
         """Should warn when default_route is missing."""
         node_config = {"type": "router", "routes": {"positive": "handle_positive"}}
@@ -49,6 +53,7 @@ class TestRouterNodeStructure:
         assert issues[0].code == "W101"
         assert "missing default_route" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_routes_wrong_type_error(self):
         """Should error when routes is neither dict nor list."""
         node_config = {
@@ -68,6 +73,7 @@ class TestRouterNodeStructure:
 class TestRouterSchemaFields:
     """Test router schema field validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_intent_field(self, tmp_path):
         """Should pass with 'intent' field in schema."""
         # Create test graph
@@ -102,6 +108,7 @@ class TestRouterSchemaFields:
         )
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_tone_field(self, tmp_path):
         """Should pass with 'tone' field in schema."""
         # Create test graph
@@ -139,6 +146,7 @@ class TestRouterSchemaFields:
         )
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_intent_tone_field_error(self, tmp_path):
         """Should error when schema lacks 'intent' or 'tone' field."""
         # Create test graph
@@ -179,6 +187,7 @@ class TestRouterSchemaFields:
         assert "missing 'intent' or 'tone' field" in issues[0].message
         assert "Framework requires" in issues[0].fix
 
+    @pytest.mark.req("REQ-YG-003")
     def test_no_prompt_no_check(self, tmp_path):
         """Should not check schema when no prompt specified."""
         graph_path = tmp_path / "test.yaml"
@@ -191,6 +200,7 @@ class TestRouterSchemaFields:
 class TestRouterEdgeTargets:
     """Test router edge target validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_conditional_edge_to_list(self):
         """Should pass when conditional edge targets router as list."""
         graph = {
@@ -206,6 +216,7 @@ class TestRouterEdgeTargets:
         issues = check_router_edge_targets("router1", graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_conditional_edge_to_single(self):
         """Should error when conditional edge targets router as single node."""
         graph = {
@@ -228,6 +239,7 @@ class TestRouterEdgeTargets:
 class TestRouterPatternsIntegration:
     """Test full router pattern validation integration."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_router_graph(self, tmp_path):
         """Should pass completely valid router graph."""
         # Create test graph
@@ -270,6 +282,7 @@ class TestRouterPatternsIntegration:
         issues = check_router_patterns(graph_path, tmp_path)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_router_graph_multiple_errors(self, tmp_path):
         """Should catch multiple router validation errors."""
         # Create test graph with multiple issues

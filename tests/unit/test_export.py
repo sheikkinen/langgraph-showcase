@@ -3,6 +3,7 @@
 import json
 from datetime import datetime
 
+import pytest
 from pydantic import BaseModel
 
 from tests.conftest import FixtureGeneratedContent
@@ -23,12 +24,14 @@ from yamlgraph.storage.export import (
 class TestExportState:
     """Tests for export_state function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_creates_file(self, temp_output_dir, sample_state):
         """Export should create a JSON file."""
         filepath = export_state(sample_state, output_dir=temp_output_dir)
         assert filepath.exists()
         assert filepath.suffix == ".json"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_file_contains_valid_json(self, temp_output_dir, sample_state):
         """Exported file should contain valid JSON."""
         filepath = export_state(sample_state, output_dir=temp_output_dir)
@@ -37,6 +40,7 @@ class TestExportState:
         assert "topic" in data
         assert "thread_id" in data
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_filename_format(self, temp_output_dir, sample_state):
         """Filename should include prefix and thread_id."""
         filepath = export_state(
@@ -47,6 +51,7 @@ class TestExportState:
         assert "test_export" in filepath.name
         assert sample_state["thread_id"] in filepath.name
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_creates_output_dir(self, tmp_path, sample_state):
         """Export should create output directory if it doesn't exist."""
         new_dir = tmp_path / "new_outputs"
@@ -58,12 +63,14 @@ class TestExportState:
 class TestSerializeState:
     """Tests for _serialize_state function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_simple_state(self, empty_state):
         """Simple state should serialize unchanged."""
         result = _serialize_state(empty_state)
         assert result["topic"] == empty_state["topic"]
         assert result["style"] == empty_state["style"]
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_pydantic_models(self):
         """Pydantic models should be converted to dicts."""
         content = FixtureGeneratedContent(
@@ -77,6 +84,7 @@ class TestSerializeState:
         assert isinstance(result["generated"], dict)
         assert result["generated"]["title"] == "Test"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_preserves_none(self, empty_state):
         """None values should be preserved."""
         # Add a None field to test serialization
@@ -89,6 +97,7 @@ class TestSerializeState:
 class TestExportSummaryGeneric:
     """Tests for generic export_summary behavior."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_summary_with_any_pydantic_model(self):
         """export_summary should work with any Pydantic model, not just demo-specific ones."""
         from pydantic import BaseModel
@@ -111,6 +120,7 @@ class TestExportSummaryGeneric:
         assert summary["thread_id"] == "test-123"
         assert summary["topic"] == "custom topic"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_summary_extracts_scalar_fields(self):
         """export_summary should extract key scalar fields from any model."""
         from pydantic import BaseModel
@@ -136,6 +146,7 @@ class TestExportSummaryGeneric:
         # Should extract and include scalar fields
         assert "report" in summary or any(k.startswith("report") for k in summary)
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_summary_no_demo_model_dependencies(self):
         """export_summary should not import demo-specific model types."""
         import ast
@@ -170,6 +181,7 @@ class TestExportSummaryGeneric:
 class TestSerializeObject:
     """Tests for _serialize_object helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_pydantic_model(self):
         """Should convert Pydantic model to dict."""
 
@@ -180,6 +192,7 @@ class TestSerializeObject:
         result = _serialize_object(Item(name="test", value=42))
         assert result == {"name": "test", "value": 42}
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_nested_dict(self):
         """Should recursively serialize dicts."""
 
@@ -190,6 +203,7 @@ class TestSerializeObject:
         result = _serialize_object(data)
         assert result == {"outer": {"inner": {"x": 5}}}
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_list_with_models(self):
         """Should serialize lists containing models."""
 
@@ -200,12 +214,14 @@ class TestSerializeObject:
         result = _serialize_object(data)
         assert result == [{"id": 1}, {"id": 2}]
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_datetime(self):
         """Should convert datetime to ISO format."""
         dt = datetime(2026, 1, 21, 12, 30, 0)
         result = _serialize_object(dt)
         assert result == "2026-01-21T12:30:00"
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serialize_primitive(self):
         """Primitives should pass through unchanged."""
         assert _serialize_object("hello") == "hello"
@@ -216,16 +232,19 @@ class TestSerializeObject:
 class TestListExports:
     """Tests for list_exports function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_list_exports_empty_dir(self, tmp_path):
         """Should return empty list for empty directory."""
         result = list_exports(tmp_path)
         assert result == []
 
+    @pytest.mark.req("REQ-YG-038")
     def test_list_exports_nonexistent_dir(self, tmp_path):
         """Should return empty list for nonexistent directory."""
         result = list_exports(tmp_path / "nonexistent")
         assert result == []
 
+    @pytest.mark.req("REQ-YG-038")
     def test_list_exports_finds_files(self, tmp_path):
         """Should find export files matching prefix."""
         (tmp_path / "export_abc_123.json").write_text("{}")
@@ -240,6 +259,7 @@ class TestListExports:
 class TestLoadExport:
     """Tests for load_export function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_load_export_reads_json(self, tmp_path):
         """Should load JSON from file."""
         file_path = tmp_path / "test.json"
@@ -252,6 +272,7 @@ class TestLoadExport:
 class TestExportResult:
     """Tests for export_result function."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_result_json_format(self, tmp_path):
         """Should export field as JSON."""
 
@@ -271,6 +292,7 @@ class TestExportResult:
         content = json.loads(paths[0].read_text())
         assert content["items"] == ["a", "b"]
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_result_markdown_format(self, tmp_path):
         """Should export field as Markdown."""
 
@@ -291,6 +313,7 @@ class TestExportResult:
         assert "# Report" in content
         assert "- one" in content
 
+    @pytest.mark.req("REQ-YG-038")
     def test_export_result_skips_none_fields(self, tmp_path):
         """Should skip fields that are None."""
         state = {"thread_id": "test", "missing": None}
@@ -303,6 +326,7 @@ class TestExportResult:
 class TestPydanticToMarkdown:
     """Tests for _pydantic_to_markdown helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_converts_model_to_markdown(self):
         """Should convert Pydantic model to Markdown."""
 
@@ -325,6 +349,7 @@ class TestPydanticToMarkdown:
 class TestExtractScalarSummary:
     """Tests for _extract_scalar_summary helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_extracts_scalar_fields(self):
         """Should extract int, float, bool fields."""
 
@@ -338,6 +363,7 @@ class TestExtractScalarSummary:
         assert result["score"] == 0.95
         assert result["active"] is True
 
+    @pytest.mark.req("REQ-YG-038")
     def test_truncates_long_strings(self):
         """Should truncate strings longer than 100 chars."""
 
@@ -349,6 +375,7 @@ class TestExtractScalarSummary:
         assert len(result["text"]) == 103  # 100 + "..."
         assert result["text"].endswith("...")
 
+    @pytest.mark.req("REQ-YG-038")
     def test_counts_list_items(self):
         """Should count list items instead of including full list."""
 
@@ -362,6 +389,7 @@ class TestExtractScalarSummary:
 class TestSerializeToJson:
     """Tests for _serialize_to_json helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serializes_pydantic_model(self):
         """Should use model_dump_json for Pydantic models."""
 
@@ -371,6 +399,7 @@ class TestSerializeToJson:
         result = _serialize_to_json(Item(name="test"))
         assert '"name": "test"' in result
 
+    @pytest.mark.req("REQ-YG-038")
     def test_serializes_dict(self):
         """Should serialize dicts with json.dumps."""
         result = _serialize_to_json({"key": "value"})
@@ -381,6 +410,7 @@ class TestSerializeToJson:
 class TestSerializeToMarkdown:
     """Tests for _serialize_to_markdown helper."""
 
+    @pytest.mark.req("REQ-YG-038")
     def test_converts_pydantic_to_markdown(self):
         """Should convert Pydantic model to Markdown."""
 
@@ -390,6 +420,7 @@ class TestSerializeToMarkdown:
         result = _serialize_to_markdown(Doc(title="Test"))
         assert "# Doc" in result
 
+    @pytest.mark.req("REQ-YG-038")
     def test_converts_string_unchanged(self):
         """Should return strings as-is."""
         result = _serialize_to_markdown("plain text")

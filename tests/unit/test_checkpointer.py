@@ -2,10 +2,13 @@
 
 from pathlib import Path
 
+import pytest
+
 
 class TestGetCheckpointer:
     """Tests for get_checkpointer() function."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_returns_sqlite_saver_instance(self, tmp_path: Path):
         """Should return a SqliteSaver instance."""
         from langgraph.checkpoint.sqlite import SqliteSaver
@@ -17,6 +20,7 @@ class TestGetCheckpointer:
 
         assert isinstance(checkpointer, SqliteSaver)
 
+    @pytest.mark.req("REQ-YG-026")
     def test_creates_database_file(self, tmp_path: Path):
         """Should create the database file on first use."""
         from yamlgraph.storage.checkpointer import get_checkpointer
@@ -31,6 +35,7 @@ class TestGetCheckpointer:
         # File created when connection is made
         assert db_path.exists()
 
+    @pytest.mark.req("REQ-YG-026")
     def test_uses_default_path_when_none(self, monkeypatch, tmp_path: Path):
         """Should use DATABASE_PATH when db_path is None."""
         from yamlgraph.storage.checkpointer import get_checkpointer
@@ -42,6 +47,7 @@ class TestGetCheckpointer:
         checkpointer = get_checkpointer(None)
         assert checkpointer is not None
 
+    @pytest.mark.req("REQ-YG-026")
     def test_accepts_string_path(self, tmp_path: Path):
         """Should accept string path as well as Path."""
         from yamlgraph.storage.checkpointer import get_checkpointer
@@ -55,6 +61,7 @@ class TestGetCheckpointer:
 class TestCheckpointerWithGraph:
     """Tests for using checkpointer with a LangGraph StateGraph."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_graph_compiles_with_checkpointer(self, tmp_path: Path):
         """Graph should compile when checkpointer is provided."""
         from typing import TypedDict
@@ -79,6 +86,7 @@ class TestCheckpointerWithGraph:
 
         assert graph is not None
 
+    @pytest.mark.req("REQ-YG-026")
     def test_state_persists_with_thread_id(self, tmp_path: Path):
         """State should persist when using thread_id in config."""
         from typing import TypedDict
@@ -111,6 +119,7 @@ class TestCheckpointerWithGraph:
         state = graph.get_state(config)
         assert state.values["count"] == 1
 
+    @pytest.mark.req("REQ-YG-026")
     def test_get_state_history_returns_checkpoints(self, tmp_path: Path):
         """get_state_history() should return checkpoint history."""
         from typing import TypedDict
@@ -154,6 +163,7 @@ class TestCheckpointerWithGraph:
 class TestGetStateHistory:
     """Tests for get_state_history helper function."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_returns_list_of_snapshots(self, tmp_path: Path):
         """get_state_history should return list of StateSnapshot."""
         from typing import TypedDict
@@ -185,6 +195,7 @@ class TestGetStateHistory:
         assert isinstance(history, list)
         assert len(history) >= 1
 
+    @pytest.mark.req("REQ-YG-026")
     def test_empty_history_for_unknown_thread(self, tmp_path: Path):
         """Should return empty list for non-existent thread."""
         from typing import TypedDict

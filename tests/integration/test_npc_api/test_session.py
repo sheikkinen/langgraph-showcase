@@ -11,6 +11,7 @@ import pytest
 class TestGetCheckpointer:
     """Tests for checkpointer factory."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_returns_memory_saver_by_default(self):
         """Without REDIS_URL, should return MemorySaver."""
         from examples.npc.api.session import _reset_checkpointer, get_checkpointer
@@ -23,6 +24,7 @@ class TestGetCheckpointer:
             # MemorySaver type check
             assert "memory" in type(checkpointer).__module__.lower()
 
+    @pytest.mark.req("REQ-YG-026")
     def test_caches_checkpointer(self):
         """Should return same instance on repeated calls."""
         from examples.npc.api.session import _reset_checkpointer, get_checkpointer
@@ -47,6 +49,7 @@ class TestEncounterSession:
         return app
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_is_resume_false_for_new_session(self, mock_app):
         """New session should return False for _is_resume."""
         from examples.npc.api.session import EncounterSession
@@ -60,6 +63,7 @@ class TestEncounterSession:
         mock_app.checkpointer.aget.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_is_resume_true_for_existing_session(self, mock_app):
         """Existing session should return True for _is_resume."""
         from examples.npc.api.session import EncounterSession
@@ -72,6 +76,7 @@ class TestEncounterSession:
         assert result is True
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_start_creates_initial_state(self, mock_app):
         """Start should invoke graph with initial state."""
         from examples.npc.api.session import EncounterSession
@@ -94,6 +99,7 @@ class TestEncounterSession:
         mock_app.ainvoke.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_turn_resumes_with_command(self, mock_app):
         """Turn should resume graph with Command."""
         from examples.npc.api.session import EncounterSession
@@ -114,6 +120,7 @@ class TestEncounterSession:
         assert len(result.narrations) == 1
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_turn_catches_errors(self, mock_app):
         """Turn should catch exceptions and return error."""
         from examples.npc.api.session import EncounterSession
@@ -130,6 +137,7 @@ class TestEncounterSession:
 class TestTurnResult:
     """Tests for TurnResult dataclass."""
 
+    @pytest.mark.req("REQ-YG-026")
     def test_creates_with_defaults(self):
         """TurnResult should have sensible defaults."""
         from examples.npc.api.session import TurnResult
@@ -145,6 +153,7 @@ class TestTurnResult:
         assert result.turn_number == 1
         assert result.error is None
 
+    @pytest.mark.req("REQ-YG-026")
     def test_error_field_optional(self):
         """Error field should be optional."""
         from examples.npc.api.session import TurnResult
@@ -165,6 +174,7 @@ class TestCreateNpcsFromConcepts:
     """Tests for NPC creation helper."""
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_creates_npcs_from_concepts(self):
         """Should create NPCs using npc-creation graph."""
         from examples.npc.api.session import create_npcs_from_concepts
@@ -196,6 +206,7 @@ class TestCreateNpcsFromConcepts:
             assert npcs[0]["race"] == "Dwarf"
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-026")
     async def test_handles_creation_errors_gracefully(self):
         """Should return fallback NPC on error."""
         from examples.npc.api.session import create_npcs_from_concepts

@@ -2,12 +2,15 @@
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from yamlgraph.graph_loader import compile_graph, load_graph_config
 
 
 class TestMapDemoGraph:
     """Integration tests for the map-demo graph."""
 
+    @pytest.mark.req("REQ-YG-040")
     def test_map_demo_config_loads(self) -> None:
         """Map demo graph config loads successfully."""
         config = load_graph_config("examples/demos/map/graph.yaml")
@@ -15,6 +18,7 @@ class TestMapDemoGraph:
         assert "expand" in config.nodes
         assert config.nodes["expand"]["type"] == "map"
 
+    @pytest.mark.req("REQ-YG-040")
     def test_map_demo_graph_compiles(self) -> None:
         """Map demo graph compiles to StateGraph."""
         config = load_graph_config("examples/demos/map/graph.yaml")
@@ -31,6 +35,7 @@ class TestMapDemoGraph:
             call_args = mock_compile_map.call_args
             assert call_args[0][0] == "expand"
 
+    @pytest.mark.req("REQ-YG-040")
     def test_map_demo_state_has_sorted_reducer(self) -> None:
         """Map demo compiled state has sorted_add reducer for expansions."""
         from typing import Annotated, get_args, get_origin

@@ -55,6 +55,7 @@ class TestCompileNodeTool:
     """type=tool → create_tool_node."""
 
     @patch("yamlgraph.node_compiler.create_tool_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_tool_branch(self, mock_factory):
         config = _make_config()
         graph = _make_graph()
@@ -79,6 +80,7 @@ class TestCompileNodePython:
     """type=python → create_python_node."""
 
     @patch("yamlgraph.node_compiler.create_python_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_python_branch(self, mock_factory):
         config = _make_config()
         graph = _make_graph()
@@ -102,6 +104,7 @@ class TestCompileNodeAgent:
     """type=agent → create_agent_node."""
 
     @patch("yamlgraph.node_compiler.create_agent_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_agent_branch(self, mock_factory):
         config = _make_config(source_path=Path("/g/graph.yaml"))
         graph = _make_graph()
@@ -131,6 +134,7 @@ class TestCompileNodeMap:
     """type=map → compile_map_node (returns map info)."""
 
     @patch("yamlgraph.node_compiler.compile_map_node")
+    @pytest.mark.req("REQ-YG-007")
     def test_map_branch_returns_tuple(self, mock_factory):
         mock_edge_fn = MagicMock()
         mock_factory.return_value = (mock_edge_fn, "sub_node")
@@ -163,6 +167,7 @@ class TestCompileNodeToolCall:
     """type=tool_call → create_tool_call_node."""
 
     @patch("yamlgraph.node_compiler.create_tool_call_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_tool_call_branch(self, mock_factory):
         config = _make_config()
         graph = _make_graph()
@@ -191,6 +196,7 @@ class TestCompileNodeInterrupt:
     """type=interrupt → create_interrupt_node."""
 
     @patch("yamlgraph.node_compiler.create_interrupt_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_interrupt_branch(self, mock_factory):
         config = _make_config(source_path=Path("/g/graph.yaml"))
         graph = _make_graph()
@@ -218,6 +224,7 @@ class TestCompileNodePassthrough:
     """type=passthrough → create_passthrough_node."""
 
     @patch("yamlgraph.node_compiler.create_passthrough_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_passthrough_branch(self, mock_factory):
         config = _make_config()
         graph = _make_graph()
@@ -245,6 +252,7 @@ class TestCompileNodeSubgraph:
     """type=subgraph → create_subgraph_node."""
 
     @patch("yamlgraph.node_compiler.create_subgraph_node", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_subgraph_branch(self, mock_factory):
         config = _make_config(source_path=Path("/g/graph.yaml"))
         graph = _make_graph()
@@ -269,6 +277,7 @@ class TestCompileNodeSubgraph:
         args, kwargs = mock_factory.call_args
         assert kwargs["parent_graph_path"] == Path("/g/graph.yaml")
 
+    @pytest.mark.req("REQ-YG-007")
     def test_subgraph_without_source_path_raises(self):
         """Subgraph node requires parent graph to have source_path."""
         config = _make_config(source_path=None)  # no source_path
@@ -291,6 +300,7 @@ class TestCompileNodeLLMDefault:
     """type=llm (default) → create_node_function."""
 
     @patch("yamlgraph.node_compiler.create_node_function", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_llm_default_branch(self, mock_factory):
         config = _make_config()
         graph = _make_graph()
@@ -310,6 +320,7 @@ class TestCompileNodeLLMDefault:
         mock_factory.assert_called_once()
 
     @patch("yamlgraph.node_compiler.create_node_function", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_router_uses_default_branch(self, mock_factory):
         """Router nodes also go through create_node_function."""
         config = _make_config()
@@ -334,6 +345,7 @@ class TestCompileNodeDefaults:
     """Defaults and loop_limits are propagated correctly."""
 
     @patch("yamlgraph.node_compiler.create_node_function", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_loop_limit_injected(self, mock_factory):
         """Loop limits from config are merged into node config."""
         raw = {
@@ -353,6 +365,7 @@ class TestCompileNodeDefaults:
         assert enriched.get("loop_limit") == 5
 
     @patch("yamlgraph.node_compiler.create_node_function", return_value=lambda s: {})
+    @pytest.mark.req("REQ-YG-007")
     def test_prompts_relative_propagated(self, mock_factory):
         """prompts_relative from config.defaults flows to effective_defaults."""
         config = _make_config(

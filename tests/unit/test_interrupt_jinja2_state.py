@@ -7,12 +7,15 @@ templates fail to render.
 
 from unittest.mock import patch
 
+import pytest
+
 from yamlgraph.node_factory.control_nodes import create_interrupt_node
 
 
 class TestInterruptNodeJinja2State:
     """Tests for Jinja2 state context in interrupt nodes."""
 
+    @pytest.mark.req("REQ-YG-013", "REQ-YG-021")
     def test_interrupt_node_passes_state_to_execute_prompt(self) -> None:
         """Interrupt node should pass state as Jinja2 context, not just variables."""
         captured_calls = []
@@ -48,6 +51,7 @@ class TestInterruptNodeJinja2State:
                 f"Got args={call['args']}, kwargs={list(call['kwargs'].keys())}"
             )
 
+    @pytest.mark.req("REQ-YG-013", "REQ-YG-021")
     def test_interrupt_node_jinja2_state_vs_variables(self) -> None:
         """Interrupt should support both simple vars and Jinja2 state templates."""
         captured_calls = []

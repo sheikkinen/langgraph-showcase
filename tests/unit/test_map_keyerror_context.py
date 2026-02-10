@@ -15,6 +15,7 @@ class TestMapNodeKeyErrorContext:
     @pytest.mark.xfail(
         reason="resolve_state_expression doesn't add context - map_compiler wrapper does"
     )
+    @pytest.mark.req("REQ-YG-028", "REQ-YG-040")
     def test_resolve_state_expression_raw_keyerror(self) -> None:
         """resolve_state_expression throws raw KeyError without context."""
         state = {"existing": "value"}
@@ -38,6 +39,7 @@ class TestMapNodeKeyErrorContext:
             f"Got: {error_message}"
         )
 
+    @pytest.mark.req("REQ-YG-028", "REQ-YG-040")
     def test_resolve_nested_path_raw_keyerror(self) -> None:
         """Nested path resolution throws raw KeyError without path context."""
         state = {"story": {"title": "Test"}}  # Missing "panels"
@@ -54,6 +56,7 @@ class TestMapNodeKeyErrorContext:
             has_path_context
         ), f"KeyError for nested path should show full path. Got: {error_message}"
 
+    @pytest.mark.req("REQ-YG-028", "REQ-YG-040")
     def test_map_over_missing_key_error_context(self) -> None:
         """Map 'over' with missing key should provide node context."""
         from unittest.mock import MagicMock
@@ -106,6 +109,7 @@ class TestMapNodeKeyErrorContext:
 class TestMapNodeErrorMessages:
     """Tests for helpful error messages in map nodes."""
 
+    @pytest.mark.req("REQ-YG-028", "REQ-YG-040")
     def test_map_error_suggests_available_keys(self) -> None:
         """Error should suggest available state keys for debugging."""
         state = {"items": [1, 2], "data": {"nested": "value"}}

@@ -27,11 +27,13 @@ except ImportError:
 class TestIndexDocsScript:
     """Test the index_docs.py script."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_script_exists(self):
         """Index script should exist."""
         assert (RAG_EXAMPLE_PATH / "index_docs.py").exists()
 
     @pytest.mark.skipif(not HAS_LANCEDB, reason="lancedb not installed")
+    @pytest.mark.req("REQ-YG-005")
     def test_list_empty_vectorstore(self):
         """Should handle empty/nonexistent vectorstore."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -47,6 +49,7 @@ class TestIndexDocsScript:
             output = result.stdout + result.stderr
             assert "No vector store found" in output or "No collections found" in output
 
+    @pytest.mark.req("REQ-YG-005")
     def test_help_flag(self):
         """Should show help."""
         result = subprocess.run(
@@ -61,6 +64,7 @@ class TestIndexDocsScript:
         not (RAG_EXAMPLE_PATH / "docs").exists(),
         reason="Sample docs not found",
     )
+    @pytest.mark.req("REQ-YG-005")
     def test_indexing_requires_openai_key(self):
         """Should fail gracefully without API key."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -85,6 +89,7 @@ class TestIndexDocsScript:
 class TestRagGraphFiles:
     """Test that RAG example files are valid."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_graph_yaml_exists(self):
         """graph.yaml should exist."""
         assert (RAG_EXAMPLE_PATH / "graph.yaml").exists()
@@ -93,6 +98,7 @@ class TestRagGraphFiles:
         """prompts/answer.yaml should exist."""
         assert (RAG_EXAMPLE_PATH / "prompts" / "answer.yaml").exists()
 
+    @pytest.mark.req("REQ-YG-005")
     def test_docs_folder_exists(self):
         """docs/ folder with sample documents should exist."""
         docs_path = RAG_EXAMPLE_PATH / "docs"
@@ -101,6 +107,7 @@ class TestRagGraphFiles:
         md_files = list(docs_path.glob("*.md"))
         assert len(md_files) >= 1
 
+    @pytest.mark.req("REQ-YG-005")
     def test_graph_yaml_is_valid_yaml(self):
         """graph.yaml should be valid YAML."""
         import yaml
@@ -118,6 +125,7 @@ class TestRagGraphFiles:
 class TestRagRetrieveInGraph:
     """Test rag_retrieve tool can be used in graph context."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_tool_is_importable_from_example(self):
         """Tool should be importable from examples/rag/tools."""
         sys.path.insert(0, str(RAG_EXAMPLE_PATH))
@@ -128,6 +136,7 @@ class TestRagRetrieveInGraph:
         finally:
             sys.path.remove(str(RAG_EXAMPLE_PATH))
 
+    @pytest.mark.req("REQ-YG-005")
     def test_graph_references_local_tool(self):
         """Graph should reference the local tool path."""
         graph_path = RAG_EXAMPLE_PATH / "graph.yaml"
@@ -139,6 +148,7 @@ class TestRagRetrieveInGraph:
 class TestChunkText:
     """Test the chunking function."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_chunk_import(self):
         """Should be able to import chunk_text."""
         # Add examples to path
@@ -150,6 +160,7 @@ class TestChunkText:
         finally:
             sys.path.remove(str(RAG_EXAMPLE_PATH))
 
+    @pytest.mark.req("REQ-YG-005")
     def test_small_text_no_chunking(self):
         """Small text should return single chunk."""
         sys.path.insert(0, str(RAG_EXAMPLE_PATH))
@@ -163,6 +174,7 @@ class TestChunkText:
         finally:
             sys.path.remove(str(RAG_EXAMPLE_PATH))
 
+    @pytest.mark.req("REQ-YG-005")
     def test_large_text_chunked(self):
         """Large text should be split into chunks."""
         sys.path.insert(0, str(RAG_EXAMPLE_PATH))
@@ -179,6 +191,7 @@ class TestChunkText:
         finally:
             sys.path.remove(str(RAG_EXAMPLE_PATH))
 
+    @pytest.mark.req("REQ-YG-005")
     def test_overlap_works(self):
         """Chunks should overlap."""
         sys.path.insert(0, str(RAG_EXAMPLE_PATH))

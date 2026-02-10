@@ -6,12 +6,15 @@ like {{ state.foo }} render empty even though the feature is documented.
 
 from unittest.mock import patch
 
+import pytest
+
 from yamlgraph.node_factory import create_node_function
 
 
 class TestLLMNodeJinja2State:
     """Tests for Jinja2 state context in LLM nodes."""
 
+    @pytest.mark.req("REQ-YG-013")
     def test_llm_node_passes_state_to_execute_prompt(self) -> None:
         """LLM node should pass state to execute_prompt for Jinja2 templates."""
         captured_calls = []
@@ -55,6 +58,7 @@ class TestLLMNodeJinja2State:
                 call_kwargs["state"] == state
             ), f"state should contain full graph state. Got: {call_kwargs.get('state')}"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_jinja2_state_template_renders_correctly(self) -> None:
         """Jinja2 {{ state.field }} should render with actual state values."""
         from yamlgraph.executor_base import format_prompt
@@ -72,6 +76,7 @@ class TestLLMNodeJinja2State:
             "healthcare" in formatted
         ), f"Jinja2 state.context should render. Got: {formatted}"
 
+    @pytest.mark.req("REQ-YG-013")
     def test_llm_node_jinja2_template_not_passed_through(self) -> None:
         """Without state= param, Jinja2 state templates pass through unrendered."""
         # Simulate current behavior - state not passed

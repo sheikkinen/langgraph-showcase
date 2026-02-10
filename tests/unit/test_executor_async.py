@@ -17,6 +17,7 @@ class TestExecutePromptAsync:
         shutdown_executor()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_executes_prompt(self):
         """Should execute a prompt and return result."""
         with patch("yamlgraph.executor_async.invoke_async") as mock_invoke:
@@ -31,6 +32,7 @@ class TestExecutePromptAsync:
             mock_invoke.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_passes_output_model(self):
         """Should pass output model to invoke_async."""
         from pydantic import BaseModel
@@ -53,12 +55,14 @@ class TestExecutePromptAsync:
             assert call_args[0][2] is TestModel  # 3rd positional arg
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_validates_variables(self):
         """Should raise error for missing variables."""
         with pytest.raises(ValueError, match="Missing required variable"):
             await execute_prompt_async("greet", variables={})
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_uses_provider_from_yaml(self):
         """Should extract provider from YAML metadata."""
         with (
@@ -89,6 +93,7 @@ class TestExecutePromptsConcurrent:
         shutdown_executor()
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_executes_multiple_prompts(self):
         """Should execute multiple prompts concurrently."""
         with patch(
@@ -109,6 +114,7 @@ class TestExecutePromptsConcurrent:
             assert mock_execute.call_count == 3
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_preserves_order(self):
         """Should return results in same order as input."""
         with patch(
@@ -140,12 +146,14 @@ class TestExecutePromptsConcurrent:
             assert results[1] == "Response for fast"
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_empty_list(self):
         """Should handle empty prompt list."""
         results = await execute_prompts_concurrent([])
         assert results == []
 
     @pytest.mark.asyncio
+    @pytest.mark.req("REQ-YG-015")
     async def test_passes_all_options(self):
         """Should pass all options to execute_prompt_async."""
         from pydantic import BaseModel

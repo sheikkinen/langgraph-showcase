@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add examples to path for testing
 examples_path = Path(__file__).parent.parent.parent / "examples" / "book_translator"
 sys.path.insert(0, str(examples_path))
@@ -13,6 +15,7 @@ from nodes.tools import split_by_markers  # noqa: E402
 class TestSplitByMarkers:
     """Tests for marker-based text splitting."""
 
+    @pytest.mark.req("REQ-YG-014")
     def test_empty_state(self):
         """Handle empty state gracefully."""
         state = {}
@@ -21,6 +24,7 @@ class TestSplitByMarkers:
         assert "chunks" in result
         assert result["chunks"] == []  # No text = no chunks
 
+    @pytest.mark.req("REQ-YG-014")
     def test_no_markers(self):
         """Return full document when no markers found."""
         state = {
@@ -32,6 +36,7 @@ class TestSplitByMarkers:
         assert len(result["chunks"]) == 1
         assert result["chunks"][0]["title"] == "Full Document"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_split_with_markers(self):
         """Split text at marker positions."""
         text = """Introduction to the book.
@@ -59,6 +64,7 @@ This is chapter two content."""
         assert result["chunks"][1]["title"] == "The Beginning"
         assert result["chunks"][2]["title"] == "The Middle"
 
+    @pytest.mark.req("REQ-YG-014")
     def test_chunks_have_context(self):
         """Chunks should include context from adjacent sections."""
         text = """Intro content here.
@@ -85,6 +91,7 @@ Content of section B here."""
             assert "context_before" in chunk
             assert "context_after" in chunk
 
+    @pytest.mark.req("REQ-YG-014")
     def test_chunk_indices_are_sequential(self):
         """Chunk indices should be 0, 1, 2, etc."""
         text = "Part A\n\nPart B\n\nPart C"
@@ -102,6 +109,7 @@ Content of section B here."""
         for i, chunk in enumerate(result["chunks"]):
             assert chunk["index"] == i
 
+    @pytest.mark.req("REQ-YG-014")
     def test_handles_pydantic_model(self):
         """Handle Pydantic ChapterMarkers model."""
         from dataclasses import dataclass

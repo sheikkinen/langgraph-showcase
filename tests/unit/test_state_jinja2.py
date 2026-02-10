@@ -8,10 +8,13 @@ This is a silent prompt corruption risk.
 
 from unittest.mock import patch
 
+import pytest
+
 
 class TestFormatPromptState:
     """Tests for format_prompt state parameter."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_format_prompt_with_state_works_directly(self) -> None:
         """format_prompt correctly handles state when passed directly."""
         from yamlgraph.executor_base import format_prompt
@@ -21,6 +24,7 @@ class TestFormatPromptState:
 
         assert result == "Topic: AI", "format_prompt should render state correctly"
 
+    @pytest.mark.req("REQ-YG-024")
     def test_format_prompt_without_state_renders_empty(self) -> None:
         """format_prompt renders empty when state not provided."""
         from yamlgraph.executor_base import format_prompt
@@ -36,6 +40,7 @@ class TestFormatPromptState:
 class TestPrepareMessagesState:
     """Tests for prepare_messages state handling."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_prepare_messages_passes_state_to_format_prompt(self) -> None:
         """prepare_messages should pass state to format_prompt for Jinja2."""
         from yamlgraph.executor_base import prepare_messages
@@ -65,6 +70,7 @@ class TestPrepareMessagesState:
                 "machine learning" in user_content
             ), f"User message should contain state.topic, got: {user_content}"
 
+    @pytest.mark.req("REQ-YG-024")
     def test_prepare_messages_should_accept_state_parameter(self) -> None:
         """prepare_messages should have explicit state parameter."""
         import inspect
@@ -83,6 +89,7 @@ class TestPrepareMessagesState:
 class TestExecutorStateIntegration:
     """Integration tests for state in execute_prompt."""
 
+    @pytest.mark.req("REQ-YG-024")
     def test_execute_prompt_passes_state(self) -> None:
         """execute_prompt should pass state to prepare_messages."""
         import inspect
@@ -97,6 +104,7 @@ class TestExecutorStateIntegration:
             "state" in params
         ), f"execute_prompt should accept state parameter. Current params: {params}"
 
+    @pytest.mark.req("REQ-YG-024")
     def test_execute_prompt_async_passes_state(self) -> None:
         """execute_prompt_async should pass state to prepare_messages."""
         import inspect

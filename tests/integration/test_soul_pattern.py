@@ -7,6 +7,8 @@ by loading a soul configuration via data_files and using it in prompts.
 
 from pathlib import Path
 
+import pytest
+
 from yamlgraph.graph_loader import load_graph_config
 
 SOUL_EXAMPLE_PATH = Path(__file__).parent.parent.parent / "examples" / "demos" / "soul"
@@ -15,6 +17,7 @@ SOUL_EXAMPLE_PATH = Path(__file__).parent.parent.parent / "examples" / "demos" /
 class TestSoulPatternExample:
     """Test that soul pattern example is properly structured."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_soul_example_exists(self) -> None:
         """Soul example directory exists with required files."""
         assert SOUL_EXAMPLE_PATH.exists(), "examples/demos/soul directory should exist"
@@ -23,12 +26,14 @@ class TestSoulPatternExample:
         assert (SOUL_EXAMPLE_PATH / "prompts").is_dir()
         assert (SOUL_EXAMPLE_PATH / "README.md").exists()
 
+    @pytest.mark.req("REQ-YG-005")
     def test_soul_files_exist(self) -> None:
         """Soul configuration files exist."""
         souls_dir = SOUL_EXAMPLE_PATH / "souls"
         assert (souls_dir / "friendly.yaml").exists()
         assert (souls_dir / "formal.yaml").exists()
 
+    @pytest.mark.req("REQ-YG-005")
     def test_graph_loads_soul_via_data_files(self) -> None:
         """Graph config loads soul file via data_files."""
         graph_file = SOUL_EXAMPLE_PATH / "graph.yaml"
@@ -39,6 +44,7 @@ class TestSoulPatternExample:
         assert "voice" in config.data["soul"]
         assert "principles" in config.data["soul"]
 
+    @pytest.mark.req("REQ-YG-005")
     def test_soul_has_required_fields(self) -> None:
         """Soul configuration has all required personality fields."""
         graph_file = SOUL_EXAMPLE_PATH / "graph.yaml"
@@ -50,6 +56,7 @@ class TestSoulPatternExample:
         assert isinstance(soul["principles"], list)
         assert len(soul["principles"]) > 0
 
+    @pytest.mark.req("REQ-YG-005")
     def test_soul_switchable_at_runtime(self) -> None:
         """Soul can be overridden via input (data_files allows input override)."""
         # This tests the pattern, not execution
@@ -71,6 +78,7 @@ class TestSoulPatternExample:
 class TestSoulPatternStructure:
     """Test soul file structure follows conventions."""
 
+    @pytest.mark.req("REQ-YG-005")
     def test_friendly_soul_structure(self) -> None:
         """Friendly soul has warm, approachable characteristics."""
         import yaml
@@ -82,6 +90,7 @@ class TestSoulPatternStructure:
         assert soul["name"] == "Friendly Helper"
         assert "warm" in soul["voice"].lower() or "friendly" in soul["voice"].lower()
 
+    @pytest.mark.req("REQ-YG-005")
     def test_formal_soul_structure(self) -> None:
         """Formal soul has professional characteristics."""
         import yaml

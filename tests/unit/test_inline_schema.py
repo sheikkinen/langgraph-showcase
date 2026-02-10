@@ -9,6 +9,7 @@ import pytest
 class TestInlineSchemaIntegration:
     """Test node factory uses inline schema from prompt YAML."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_node_uses_inline_schema_from_prompt(self, tmp_path, monkeypatch):
         """Node uses schema defined in prompt YAML instead of output_model."""
         # Create a prompt file with inline schema
@@ -60,6 +61,7 @@ user: "Classify: {message}"
         assert instance.result == "positive"
         assert instance.score == 0.95
 
+    @pytest.mark.req("REQ-YG-044")
     def test_explicit_output_model_overrides_inline_schema(self, tmp_path, monkeypatch):
         """Explicit output_model in node config takes precedence."""
         prompt_dir = tmp_path / "prompts" / "test"
@@ -92,6 +94,7 @@ user: "{input}"
         # Should use explicit model, not inline
         assert model.__name__ == "GenericReport"
 
+    @pytest.mark.req("REQ-YG-044")
     def test_no_schema_returns_none(self, tmp_path, monkeypatch):
         """Prompt without schema returns None for output_model."""
         prompt_dir = tmp_path / "prompts" / "test"
@@ -121,6 +124,7 @@ user: "{input}"
 class TestResolvePromptPath:
     """Test resolving prompt name to full file path."""
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_prompt_path(self, tmp_path):
         """Resolve prompt name to full YAML path."""
         prompt_dir = tmp_path / "prompts"
@@ -140,6 +144,7 @@ class TestResolvePromptPath:
         path = resolve_prompt_path("nested/deep", prompt_dir)
         assert path.name == "deep.yaml"
 
+    @pytest.mark.req("REQ-YG-044")
     def test_resolve_missing_prompt_raises(self, tmp_path):
         """Missing prompt file raises FileNotFoundError."""
         prompt_dir = tmp_path / "prompts"

@@ -10,12 +10,14 @@ from pydantic import ValidationError
 class TestGenericReportSchema:
     """Tests for GenericReport model."""
 
+    @pytest.mark.req("REQ-YG-030")
     def test_generic_report_exists(self):
         """GenericReport model is importable."""
         from yamlgraph.models.schemas import GenericReport
 
         assert GenericReport is not None
 
+    @pytest.mark.req("REQ-YG-030")
     def test_minimal_report(self):
         """Report works with just title and summary."""
         from yamlgraph.models.schemas import GenericReport
@@ -28,6 +30,7 @@ class TestGenericReportSchema:
         assert report.title == "Test Report"
         assert report.summary == "A brief summary of findings."
 
+    @pytest.mark.req("REQ-YG-030")
     def test_report_with_sections(self):
         """Sections field accepts arbitrary dict content."""
         from yamlgraph.models.schemas import GenericReport
@@ -46,6 +49,7 @@ class TestGenericReportSchema:
         assert report.sections["details"]["count"] == 42
         assert len(report.sections["items"]) == 3
 
+    @pytest.mark.req("REQ-YG-030")
     def test_report_with_findings(self):
         """Findings field is list of strings."""
         from yamlgraph.models.schemas import GenericReport
@@ -59,6 +63,7 @@ class TestGenericReportSchema:
         assert len(report.findings) == 3
         assert "Finding 1" in report.findings
 
+    @pytest.mark.req("REQ-YG-030")
     def test_report_with_recommendations(self):
         """Recommendations field is list of strings."""
         from yamlgraph.models.schemas import GenericReport
@@ -71,6 +76,7 @@ class TestGenericReportSchema:
 
         assert len(report.recommendations) == 2
 
+    @pytest.mark.req("REQ-YG-030")
     def test_report_with_metadata(self):
         """Metadata field accepts arbitrary key-value data."""
         from yamlgraph.models.schemas import GenericReport
@@ -88,6 +94,7 @@ class TestGenericReportSchema:
         assert report.metadata["author"] == "Test Author"
         assert report.metadata["version"] == 1.0
 
+    @pytest.mark.req("REQ-YG-030")
     def test_defaults_are_empty(self):
         """Optional fields default to empty collections."""
         from yamlgraph.models.schemas import GenericReport
@@ -99,6 +106,7 @@ class TestGenericReportSchema:
         assert report.recommendations == []
         assert report.metadata == {}
 
+    @pytest.mark.req("REQ-YG-030")
     def test_title_is_required(self):
         """Title field is required."""
         from yamlgraph.models.schemas import GenericReport
@@ -109,6 +117,7 @@ class TestGenericReportSchema:
         errors = exc_info.value.errors()
         assert any(e["loc"] == ("title",) for e in errors)
 
+    @pytest.mark.req("REQ-YG-030")
     def test_summary_is_required(self):
         """Summary field is required."""
         from yamlgraph.models.schemas import GenericReport
@@ -119,6 +128,7 @@ class TestGenericReportSchema:
         errors = exc_info.value.errors()
         assert any(e["loc"] == ("summary",) for e in errors)
 
+    @pytest.mark.req("REQ-YG-030")
     def test_model_serializes_to_dict(self):
         """Report serializes to dictionary."""
         from yamlgraph.models.schemas import GenericReport
@@ -135,6 +145,7 @@ class TestGenericReportSchema:
         assert data["summary"] == "Summary"
         assert data["findings"] == ["A", "B"]
 
+    @pytest.mark.req("REQ-YG-030")
     def test_model_serializes_to_json(self):
         """Report serializes to JSON string."""
         import json
@@ -152,6 +163,7 @@ class TestGenericReportSchema:
 class TestGenericReportUseCases:
     """Verify GenericReport works for common analysis patterns."""
 
+    @pytest.mark.req("REQ-YG-030")
     def test_git_analysis_report(self):
         """GenericReport works for git analysis output."""
         from yamlgraph.models.schemas import GenericReport
@@ -182,6 +194,7 @@ class TestGenericReportUseCases:
         assert len(report.findings) == 3
         assert report.metadata["repo"] == "langgraph-showcase"
 
+    @pytest.mark.req("REQ-YG-030")
     def test_api_analysis_report(self):
         """GenericReport works for API analysis output."""
         from yamlgraph.models.schemas import GenericReport

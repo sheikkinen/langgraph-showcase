@@ -1,5 +1,7 @@
 """Tests for agent pattern linter validations."""
 
+import pytest
+
 from yamlgraph.linter.patterns.agent import (
     check_agent_node_tools,
     check_agent_patterns,
@@ -9,6 +11,7 @@ from yamlgraph.linter.patterns.agent import (
 class TestAgentNodeTools:
     """Test agent node tool validation."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_agent_with_defined_tools(self):
         """Should pass when agent references defined tools."""
         node_config = {"type": "agent", "tools": ["search_web", "analyze_code"]}
@@ -26,6 +29,7 @@ class TestAgentNodeTools:
         issues = check_agent_node_tools("research_agent", node_config, graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_agent_with_builtin_tools(self):
         """Should pass when agent references built-in tools like 'websearch'."""
         # 'websearch' is a known built-in tool name that the linter recognizes
@@ -37,6 +41,7 @@ class TestAgentNodeTools:
         issues = check_agent_node_tools("research_agent", node_config, graph)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_agent_with_no_tools_warning(self):
         """Should warn when agent node has no tools."""
         node_config = {
@@ -53,6 +58,7 @@ class TestAgentNodeTools:
         assert issues[0].code == "W401"
         assert "has no tools configured" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_agent_missing_tools_field_warning(self):
         """Should warn when agent node has no tools field."""
         node_config = {
@@ -69,6 +75,7 @@ class TestAgentNodeTools:
         assert issues[0].code == "W401"
         assert "has no tools configured" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_agent_references_undefined_tool(self):
         """Should error when agent references undefined tool."""
         node_config = {"type": "agent", "tools": ["search_web", "undefined_tool"]}
@@ -86,6 +93,7 @@ class TestAgentNodeTools:
         assert "references undefined tool 'undefined_tool'" in issues[0].message
         assert "search_web" in issues[0].fix  # Should suggest available tools
 
+    @pytest.mark.req("REQ-YG-003")
     def test_agent_mixed_valid_and_invalid_tools(self):
         """Should report errors for invalid tools but allow valid ones."""
         node_config = {
@@ -109,6 +117,7 @@ class TestAgentNodeTools:
 class TestAgentPatternsIntegration:
     """Test agent pattern validation integration."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_agent_graph(self, tmp_path):
         """Should pass valid agent graph."""
         graph_content = """
@@ -130,6 +139,7 @@ nodes:
         issues = check_agent_patterns(graph_file)
         assert len(issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_agent_graph_no_tools(self, tmp_path):
         """Should warn when agent has no tools."""
         graph_content = """
@@ -153,6 +163,7 @@ nodes:
         assert issues[0].severity == "warning"
         assert issues[0].code == "W401"
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_agent_graph_undefined_tools(self, tmp_path):
         """Should error when agent references undefined tools."""
         graph_content = """
@@ -177,6 +188,7 @@ nodes:
         assert issues[0].code == "E401"
         assert "undefined_tool" in issues[0].message
 
+    @pytest.mark.req("REQ-YG-003")
     def test_mixed_nodes_validates_only_agents(self, tmp_path):
         """Should only validate agent nodes, ignore others."""
         graph_content = """

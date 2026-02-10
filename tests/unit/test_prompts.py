@@ -11,6 +11,7 @@ import pytest
 class TestResolvePromptPath:
     """Tests for resolve_prompt_path function."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_standard_prompt(self, tmp_path: Path):
         """Should resolve prompt in standard prompts/ directory."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -26,6 +27,7 @@ class TestResolvePromptPath:
         assert result == prompt_file
         assert result.exists()
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_nested_prompt(self, tmp_path: Path):
         """Should resolve nested prompt like map-demo/generate_ideas."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -41,6 +43,7 @@ class TestResolvePromptPath:
 
         assert result == prompt_file
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_external_example_prompt(self, tmp_path: Path, monkeypatch):
         """Should resolve external example like examples/storyboard/expand_story."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -66,6 +69,7 @@ class TestResolvePromptPath:
 
         assert result.resolve() == prompt_file.resolve()
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_nonexistent_raises(self, tmp_path: Path):
         """Should raise FileNotFoundError for missing prompt."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -76,6 +80,7 @@ class TestResolvePromptPath:
         with pytest.raises(FileNotFoundError, match="Prompt not found"):
             resolve_prompt_path("nonexistent", prompts_dir=prompts_dir)
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_uses_default_prompts_dir(self):
         """Should use PROMPTS_DIR from config when not specified."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -90,6 +95,7 @@ class TestResolvePromptPath:
 class TestLoadPrompt:
     """Tests for load_prompt function."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_load_existing_prompt(self, tmp_path: Path):
         """Should load and parse YAML prompt file."""
         from yamlgraph.utils.prompts import load_prompt
@@ -105,6 +111,7 @@ class TestLoadPrompt:
         assert result["system"] == "You are helpful"
         assert result["user"] == "Hello {name}"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_load_prompt_with_schema(self, tmp_path: Path):
         """Should load prompt with inline schema section."""
         from yamlgraph.utils.prompts import load_prompt
@@ -128,6 +135,7 @@ schema:
         assert "schema" in result
         assert result["schema"]["name"] == "Analysis"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_load_nonexistent_raises(self, tmp_path: Path):
         """Should raise FileNotFoundError for missing prompt."""
         from yamlgraph.utils.prompts import load_prompt
@@ -138,6 +146,7 @@ schema:
         with pytest.raises(FileNotFoundError):
             load_prompt("missing", prompts_dir=prompts_dir)
 
+    @pytest.mark.req("REQ-YG-012")
     def test_load_real_generate_prompt(self):
         """Should load the real generate.yaml from prompts/."""
         from yamlgraph.utils.prompts import load_prompt
@@ -151,6 +160,7 @@ schema:
 class TestGraphRelativePrompts:
     """Tests for graph-relative prompt resolution (FR-A)."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_prompt_relative_to_graph(self, tmp_path: Path):
         """Should resolve prompt relative to graph file location."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -178,6 +188,7 @@ class TestGraphRelativePrompts:
         assert result == prompt_file
         assert result.exists()
 
+    @pytest.mark.req("REQ-YG-012")
     def test_resolve_prompt_explicit_prompts_dir(self, tmp_path: Path):
         """Should use explicit prompts_dir when specified."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -196,6 +207,7 @@ class TestGraphRelativePrompts:
 
         assert result == prompt_file
 
+    @pytest.mark.req("REQ-YG-012")
     def test_prompts_dir_overrides_relative(self, tmp_path: Path):
         """Explicit prompts_dir should override prompts_relative."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -226,6 +238,7 @@ class TestGraphRelativePrompts:
 
         assert result == explicit_prompt
 
+    @pytest.mark.req("REQ-YG-012")
     def test_relative_resolution_without_graph_path_raises(self, tmp_path: Path):
         """Should raise if prompts_relative=True but no graph_path."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -241,6 +254,7 @@ class TestGraphRelativePrompts:
                 # graph_path not provided
             )
 
+    @pytest.mark.req("REQ-YG-012")
     def test_relative_resolution_nested_prompt(self, tmp_path: Path):
         """Should resolve nested prompts relative to graph."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -265,6 +279,7 @@ class TestGraphRelativePrompts:
 
         assert result == prompt_file
 
+    @pytest.mark.req("REQ-YG-012")
     def test_prompts_relative_with_prompts_dir_combines_paths(self, tmp_path: Path):
         """When BOTH prompts_relative and prompts_dir are set, combine them.
 
@@ -309,6 +324,7 @@ class TestGraphRelativePrompts:
 class TestLoadPromptPath:
     """Tests for load_prompt_path (returns Path + parsed content)."""
 
+    @pytest.mark.req("REQ-YG-012")
     def test_load_prompt_path_returns_both(self, tmp_path: Path):
         """Should return both path and parsed content."""
         from yamlgraph.utils.prompts import load_prompt_path

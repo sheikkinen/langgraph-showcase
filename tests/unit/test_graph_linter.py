@@ -64,6 +64,7 @@ def write_prompt(tmp_path: Path, name: str, content: str = "system: Test\nuser: 
 class TestLintModels:
     """Test Pydantic models for lint results."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_lint_issue_creation(self):
         issue = LintIssue(
             severity="error",
@@ -74,6 +75,7 @@ class TestLintModels:
         assert issue.code == "E001"
         assert issue.fix is None
 
+    @pytest.mark.req("REQ-YG-003")
     def test_lint_issue_with_fix(self):
         issue = LintIssue(
             severity="warning",
@@ -83,6 +85,7 @@ class TestLintModels:
         )
         assert issue.fix is not None
 
+    @pytest.mark.req("REQ-YG-003")
     def test_lint_result_valid(self):
         result = LintResult(
             file="test.yaml",
@@ -92,6 +95,7 @@ class TestLintModels:
         assert result.valid is True
         assert len(result.issues) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_lint_result_with_errors(self):
         issues = [
             LintIssue(severity="error", code="E001", message="Test error"),
@@ -111,6 +115,7 @@ class TestLintModels:
 class TestCheckStateDeclarations:
     """Test detection of missing state declarations."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_state_declaration(self, temp_graph_dir):
         """Graph with proper state declaration should pass."""
         graph = {
@@ -136,6 +141,7 @@ class TestCheckStateDeclarations:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_state_for_prompt_variable(self, temp_graph_dir):
         """Prompt using {path} without state declaration should error."""
         graph = {
@@ -163,6 +169,7 @@ class TestCheckStateDeclarations:
         assert len(errors) >= 1
         assert any("path" in i.message for i in errors)
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_state_for_shell_tool_variable(self, temp_graph_dir):
         """Shell tool NOT used by agent, using {path} without state declaration should error."""
         graph = {
@@ -196,6 +203,7 @@ class TestCheckStateDeclarations:
         assert len(errors) >= 1
         assert any("path" in i.message for i in errors)
 
+    @pytest.mark.req("REQ-YG-003")
     def test_agent_tool_variables_not_required_in_state(self, temp_graph_dir):
         """Shell tools used by agents get variables from LLM, not state."""
         graph = {
@@ -237,6 +245,7 @@ class TestCheckStateDeclarations:
 class TestCheckToolReferences:
     """Test detection of undefined tool references."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_tool_reference(self, temp_graph_dir):
         """Node referencing defined tool should pass."""
         graph = {
@@ -269,6 +278,7 @@ class TestCheckToolReferences:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_undefined_tool_reference(self, temp_graph_dir):
         """Node referencing undefined tool should error."""
         graph = {
@@ -302,6 +312,7 @@ class TestCheckToolReferences:
         assert len(errors) >= 1
         assert any("undefined_tool" in i.message for i in errors)
 
+    @pytest.mark.req("REQ-YG-003")
     def test_unused_tool_warning(self, temp_graph_dir):
         """Defined but unused tool should warn."""
         graph = {
@@ -347,6 +358,7 @@ class TestCheckToolReferences:
 class TestCheckPromptFiles:
     """Test detection of missing prompt files."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_prompt_exists(self, temp_graph_dir):
         """Node with existing prompt file should pass."""
         graph = {
@@ -371,6 +383,7 @@ class TestCheckPromptFiles:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_missing_prompt_file(self, temp_graph_dir):
         """Node with missing prompt file should error."""
         graph = {
@@ -396,6 +409,7 @@ class TestCheckPromptFiles:
         assert len(errors) >= 1
         assert any("nonexistent_prompt" in i.message for i in errors)
 
+    @pytest.mark.req("REQ-YG-003")
     def test_nested_prompt_path(self, temp_graph_dir):
         """Nested prompt paths like 'code-analysis/analyzer' should work."""
         graph = {
@@ -420,6 +434,7 @@ class TestCheckPromptFiles:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_custom_prompts_dir(self, temp_graph_dir):
         """Graph with custom prompts_dir should resolve prompts correctly."""
         # Create custom prompts directory
@@ -449,6 +464,7 @@ class TestCheckPromptFiles:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_prompts_dir_in_defaults(self, temp_graph_dir):
         """Graph with prompts_dir in defaults section should resolve correctly."""
         # Create custom prompts directory
@@ -487,6 +503,7 @@ class TestCheckPromptFiles:
 class TestCheckEdgeCoverage:
     """Test detection of unreachable nodes."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_all_nodes_reachable(self, temp_graph_dir):
         """All nodes connected should pass."""
         graph = {
@@ -508,6 +525,7 @@ class TestCheckEdgeCoverage:
         warnings = [i for i in issues if i.severity == "warning"]
         assert len(warnings) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_unreachable_node(self, temp_graph_dir):
         """Node not in any edge should warn."""
         graph = {
@@ -533,6 +551,7 @@ class TestCheckEdgeCoverage:
         assert len(warnings) >= 1
         assert any("orphan" in i.message for i in warnings)
 
+    @pytest.mark.req("REQ-YG-003")
     def test_no_path_to_end(self, temp_graph_dir):
         """Node without path to END should warn."""
         graph = {
@@ -563,6 +582,7 @@ class TestCheckEdgeCoverage:
 class TestCheckNodeTypes:
     """Test detection of invalid node types."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_node_types(self, temp_graph_dir):
         """Valid node types should pass."""
         graph = {
@@ -596,6 +616,7 @@ class TestCheckNodeTypes:
         errors = [i for i in issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_invalid_node_type(self, temp_graph_dir):
         """Invalid node type should error."""
         graph = {
@@ -627,6 +648,7 @@ class TestCheckNodeTypes:
 class TestLintGraph:
     """Test the main lint_graph entry point."""
 
+    @pytest.mark.req("REQ-YG-003")
     def test_valid_graph_passes(self, temp_graph_dir):
         """A well-formed graph should pass linting."""
         graph = {
@@ -654,6 +676,7 @@ class TestLintGraph:
         errors = [i for i in result.issues if i.severity == "error"]
         assert len(errors) == 0
 
+    @pytest.mark.req("REQ-YG-003")
     def test_multiple_issues_detected(self, temp_graph_dir):
         """Graph with multiple issues should report all."""
         graph = {
