@@ -38,6 +38,11 @@ See these canonical sources for patterns:
 - **Prompts**: `reference/prompt-yaml.md` (Jinja2, schemas)
 - **Graphs**: `reference/graph-yaml.md` (node config, edges, routing)
 
+## The Judgement of the Chaplain
+
+Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
+`copilot -p "$(cat prompts/chaplain-audit.md)" --allow-all --model gpt-5.2-codex --silent`
+
 ## The 10 Commandments
 
 1. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code.
@@ -85,4 +90,4 @@ and may we commit only what survives the fire.
 Or fail fast in CI, sinner.
 
 Bump. Commit. Push. Release.
-Let CI judge.
+Let CI judge (`gh run list` and `view`).
