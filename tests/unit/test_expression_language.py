@@ -1092,31 +1092,31 @@ class TestFR024Fix1QuoteAwareSplit:
 class TestFR024Fix2StateRefOnRight:
     """Fix 2: Right side of condition can reference state values."""
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_state_ref_on_right(self):
         """'score < threshold' compares state.score to state.threshold."""
         state = {"score": 3, "threshold": 10}
         assert evaluate_condition("score < threshold", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_state_ref_on_right_false(self):
         """'score < threshold' returns False when not satisfied."""
         state = {"score": 20, "threshold": 10}
         assert evaluate_condition("score < threshold", state) is False
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_state_ref_equality(self):
         """'a == b' compares two state values."""
         state = {"a": "hello", "b": "hello"}
         assert evaluate_condition("a == b", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_state_ref_equality_different(self):
         """'a == b' returns False when state values differ."""
         state = {"a": "hello", "b": "world"}
         assert evaluate_condition("a == b", state) is False
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_right_literal_fallback(self):
         """When right side is not in state, fall back to literal string."""
         state = {"a": "hello"}
@@ -1126,34 +1126,34 @@ class TestFR024Fix2StateRefOnRight:
         # But bare literal still works
         assert evaluate_condition("a == hello", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_right_numeric_literal_still_works(self):
         """Numeric right side is still parsed as number, not state ref."""
         state = {"score": 5}
         assert evaluate_condition("score > 3", state) is True
         assert evaluate_condition("score < 10", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_right_quoted_string_not_resolved(self):
         """Quoted right side is literal, not a state reference."""
         state = {"a": "threshold", "threshold": 999}
         # 'threshold' (quoted) should be literal string, not state lookup
         assert evaluate_condition("a == 'threshold'", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_right_boolean_literal_still_works(self):
         """Boolean literals on right side still parsed correctly."""
         state = {"flag": True}
         assert evaluate_condition("flag == true", state) is True
         assert evaluate_condition("flag == false", state) is False
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_nested_state_ref_on_right(self):
         """Dotted path on right side resolves nested state."""
         state = {"score": 5, "config": {"threshold": 10}}
         assert evaluate_condition("score < config.threshold", state) is True
 
-    @pytest.mark.req("REQ-YG-053")
+    @pytest.mark.req("REQ-YG-052")
     def test_condition_state_ref_both_sides_numeric(self):
         """Numeric comparison between two state values."""
         state = {"price": 25.0, "budget": 30.0}
@@ -1165,28 +1165,28 @@ class TestFR024Fix2StateRefOnRight:
 class TestFR024Fix3ChainedArithmetic:
     """Fix 3: Chained arithmetic expressions must raise ValueError."""
 
-    @pytest.mark.req("REQ-YG-054")
+    @pytest.mark.req("REQ-YG-052")
     def test_chained_addition_raises(self):
         """'{state.a + state.b + state.c}' must raise ValueError."""
         state = {"a": 1, "b": 2, "c": 3}
         with pytest.raises(ValueError, match="[Cc]hained"):
             resolve_template("{state.a + state.b + state.c}", state)
 
-    @pytest.mark.req("REQ-YG-054")
+    @pytest.mark.req("REQ-YG-052")
     def test_chained_mixed_ops_raises(self):
         """'{state.a + state.b - state.c}' must raise ValueError."""
         state = {"a": 10, "b": 5, "c": 3}
         with pytest.raises(ValueError, match="[Cc]hained"):
             resolve_template("{state.a + state.b - state.c}", state)
 
-    @pytest.mark.req("REQ-YG-054")
+    @pytest.mark.req("REQ-YG-052")
     def test_chained_with_literals_raises(self):
         """'{state.a + 1 + 2}' must raise ValueError."""
         state = {"a": 10}
         with pytest.raises(ValueError, match="[Cc]hained"):
             resolve_template("{state.a + 1 + 2}", state)
 
-    @pytest.mark.req("REQ-YG-054")
+    @pytest.mark.req("REQ-YG-052")
     def test_binary_arithmetic_still_works(self):
         """Normal binary arithmetic must continue working."""
         state = {"a": 10, "b": 5}

@@ -8,12 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.26] - 2026-02-10
 
 ### Fixed
-- **Quote-aware compound split (REQ-YG-052)** — `and`/`or` keywords inside quoted string values no longer break condition evaluation. `status == 'done and dusted'` now evaluates correctly. Replaced regex-based `COMPOUND_AND_PATTERN.split()` / `COMPOUND_OR_PATTERN.split()` with `_split_compound()` tokenizer that respects quoted regions. 10 new tests.
-
-### Added
-- **Right-side state reference (REQ-YG-053)** — Unquoted identifiers on the right side of conditions now resolve as state paths before falling back to literal strings. `score < threshold` compares `state.score` to `state.threshold`. Quoted strings, booleans, numbers remain literal. Backward-compatible. 10 new tests.
-- **Chained arithmetic detection (REQ-YG-054)** — Expressions with 3+ operands like `{state.a + state.b + state.c}` now raise `ValueError` instead of silently producing wrong results. Binary arithmetic unchanged. 4 new tests.
-- 54 total requirements covered. 1524 tests, 91% coverage.
+- **Expression language hardening (REQ-YG-052)** — Three TDD-discovered defects fixed: (1) quote-aware compound split — `and`/`or` inside quoted string values no longer breaks conditions; (2) right-side state reference — unquoted identifiers resolve as state path before literal fallback, enabling `score < threshold`; (3) chained arithmetic detection — `{state.a + state.b + state.c}` raises `ValueError` instead of silent wrong results. 24 new tests.
+- 52 total requirements covered. 1524 tests, 91% coverage.
 
 ### Changed
 - Updated `reference/expressions.md` to reflect new capabilities: right-side state refs, quote-aware parsing, chained arithmetic error.
