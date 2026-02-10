@@ -1,6 +1,8 @@
 """OpenAI-compatible Pydantic models."""
 
-from pydantic import BaseModel
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict
 
 
 class ChatMessage(BaseModel):
@@ -11,13 +13,20 @@ class ChatMessage(BaseModel):
 
 
 class ChatCompletionRequest(BaseModel):
-    """OpenAI chat completion request."""
+    """OpenAI chat completion request.
+
+    Accepts extra fields (reasoning_effort, stream_options, tools, etc.)
+    to remain compatible with different OpenAI SDK versions.
+    """
+
+    model_config = ConfigDict(extra="ignore")
 
     model: str
     messages: list[ChatMessage]
     temperature: float | None = None
     max_tokens: int | None = None
     stream: bool = False
+    tools: list[Any] | None = None
 
 
 class Choice(BaseModel):

@@ -59,17 +59,103 @@ def run_graph(*, initial_state: dict[str, Any]) -> dict[str, Any]:
 
 def create_app() -> FastAPI:
     """Create the FastAPI application."""
+    from starlette.requests import Request
+    from starlette.responses import Response
+
     from examples.openai_proxy.api.models import ChatCompletionRequest
 
     app = FastAPI(title="YAMLGraph Guardrail Proxy", version="0.1.0")
 
-    @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next) -> Response:
+        """Log every incoming request — headers, method, path, body on errors."""
+        headers = dict(request.headers)
+        # Mask the token value but show its prefix for debugging
+        auth = headers.get("authorization", "")
+        if auth:
+            parts = auth.split(" ", 1)
+            scheme = parts[0] if parts else ""
+            token = parts[1] if len(parts) > 1 else ""
+            masked = f"{token[:8]}...{token[-4:]}" if len(token) > 12 else token
+            headers["authorization"] = f"{scheme} {masked}"
+
+        # Read body for error diagnostics
+        body_bytes = await request.body()
+        body_text = body_bytes.decode("utf-8", errors="replace")[:4000]
+
+        logger.info(
+            "Incoming %s %s | headers=%s",
+            request.method,
+            request.url.path,
+            json.dumps(headers, separators=(",", ":")),
+        )
+        response = await call_next(request)
+        if response.status_code >= 400:
+            logger.warning(
+                "REQUEST FAILED %s %s -> %d | body=%s | headers=%s",
+                request.method,
+                request.url.path,
+                response.status_code,
+                body_text,
+                json.dumps(headers, separators=(",", ":")),
+            )
+        return response
+
+    @app.post("/v1/chat/completions")
     def chat_completions(
         request: ChatCompletionRequest,
         _token: str = Depends(verify_token),
     ):
+        import asyncio
+
+        from starlette.responses import StreamingResponse
+
+        chat_id = f"chatcmpl-yg-{uuid.uuid4().hex[:12]}"
+        created = int(time.time())
+
         if request.stream:
-            raise HTTPException(400, "Streaming not supported in v1")
+            # Run graph, then simulate SSE streaming of the real response
+            messages_json = json.dumps([m.model_dump() for m in request.messages])
+            result = run_graph(initial_state={"input": messages_json})
+            content = result.get("response", "")
+
+            async def stream_response():
+                # Split response into word-level chunks for natural streaming
+                words = content.split(" ")
+                for i, word in enumerate(words):
+                    text = word if i == 0 else f" {word}"
+                    chunk = {
+                        "id": chat_id,
+                        "object": "chat.completion.chunk",
+                        "created": created,
+                        "model": request.model,
+                        "choices": [
+                            {
+                                "index": 0,
+                                "delta": {"role": "assistant", "content": text}
+                                if i == 0
+                                else {"content": text},
+                                "finish_reason": None,
+                            }
+                        ],
+                    }
+                    yield f"data: {json.dumps(chunk)}\n\n"
+                    await asyncio.sleep(0.05)
+                # Final chunk with finish_reason
+                done_chunk = {
+                    "id": chat_id,
+                    "object": "chat.completion.chunk",
+                    "created": created,
+                    "model": request.model,
+                    "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+                }
+                yield f"data: {json.dumps(done_chunk)}\n\n"
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(
+                stream_response(),
+                media_type="text/event-stream",
+            )
 
         # Serialize messages as JSON input to graph
         messages_json = json.dumps([m.model_dump() for m in request.messages])
