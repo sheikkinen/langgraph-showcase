@@ -259,6 +259,7 @@ YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capa
 | 11 | Subgraph & Map Processing | `map_compiler`, `node_factory/subgraph_nodes` | REQ-YG-040 – 042 |
 | 12 | Utilities & Infrastructure | `config`, `constants`, `schema_loader`, `node_factory/base`, `utils/logging`, `utils/parsing`, `utils/sanitize`, `utils/expressions` | REQ-YG-043 – 046 |
 | 13 | LangSmith Tracing | `utils/tracing`, `cli/graph_commands` | REQ-YG-047 |
+| 14 | Graph-Level Streaming | `executor_async`, `node_factory/streaming` | REQ-YG-048 – 049 |
 
 ### 1. Configuration Loading & Validation
 
@@ -390,6 +391,15 @@ Logging, templating, JSON extraction, environment handling, and shared utilities
 | REQ-YG-045 | Node factory and resolution | `node_factory/base` |
 | REQ-YG-046 | Logging, parsing, and sanitization utilities | `utils/logging`, `utils/parsing`, `utils/sanitize` |
 | REQ-YG-047 | LangSmith trace URL retrieval and sharing | `utils/tracing`, `cli/graph_commands` |
+
+### 14. Graph-Level Streaming
+
+Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream(stream_mode="messages")`, enabling real-time SSE output.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-048 | Graph-level streaming: run graph with `astream(stream_mode="messages")` yielding LLM tokens | `executor_async` |
+| REQ-YG-049 | SSE streaming endpoint: format graph-streamed tokens as OpenAI-compatible SSE chunks | `executor_async`, `node_factory/streaming` |
 
 ---
 

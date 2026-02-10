@@ -106,24 +106,24 @@ def create_app() -> FastAPI:
         request: ChatCompletionRequest,
         _token: str = Depends(verify_token),
     ):
-        import asyncio
-
         from starlette.responses import StreamingResponse
 
         chat_id = f"chatcmpl-yg-{uuid.uuid4().hex[:12]}"
         created = int(time.time())
 
         if request.stream:
-            # Run graph, then simulate SSE streaming of the real response
+            # Real token-by-token streaming via run_graph_streaming (FR-023)
             messages_json = json.dumps([m.model_dump() for m in request.messages])
-            result = run_graph(initial_state={"input": messages_json})
-            content = result.get("response", "")
+            graph_path = os.getenv("GRAPH_PATH", "examples/openai_proxy/graph.yaml")
 
             async def stream_response():
-                # Split response into word-level chunks for natural streaming
-                words = content.split(" ")
-                for i, word in enumerate(words):
-                    text = word if i == 0 else f" {word}"
+                from yamlgraph.executor_async import run_graph_streaming
+
+                first = True
+                async for token in run_graph_streaming(
+                    graph_path=graph_path,
+                    initial_state={"input": messages_json},
+                ):
                     chunk = {
                         "id": chat_id,
                         "object": "chat.completion.chunk",
@@ -132,15 +132,15 @@ def create_app() -> FastAPI:
                         "choices": [
                             {
                                 "index": 0,
-                                "delta": {"role": "assistant", "content": text}
-                                if i == 0
-                                else {"content": text},
+                                "delta": {"role": "assistant", "content": token}
+                                if first
+                                else {"content": token},
                                 "finish_reason": None,
                             }
                         ],
                     }
+                    first = False
                     yield f"data: {json.dumps(chunk)}\n\n"
-                    await asyncio.sleep(0.05)
                 # Final chunk with finish_reason
                 done_chunk = {
                     "id": chat_id,

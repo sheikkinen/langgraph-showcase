@@ -146,18 +146,32 @@ class TestChatCompletions:
                 assert len(messages) == 2
                 assert messages[0]["role"] == "system"
 
-    def test_streaming_rejected(self, client, auth_headers):
-        """Should reject streaming requests in v1."""
-        response = client.post(
-            "/v1/chat/completions",
-            json={
-                "model": "test",
-                "messages": [{"role": "user", "content": "Hello"}],
-                "stream": True,
-            },
-            headers=auth_headers,
-        )
-        assert response.status_code == 400
+    @pytest.mark.req("REQ-YG-049")
+    def test_streaming_returns_sse(self, client, auth_headers):
+        """Should return SSE stream for streaming requests (FR-023)."""
+
+        async def mock_stream(*args, **kwargs):
+            yield "Hello"
+            yield " world"
+
+        with patch(
+            "yamlgraph.executor_async.run_graph_streaming",
+            side_effect=mock_stream,
+        ):
+            response = client.post(
+                "/v1/chat/completions",
+                json={
+                    "model": "test",
+                    "messages": [{"role": "user", "content": "Hello"}],
+                    "stream": True,
+                },
+                headers=auth_headers,
+            )
+            assert response.status_code == 200
+            assert "text/event-stream" in response.headers["content-type"]
+            body = response.text
+            assert "data: " in body
+            assert "data: [DONE]" in body
 
 
 class TestModels:
