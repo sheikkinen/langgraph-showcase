@@ -127,7 +127,8 @@ def main() -> None:
                 all_markers[req].extend(tests)
 
     # Report
-    total_tagged = sum(len(tests) for tests in all_markers.values())
+    total_pairs = sum(len(tests) for tests in all_markers.values())
+    unique_tests = {t for tests in all_markers.values() for t in tests}
     covered = [r for r in ALL_REQS if r in all_markers]
     uncovered = [r for r in ALL_REQS if r not in all_markers]
 
@@ -135,7 +136,7 @@ def main() -> None:
     print("REQUIREMENT TRACEABILITY REPORT")
     print("=" * 70)
     print(f"\nRequirements: {len(covered)}/{len(ALL_REQS)} covered")
-    print(f"Tagged tests: {total_tagged}")
+    print(f"Tagged tests: {len(unique_tests)} unique, {total_pairs} test-req pairs")
     print()
 
     # Per-capability summary

@@ -758,7 +758,7 @@ Generates a traceability matrix from `@pytest.mark.req` markers using AST parsin
 #### Current Coverage (v0.4.19)
 
 ```
-Requirements: 46/46 covered | Tagged tests: 1623
+Requirements: 46/46 covered | Tagged tests: 1288 unique, 1623 test-req pairs
 
  ✅  1. Config Loading & Validation:  4/4 reqs, 201 tests
  ✅  2. Graph Compilation:            4/4 reqs, 109 tests
