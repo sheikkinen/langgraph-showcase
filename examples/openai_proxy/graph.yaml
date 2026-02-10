@@ -1,0 +1,50 @@
+version: "1.0"
+name: openai-proxy
+description: OpenAI proxy with echo + validation guardrails
+
+defaults:
+  prompts_relative: true
+  prompts_dir: prompts
+
+state:
+  input: str
+  echo: str
+  validation: str
+  response: str
+
+tools:
+  echo_input:
+    type: python
+    module: examples.openai_proxy.nodes.tools
+    function: echo_input
+    description: "Echo the input for audit trail"
+
+  validate_input:
+    type: python
+    module: examples.openai_proxy.nodes.tools
+    function: validate_input
+    description: "Validate input, stamp missing validations"
+
+nodes:
+  echo:
+    type: python
+    tool: echo_input
+
+  validate:
+    type: python
+    tool: validate_input
+
+  respond:
+    type: llm
+    prompt: respond
+    state_key: response
+
+edges:
+  - from: START
+    to: echo
+  - from: echo
+    to: validate
+  - from: validate
+    to: respond
+  - from: respond
+    to: END
