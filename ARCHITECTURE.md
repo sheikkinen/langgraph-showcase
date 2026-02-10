@@ -188,6 +188,12 @@ See [examples/npc/architecture.md](examples/npc/architecture.md) for full docume
 │  • execute_prompt() - Load YAML prompt, call LLM, parse output          │
 │  • format_prompt() - Variable substitution (simple or Jinja2)           │
 │  • Schema resolution from YAML or Pydantic                              │
+├──────────────────────────────────────────────────────────────────────────┤
+│                        executor_async.py                                 │
+│  • execute_prompt_async() - Async LLM calls                             │
+│  • execute_prompt_streaming() - Token-by-token streaming                │
+│  • run_graph_streaming() - Graph-level streaming (FR-023)               │
+│  • load_and_compile_async() - Async graph compilation                   │
 └──────────────────────────────┬──────────────────────────────────────────┘
                                │
           ┌────────────────────┼────────────────────┐
@@ -195,8 +201,15 @@ See [examples/npc/architecture.md](examples/npc/architecture.md) for full docume
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
 │ llm_factory.py  │  │ schema_loader.py│  │ utils/prompts.py│
 │ • Multi-provider│  │ • YAML → Pydantic│ │ • load_prompt() │
-│ • Caching       │  │ • JSON Schema   │  │ • resolve_path()│
-└─────────────────┘  └─────────────────┘  └─────────────────┘
+│ • 7 providers:  │  │ • JSON Schema   │  │ • resolve_path()│
+│   Anthropic,    │  └─────────────────┘  └─────────────────┘
+│   Google/Gemini,│
+│   Mistral,      │
+│   OpenAI,       │
+│   Replicate,    │
+│   xAI, LMStudio │
+│ • Caching       │
+└─────────────────┘
 ```
 
 ### Sync/Async Design Pattern
@@ -392,6 +405,14 @@ Logging, templating, JSON extraction, environment handling, and shared utilities
 | REQ-YG-046 | Logging, parsing, and sanitization utilities | `utils/logging`, `utils/parsing`, `utils/sanitize` |
 | REQ-YG-047 | LangSmith trace URL retrieval and sharing | `utils/tracing`, `cli/graph_commands` |
 
+### 13. LangSmith Tracing
+
+Observability via LangSmith: trace URL retrieval, public sharing, and tracer injection.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-047 | LangSmith trace URL retrieval and sharing | `utils/tracing`, `cli/graph_commands` |
+
 ### 14. Graph-Level Streaming
 
 Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream(stream_mode="messages")`, enabling real-time SSE output.
@@ -400,6 +421,7 @@ Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream
 |------------|-------------|-------------|
 | REQ-YG-048 | Graph-level streaming: run graph with `astream(stream_mode="messages")` yielding LLM tokens | `executor_async` |
 | REQ-YG-049 | SSE streaming endpoint: format graph-streamed tokens as OpenAI-compatible SSE chunks | `executor_async`, `node_factory/streaming` |
+| REQ-YG-050 | Per-node and default-level `model` override: graph YAML `model` field flows through `execute_prompt()` to `create_llm()` | `node_factory/llm_nodes`, `executor`, `executor_async`, `executor_base` |
 
 ---
 
@@ -883,7 +905,7 @@ _loading_stack: ContextVar[list[Path]] = ContextVar("loading_stack")
 | `node_factory/base.py` | Shared utilities (resolve_class, output models) | 12 |
 | `executor.py` | Sync prompt execution with retry | 4 |
 | `executor_base.py` | Shared executor logic (format, messages, retry check) | 4, 8 |
-| `executor_async.py` | Async prompt execution and streaming | 4 |
+| `executor_async.py` | Async prompt execution and streaming | 4, 14 |
 | `map_compiler.py` | Parallel fan-out with Send() | 11 |
 | `routing.py` | Edge condition evaluation | 6 |
 | `error_handlers.py` | Error strategies (skip, fail, retry, fallback) | 8 |
@@ -893,7 +915,7 @@ _loading_stack: ContextVar[list[Path]] = ContextVar("loading_stack")
 | `tools/shell.py` | Shell tool execution | 5 |
 | `tools/python_tool.py` | Python tool integration | 5 |
 | `tools/nodes.py` | Tool node creation | 5 |
-| `utils/llm_factory.py` | Multi-provider LLM factory | 3 |
+| `utils/llm_factory.py` | Multi-provider LLM factory (7 providers) | 3 |
 | `utils/llm_factory_async.py` | Async LLM factory | 3 |
 | `utils/expressions.py` | Template and state path resolution | 4 |
 | `utils/conditions.py` | Condition expression evaluation | 6 |

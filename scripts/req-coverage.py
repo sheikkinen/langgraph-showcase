@@ -15,7 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 
 # All known requirements
-ALL_REQS = [f"REQ-YG-{i:03d}" for i in range(1, 50)]
+ALL_REQS = [f"REQ-YG-{i:03d}" for i in range(1, 51)]
 
 # Capability grouping
 CAPABILITIES = {
@@ -26,7 +26,7 @@ CAPABILITIES = {
         "REQ-YG-004",
     ],
     "2. Graph Compilation": ["REQ-YG-005", "REQ-YG-006", "REQ-YG-007", "REQ-YG-008"],
-    "3. Node Execution": ["REQ-YG-009", "REQ-YG-010", "REQ-YG-011"],
+    "3. Node Execution": ["REQ-YG-009", "REQ-YG-010", "REQ-YG-011", "REQ-YG-050"],
     "4. Prompt Execution": [
         "REQ-YG-012",
         "REQ-YG-013",

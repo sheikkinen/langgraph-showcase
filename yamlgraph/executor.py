@@ -35,6 +35,7 @@ def execute_prompt(
     output_model: type[T] | None = None,
     temperature: float = DEFAULT_TEMPERATURE,
     provider: str | None = None,
+    model: str | None = None,
     graph_path: "Path | None" = None,
     prompts_dir: "Path | None" = None,
     prompts_relative: bool = False,
@@ -51,6 +52,8 @@ def execute_prompt(
         temperature: LLM temperature setting
         provider: LLM provider ("anthropic", "mistral", "openai").
                  Can also be set in YAML metadata or PROVIDER env var.
+        model: LLM model override (e.g. "claude-haiku-4-5", "mistral-small-latest").
+               Priority: parameter > prompt YAML metadata > provider default.
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
@@ -73,6 +76,7 @@ def execute_prompt(
         output_model=output_model,
         temperature=temperature,
         provider=provider,
+        model=model,
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
@@ -171,6 +175,7 @@ class PromptExecutor:
         output_model: type[T] | None = None,
         temperature: float = DEFAULT_TEMPERATURE,
         provider: str | None = None,
+        model: str | None = None,
         graph_path: "Path | None" = None,
         prompts_dir: "Path | None" = None,
         prompts_relative: bool = False,
@@ -181,7 +186,7 @@ class PromptExecutor:
         Same interface as execute_prompt() but with LLM caching and
         automatic retry for transient failures.
 
-        Provider priority: parameter > YAML metadata > env var > default
+        Model/provider priority: parameter > prompt YAML metadata > env var > default
 
         Args:
             prompt_name: Name of the prompt file (without .yaml)
@@ -189,6 +194,7 @@ class PromptExecutor:
             output_model: Optional Pydantic model for structured output
             temperature: LLM temperature setting
             provider: LLM provider ("anthropic", "mistral", "openai")
+            model: LLM model override (None to use prompt YAML/provider default)
             graph_path: Path to graph file for relative prompt resolution
             prompts_dir: Explicit prompts directory override
             prompts_relative: If True, resolve prompts relative to graph_path
@@ -201,6 +207,7 @@ class PromptExecutor:
             prompt_name=prompt_name,
             variables=variables,
             provider=provider,
+            model=model,
             graph_path=graph_path,
             prompts_dir=prompts_dir,
             prompts_relative=prompts_relative,

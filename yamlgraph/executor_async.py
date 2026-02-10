@@ -36,6 +36,7 @@ async def execute_prompt_async(
     output_model: type[T] | None = None,
     temperature: float = DEFAULT_TEMPERATURE,
     provider: str | None = None,
+    model: str | None = None,
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
@@ -51,6 +52,7 @@ async def execute_prompt_async(
         output_model: Optional Pydantic model for structured output
         temperature: LLM temperature setting
         provider: LLM provider ("anthropic", "mistral", "openai")
+        model: LLM model override (None to use prompt YAML/provider default)
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
@@ -70,6 +72,7 @@ async def execute_prompt_async(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
+        model=model,
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
@@ -133,6 +136,7 @@ async def execute_prompt_streaming(
     variables: dict | None = None,
     temperature: float = DEFAULT_TEMPERATURE,
     provider: str | None = None,
+    model: str | None = None,
     graph_path: Path | None = None,
     prompts_dir: Path | None = None,
     prompts_relative: bool = False,
@@ -148,6 +152,7 @@ async def execute_prompt_streaming(
         variables: Variables to substitute in the template
         temperature: LLM temperature setting
         provider: LLM provider ("anthropic", "mistral", "openai")
+        model: LLM model override (None to use prompt YAML/provider default)
         graph_path: Path to graph file for relative prompt resolution
         prompts_dir: Explicit prompts directory override
         prompts_relative: If True, resolve prompts relative to graph_path
@@ -165,6 +170,7 @@ async def execute_prompt_streaming(
         prompt_name=prompt_name,
         variables=variables,
         provider=provider,
+        model=model,
         graph_path=graph_path,
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,

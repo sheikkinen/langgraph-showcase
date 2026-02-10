@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.24] - 2026-02-10
+
+### Fixed
+- **Node-level `model` override (REQ-YG-050)** — The `model` field in graph YAML node config and `defaults` was silently ignored. Only `temperature` and `provider` were extracted. Now `model` flows through the full call chain: `create_node_function()` → `execute_prompt()` → `prepare_messages()` → `create_llm()`. Priority: node config > defaults > prompt YAML > provider default. 8 new tests.
+
+### Changed
+- `execute_prompt()`, `PromptExecutor.execute()`, `execute_prompt_async()`, and `execute_prompt_streaming()` all accept `model: str | None` parameter.
+- req-coverage: 50/50 requirements covered (was 49/49).
+
 ## [0.4.23] - 2026-02-10
 
 ### Added
