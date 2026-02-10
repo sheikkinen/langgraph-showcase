@@ -99,6 +99,7 @@ class TestCLISubparsersRemoved:
         """'list-runs' subparser should not exist in CLI."""
         pass  # Covered by test_cmd_list_runs_removed
 
+    @pytest.mark.req("REQ-YG-034")
     def test_trace_subparser_removed(self) -> None:
         """'trace' subparser should not exist in CLI."""
         pass  # Covered by test_cmd_trace_removed

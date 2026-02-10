@@ -94,6 +94,7 @@ class TestRagGraphFiles:
         """graph.yaml should exist."""
         assert (RAG_EXAMPLE_PATH / "graph.yaml").exists()
 
+    @pytest.mark.req("REQ-YG-012")
     def test_prompt_yaml_exists(self):
         """prompts/answer.yaml should exist."""
         assert (RAG_EXAMPLE_PATH / "prompts" / "answer.yaml").exists()

@@ -44,6 +44,7 @@ class TestNodeType:
         """Test LLM node requires prompt."""
         assert NodeType.requires_prompt(NodeType.LLM) is True
 
+    @pytest.mark.req("REQ-YG-043")
     def test_requires_prompt_router(self) -> None:
         """Test router node requires prompt."""
         assert NodeType.requires_prompt(NodeType.ROUTER) is True
@@ -53,6 +54,7 @@ class TestNodeType:
         """Test python node does not require prompt."""
         assert NodeType.requires_prompt(NodeType.PYTHON) is False
 
+    @pytest.mark.req("REQ-YG-043")
     def test_requires_prompt_map(self) -> None:
         """Test map node does not require prompt."""
         assert NodeType.requires_prompt(NodeType.MAP) is False
@@ -123,6 +125,7 @@ class TestSpecialNodes:
         """Test START special node value."""
         assert SpecialNodes.START == "__start__"
 
+    @pytest.mark.req("REQ-YG-043")
     def test_end_node(self) -> None:
         """Test END special node value."""
         assert SpecialNodes.END == "__end__"

@@ -24,6 +24,7 @@ class TestFeatureBrainstormStructure:
         """Graph file should exist."""
         assert GRAPH_PATH.exists(), f"Missing {GRAPH_PATH}"
 
+    @pytest.mark.req("REQ-YG-003")
     def test_graph_passes_linter(self):
         """Graph should pass all lint checks."""
         result = lint_graph(GRAPH_PATH, project_root=PROJECT_ROOT)
@@ -133,6 +134,7 @@ class TestFeatureBrainstormPrompts:
         """Prompts directory should exist."""
         assert PROMPTS_DIR.exists(), f"Missing {PROMPTS_DIR}"
 
+    @pytest.mark.req("REQ-YG-012")
     def test_gather_prompt_exists(self):
         """gather.yaml prompt should exist."""
         prompt_path = PROMPTS_DIR / "gather.yaml"

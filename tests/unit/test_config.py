@@ -50,6 +50,7 @@ class TestPaths:
         """Outputs directory path should be under working dir."""
         assert OUTPUTS_DIR.parent == WORKING_DIR
 
+    @pytest.mark.req("REQ-YG-043")
     def test_database_path(self):
         """Database path should be in outputs directory."""
         assert DATABASE_PATH.parent == OUTPUTS_DIR
@@ -78,6 +79,7 @@ class TestLLMConfig:
         """Default temperature should be in valid range."""
         assert 0.0 <= DEFAULT_TEMPERATURE <= 1.0
 
+    @pytest.mark.req("REQ-YG-043")
     def test_default_max_tokens_positive(self):
         """Max tokens should be positive."""
         assert DEFAULT_MAX_TOKENS > 0

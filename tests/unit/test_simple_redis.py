@@ -340,7 +340,8 @@ class TestSerializationHelpers:
 class TestDeepDeserialize:
     """Test deep_deserialize function."""
 
-    def testdeep_deserialize_nested_uuid(self):
+    @pytest.mark.req("REQ-YG-039")
+    def test_deep_deserialize_nested_uuid(self):
         """Should deserialize nested UUIDs."""
         from yamlgraph.storage.serializers import deep_deserialize
 
@@ -359,7 +360,8 @@ class TestDeepDeserialize:
         )
         assert result["checkpoint"]["name"] == "test"
 
-    def testdeep_deserialize_list_with_uuids(self):
+    @pytest.mark.req("REQ-YG-039")
+    def test_deep_deserialize_list_with_uuids(self):
         """Should deserialize UUIDs in lists."""
         from yamlgraph.storage.serializers import deep_deserialize
 
@@ -371,7 +373,8 @@ class TestDeepDeserialize:
         assert result[0] == UUID("12345678-1234-5678-1234-567812345678")
         assert result[1] == datetime(2026, 1, 21, 12, 0, 0)
 
-    def testdeep_deserialize_primitive(self):
+    @pytest.mark.req("REQ-YG-039")
+    def test_deep_deserialize_primitive(self):
         """Should return primitives unchanged."""
         from yamlgraph.storage.serializers import deep_deserialize
 
@@ -690,7 +693,8 @@ class TestTupleKeySerialization:
         deserialized = deserialize_key(key)
         assert deserialized == key
 
-    def teststringify_keys_recursive(self):
+    @pytest.mark.req("REQ-YG-039")
+    def test_stringify_keys_recursive(self):
         """Should recursively convert tuple keys in nested dicts."""
         from yamlgraph.storage.serializers import stringify_keys, unstringify_keys
 

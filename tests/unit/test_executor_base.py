@@ -67,6 +67,7 @@ class TestIsRetryable:
         """Test ValueError is not retryable."""
         assert is_retryable(ValueError("Bad value")) is False
 
+    @pytest.mark.req("REQ-YG-013", "REQ-YG-031")
     def test_type_error_not_retryable(self) -> None:
         """Test TypeError is not retryable."""
         assert is_retryable(TypeError("Bad type")) is False
@@ -76,6 +77,7 @@ class TestIsRetryable:
         """Test generic Exception is not retryable."""
         assert is_retryable(Exception("Generic error")) is False
 
+    @pytest.mark.req("REQ-YG-013", "REQ-YG-031")
     def test_rate_in_name_is_retryable(self) -> None:
         """Test exception with 'rate' in name is retryable."""
 

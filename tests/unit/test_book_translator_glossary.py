@@ -27,6 +27,7 @@ class TestGetMapResult:
         """Return None when input is None."""
         assert get_map_result(None) is None
 
+    @pytest.mark.req("REQ-YG-041")
     def test_returns_none_for_non_dict(self):
         """Return None when input is not a dict."""
         assert get_map_result("string") is None
@@ -38,6 +39,7 @@ class TestGetMapResult:
         """Return None when dict has no map keys."""
         assert get_map_result({}) is None
 
+    @pytest.mark.req("REQ-YG-041")
     def test_returns_none_for_dict_without_map_key(self):
         """Return None when dict doesn't have _map_*_sub key."""
         item = {"other_key": "value", "another": 123}

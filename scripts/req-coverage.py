@@ -65,6 +65,8 @@ def extract_req_markers(filepath: Path) -> dict[str, list[str]]:
     """Extract @pytest.mark.req(...) markers from a test file.
 
     Returns mapping of requirement ID -> list of test names.
+    Uses class-qualified keys (Class::method) to avoid collisions
+    when multiple classes share method names.
     """
     try:
         tree = ast.parse(filepath.read_text(), filename=str(filepath))
@@ -72,17 +74,30 @@ def extract_req_markers(filepath: Path) -> dict[str, list[str]]:
         return {}
 
     req_map: dict[str, list[str]] = defaultdict(list)
+    stem = filepath.stem
 
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-            continue
-        if not node.name.startswith("test_"):
-            continue
-
+    def _process_func(
+        node: ast.FunctionDef | ast.AsyncFunctionDef, class_name: str | None
+    ) -> None:
+        if not node.name.startswith("test"):
+            return
+        key = (
+            f"{stem}::{class_name}::{node.name}"
+            if class_name
+            else f"{stem}::{node.name}"
+        )
         for decorator in node.decorator_list:
             reqs = _extract_req_from_decorator(decorator)
             for req in reqs:
-                req_map[req].append(f"{filepath.stem}::{node.name}")
+                req_map[req].append(key)
+
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.ClassDef):
+            for item in node.body:
+                if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
+                    _process_func(item, node.name)
+        elif isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+            _process_func(node, None)
 
     return dict(req_map)
 

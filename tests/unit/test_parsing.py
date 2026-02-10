@@ -13,6 +13,7 @@ class TestParseLiteral:
         """Double-quoted strings should be unquoted."""
         assert parse_literal('"hello"') == "hello"
 
+    @pytest.mark.req("REQ-YG-046")
     def test_parse_quoted_single_string(self):
         """Single-quoted strings should be unquoted."""
         assert parse_literal("'world'") == "world"
@@ -54,6 +55,7 @@ class TestParseLiteral:
         """Unquoted non-numeric strings should return as-is."""
         assert parse_literal("hello") == "hello"
 
+    @pytest.mark.req("REQ-YG-046")
     def test_strips_whitespace(self):
         """Leading/trailing whitespace should be stripped."""
         assert parse_literal("  42  ") == 42

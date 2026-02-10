@@ -186,6 +186,7 @@ class TestResolveTemplate:
         """Should pass through non-string values."""
         assert resolve_template(123, {}) == 123
 
+    @pytest.mark.req("REQ-YG-013")
     def test_non_state_template_passthrough(self):
         """Should pass through non-state templates."""
         assert resolve_template("{other.field}", {}) == "{other.field}"

@@ -755,23 +755,23 @@ Generates a traceability matrix from `@pytest.mark.req` markers using AST parsin
 | `python scripts/req-coverage.py --detail` | Full mapping: every test → requirement |
 | `python scripts/req-coverage.py --strict` | CI gate: exits non-zero if any REQ uncovered |
 
-#### Current Coverage (v0.4.19)
+#### Current Coverage (v0.4.20)
 
 ```
-Requirements: 46/46 covered | Tagged tests: 1288 unique, 1623 test-req pairs
+Requirements: 46/46 covered | Tagged tests: 1315 unique, 1645 test-req pairs
 
- ✅  1. Config Loading & Validation:  4/4 reqs, 201 tests
+ ✅  1. Config Loading & Validation:  4/4 reqs, 202 tests
  ✅  2. Graph Compilation:            4/4 reqs, 109 tests
  ✅  3. Node Execution:               3/3 reqs,  99 tests
- ✅  4. Prompt Execution:             5/5 reqs, 290 tests
+ ✅  4. Prompt Execution:             5/5 reqs, 295 tests
  ✅  5. Tool & Agent Integration:     4/4 reqs,  90 tests
  ✅  6. Routing & Flow Control:       3/3 reqs, 109 tests
  ✅  7. State Persistence:            3/3 reqs, 191 tests
- ✅  8. Error Handling:               5/5 reqs,  80 tests
- ✅  9. CLI Interface:                4/4 reqs,  71 tests
- ✅ 10. Export & Serialization:       4/4 reqs, 165 tests
- ✅ 11. Subgraph & Map:              3/3 reqs,  86 tests
- ✅ 12. Utilities:                    4/4 reqs, 132 tests
+ ✅  8. Error Handling:               5/5 reqs,  82 tests
+ ✅  9. CLI Interface:                4/4 reqs,  72 tests
+ ✅ 10. Export & Serialization:       4/4 reqs, 169 tests
+ ✅ 11. Subgraph & Map:              3/3 reqs,  88 tests
+ ✅ 12. Utilities:                    4/4 reqs, 139 tests
 ```
 
 See `docs/adr/001-test-requirement-traceability.md` for decision rationale.

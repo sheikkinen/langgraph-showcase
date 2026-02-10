@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.20] - 2026-02-10
+
+### Fixed
+- **4 malformed test names** in `test_simple_redis.py` — `testdeep_*` / `teststringify_*` renamed to `test_deep_*` / `test_stringify_*` (pytest convention requires `test_` prefix).
+- **req-coverage.py key collisions** — switched from `{stem}::{func}` to class-qualified `{stem}::{Class}::{func}` keys. Fixes 7 tests lost when duplicate method names appeared in different classes within the same file.
+- **16 untagged tests** — all test functions now carry `@pytest.mark.req` markers. Tagged tests: 1288 → 1315 unique (matches pytest's 1315 base test functions).
+
 ## [0.4.19] - 2026-02-10
 
 ### Added
