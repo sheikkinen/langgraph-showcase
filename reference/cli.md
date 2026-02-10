@@ -45,6 +45,7 @@ yamlgraph graph run <graph_path> [options]
 | `--export` | `-e` | Export results to files |
 | `--full` | `-f` | Show full output without truncation |
 | `--async` | `-a` | Use async execution for parallel map nodes |
+| `--share-trace` | | Share LangSmith trace publicly and display the URL |
 
 **Examples:**
 ```bash
@@ -62,6 +63,14 @@ yamlgraph graph run examples/demos/reflexion/graph.yaml -v topic="climate" -f
 
 # Export results
 yamlgraph graph run examples/demos/git-report/graph.yaml -v input="What changed?" -e
+
+# Show LangSmith trace URL (requires LANGCHAIN_TRACING_V2=true + LANGSMITH_API_KEY)
+yamlgraph graph run examples/demos/yamlgraph/graph.yaml -v topic=AI
+# 🔗 Trace: https://smith.langchain.com/o/.../r/...
+
+# Share trace publicly
+yamlgraph graph run examples/demos/yamlgraph/graph.yaml -v topic=AI --share-trace
+# 🔗 Trace (public): https://smith.langchain.com/public/.../r/...
 ```
 
 ### graph info

@@ -15,6 +15,13 @@ from yamlgraph.models import (
     build_state_class,
     create_initial_state,
 )
+from yamlgraph.utils.tracing import (
+    create_tracer,
+    get_trace_url,
+    inject_tracer_config,
+    is_tracing_enabled,
+    share_trace,
+)
 
 
 def get_schema_path() -> Path:
@@ -41,4 +48,10 @@ __all__ = [
     "create_initial_state",
     # Schema
     "get_schema_path",
+    # Tracing (FR-022)
+    "is_tracing_enabled",
+    "create_tracer",
+    "get_trace_url",
+    "share_trace",
+    "inject_tracer_config",
 ]

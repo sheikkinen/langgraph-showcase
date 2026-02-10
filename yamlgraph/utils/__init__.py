@@ -10,6 +10,13 @@ from yamlgraph.utils.json_extract import extract_json
 from yamlgraph.utils.logging import get_logger, setup_logging
 from yamlgraph.utils.prompts import load_prompt, load_prompt_path, resolve_prompt_path
 from yamlgraph.utils.template import extract_variables, validate_variables
+from yamlgraph.utils.tracing import (
+    create_tracer,
+    get_trace_url,
+    inject_tracer_config,
+    is_tracing_enabled,
+    share_trace,
+)
 
 __all__ = [
     # Conditions
@@ -30,4 +37,10 @@ __all__ = [
     # Template utilities
     "extract_variables",
     "validate_variables",
+    # Tracing (FR-022)
+    "is_tracing_enabled",
+    "create_tracer",
+    "get_trace_url",
+    "share_trace",
+    "inject_tracer_config",
 ]

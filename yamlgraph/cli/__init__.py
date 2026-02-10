@@ -67,6 +67,12 @@ def create_parser() -> argparse.ArgumentParser:
         dest="use_async",
         help="Use async execution for parallel map nodes (recommended for Mistral)",
     )
+    graph_run_parser.add_argument(
+        "--share-trace",
+        action="store_true",
+        dest="share_trace",
+        help="Share LangSmith trace publicly and display the URL",
+    )
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

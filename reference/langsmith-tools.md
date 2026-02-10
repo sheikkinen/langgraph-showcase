@@ -1,6 +1,6 @@
-# LangSmith Tools Reference
+# LangSmith Tools & Tracing Reference
 
-Tools for querying LangSmith run data in agent nodes.
+Tracing utilities and tools for querying LangSmith run data.
 
 ## Available Tools
 
@@ -187,4 +187,63 @@ LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 ## See Also
 
 - [Graph YAML Reference](graph-yaml.md)
+- [CLI Reference](cli.md) (`--share-trace` flag)
 - [Patterns - Self-Correction](patterns.md#self-correction-loops)
+
+---
+
+## Execution Tracing (FR-022)
+
+YAMLGraph provides built-in trace URL retrieval and public sharing.
+Tracing auto-detects when LangSmith is configured (via env vars or `.env`).
+
+### CLI
+
+```bash
+# Trace URL shown automatically when LangSmith is configured
+yamlgraph graph run graph.yaml --var topic=AI
+# 🔗 Trace: https://smith.langchain.com/o/.../r/...
+
+# Share trace publicly
+yamlgraph graph run graph.yaml --var topic=AI --share-trace
+# 🔗 Trace (public): https://smith.langchain.com/public/.../r/...
+```
+
+### Python API
+
+```python
+from yamlgraph import (
+    load_and_compile,
+    create_tracer,
+    get_trace_url,
+    inject_tracer_config,
+    share_trace,
+)
+
+# Compile graph
+graph = load_and_compile("graphs/hello.yaml")
+app = graph.compile()
+
+# Set up tracing (auto-detects .env / env vars, returns None if not configured)
+tracer = create_tracer()
+config = inject_tracer_config({}, tracer)
+
+# Run with tracing
+result = app.invoke({"name": "World"}, config=config)
+
+# Get trace URL
+print(get_trace_url(tracer))   # Authenticated URL
+print(share_trace(tracer))     # Public URL (or None)
+```
+
+### API Reference
+
+| Function | Description |
+|----------|-------------|
+| `is_tracing_enabled()` | Check if LangSmith is configured (delegates to langsmith SDK) |
+| `create_tracer(project_name=None)` | Create `LangChainTracer` or `None` if tracing disabled |
+| `get_trace_url(tracer)` | Get authenticated trace URL (fail-safe, returns `None`) |
+| `share_trace(tracer)` | Make trace public, return shareable URL (fail-safe) |
+| `inject_tracer_config(config, tracer)` | Add tracer to LangGraph config callbacks dict |
+
+All functions accept `None` tracer and return `None` gracefully — no need to guard with `if tracer:`.

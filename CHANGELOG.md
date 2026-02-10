@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.21] - 2026-02-10
+
+### Added
+- **LangSmith trace URL display (FR-022)** — After each `graph run` invoke, the LangSmith trace URL is printed when tracing is enabled (`LANGCHAIN_TRACING_V2=true` + `LANGSMITH_API_KEY`). New `--share-trace` flag makes the trace publicly accessible and prints the shareable URL.
+- **`yamlgraph/utils/tracing.py`** — Core tracing utilities: `is_tracing_enabled()`, `create_tracer()`, `get_trace_url()`, `share_trace()`, `inject_tracer_config()`. All fail-safe (return None on error).
+- **REQ-YG-047** — New requirement for LangSmith tracing. 13 capabilities, 47 requirements, 1341 unique tagged tests, 1671 test-req pairs.
+
 ## [0.4.20] - 2026-02-10
 
 ### Fixed

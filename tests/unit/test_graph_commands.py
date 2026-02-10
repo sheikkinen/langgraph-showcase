@@ -395,3 +395,84 @@ class TestCmdGraphValidate:
         )
         assert args.graph_command == "validate"
         assert args.graph_path == "examples/demos/yamlgraph/graph.yaml"
+
+
+# =============================================================================
+# --share-trace flag and _print_trace_url (FR-022)
+# =============================================================================
+
+
+class TestShareTraceFlag:
+    """Tests for --share-trace CLI flag and trace URL printing."""
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_share_trace_flag_parsed(self):
+        """--share-trace flag should be recognized."""
+        from yamlgraph.cli import create_parser
+
+        parser = create_parser()
+        args = parser.parse_args(["graph", "run", "graphs/test.yaml", "--share-trace"])
+        assert args.share_trace is True
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_share_trace_flag_default_false(self):
+        """--share-trace should default to False."""
+        from yamlgraph.cli import create_parser
+
+        parser = create_parser()
+        args = parser.parse_args(["graph", "run", "graphs/test.yaml"])
+        assert args.share_trace is False
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_print_trace_url_authenticated(self, capsys):
+        """_print_trace_url should print authenticated URL when share=False."""
+        from yamlgraph.cli.graph_commands import _print_trace_url
+
+        tracer = MagicMock()
+        with patch(
+            "yamlgraph.utils.tracing.get_trace_url",
+            return_value="https://smith.langchain.com/o/xxx/r/yyy",
+        ):
+            _print_trace_url(tracer, share=False)
+
+        captured = capsys.readouterr()
+        assert "🔗 Trace: https://smith.langchain.com/o/xxx/r/yyy" in captured.out
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_print_trace_url_shared(self, capsys):
+        """_print_trace_url should print public URL when share=True."""
+        from yamlgraph.cli.graph_commands import _print_trace_url
+
+        tracer = MagicMock()
+        with patch(
+            "yamlgraph.utils.tracing.share_trace",
+            return_value="https://smith.langchain.com/public/xxx/r/yyy",
+        ):
+            _print_trace_url(tracer, share=True)
+
+        captured = capsys.readouterr()
+        assert (
+            "🔗 Trace (public): https://smith.langchain.com/public/xxx/r/yyy"
+            in captured.out
+        )
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_print_trace_url_no_tracer(self, capsys):
+        """_print_trace_url should print nothing when tracer is None."""
+        from yamlgraph.cli.graph_commands import _print_trace_url
+
+        _print_trace_url(None, share=False)
+        captured = capsys.readouterr()
+        assert captured.out == ""
+
+    @pytest.mark.req("REQ-YG-047")
+    def test_print_trace_url_no_url(self, capsys):
+        """_print_trace_url should print nothing when URL is None."""
+        from yamlgraph.cli.graph_commands import _print_trace_url
+
+        tracer = MagicMock()
+        with patch("yamlgraph.utils.tracing.get_trace_url", return_value=None):
+            _print_trace_url(tracer, share=False)
+
+        captured = capsys.readouterr()
+        assert captured.out == ""

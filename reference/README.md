@@ -44,7 +44,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for version history.
 | [Streaming](streaming.md) | Token-by-token LLM output |
 | [Async Usage](async-usage.md) | FastAPI integration & concurrent pipelines |
 | [Checkpointers](checkpointers.md) | State persistence (Memory, SQLite, Redis) |
-| [LangSmith Tools](langsmith-tools.md) | Observability and tracing tools |
+| [LangSmith Tools & Tracing](langsmith-tools.md) | Trace URLs, public sharing, and observability tools |
 | [Prompt Deployment](prompt-deployment.md) | Patterns for updating prompts without rebuild |
 
 ### Examples & Guides

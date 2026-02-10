@@ -258,6 +258,7 @@ YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capa
 | 10 | Export & Serialization | `cli/schema_commands`, `cli/graph_commands`, `storage/export`, `storage/serializers` | REQ-YG-036 – 039 |
 | 11 | Subgraph & Map Processing | `map_compiler`, `node_factory/subgraph_nodes` | REQ-YG-040 – 042 |
 | 12 | Utilities & Infrastructure | `config`, `constants`, `schema_loader`, `node_factory/base`, `utils/logging`, `utils/parsing`, `utils/sanitize`, `utils/expressions` | REQ-YG-043 – 046 |
+| 13 | LangSmith Tracing | `utils/tracing`, `cli/graph_commands` | REQ-YG-047 |
 
 ### 1. Configuration Loading & Validation
 
@@ -388,6 +389,7 @@ Logging, templating, JSON extraction, environment handling, and shared utilities
 | REQ-YG-044 | Schema loading and model building | `schema_loader` |
 | REQ-YG-045 | Node factory and resolution | `node_factory/base` |
 | REQ-YG-046 | Logging, parsing, and sanitization utilities | `utils/logging`, `utils/parsing`, `utils/sanitize` |
+| REQ-YG-047 | LangSmith trace URL retrieval and sharing | `utils/tracing`, `cli/graph_commands` |
 
 ---
 
@@ -755,10 +757,10 @@ Generates a traceability matrix from `@pytest.mark.req` markers using AST parsin
 | `python scripts/req-coverage.py --detail` | Full mapping: every test → requirement |
 | `python scripts/req-coverage.py --strict` | CI gate: exits non-zero if any REQ uncovered |
 
-#### Current Coverage (v0.4.20)
+#### Current Coverage (v0.4.21)
 
 ```
-Requirements: 46/46 covered | Tagged tests: 1315 unique, 1645 test-req pairs
+Requirements: 47/47 covered | Tagged tests: 1341 unique, 1671 test-req pairs
 
  ✅  1. Config Loading & Validation:  4/4 reqs, 202 tests
  ✅  2. Graph Compilation:            4/4 reqs, 109 tests
@@ -772,6 +774,7 @@ Requirements: 46/46 covered | Tagged tests: 1315 unique, 1645 test-req pairs
  ✅ 10. Export & Serialization:       4/4 reqs, 169 tests
  ✅ 11. Subgraph & Map:              3/3 reqs,  88 tests
  ✅ 12. Utilities:                    4/4 reqs, 139 tests
+ ✅ 13. LangSmith Tracing:           1/1 reqs,  26 tests
 ```
 
 See `docs/adr/001-test-requirement-traceability.md` for decision rationale.

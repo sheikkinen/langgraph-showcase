@@ -97,12 +97,24 @@ yamlgraph graph run graphs/hello.yaml --var name="World" --var style="enthusiast
 Or use the Python API:
 
 ```python
-from yamlgraph.graph_loader import load_and_compile
+from yamlgraph import load_and_compile
 
 graph = load_and_compile("graphs/hello.yaml")
 app = graph.compile()
 result = app.invoke({"name": "World", "style": "enthusiastic"})
 print(result["greeting"])
+```
+
+With tracing (when LangSmith is configured via `.env` or env vars):
+
+```python
+from yamlgraph import load_and_compile, create_tracer, get_trace_url, inject_tracer_config
+
+graph = load_and_compile("graphs/hello.yaml")
+app = graph.compile()
+tracer = create_tracer()  # None if LangSmith not configured
+result = app.invoke({"name": "World"}, config=inject_tracer_config({}, tracer))
+print(get_trace_url(tracer))  # https://smith.langchain.com/o/.../r/...
 ```
 
 ---
@@ -124,6 +136,9 @@ yamlgraph graph run examples/demos/git-report/graph.yaml --var input="What chang
 
 # Web research agent (requires: pip install yamlgraph[websearch])
 yamlgraph graph run examples/demos/web-research/graph.yaml --var topic="LangGraph tutorials"
+
+# Show LangSmith trace URL (requires LANGCHAIN_TRACING_V2=true + LANGSMITH_API_KEY)
+yamlgraph graph run examples/demos/yamlgraph/graph.yaml --var topic="AI" --share-trace
 ```
 
 📂 **More examples:** See [examples/README.md](examples/README.md) for the full catalog including:
@@ -193,8 +208,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md#file-reference) for detailed module line c
 | `XAI_MODEL` | No | xAI model (default: grok-4-1-fast-reasoning) |
 | `LMSTUDIO_BASE_URL` | No | LM Studio server URL (default: http://localhost:1234/v1) |
 | `LMSTUDIO_MODEL` | No | LM Studio model (default: qwen2.5-coder-7b-instruct) |
-| `LANGCHAIN_TRACING` | No | Enable LangSmith tracing |
-| `LANGCHAIN_API_KEY` | No | LangSmith API key |
+| `LANGCHAIN_TRACING_V2` | No | Enable LangSmith tracing (`true` to enable) |
+| `LANGSMITH_API_KEY` | No | LangSmith API key |
 | `LANGCHAIN_ENDPOINT` | No | LangSmith endpoint URL |
 | `LANGCHAIN_PROJECT` | No | LangSmith project name |
 

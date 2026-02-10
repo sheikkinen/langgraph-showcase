@@ -115,6 +115,28 @@ def _handle_export(graph_path: Path, result: dict) -> None:
                 print(f"   {p}")
 
 
+def _print_trace_url(tracer: object | None, share: bool = False) -> None:
+    """Print LangSmith trace URL after an invoke (FR-022).
+
+    Args:
+        tracer: LangChainTracer instance (or None).
+        share: If True, share the trace publicly.
+    """
+    if tracer is None:
+        return
+
+    from yamlgraph.utils.tracing import get_trace_url, share_trace
+
+    if share:
+        url = share_trace(tracer)
+        if url:
+            print(f"🔗 Trace (public): {url}")
+    else:
+        url = get_trace_url(tracer)
+        if url:
+            print(f"🔗 Trace: {url}")
+
+
 def cmd_graph_run(args: Namespace) -> None:
     """Run any graph with provided variables.
 
@@ -163,6 +185,16 @@ def cmd_graph_run(args: Namespace) -> None:
             config["configurable"] = {"thread_id": args.thread}
             initial_state["thread_id"] = args.thread
 
+        # FR-022: Set up LangSmith tracing
+        from yamlgraph.utils.tracing import (
+            create_tracer,
+            inject_tracer_config,
+        )
+
+        tracer = create_tracer()
+        inject_tracer_config(config, tracer)
+        share_flag = getattr(args, "share_trace", False)
+
         # Initial invoke
         if getattr(args, "use_async", False):
             import asyncio
@@ -172,6 +204,8 @@ def cmd_graph_run(args: Namespace) -> None:
             )
         else:
             result = app.invoke(initial_state, config=config if config else None)
+
+        _print_trace_url(tracer, share_flag)
 
         # Interrupt loop - handle human-in-the-loop
         while "__interrupt__" in result:
@@ -194,6 +228,8 @@ def cmd_graph_run(args: Namespace) -> None:
                 )
             else:
                 result = app.invoke(Command(resume=user_input), config=config)
+
+            _print_trace_url(tracer, share_flag)
 
         _display_result(result, truncate=not getattr(args, "full", False))
 
