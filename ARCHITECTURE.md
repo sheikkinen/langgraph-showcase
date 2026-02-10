@@ -274,6 +274,7 @@ YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capa
 | 13 | LangSmith Tracing | `utils/tracing`, `cli/graph_commands` | REQ-YG-047 |
 | 14 | Graph-Level Streaming | `executor_async`, `node_factory/streaming` | REQ-YG-048 – 049 |
 | 15 | Expression Language | `utils/expressions`, `utils/conditions`, `utils/parsing` | REQ-YG-051, REQ-YG-052 |
+| 16 | Linter Cross-Reference & Semantic Checks | `linter/checks`, `linter/graph_linter` | REQ-YG-053 |
 
 ### 1. Configuration Loading & Validation
 
@@ -425,6 +426,7 @@ Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream
 | REQ-YG-050 | Per-node and default-level `model` override: graph YAML `model` field flows through `execute_prompt()` to `create_llm()` | `node_factory/llm_nodes`, `executor`, `executor_async`, `executor_base` |
 | REQ-YG-051 | Expression language: value expressions (`{state.path}`, arithmetic, list/dict ops), condition expressions (comparisons, compound AND/OR), literal parsing, `resolve_node_variables` batch resolution | `utils/expressions`, `utils/conditions`, `utils/parsing` |
 | REQ-YG-052 | Expression language hardening: quote-aware compound split, right-side state reference resolution, chained arithmetic detection | `utils/conditions`, `utils/expressions` |
+| REQ-YG-053 | Linter cross-reference & semantic checks: edge endpoint validation (E006), loop_limits references (E008), passthrough output (E601), tool_call fields (E701/E702), condition syntax (W801), variable prefix (W007), fallback config (E010), conditional edge type (E802) | `linter/checks`, `linter/graph_linter` |
 
 ---
 

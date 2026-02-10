@@ -1,0 +1,15 @@
+# E006 pass: all edge from/to targets reference real nodes or START/END
+state:
+  response: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: END

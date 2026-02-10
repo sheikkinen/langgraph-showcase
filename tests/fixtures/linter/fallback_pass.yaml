@@ -1,0 +1,18 @@
+# E010 pass: on_error: fallback has fallback config
+state:
+  response: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+    on_error: fallback
+    fallback:
+      provider: openai
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: END

@@ -1,0 +1,13 @@
+# E601 fail: passthrough node missing output field — silent no-op
+state:
+  total: int
+
+nodes:
+  transform:
+    type: passthrough
+
+edges:
+  - from: START
+    to: transform
+  - from: transform
+    to: END

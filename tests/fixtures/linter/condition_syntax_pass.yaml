@@ -1,0 +1,23 @@
+# W801 pass: condition uses correct bare syntax
+state:
+  response: str
+  score: float
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+  critique:
+    type: llm
+    prompt: critique
+    state_key: score
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: critique
+  - from: critique
+    to: [generate, END]
+    condition: "score < 0.8"

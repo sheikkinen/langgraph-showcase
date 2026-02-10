@@ -1,0 +1,22 @@
+# E701/E702 pass: tool_call node has both tool and args
+state:
+  result: str
+
+tools:
+  search:
+    type: shell
+    command: echo search
+
+nodes:
+  do_search:
+    type: tool_call
+    tool: search
+    args:
+      query: "{state.result}"
+    state_key: result
+
+edges:
+  - from: START
+    to: do_search
+  - from: do_search
+    to: END

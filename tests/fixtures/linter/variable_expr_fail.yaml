@@ -1,0 +1,18 @@
+# W007 fail: variable expression missing state. prefix — treated as literal
+state:
+  name: str
+  response: str
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    state_key: response
+    variables:
+      name: "{name}"
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END

@@ -1,0 +1,15 @@
+# E006 fail: edge 'from' has a typo — 'genrate' doesn't exist
+state:
+  response: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+
+edges:
+  - from: START
+    to: generate
+  - from: genrate
+    to: END

@@ -1,0 +1,15 @@
+# E601 pass: passthrough node has output field
+state:
+  total: int
+
+nodes:
+  transform:
+    type: passthrough
+    output:
+      total: "{state.count + 1}"
+
+edges:
+  - from: START
+    to: transform
+  - from: transform
+    to: END

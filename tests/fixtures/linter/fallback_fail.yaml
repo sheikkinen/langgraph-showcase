@@ -1,0 +1,16 @@
+# E010 fail: on_error: fallback but no fallback config
+state:
+  response: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+    on_error: fallback
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: END

@@ -1,0 +1,18 @@
+# W007 pass: variable expressions use correct {state.field} syntax
+state:
+  name: str
+  response: str
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    state_key: response
+    variables:
+      name: "{state.name}"
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END

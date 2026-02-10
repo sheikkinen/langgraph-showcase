@@ -1,0 +1,14 @@
+# E701/E702 fail: tool_call node missing both tool and args
+state:
+  result: str
+
+nodes:
+  do_search:
+    type: tool_call
+    state_key: result
+
+edges:
+  - from: START
+    to: do_search
+  - from: do_search
+    to: END

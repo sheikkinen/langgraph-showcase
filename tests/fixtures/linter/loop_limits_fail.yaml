@@ -1,0 +1,26 @@
+# E008 fail: loop_limits references 'critiqu' — typo, no such node
+state:
+  response: str
+  score: float
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+  critique:
+    type: llm
+    prompt: critique
+    state_key: score
+
+loop_limits:
+  critiqu: 3
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: critique
+  - from: critique
+    to: [generate, END]
+    condition: "score < 0.8"

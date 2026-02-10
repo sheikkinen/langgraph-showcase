@@ -17,10 +17,16 @@ from pydantic import BaseModel
 
 from yamlgraph.linter.checks import (
     LintIssue,
+    check_cross_references,
     check_edge_coverage,
+    check_edge_types,
+    check_error_handling,
+    check_expression_syntax,
     check_node_types,
+    check_passthrough_nodes,
     check_prompt_files,
     check_state_declarations,
+    check_tool_call_nodes,
     check_tool_references,
 )
 from yamlgraph.linter.patterns import (
@@ -66,6 +72,14 @@ def lint_graph(
     all_issues.extend(check_prompt_files(graph_path, project_root))
     all_issues.extend(check_edge_coverage(graph_path))
     all_issues.extend(check_node_types(graph_path))
+
+    # FR-025: Cross-reference & semantic checks
+    all_issues.extend(check_cross_references(graph_path))
+    all_issues.extend(check_passthrough_nodes(graph_path))
+    all_issues.extend(check_tool_call_nodes(graph_path))
+    all_issues.extend(check_expression_syntax(graph_path))
+    all_issues.extend(check_error_handling(graph_path))
+    all_issues.extend(check_edge_types(graph_path))
 
     # Pattern-specific checks
     all_issues.extend(check_router_patterns(graph_path, project_root))
