@@ -5,7 +5,7 @@ Demo-specific output schemas are defined inline in graph YAML files.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 # =============================================================================
 
 
-class ErrorType(str, Enum):
+class ErrorType(StrEnum):
     """Types of errors that can occur in the pipeline."""
 
     LLM_ERROR = "llm_error"  # LLM API errors (rate limit, timeout, etc.)
