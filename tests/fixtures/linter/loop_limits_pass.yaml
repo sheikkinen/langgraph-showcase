@@ -1,4 +1,6 @@
 # E008 pass: loop_limits keys reference real nodes
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float

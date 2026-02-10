@@ -1,4 +1,6 @@
 # E006 pass: all edge from/to targets reference real nodes or START/END
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
 

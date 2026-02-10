@@ -1,4 +1,6 @@
 # W007 fail: variable expression missing state. prefix — treated as literal
+prompts_relative: true
+prompts_dir: prompts
 state:
   name: str
   response: str

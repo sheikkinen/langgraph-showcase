@@ -1,4 +1,6 @@
 # E802 fail: conditional edge has string 'to' — silently becomes normal edge
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float

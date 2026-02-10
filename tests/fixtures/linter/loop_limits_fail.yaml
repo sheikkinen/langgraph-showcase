@@ -1,4 +1,6 @@
 # E008 fail: loop_limits references 'critiqu' — typo, no such node
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float

@@ -1,4 +1,6 @@
 # W801 fail: condition uses braces and state. prefix — wrong syntax
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float

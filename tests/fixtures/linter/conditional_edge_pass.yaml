@@ -1,4 +1,6 @@
 # E802 pass: conditional edge has list 'to' target
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float

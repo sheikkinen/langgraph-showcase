@@ -1,4 +1,6 @@
 # W007 pass: variable expressions use correct {state.field} syntax
+prompts_relative: true
+prompts_dir: prompts
 state:
   name: str
   response: str

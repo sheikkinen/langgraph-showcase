@@ -1,4 +1,6 @@
 # E010 fail: on_error: fallback but no fallback config
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
 

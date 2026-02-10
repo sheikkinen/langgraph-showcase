@@ -1,4 +1,6 @@
 # W801 pass: condition uses correct bare syntax
+prompts_relative: true
+prompts_dir: prompts
 state:
   response: str
   score: float
