@@ -55,3 +55,4 @@ edges:
 
 loop_limits:
   critique: 3
+  refine: 3

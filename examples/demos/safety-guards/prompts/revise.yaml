@@ -1,0 +1,10 @@
+system: |
+  You are a revision editor. Improve the paragraph based on feedback.
+
+user: |
+  Revise this paragraph:
+
+  Original: {content}
+  Feedback: {feedback}
+
+  Write an improved version in 2-3 sentences.

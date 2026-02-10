@@ -131,12 +131,24 @@ def create_python_node(
     tool_config = python_tools[tool_name]
     state_key = node_config.get("state_key", node_name)
     on_error = node_config.get("on_error", "fail")
+    loop_limit = node_config.get("loop_limit")
 
     # Load the function at node creation time
     func = load_python_function(tool_config)
 
     def node_fn(state: dict[str, Any]) -> dict:
         """Execute the Python function and return state update."""
+        # FR-027: Check loop limit (same pattern as LLM nodes)
+        from yamlgraph.error_handlers import check_loop_limit
+
+        loop_counts = dict(state.get("_loop_counts") or {})
+        current_count = loop_counts.get(node_name, 0)
+
+        if check_loop_limit(node_name, loop_limit, current_count):
+            return {"_loop_limit_reached": True, "current_step": node_name}
+
+        loop_counts[node_name] = current_count + 1
+
         logger.info(f"🐍 Executing Python node: {node_name} -> {tool_name}")
 
         try:
@@ -145,12 +157,14 @@ def create_python_node(
             # If function returns a dict, merge with node metadata
             if isinstance(result, dict):
                 result["current_step"] = node_name
+                result["_loop_counts"] = loop_counts
                 return result
             else:
                 # Function returned a single value, store in state_key
                 return {
                     state_key: result,
                     "current_step": node_name,
+                    "_loop_counts": loop_counts,
                 }
 
         except Exception as e:

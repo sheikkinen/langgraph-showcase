@@ -28,6 +28,10 @@ DATABASE_PATH = OUTPUTS_DIR / "yamlgraph.db"
 # Default graph configuration (demo location)
 DEFAULT_GRAPH = WORKING_DIR / "examples" / "demos" / "yamlgraph" / "graph.yaml"
 
+# Execution Safety (FR-027)
+DEFAULT_RECURSION_LIMIT = 50
+DEFAULT_MAX_MAP_ITEMS = 100
+
 # LLM Configuration
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_TOKENS = 4096

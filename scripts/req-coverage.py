@@ -15,7 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 
 # All known requirements
-ALL_REQS = [f"REQ-YG-{i:03d}" for i in range(1, 55)]
+ALL_REQS = [f"REQ-YG-{i:03d}" for i in range(1, 59)]
 
 # Capability grouping
 CAPABILITIES = {
@@ -62,6 +62,12 @@ CAPABILITIES = {
     "14. Graph-Level Streaming": ["REQ-YG-048", "REQ-YG-049"],
     "15. Expression Language": ["REQ-YG-051", "REQ-YG-052"],
     "16. Linter Cross-Reference": ["REQ-YG-053", "REQ-YG-054"],
+    "17. Execution Safety Guards": [
+        "REQ-YG-055",
+        "REQ-YG-056",
+        "REQ-YG-057",
+        "REQ-YG-058",
+    ],
 }
 
 

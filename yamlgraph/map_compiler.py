@@ -11,6 +11,7 @@ from typing import Any
 from langgraph.graph import StateGraph
 from langgraph.types import Send
 
+from yamlgraph.config import DEFAULT_MAX_MAP_ITEMS
 from yamlgraph.constants import NodeType
 from yamlgraph.node_factory import create_node_function, create_tool_call_node
 from yamlgraph.tools.python_tool import load_python_function
@@ -183,6 +184,19 @@ def compile_map_node(
             raise TypeError(
                 f"Map 'over' must resolve to list, got {type(items).__name__}"
             )
+
+        # FR-027: Cap fan-out to prevent unbounded Send() calls
+        max_items = config.get(
+            "max_items", defaults.get("max_map_items", DEFAULT_MAX_MAP_ITEMS)
+        )
+        if len(items) > max_items:
+            logger.warning(
+                "Map node '%s': truncating %d items to %d",
+                name,
+                len(items),
+                max_items,
+            )
+            items = items[:max_items]
 
         return [
             Send(sub_node_name, {**state, item_var: item, "_map_index": i})

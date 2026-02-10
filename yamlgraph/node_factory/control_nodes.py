@@ -128,9 +128,21 @@ def create_passthrough_node(
     from yamlgraph.utils.expressions import resolve_template
 
     output_templates = config.get("output", {})
+    loop_limit = config.get("loop_limit")
 
     def passthrough_fn(state: dict) -> dict:
-        result = {"current_step": node_name}
+        # FR-027: Check loop limit (same pattern as LLM nodes)
+        from yamlgraph.error_handlers import check_loop_limit
+
+        loop_counts = dict(state.get("_loop_counts") or {})
+        current_count = loop_counts.get(node_name, 0)
+
+        if check_loop_limit(node_name, loop_limit, current_count):
+            return {"_loop_limit_reached": True, "current_step": node_name}
+
+        loop_counts[node_name] = current_count + 1
+
+        result = {"current_step": node_name, "_loop_counts": loop_counts}
 
         for key, template in output_templates.items():
             try:

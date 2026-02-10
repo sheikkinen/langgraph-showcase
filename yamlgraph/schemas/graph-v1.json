@@ -225,6 +225,12 @@
           "minimum": 1,
           "title": "Max Iterations",
           "type": "integer"
+        },
+        "max_items": {
+          "minimum": 1,
+          "description": "Maximum fan-out items for this map node",
+          "title": "Max Items",
+          "type": "integer"
         }
       },
       "title": "NodeConfig",
@@ -278,6 +284,24 @@
         "type": "integer"
       },
       "title": "Loop Limits",
+      "type": "object"
+    },
+    "config": {
+      "description": "Execution safety configuration",
+      "properties": {
+        "recursion_limit": {
+          "type": "integer",
+          "default": 50,
+          "description": "Maximum LangGraph recursion depth"
+        },
+        "max_map_items": {
+          "type": "integer",
+          "default": 100,
+          "description": "Default max fan-out items for map nodes"
+        }
+      },
+      "additionalProperties": true,
+      "title": "Config",
       "type": "object"
     }
   },

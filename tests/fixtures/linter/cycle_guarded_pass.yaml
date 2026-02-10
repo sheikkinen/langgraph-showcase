@@ -1,0 +1,26 @@
+# Cycle with loop_limits — should NOT trigger W012
+version: "1.0"
+name: cycle-with-limits
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: draft
+  critique:
+    type: llm
+    prompt: critique
+    state_key: feedback
+loop_limits:
+  generate: 3
+  critique: 3
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: critique
+  - from: critique
+    to: generate
+    condition: "feedback != 'approved'"
+  - from: critique
+    to: END
+    condition: "feedback == 'approved'"

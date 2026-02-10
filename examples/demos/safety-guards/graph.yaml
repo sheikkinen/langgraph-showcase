@@ -1,0 +1,100 @@
+# Safety Guards Demo — FR-027 Execution Safety
+# Demonstrates all 4 P0 safety features:
+#
+#   1. config.recursion_limit — global LangGraph recursion cap
+#   2. config.max_map_items   — default fan-out ceiling for map nodes
+#   3. max_items (node-level) — per-map override
+#   4. loop_limits            — per-node cycle guard + linter W012
+
+version: "1.0"
+name: safety-guards-demo
+description: >
+  Shows how YAMLGraph protects against unbounded execution:
+  a draft→review→revise cycle (loop-guarded), then a map
+  fan-out (item-capped), all under a recursion_limit.
+
+prompts_relative: true
+prompts_dir: prompts
+
+# ── Execution safety config (FR-027) ─────────────────────────
+config:
+  recursion_limit: 30        # LangGraph recursion cap (default: 50)
+  max_map_items: 20          # Default map fan-out cap (default: 100)
+
+defaults:
+  provider: openai
+  temperature: 0.7
+
+state:
+  topic: str
+  topics: list
+  current_draft: str
+  review: str
+  fun_facts: list
+
+# ── Nodes ─────────────────────────────────────────────────────
+nodes:
+  draft:
+    type: llm
+    prompt: draft
+    variables:
+      topic: "{state.topic}"
+    state_key: current_draft
+
+  review:
+    type: llm
+    prompt: review
+    variables:
+      content: "{state.current_draft}"
+    state_key: review
+
+  revise:
+    type: llm
+    prompt: revise
+    variables:
+      content: "{state.current_draft}"
+      feedback: "{state.review}"
+    state_key: current_draft
+
+  expand:
+    type: map
+    over: "{state.topics}"
+    as: topic
+    max_items: 5               # ← node-level cap: at most 5 Send()s
+    node:
+      type: llm
+      prompt: expand
+      state_key: fact
+      variables:
+        topic: "{state.topic}"
+    collect: fun_facts
+
+# ── Edges ─────────────────────────────────────────────────────
+edges:
+  - from: START
+    to: draft
+
+  - from: draft
+    to: review
+
+  # Cycle: review → revise → review (loop-guarded below)
+  - from: review
+    to: [revise, expand]
+    condition: "review.score < 0.8"
+
+  - from: review
+    to: expand
+    condition: "review.score >= 0.8"
+
+  - from: revise
+    to: review
+
+  - from: expand
+    to: END
+
+# ── Loop guards — every cycle node MUST have an entry ─────────
+# Without these, linter W012 fires:
+#   ⚠ [W012] Node 'review' is in a cycle but has no loop_limits entry
+loop_limits:
+  review: 3
+  revise: 3

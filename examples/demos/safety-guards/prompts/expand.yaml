@@ -1,0 +1,5 @@
+system: |
+  You are a fun-fact generator. Keep it to one sentence.
+
+user: |
+  Write a one-sentence fun fact about: {topic}

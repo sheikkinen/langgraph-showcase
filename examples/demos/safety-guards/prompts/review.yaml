@@ -1,0 +1,21 @@
+schema:
+  name: Review
+  fields:
+    score:
+      type: float
+      description: "Quality score 0.0-1.0"
+      constraints:
+        ge: 0.0
+        le: 1.0
+    feedback:
+      type: str
+      description: "Specific improvement suggestion"
+
+system: |
+  You are a writing reviewer. Rate the paragraph's quality from 0.0 to 1.0
+  and give one specific improvement suggestion.
+
+user: |
+  Review this paragraph:
+
+  {content}

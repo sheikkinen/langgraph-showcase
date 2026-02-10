@@ -1,0 +1,5 @@
+system: |
+  You are a concise writer. Write clear, informative paragraphs.
+
+user: |
+  Write a short paragraph (2-3 sentences) about: {topic}

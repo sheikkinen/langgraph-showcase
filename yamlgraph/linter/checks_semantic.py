@@ -261,6 +261,32 @@ def check_edge_types(graph_path: Path) -> list[LintIssue]:
     return issues
 
 
+def check_unguarded_cycles(graph_path: Path) -> list[LintIssue]:
+    """Warn when cycle nodes lack loop_limits entries.
+
+    W012 — node in cycle without loop_limits
+    """
+    from yamlgraph.graph_loader import detect_loop_nodes
+
+    issues: list[LintIssue] = []
+    graph = load_graph(graph_path)
+
+    edges = graph.get("edges", [])
+    loop_nodes = detect_loop_nodes(edges)
+    loop_limits = graph.get("loop_limits", {})
+
+    for node in sorted(loop_nodes):
+        if node not in loop_limits:
+            issues.append(
+                LintIssue(
+                    severity="warning",
+                    code="W012",
+                    message=f"Node '{node}' is in a cycle but has no loop_limits entry",
+                    fix=f"Add '{node}: <limit>' to loop_limits section",
+                )
+            )
+
+    return issues
 __all__ = [
     "check_cross_references",
     "check_passthrough_nodes",
@@ -268,4 +294,5 @@ __all__ = [
     "check_expression_syntax",
     "check_error_handling",
     "check_edge_types",
+    "check_unguarded_cycles",
 ]

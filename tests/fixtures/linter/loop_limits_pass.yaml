@@ -16,6 +16,7 @@ nodes:
     state_key: score
 
 loop_limits:
+  generate: 3
   critique: 3
 
 edges:

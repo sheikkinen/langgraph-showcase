@@ -149,6 +149,10 @@ class GraphConfig:
         self.tools = config.get("tools", {})
         self.loop_limits = config.get("loop_limits", {})
         self.checkpointer = config.get("checkpointer")
+        # FR-027: Execution safety config
+        graph_level_config = config.get("config", {})
+        self.recursion_limit = graph_level_config.get("recursion_limit", 50)
+        self.max_map_items = graph_level_config.get("max_map_items", 100)
         # Store raw config for dynamic state building
         self.raw_config = config
         # Store source path for subgraph resolution

@@ -24,3 +24,7 @@ edges:
     to: [generate, END]
     type: conditional
     condition: "score < 0.8"
+
+loop_limits:
+  generate: 5
+  critique: 5

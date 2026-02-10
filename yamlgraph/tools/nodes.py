@@ -11,7 +11,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from yamlgraph.error_handlers import build_skip_error_state
+from yamlgraph.error_handlers import build_skip_error_state, check_loop_limit
 from yamlgraph.tools.shell import ShellToolConfig, execute_shell_tool
 from yamlgraph.utils.expressions import resolve_template
 
@@ -84,9 +84,19 @@ def create_tool_node(
     state_key = node_config.get("state_key", node_name)
     on_error = node_config.get("on_error", "fail")
     variables_template = node_config.get("variables", {})
+    loop_limit = node_config.get("loop_limit")
 
     def node_fn(state: GraphState) -> dict:
         """Execute the shell tool and return state update."""
+        # FR-027: Check loop limit (same pattern as LLM nodes)
+        loop_counts = dict(state.get("_loop_counts") or {})
+        current_count = loop_counts.get(node_name, 0)
+
+        if check_loop_limit(node_name, loop_limit, current_count):
+            return {"_loop_limit_reached": True, "current_step": node_name}
+
+        loop_counts[node_name] = current_count + 1
+
         # Resolve variables from state
         variables = resolve_variables(variables_template, state)
 
@@ -114,6 +124,7 @@ def create_tool_node(
         return {
             state_key: result.output,
             "current_step": node_name,
+            "_loop_counts": loop_counts,
         }
 
     return node_fn

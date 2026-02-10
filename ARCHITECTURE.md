@@ -275,6 +275,7 @@ YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capa
 | 14 | Graph-Level Streaming | `executor_async`, `node_factory/streaming` | REQ-YG-048 – 049 |
 | 15 | Expression Language | `utils/expressions`, `utils/conditions`, `utils/parsing` | REQ-YG-051, REQ-YG-052 |
 | 16 | Linter Cross-Reference & Semantic Checks | `linter/checks`, `linter/graph_linter` | REQ-YG-053, REQ-YG-054 |
+| 17 | Execution Safety Guards | `map_compiler`, `error_handlers`, `graph_loader`, `cli/graph_commands`, `linter/checks_semantic` | REQ-YG-055 – REQ-YG-058 |
 
 ### 1. Configuration Loading & Validation
 
@@ -428,6 +429,17 @@ Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream
 | REQ-YG-052 | Expression language hardening: quote-aware compound split, right-side state reference resolution, chained arithmetic detection | `utils/conditions`, `utils/expressions` |
 | REQ-YG-053 | Linter cross-reference & semantic checks: edge endpoint validation (E006), loop_limits references (E008), passthrough output (E601), tool_call fields (E701/E702), condition syntax (W801), variable prefix (W007), fallback config (E010), conditional edge type (E802) | `linter/checks`, `linter/graph_linter` |
 | REQ-YG-054 | Chaplain audit fixes: `wrap_for_reducer` non-dict return handling, LLM SKIP error recording, linter E011 retry/fallback on tool/python nodes, `prompts_relative` warning | `map_compiler`, `node_factory/llm_nodes`, `linter/checks`, `utils/prompts` |
+
+### 17. Execution Safety Guards
+
+Defense-in-depth guards against infinite loops, unbounded map fan-out, and runaway execution.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-055 | Map fan-out cap: `max_items` per node and `max_map_items` graph-level default, truncate + warn | `map_compiler` |
+| REQ-YG-056 | `recursion_limit` exposure via YAML `config:` and CLI `--recursion-limit`, passed to `graph.invoke()` | `graph_loader`, `cli/graph_commands`, `cli/__init__` |
+| REQ-YG-057 | `check_loop_limit()` enforced in tool, python, and passthrough nodes (not just LLM) | `tools/nodes`, `tools/python_tool`, `node_factory/control_nodes` |
+| REQ-YG-058 | Linter W012: warn when cycle node has no `loop_limits` entry | `linter/checks_semantic`, `linter/graph_linter` |
 
 ---
 

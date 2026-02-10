@@ -279,8 +279,8 @@ class TestLintGraphIntegration:
         """All _pass fixtures produce no errors from new checks."""
         pass_fixtures = sorted(FIXTURES.glob("*_pass.yaml"))
         assert (
-            len(pass_fixtures) == 9
-        ), f"Expected 9 pass fixtures, got {len(pass_fixtures)}"
+            len(pass_fixtures) == 10
+        ), f"Expected 10 pass fixtures, got {len(pass_fixtures)}"
         new_codes = {
             "E006",
             "E008",
@@ -292,6 +292,7 @@ class TestLintGraphIntegration:
             "E010",
             "E011",
             "E802",
+            "W012",
         }
         for fixture in pass_fixtures:
             codes = lint_codes(fixture)
