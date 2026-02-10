@@ -25,7 +25,7 @@ nodes:
 
 ## Expression Syntax
 
-Expressions use the standard `{state.field}` syntax with support for:
+Expressions use the `{state.field}` syntax. See [Expression Language Reference](expressions.md) for the complete specification.
 
 ### Arithmetic
 ```yaml
@@ -38,24 +38,14 @@ output:
 ### List Operations
 ```yaml
 output:
-  # Append single item
+  # Append single item (state ref wrapped in list literal)
   history: "{state.history + [state.current_item]}"
 
-  # Append dict
-  log: "{state.log + [{'turn': state.turn, 'action': state.action}]}"
+  # Append dict directly (auto-wrapped into list)
+  log: "{state.log + {'turn': state.turn, 'action': state.action}}"
 ```
 
-### String Operations
-```yaml
-output:
-  message: "{state.prefix + ': ' + state.content}"
-```
-
-### Conditional (Python expressions)
-```yaml
-output:
-  status: "{'complete' if state.count >= 10 else 'in_progress'}"
-```
+> **Note:** Only binary operations are supported (`left op right`). Chained operations like `{state.a + state.b + state.c}` do not work. Dict-in-list syntax `[{'key': state.val}]` does not work — use the dict directly instead.
 
 ## Examples
 
@@ -116,7 +106,7 @@ nodes:
   save_history:
     type: passthrough
     output:
-      messages: "{state.messages + [{'user': state.current_message, 'assistant': state.response}]}"
+      messages: "{state.messages + {'user': state.current_message, 'assistant': state.response}}"
 
 edges:
   - from: START
@@ -159,7 +149,7 @@ nodes:
     type: passthrough
     output:
       turn_number: "{state.turn_number + 1}"
-      turn_log: "{state.turn_log + [{'turn': state.turn_number, 'input': state.player_input, 'result': state.game_state}]}"
+      turn_log: "{state.turn_log + {'turn': state.turn_number, 'input': state.player_input, 'result': state.game_state}}"
 
 edges:
   - from: START
@@ -194,6 +184,6 @@ This prevents loops from breaking on transient errors.
 
 ## Related
 
+- [Expression Language Reference](expressions.md) - Complete expression syntax and grammar
 - [Graph YAML Reference](graph-yaml.md) - Full graph configuration
 - [Interrupt Nodes](patterns.md#human-in-the-loop) - Human input in loops
-- [Expressions](patterns.md#expressions) - Template syntax

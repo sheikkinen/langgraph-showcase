@@ -49,7 +49,7 @@ nodes:
 
 ### `over` Expression
 
-Supports nested object access:
+Uses [value expression syntax](expressions.md) — supports nested object access:
 
 ```yaml
 over: "{state.story.panels}"        # Access nested field

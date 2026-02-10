@@ -476,9 +476,9 @@ nodes:
 |----------|------|----------|-------------|
 | `output` | `dict` | Yes | Map of state keys to expressions |
 
-Supports arithmetic, list operations, and conditionals.
+Supports arithmetic and list operations. See [Expression Language Reference](expressions.md) for full syntax.
 
-See [Passthrough Nodes Reference](passthrough-nodes.md) for expression syntax.
+See [Passthrough Nodes Reference](passthrough-nodes.md) for patterns and examples.
 
 ### `type: tool_call` - Dynamic Tool Execution
 
@@ -638,6 +638,8 @@ edges:
 ```
 
 **Supported operators:** `<`, `<=`, `>`, `>=`, `==`, `!=`
+
+See [Expression Language Reference](expressions.md) for full condition syntax, compound expressions, and gotchas.
 
 ---
 

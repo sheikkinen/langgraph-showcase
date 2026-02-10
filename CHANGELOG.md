@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.25] - 2026-02-10
+
+### Added
+- **Expression Language Reference** (`reference/expressions.md`) — Canonical specification for the YAMLGraph expression language, covering value expressions (`{state.field}`, arithmetic, list/dict operations), condition expressions (comparisons, compound AND/OR, precedence), literal parsing, and `resolve_node_variables` behavior. Includes semi-formal EBNF grammar. Every documented behavior backed by TDD tests. REQ-YG-051.
+- **130 TDD tests** (`tests/unit/test_expression_language.py`) — Comprehensive specification tests for the expression language. Discovered and documented several edge cases: dict-in-list limitation, `and`/`or` keywords in string values, multi-item list literals, string vs boolean `true` comparison.
+- **Capability 15** in ARCHITECTURE.md — Expression Language (REQ-YG-051). 51 total requirements covered.
+
+### Fixed
+- **passthrough-nodes.md** — Corrected incorrect dict-in-list syntax `[{'key': state.val}]` to working dict-direct syntax `{'key': state.val}`. Removed documented-but-unsupported features (chained string concat, Python ternary expressions).
+
+### Changed
+- Cross-linked `expressions.md` from `graph-yaml.md`, `passthrough-nodes.md`, `map-nodes.md`, and `getting-started.md`.
+
 ## [0.4.24] - 2026-02-10
 
 ### Fixed

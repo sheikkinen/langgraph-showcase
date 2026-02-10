@@ -36,7 +36,7 @@ nodes:
   step1:
     type: llm           # or: router, agent, tool, map, python
     prompt: greet       # references prompts/greet.yaml
-    variables:
+    variables:                    # see expressions.md for syntax
       name: "{state.name}"
     state_key: output   # where result is stored
 
