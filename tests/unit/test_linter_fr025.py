@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from yamlgraph.linter import lint_graph
-from yamlgraph.linter.checks import (
+from yamlgraph.linter.checks_semantic import (
     check_cross_references,
     check_edge_types,
     check_error_handling,

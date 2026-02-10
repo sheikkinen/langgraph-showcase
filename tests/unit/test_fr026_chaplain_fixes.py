@@ -13,7 +13,8 @@ from unittest.mock import patch
 
 import pytest
 
-from yamlgraph.linter.checks import LintIssue, check_error_handling
+from yamlgraph.linter.checks import LintIssue
+from yamlgraph.linter.checks_semantic import check_error_handling
 from yamlgraph.map_compiler import wrap_for_reducer
 from yamlgraph.models import PipelineError
 from yamlgraph.node_factory import create_node_function

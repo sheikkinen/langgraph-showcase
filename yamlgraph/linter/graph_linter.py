@@ -17,17 +17,19 @@ from pydantic import BaseModel
 
 from yamlgraph.linter.checks import (
     LintIssue,
-    check_cross_references,
     check_edge_coverage,
+    check_node_types,
+    check_prompt_files,
+    check_state_declarations,
+    check_tool_references,
+)
+from yamlgraph.linter.checks_semantic import (
+    check_cross_references,
     check_edge_types,
     check_error_handling,
     check_expression_syntax,
-    check_node_types,
     check_passthrough_nodes,
-    check_prompt_files,
-    check_state_declarations,
     check_tool_call_nodes,
-    check_tool_references,
 )
 from yamlgraph.linter.patterns import (
     check_agent_patterns,
