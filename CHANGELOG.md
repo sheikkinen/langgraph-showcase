@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.28] - 2026-02-10
+
+### Fixed
+- **Chaplain audit fixes (FR-026, REQ-YG-054)** — 4 findings from code audit:
+  - **HIGH**: `wrap_for_reducer` crash on non-dict python sub-node return — `AttributeError` on `.get()` when function returns string/int/list. Fixed with early `isinstance` guard.
+  - **MEDIUM**: LLM `on_error: skip` silently dropped errors — no `PipelineError` recorded in `errors` list, unlike tool/python nodes. Now records error consistently.
+  - **MEDIUM**: `on_error: retry/fallback` on tool/python nodes silently became `fail` — added linter check E011 to catch unsupported error strategies at lint time.
+  - **LOW**: `prompts_relative=True` with `graph_path=None` + `prompts_dir` set — no warning about degraded resolution. Now logs warning.
+- 18 new tests, 2 new linter fixtures. 54 total requirements, 1568 tests, 91% coverage.
+
 ## [0.4.27] - 2026-02-10
 
 ### Added

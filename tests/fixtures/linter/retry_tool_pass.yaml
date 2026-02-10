@@ -1,0 +1,41 @@
+# E011 pass: retry/fallback only on LLM; skip/fail on tool/python
+prompts_relative: true
+prompts_dir: prompts
+state:
+  response: str
+  data: str
+  processed: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+    on_error: retry
+    max_retries: 3
+
+  fetch_data:
+    type: tool
+    tool: curl_tool
+    state_key: data
+    on_error: skip
+
+  process:
+    type: python
+    tool: process_fn
+    state_key: processed
+    on_error: fail
+
+tools:
+  curl_tool:
+    command: "curl http://example.com"
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: fetch_data
+  - from: fetch_data
+    to: process
+  - from: process
+    to: END

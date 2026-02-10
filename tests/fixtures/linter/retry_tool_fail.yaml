@@ -1,0 +1,49 @@
+# E011 fail: retry/fallback on tool/python nodes (unsupported)
+prompts_relative: true
+prompts_dir: prompts
+state:
+  response: str
+  data: str
+  processed: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate
+    state_key: response
+
+  fetch_data:
+    type: tool
+    tool: curl_tool
+    state_key: data
+    on_error: retry
+
+  process:
+    type: python
+    tool: process_fn
+    state_key: processed
+    on_error: retry
+
+  export:
+    type: tool
+    tool: export_tool
+    state_key: data
+    on_error: fallback
+
+tools:
+  curl_tool:
+    command: "curl http://example.com"
+  export_tool:
+    command: "echo export"
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: fetch_data
+  - from: fetch_data
+    to: process
+  - from: process
+    to: export
+  - from: export
+    to: END

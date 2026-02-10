@@ -55,6 +55,23 @@ def wrap_for_reducer(
                 "errors": [PipelineError.from_exception(e, node="map_subnode")],
             }
 
+        # Handle non-dict returns (e.g. python sub-nodes returning str/int)
+        if not isinstance(result, dict):
+            extracted = result
+
+            # Convert Pydantic models to dicts
+            if hasattr(extracted, "model_dump"):
+                extracted = extracted.model_dump()
+
+            # Include _map_index if present for ordering
+            if "_map_index" in state:
+                if isinstance(extracted, dict):
+                    extracted = {"_map_index": state["_map_index"], **extracted}
+                else:
+                    extracted = {"_map_index": state["_map_index"], "value": extracted}
+
+            return {collect_key: [extracted]}
+
         # Check if result contains an error
         if "errors" in result or "error" in result:
             error_result = {

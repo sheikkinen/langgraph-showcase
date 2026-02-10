@@ -63,6 +63,12 @@ def resolve_prompt_path(
     if prompts_relative and graph_path is None and prompts_dir is None:
         raise ValueError("graph_path required when prompts_relative=True")
 
+    if prompts_relative and graph_path is None and prompts_dir is not None:
+        logger.warning(
+            f"prompts_relative=True but graph_path is None — "
+            f"falling back to prompts_dir '{prompts_dir}' without graph-relative resolution"
+        )
+
     tried_paths: list[str] = []  # Track for debug logging
 
     # 1. Graph-relative with explicit prompts_dir (combine them)

@@ -524,22 +524,45 @@ def check_expression_syntax(graph_path: Path) -> list[LintIssue]:
     return issues
 
 
+# Node types that do NOT support retry/fallback error handling
+_NON_LLM_NODE_TYPES = {"tool", "python", "tool_call", "passthrough"}
+
+
 def check_error_handling(graph_path: Path) -> list[LintIssue]:
-    """Check on_error: fallback has corresponding fallback config.
+    """Check error handling configuration.
 
     E010 — on_error: fallback without fallback configuration
+    E011 — on_error: retry/fallback on tool/python node (unsupported)
     """
     issues: list[LintIssue] = []
     graph = load_graph(graph_path)
 
     for node_name, node_config in graph.get("nodes", {}).items():
-        if node_config.get("on_error") == "fallback" and "fallback" not in node_config:
+        on_error = node_config.get("on_error")
+        node_type = node_config.get("type", "llm")
+
+        # E010: fallback without config
+        if on_error == "fallback" and "fallback" not in node_config:
             issues.append(
                 LintIssue(
                     severity="error",
                     code="E010",
                     message=f"Node '{node_name}' has on_error: fallback but no fallback config",
                     fix=f"Add 'fallback:' config to node '{node_name}' (e.g., fallback: {{provider: openai}})",
+                )
+            )
+
+        # E011: retry/fallback on non-LLM nodes (unsupported)
+        if on_error in ("retry", "fallback") and node_type in _NON_LLM_NODE_TYPES:
+            issues.append(
+                LintIssue(
+                    severity="error",
+                    code="E011",
+                    message=(
+                        f"Node '{node_name}' (type: {node_type}) has on_error: {on_error} "
+                        f"but only LLM nodes support retry/fallback"
+                    ),
+                    fix=f"Change on_error to 'skip' or 'fail' for node '{node_name}'",
                 )
             )
 

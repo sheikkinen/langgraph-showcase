@@ -19,6 +19,7 @@ from yamlgraph.error_handlers import (
     handle_skip,
 )
 from yamlgraph.executor import execute_prompt
+from yamlgraph.models import PipelineError
 from yamlgraph.node_factory.base import GraphState, get_output_model_for_node
 from yamlgraph.utils.expressions import resolve_node_variables
 from yamlgraph.utils.json_extract import extract_json
@@ -188,6 +189,7 @@ def create_node_function(
                 "_loop_counts": loop_counts,
                 "_skipped": True,
                 "_skip_reason": "error",
+                "errors": [PipelineError.from_exception(error, node=node_name)],
             }
 
         elif on_error == ErrorHandler.FAIL:

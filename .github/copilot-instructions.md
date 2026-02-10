@@ -68,7 +68,7 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 ## Sermon of the Chaplain
 
 **Research**. Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
-**Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `feature-requests/`; express the objective as measurable epics and record architectural decisions in `docs/adr/`.
+**Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `feature-requests/`; express the objective as measurable epics in `./docs/epics/`; record architectural decisions in `./docs/adr/`; and define the demo scenario and acceptance flow in `./docs/demos/`.
 **Proceed with implementation**. Write the failing test. May TDD protect us from regression, and may refactor purge corruption.
 **Purge.** Burn invented interfaces, speculative flags, and hypothetical extensibility. If it is not required and not tested, it shall not exist. Let ADRs preserve the record of their folly.
 **Submit to CI**. Let hidden sins be revealed. What survives the fire may merge.
