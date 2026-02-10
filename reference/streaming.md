@@ -36,7 +36,7 @@ async def execute_prompt_streaming(
 | `prompt_name` | str | required | Prompt file name (without .yaml) |
 | `variables` | dict | `{}` | Template variables |
 | `temperature` | float | `0.7` | LLM temperature |
-| `provider` | str | from env/YAML | `"anthropic"`, `"mistral"`, `"openai"` |
+| `provider` | str | from env/YAML | `"anthropic"`, `"google"`, `"mistral"`, `"openai"` |
 
 ### Example
 
@@ -46,7 +46,7 @@ from yamlgraph.executor_async import execute_prompt_streaming
 
 async def main():
     full_response = ""
-    
+
     async for token in execute_prompt_streaming(
         "greet",
         variables={"name": "Alice", "style": "friendly"},
@@ -54,7 +54,7 @@ async def main():
     ):
         print(token, end="", flush=True)
         full_response += token
-    
+
     print(f"\n\nTotal: {len(full_response)} chars")
 
 asyncio.run(main())
@@ -107,7 +107,7 @@ Or with a list:
 tokens = []
 async for token in execute_prompt_streaming("greet", {"name": "World"}):
     tokens.append(token)
-    
+
 response = "".join(tokens)
 print(f"Received {len(tokens)} chunks")
 ```
@@ -129,7 +129,7 @@ async def stream(prompt: str):
         async for token in execute_prompt_streaming("chat", {"query": prompt}):
             yield f"data: {token}\n\n"
         yield "data: [DONE]\n\n"
-    
+
     return StreamingResponse(generate(), media_type="text/event-stream")
 ```
 
@@ -171,6 +171,71 @@ python scripts/demo_streaming.py
 
 # Mock mode (no LLM)
 python scripts/demo_streaming.py --verify
+```
+
+## Graph-Level Streaming (FR-023)
+
+Stream an entire graph's LLM output token-by-token. Non-LLM nodes (python, tool)
+run first, then the LLM node streams.
+
+```python
+from yamlgraph.executor_async import run_graph_streaming
+
+async for token in run_graph_streaming(
+    graph_path="examples/openai_proxy/graph.yaml",
+    initial_state={"input": "Hello!"},
+):
+    print(token, end="", flush=True)
+```
+
+### How It Works
+
+1. Loads the graph config and identifies the LLM node
+2. Replaces the LLM node with a passthrough and runs pre-processing nodes
+3. Streams the LLM node via `llm.astream()`, yielding tokens
+
+### Signature
+
+```python
+async def run_graph_streaming(
+    graph_path: str,
+    initial_state: dict,
+) -> AsyncIterator[str]:
+```
+
+### OpenAI-Compatible SSE Proxy
+
+The `examples/openai_proxy/` uses `run_graph_streaming()` to serve real
+token-by-token SSE streams via the OpenAI `/v1/chat/completions` API:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://yamlgraph-proxy.fly.dev/v1",
+    api_key="your-web-api-key",
+)
+
+# Streaming
+for chunk in client.chat.completions.create(
+    model="gemini-2.5-flash",
+    messages=[{"role": "user", "content": "Hello!"}],
+    stream=True,
+):
+    print(chunk.choices[0].delta.content or "", end="", flush=True)
+```
+
+Demo script:
+
+```bash
+# Non-streaming
+python examples/openai_proxy/demo.py
+
+# Streaming
+python examples/openai_proxy/demo.py --stream
+
+# Verify mode (no server needed)
+python examples/openai_proxy/demo.py --verify
 ```
 
 ## See Also

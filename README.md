@@ -9,10 +9,10 @@ A YAML-first framework for building LLM pipelines using:
 - **YAML Graph Configuration** - Declarative pipeline definition with schema validation
 - **YAML Prompts** - Declarative prompt templates with Jinja2 support
 - **Pydantic Models** - Structured LLM outputs
-- **Multi-Provider LLMs** - Anthropic, Mistral, OpenAI, Replicate, xAI, LM Studio
+- **Multi-Provider LLMs** - Anthropic, Google/Gemini, Mistral, OpenAI, Replicate, xAI, LM Studio
 - **LangGraph** - Pipeline orchestration with resume support
 - **Human-in-the-Loop** - Interrupt nodes for user input
-- **Streaming** - Token-by-token LLM output
+- **Streaming** - Token-by-token LLM output (prompt-level and graph-level)
 - **Async Support** - FastAPI-ready async execution
 - **Checkpointers** - Memory, SQLite, and Redis state persistence
 - **Graph-Relative Prompts** - Colocate prompts with graphs
@@ -22,7 +22,7 @@ A YAML-first framework for building LLM pipelines using:
 
 ## What is YAMLGraph?
 
-**YAMLGraph** is a declarative LLM pipeline orchestration framework that lets you define complex AI workflows entirely in YAML—no Python required for 60-80% of use cases. Built on LangGraph, it provides multi-provider LLM support (Anthropic, OpenAI, Mistral, Replicate), parallel batch processing via map nodes (using LangGraph Send), LLM-driven conditional routing, and human-in-the-loop interrupts with checkpointing. Pipelines are version-controlled, linted, and observable via LangSmith. The key insight: by constraining the API surface to YAML + Jinja2 templates + Pydantic schemas, YAMLGraph trades some flexibility for dramatically faster prototyping, easier maintenance, and built-in best practices—making it ideal for teams who want production-ready AI pipelines without the complexity of full-code frameworks.
+**YAMLGraph** is a declarative LLM pipeline orchestration framework that lets you define complex AI workflows entirely in YAML—no Python required for 60-80% of use cases. Built on LangGraph, it provides multi-provider LLM support (Anthropic, Google/Gemini, OpenAI, Mistral, Replicate, xAI, LM Studio), parallel batch processing via map nodes (using LangGraph Send), LLM-driven conditional routing, graph-level streaming, and human-in-the-loop interrupts with checkpointing. Pipelines are version-controlled, linted, and observable via LangSmith. The key insight: by constraining the API surface to YAML + Jinja2 templates + Pydantic schemas, YAMLGraph trades some flexibility for dramatically faster prototyping, easier maintenance, and built-in best practices—making it ideal for teams who want production-ready AI pipelines without the complexity of full-code frameworks.
 
 ## Installation
 
@@ -207,6 +207,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md#file-reference) for detailed module line c
 | `XAI_API_KEY` | No | xAI API key |
 | `XAI_MODEL` | No | xAI model (default: grok-4-1-fast-reasoning) |
 | `LMSTUDIO_BASE_URL` | No | LM Studio server URL (default: http://localhost:1234/v1) |
+| `GOOGLE_API_KEY` | No | Google API key (required if using Google/Gemini) |
+| `GOOGLE_MODEL` | No | Google model (default: gemini-2.0-flash) |
 | `LMSTUDIO_MODEL` | No | LM Studio model (default: qwen2.5-coder-7b-instruct) |
 | `LANGCHAIN_TRACING_V2` | No | Enable LangSmith tracing (`true` to enable) |
 | `LANGSMITH_API_KEY` | No | LangSmith API key |

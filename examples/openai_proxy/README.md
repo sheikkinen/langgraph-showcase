@@ -12,9 +12,12 @@ POST /v1/chat/completions (Bearer: WEB_API_KEY)
       echo_input:     log raw input, store in state.echo
       validate_input: stamp *validation missing*, store in state.validation
       respond:        LLM prompt uses {{validation}} as content
-  → format response as OpenAI ChatCompletion
+  → format response as OpenAI ChatCompletion (or SSE stream)
   → return to client
 ```
+
+Streaming requests (`"stream": true`) use `run_graph_streaming()` for real
+token-by-token SSE output.
 
 ## Local Development
 
@@ -47,6 +50,25 @@ r = client.chat.completions.create(
 print(r.choices[0].message.content)
 ```
 
+## Demo Script
+
+```bash
+# Non-streaming (against deployed proxy)
+python examples/openai_proxy/demo.py
+
+# Streaming
+python examples/openai_proxy/demo.py --stream
+
+# Custom prompt
+python examples/openai_proxy/demo.py --prompt "Explain YAML in one sentence"
+
+# Verify mode (no server needed)
+python examples/openai_proxy/demo.py --verify
+
+# Against local server
+python examples/openai_proxy/demo.py --base-url http://localhost:8000/v1
+```
+
 ## Deploy to Fly.io
 
 ```bash
@@ -77,11 +99,12 @@ examples/openai_proxy/
 ├── prompts/
 │   └── respond.yaml     # LLM prompt with {{validation}}
 ├── tests/
-│   ├── test_app.py      # API endpoint tests
+│   ├── test_app.py      # API endpoint tests (incl. SSE streaming)
 │   ├── test_fly_config.py
 │   ├── test_graph.py    # Graph YAML structure tests
 │   ├── test_models.py   # Pydantic model tests
 │   └── test_tools.py    # Tool node tests
+├── demo.py              # OpenAI SDK demo (--stream, --verify)
 ├── graph.yaml           # echo → validate → respond
 ├── fly.toml
 ├── Dockerfile
