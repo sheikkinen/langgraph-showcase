@@ -35,44 +35,77 @@ def _make_message_chunk(content: str):
 @pytest.mark.req("REQ-YG-048")
 async def test_run_graph_streaming_yields_tokens():
     """run_graph_streaming should yield token strings from the LLM node."""
-    tokens = []
-    async for token in run_graph_streaming(
-        graph_path=str(GRAPH_PATH),
-        initial_state={"input": "hello"},
-    ):
-        tokens.append(token)
-    # Should yield at least one token
-    assert len(tokens) > 0
-    assert all(isinstance(t, str) for t in tokens)
+    mock_chunks = [_make_message_chunk("Hello"), _make_message_chunk(" there")]
+
+    async def mock_astream(*args, **kwargs):
+        for chunk in mock_chunks:
+            yield chunk
+
+    with patch("yamlgraph.executor_async.create_llm") as mock_create:
+        mock_llm = MagicMock()
+        mock_llm.astream = mock_astream
+        mock_create.return_value = mock_llm
+
+        tokens = []
+        async for token in run_graph_streaming(
+            graph_path=str(GRAPH_PATH),
+            initial_state={"input": "hello"},
+        ):
+            tokens.append(token)
+        # Should yield at least one token
+        assert len(tokens) > 0
+        assert all(isinstance(t, str) for t in tokens)
 
 
 @pytest.mark.asyncio
 @pytest.mark.req("REQ-YG-048")
 async def test_run_graph_streaming_runs_python_nodes_first():
     """Python nodes (echo, validate) should execute before streaming starts."""
-    tokens = []
-    async for token in run_graph_streaming(
-        graph_path=str(GRAPH_PATH),
-        initial_state={"input": '{"role":"user","content":"test"}'},
-    ):
-        tokens.append(token)
-    # The LLM received the validation output, so tokens exist
-    assert len(tokens) > 0
+    mock_chunks = [_make_message_chunk("Validated")]
+
+    async def mock_astream(*args, **kwargs):
+        for chunk in mock_chunks:
+            yield chunk
+
+    with patch("yamlgraph.executor_async.create_llm") as mock_create:
+        mock_llm = MagicMock()
+        mock_llm.astream = mock_astream
+        mock_create.return_value = mock_llm
+
+        tokens = []
+        async for token in run_graph_streaming(
+            graph_path=str(GRAPH_PATH),
+            initial_state={"input": '{"role":"user","content":"test"}'},
+        ):
+            tokens.append(token)
+        # The LLM received the validation output, so tokens exist
+        assert len(tokens) > 0
 
 
 @pytest.mark.asyncio
 @pytest.mark.req("REQ-YG-048")
 async def test_run_graph_streaming_returns_async_iterator():
     """run_graph_streaming should return an async iterator."""
-    result = run_graph_streaming(
-        graph_path=str(GRAPH_PATH),
-        initial_state={"input": "test"},
-    )
-    assert hasattr(result, "__aiter__")
-    assert hasattr(result, "__anext__")
-    # Consume to avoid warnings
-    async for _ in result:
-        break
+    mock_chunks = [_make_message_chunk("ok")]
+
+    async def mock_astream(*args, **kwargs):
+        for chunk in mock_chunks:
+            yield chunk
+
+    with patch("yamlgraph.executor_async.create_llm") as mock_create:
+        mock_llm = MagicMock()
+        mock_llm.astream = mock_astream
+        mock_create.return_value = mock_llm
+
+        result = run_graph_streaming(
+            graph_path=str(GRAPH_PATH),
+            initial_state={"input": "test"},
+        )
+        assert hasattr(result, "__aiter__")
+        assert hasattr(result, "__anext__")
+        # Consume to avoid warnings
+        async for _ in result:
+            break
 
 
 @pytest.mark.asyncio
