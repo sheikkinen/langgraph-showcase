@@ -164,7 +164,7 @@ Conditions use a completely different syntax:
 | Braces | `{state.field}` | No braces |
 | Prefix | `state.` required | No prefix |
 | Left side | State path | State path (bare) |
-| Right side | State ref or literal | **Literal only** |
+| Right side | State ref or literal | **State ref or literal** |
 | Quoting | N/A | Strings must be quoted |
 
 ```yaml
@@ -172,11 +172,12 @@ Conditions use a completely different syntax:
 condition: score < 0.8
 condition: critique.score >= 0.8
 condition: status == 'done'
+condition: score < threshold        # 'threshold' resolved from state
+condition: a == b                   # both sides from state
 
 # WRONG (these won't work):
 condition: "{state.score} < 0.8"     # No braces in conditions
 condition: state.score < 0.8         # No state. prefix
-condition: a < b                     # 'b' is literal string, not state.b
 ```
 
 ### Comparison Operators
@@ -190,13 +191,18 @@ condition: a < b                     # 'b' is literal string, not state.b
 | `==` | Equal |
 | `!=` | Not equal |
 
-The left side is always a dotted state path. The right side is always a **literal value**.
+The left side is always a dotted state path. The right side resolves as **state ref first, then literal fallback**.
 
-### Right-Side Literal Values
+### Right-Side Resolution
 
-The right side of a comparison is parsed as a literal:
+The right side of a comparison is resolved using this priority:
 
-| Syntax | Parsed as | Type |
+1. **Quoted strings** → literal (never state ref)
+2. **Boolean/null keywords** (`true`, `false`, `null`, `none`) → literal
+3. **Numeric values** (`42`, `0.8`) → literal
+4. **Unquoted identifier** → try state path first, fall back to literal string
+
+| Syntax | Resolved as | Type |
 |--------|-----------|------|
 | `42` | `42` | `int` |
 | `-5` | `-5` | `int` |
@@ -207,7 +213,8 @@ The right side of a comparison is parsed as a literal:
 | `None` | `None` | `NoneType` |
 | `'hello'` | `"hello"` | `str` |
 | `"hello"` | `"hello"` | `str` |
-| `hello` | `"hello"` | `str` (unquoted fallback) |
+| `threshold` | `state["threshold"]` if exists, else `"threshold"` | dynamic |
+| `config.max` | `state["config"]["max"]` if exists, else `"config.max"` | dynamic |
 
 > **Type matters:** `flag == true` tests against boolean `True`. `flag == 'true'` tests against string `"true"`. These are not the same.
 
@@ -242,26 +249,38 @@ The following are **not supported** by design:
 |---------|---------|-------------|
 | Parentheses | `(a > 1) and (b < 2)` | `ValueError` raised |
 | NOT operator | `not flag == true` | `ValueError` raised |
-| State ref on right | `a < b` (meaning state.b) | `b` parsed as literal string |
 | Nested expressions | `a > (b + 1)` | `ValueError` raised |
+| Chained arithmetic | `{state.a + state.b + state.c}` | `ValueError` raised |
 
 ### Gotchas
 
-#### `and`/`or` Keywords in String Values
+#### Chained Arithmetic
 
-**WARNING:** The keywords `and` and `or` inside quoted string values will break condition parsing:
+Only binary arithmetic is supported. Chained expressions raise `ValueError`:
 
 ```yaml
-# BROKEN — 'and' inside the value triggers compound split:
-condition: "status == 'done and dusted'"
-# Splits into: "status == 'done" AND "dusted'"
-# Result: incorrect evaluation (False or ValueError)
+# WORKS:
+output:
+  total: "{state.a + state.b}"
 
-# WORKAROUND: use a different value or encode differently
-condition: "status == 'done_and_dusted'"
+# RAISES ValueError:
+output:
+  total: "{state.a + state.b + state.c}"
+  # Use intermediate state variables instead
 ```
 
-This is because the compound split uses regex `\s+and\s+` / `\s+or\s+` which cannot distinguish keywords from content inside quotes.
+#### `and`/`or` Keywords in String Values
+
+String values containing `and` or `or` are handled correctly via quote-aware parsing:
+
+```yaml
+# WORKS (since v0.4.26):
+condition: "status == 'done and dusted'"
+condition: "status == 'yes or no'"
+
+# Mixed with real compound:
+condition: "label == 'fish and chips' and score > 5"
+```
 
 ### Missing Values in Conditions
 

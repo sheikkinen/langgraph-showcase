@@ -2,7 +2,7 @@
 
 **ID:** 024
 **Priority:** P1 - High
-**Status:** 📋 Open
+**Status:** ✅ Implemented (v0.4.26)
 **Effort:** 2–3 days
 **Requested:** 2026-02-10
 **Origin:** TDD audit of expression language for `reference/expressions.md` (v0.4.25)

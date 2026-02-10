@@ -874,13 +874,15 @@ class TestContextDifferences:
         assert evaluate_condition("score < 0.8", {"score": 0.5}) is True
 
     @pytest.mark.req("REQ-YG-051")
-    def test_condition_right_side_is_literal_only(self):
-        """Condition right side is a literal, not a state reference."""
-        # 'a < b' treats 'b' as literal string, not state.b
-        # This comparison will fail because "text" < literal "b" is string comparison
+    def test_condition_right_side_resolves_state(self):
+        """Condition right side resolves state ref before falling back to literal.
+
+        Fixed in FR-024: unquoted identifiers on the right side now try state
+        path resolution first, falling back to literal string if not found.
+        """
         state = {"a": 5, "b": 10}
-        # 'a < b' -> left=5, right=parse_literal("b")="b" -> 5 < "b" -> TypeError -> False
-        assert evaluate_condition("a < b", state) is False
+        # 'a < b' -> left=5, right=state["b"]=10 -> 5 < 10 -> True
+        assert evaluate_condition("a < b", state) is True
 
 
 # ──────────────────────────────────────────────────────────
@@ -937,23 +939,25 @@ class TestEdgeCasesAndGotchas:
         assert resolve_template("{state.items.0}", state) is None
 
     @pytest.mark.req("REQ-YG-051")
-    def test_condition_and_inside_quoted_value_breaks(self):
-        """GOTCHA: 'and' inside a quoted string value splits the condition.
+    def test_condition_and_inside_quoted_value_works(self):
+        """'and' inside a quoted string value is handled correctly.
 
-        'status == \"done and dusted\"' is split by the compound AND regex
-        into ['status == \"done', 'dusted\"'], both of which fail.
+        Fixed in FR-024: quote-aware split no longer breaks on
+        'and'/'or' inside quoted strings.
         """
-        # This evaluates incorrectly because 'and' in the value triggers split
         result = evaluate_condition(
             "status == 'done and dusted'", {"status": "done and dusted"}
         )
-        assert result is False  # WRONG answer, but this is the actual behavior
+        assert result is True  # Fixed: now evaluates correctly
 
     @pytest.mark.req("REQ-YG-051")
-    def test_condition_or_inside_quoted_value_raises(self):
-        """GOTCHA: 'or' inside a quoted string value splits the condition."""
-        with pytest.raises(ValueError, match="Invalid condition"):
-            evaluate_condition("status == 'yes or no'", {"status": "yes or no"})
+    def test_condition_or_inside_quoted_value_works(self):
+        """'or' inside a quoted string value is handled correctly.
+
+        Fixed in FR-024: quote-aware split no longer breaks on 'or' inside quotes.
+        """
+        result = evaluate_condition("status == 'yes or no'", {"status": "yes or no"})
+        assert result is True  # Fixed: no longer raises
 
     @pytest.mark.req("REQ-YG-051")
     def test_string_true_not_equal_to_boolean_true(self):
@@ -972,15 +976,15 @@ class TestEdgeCasesAndGotchas:
         assert evaluate_condition("flag == 'true'", {"flag": True}) is False
 
     @pytest.mark.req("REQ-YG-051")
-    def test_condition_right_side_never_state_ref(self):
-        """The right side of a condition is ALWAYS a literal, never a state ref.
+    def test_condition_right_side_resolves_state_ref(self):
+        """Right side of condition resolves state ref when available.
 
-        'a < b' → left='a' (state path), right=parse_literal('b')='b' (string).
+        Fixed in FR-024: 'a < b' → left=state['a'], right=state['b'].
         """
         state = {"a": 3, "b": 10}
-        # 'b' is parsed as literal string 'b', NOT state.b
-        # 3 < 'b' → TypeError → False
-        assert evaluate_condition("a < b", state) is False
+        # 'b' is resolved as state path → state["b"] = 10
+        # 3 < 10 → True
+        assert evaluate_condition("a < b", state) is True
 
     @pytest.mark.req("REQ-YG-051")
     def test_resolve_state_expression_no_arithmetic(self):
@@ -999,3 +1003,194 @@ class TestEdgeCasesAndGotchas:
         assert resolve_state_path("false", state) is False
         assert resolve_state_path("empty", state) == ""
         assert resolve_state_path("nil_list", state) == []
+
+
+# ──────────────────────────────────────────────────────────────────────
+# FR-024 Expression Hardening (RED tests — must fail before implementation)
+# ──────────────────────────────────────────────────────────────────────
+
+
+class TestFR024Fix1QuoteAwareSplit:
+    """Fix 1: 'and'/'or' inside quoted string values must NOT split."""
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_condition_and_in_quoted_value_works(self):
+        """'status == \"done and dusted\"' must evaluate to True."""
+        result = evaluate_condition(
+            "status == 'done and dusted'", {"status": "done and dusted"}
+        )
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_condition_or_in_quoted_value_works(self):
+        """'status == \"yes or no\"' must evaluate to True."""
+        result = evaluate_condition("status == 'yes or no'", {"status": "yes or no"})
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_condition_and_in_double_quoted_value(self):
+        """Double-quoted string with 'and' must not split."""
+        result = evaluate_condition(
+            'status == "done and dusted"', {"status": "done and dusted"}
+        )
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_condition_or_in_double_quoted_value(self):
+        """Double-quoted string with 'or' must not split."""
+        result = evaluate_condition('status == "yes or no"', {"status": "yes or no"})
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_condition_multiple_and_in_quoted_value(self):
+        """Multiple 'and' keywords in quoted value must not split."""
+        result = evaluate_condition(
+            "label == 'this and that and the other'",
+            {"label": "this and that and the other"},
+        )
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_real_compound_and_still_works(self):
+        """Real compound AND outside quotes must still work."""
+        result = evaluate_condition("a > 1 and b < 10", {"a": 5, "b": 3})
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_real_compound_or_still_works(self):
+        """Real compound OR outside quotes must still work."""
+        result = evaluate_condition("a > 100 or b < 10", {"a": 1, "b": 3})
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_quoted_and_with_real_compound(self):
+        """Mixed: quoted 'and' value AND real compound 'and'."""
+        result = evaluate_condition(
+            "label == 'fish and chips' and score > 5",
+            {"label": "fish and chips", "score": 10},
+        )
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_quoted_or_with_real_compound(self):
+        """Mixed: quoted 'or' value AND real compound 'or'."""
+        result = evaluate_condition(
+            "label == 'yes or no' or score > 100",
+            {"label": "yes or no", "score": 1},
+        )
+        assert result is True
+
+    @pytest.mark.req("REQ-YG-052")
+    def test_not_equal_with_and_in_value(self):
+        """Not-equal with 'and' in value works correctly."""
+        result = evaluate_condition(
+            "status != 'done and dusted'", {"status": "pending"}
+        )
+        assert result is True
+
+
+class TestFR024Fix2StateRefOnRight:
+    """Fix 2: Right side of condition can reference state values."""
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_state_ref_on_right(self):
+        """'score < threshold' compares state.score to state.threshold."""
+        state = {"score": 3, "threshold": 10}
+        assert evaluate_condition("score < threshold", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_state_ref_on_right_false(self):
+        """'score < threshold' returns False when not satisfied."""
+        state = {"score": 20, "threshold": 10}
+        assert evaluate_condition("score < threshold", state) is False
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_state_ref_equality(self):
+        """'a == b' compares two state values."""
+        state = {"a": "hello", "b": "hello"}
+        assert evaluate_condition("a == b", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_state_ref_equality_different(self):
+        """'a == b' returns False when state values differ."""
+        state = {"a": "hello", "b": "world"}
+        assert evaluate_condition("a == b", state) is False
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_right_literal_fallback(self):
+        """When right side is not in state, fall back to literal string."""
+        state = {"a": "hello"}
+        # 'b' not in state → treat as literal string "hello" == "hello"
+        # Actually, 'hello' is not 'b', so this should be False
+        assert evaluate_condition("a == b", state) is False
+        # But bare literal still works
+        assert evaluate_condition("a == hello", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_right_numeric_literal_still_works(self):
+        """Numeric right side is still parsed as number, not state ref."""
+        state = {"score": 5}
+        assert evaluate_condition("score > 3", state) is True
+        assert evaluate_condition("score < 10", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_right_quoted_string_not_resolved(self):
+        """Quoted right side is literal, not a state reference."""
+        state = {"a": "threshold", "threshold": 999}
+        # 'threshold' (quoted) should be literal string, not state lookup
+        assert evaluate_condition("a == 'threshold'", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_right_boolean_literal_still_works(self):
+        """Boolean literals on right side still parsed correctly."""
+        state = {"flag": True}
+        assert evaluate_condition("flag == true", state) is True
+        assert evaluate_condition("flag == false", state) is False
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_nested_state_ref_on_right(self):
+        """Dotted path on right side resolves nested state."""
+        state = {"score": 5, "config": {"threshold": 10}}
+        assert evaluate_condition("score < config.threshold", state) is True
+
+    @pytest.mark.req("REQ-YG-053")
+    def test_condition_state_ref_both_sides_numeric(self):
+        """Numeric comparison between two state values."""
+        state = {"price": 25.0, "budget": 30.0}
+        assert evaluate_condition("price <= budget", state) is True
+        state2 = {"price": 35.0, "budget": 30.0}
+        assert evaluate_condition("price <= budget", state2) is False
+
+
+class TestFR024Fix3ChainedArithmetic:
+    """Fix 3: Chained arithmetic expressions must raise ValueError."""
+
+    @pytest.mark.req("REQ-YG-054")
+    def test_chained_addition_raises(self):
+        """'{state.a + state.b + state.c}' must raise ValueError."""
+        state = {"a": 1, "b": 2, "c": 3}
+        with pytest.raises(ValueError, match="[Cc]hained"):
+            resolve_template("{state.a + state.b + state.c}", state)
+
+    @pytest.mark.req("REQ-YG-054")
+    def test_chained_mixed_ops_raises(self):
+        """'{state.a + state.b - state.c}' must raise ValueError."""
+        state = {"a": 10, "b": 5, "c": 3}
+        with pytest.raises(ValueError, match="[Cc]hained"):
+            resolve_template("{state.a + state.b - state.c}", state)
+
+    @pytest.mark.req("REQ-YG-054")
+    def test_chained_with_literals_raises(self):
+        """'{state.a + 1 + 2}' must raise ValueError."""
+        state = {"a": 10}
+        with pytest.raises(ValueError, match="[Cc]hained"):
+            resolve_template("{state.a + 1 + 2}", state)
+
+    @pytest.mark.req("REQ-YG-054")
+    def test_binary_arithmetic_still_works(self):
+        """Normal binary arithmetic must continue working."""
+        state = {"a": 10, "b": 5}
+        assert resolve_template("{state.a + state.b}", state) == 15
+        assert resolve_template("{state.a - state.b}", state) == 5
+        assert resolve_template("{state.a * state.b}", state) == 50
+        assert resolve_template("{state.a + 1}", state) == 11

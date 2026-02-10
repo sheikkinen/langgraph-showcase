@@ -25,6 +25,43 @@ COMPOUND_AND_PATTERN = re.compile(r"\s+and\s+", re.IGNORECASE)
 COMPOUND_OR_PATTERN = re.compile(r"\s+or\s+", re.IGNORECASE)
 
 
+def _split_compound(expr: str, keyword: str) -> list[str] | None:
+    """Split on ' and ' / ' or ' only outside quoted strings.
+
+    Args:
+        expr: Condition expression string
+        keyword: 'and' or 'or' (case-insensitive)
+
+    Returns:
+        List of parts if split occurred, None if keyword not found outside quotes
+    """
+    parts: list[str] = []
+    current: list[str] = []
+    in_quote: str | None = None
+    i = 0
+    pattern = f" {keyword} "
+    pat_len = len(pattern)
+
+    while i < len(expr):
+        ch = expr[i]
+        if ch in ("'", '"') and in_quote is None:
+            in_quote = ch
+        elif ch == in_quote:
+            in_quote = None
+
+        if in_quote is None and expr[i : i + pat_len].lower() == pattern:
+            parts.append("".join(current))
+            current = []
+            i += pat_len
+            continue
+
+        current.append(ch)
+        i += 1
+
+    parts.append("".join(current))
+    return parts if len(parts) > 1 else None
+
+
 def resolve_value(path: str, state: dict) -> Any:
     """Resolve a dotted path to a value from state.
 
@@ -38,6 +75,51 @@ def resolve_value(path: str, state: dict) -> Any:
         Resolved value or None if not found
     """
     return resolve_state_path(path, state)
+
+
+def _resolve_right_value(right_str: str, state: dict[str, Any]) -> Any:
+    """Resolve right side of comparison: literal first, then state path.
+
+    Priority order:
+    1. Quoted strings → literal (never state ref)
+    2. Boolean/null keywords → literal
+    3. Numeric values → literal
+    4. Unquoted identifier → try state path, fall back to literal string
+
+    Args:
+        right_str: Raw right-side string from comparison
+        state: State dictionary
+
+    Returns:
+        Resolved value
+    """
+    right_str = right_str.strip()
+
+    # Quoted strings are always literal
+    if (right_str.startswith("'") and right_str.endswith("'")) or (
+        right_str.startswith('"') and right_str.endswith('"')
+    ):
+        return parse_literal(right_str)
+
+    # Boolean/null keywords are always literal
+    if right_str.lower() in ("true", "false", "null", "none"):
+        return parse_literal(right_str)
+
+    # Numeric values are always literal
+    try:
+        parsed = parse_literal(right_str)
+        if isinstance(parsed, int | float):
+            return parsed
+    except (ValueError, TypeError):
+        pass
+
+    # Unquoted identifier: try state path first
+    val = resolve_state_path(right_str, state)
+    if val is not None:
+        return val
+
+    # Fallback: return as literal string
+    return right_str
 
 
 def evaluate_comparison(
@@ -55,7 +137,7 @@ def evaluate_comparison(
         Boolean result of comparison
     """
     left_value = resolve_value(left_path, state)
-    right_value = parse_literal(right_str)
+    right_value = _resolve_right_value(right_str, state)
 
     # Handle missing left value
     if left_value is None and operator not in ("==", "!="):
@@ -104,15 +186,15 @@ def evaluate_condition(expr: str, state: dict) -> bool:
     """
     expr = expr.strip()
 
-    # Handle compound OR (lower precedence)
-    if COMPOUND_OR_PATTERN.search(expr):
-        parts = COMPOUND_OR_PATTERN.split(expr)
-        return any(evaluate_condition(part, state) for part in parts)
+    # Handle compound OR (lower precedence) — quote-aware split
+    or_parts = _split_compound(expr, "or")
+    if or_parts is not None:
+        return any(evaluate_condition(part, state) for part in or_parts)
 
-    # Handle compound AND
-    if COMPOUND_AND_PATTERN.search(expr):
-        parts = COMPOUND_AND_PATTERN.split(expr)
-        return all(evaluate_condition(part, state) for part in parts)
+    # Handle compound AND — quote-aware split
+    and_parts = _split_compound(expr, "and")
+    if and_parts is not None:
+        return all(evaluate_condition(part, state) for part in and_parts)
 
     # Parse single comparison
     match = COMPARISON_PATTERN.match(expr)

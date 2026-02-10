@@ -10,6 +10,11 @@ from typing import Any
 # Pattern for arithmetic expressions: {state.field + 1} or {state.a + state.b}
 ARITHMETIC_PATTERN = re.compile(r"^\{(state\.[a-zA-Z_][\w.]*)\s*([+\-*/])\s*(.+)\}$")
 
+# Pattern to detect chained operations in the right operand
+_CHAINED_OP_PATTERN = re.compile(
+    r"(?:state\.[a-zA-Z_][\w.]*|[0-9]+(?:\.[0-9]+)?)\s*[+\-*/]\s*"
+)
+
 
 def resolve_state_path(path: str, state: dict[str, Any]) -> Any:
     """Resolve a dotted path to a value from state.
@@ -195,6 +200,14 @@ def resolve_template(template: str | Any, state: dict[str, Any]) -> Any:
         left_ref = match.group(1)  # e.g., "state.counter"
         operator = match.group(2)  # e.g., "+"
         right_str = match.group(3)  # e.g., "1" or "state.other"
+
+        # Detect chained operations: {state.a + state.b + state.c}
+        # The right_str would be "state.b + state.c" — contains another op
+        if _CHAINED_OP_PATTERN.search(right_str):
+            raise ValueError(
+                f"Chained arithmetic not supported: {template}. "
+                "Use intermediate state variables instead."
+            )
 
         left = _parse_operand(left_ref, state)
         right = _parse_operand(right_str, state)
