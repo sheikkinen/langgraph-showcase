@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from yamlgraph.linter.checks import LintIssue, load_graph
+from yamlgraph.linter.checks_semantic import check_dynamic_map_without_max_items
 
 
 def check_map_node_structure(
@@ -148,6 +149,7 @@ def check_map_patterns(
     """
     issues = []
     graph = load_graph(graph_path)
+    graph_config = graph.get("config", {})
 
     for node_name, node_config in graph.get("nodes", {}).items():
         if node_config.get("type") == "map":
@@ -156,6 +158,13 @@ def check_map_patterns(
 
             # Check field types and values
             issues.extend(check_map_node_types(node_name, node_config))
+
+            # FR-027 W013: dynamic fan-out without max_items
+            issues.extend(
+                check_dynamic_map_without_max_items(
+                    node_name, node_config, graph_config
+                )
+            )
 
     return issues
 

@@ -743,6 +743,7 @@ class TestMaxTokensWiring:
     @pytest.mark.req("REQ-YG-060")
     def test_replicate_provider_receives_max_tokens(self):
         """create_llm(provider='replicate', max_tokens=2048) must pass it through."""
+        pytest.importorskip("langchain_litellm")
         from unittest.mock import patch
 
         from yamlgraph.utils.llm_factory import clear_cache, create_llm
@@ -764,6 +765,7 @@ class TestMaxTokensWiring:
     @pytest.mark.req("REQ-YG-060")
     def test_replicate_provider_omits_max_tokens_when_none(self):
         """create_llm(provider='replicate', max_tokens=None) should NOT pass it."""
+        pytest.importorskip("langchain_litellm")
         from unittest.mock import patch
 
         from yamlgraph.utils.llm_factory import clear_cache, create_llm
@@ -920,3 +922,86 @@ class TestExecutionTimeout:
         gc = GraphConfig(config)
         assert gc.timeout == 120
         # CLI override would be handled in cmd_graph_run, same pattern as recursion_limit
+
+
+# ──────────────────────────────────────────────────────────────
+# 9. Linter W013: dynamic map over without max_items (REQ-YG-062)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestLinterW013DynamicMap:
+    """W013: warn when map over: is a dynamic expression without max_items."""
+
+    @pytest.mark.req("REQ-YG-062")
+    def test_w013_fires_on_dynamic_over_without_max_items(self):
+        """W013 should fire when over: is a state reference and no max_items set."""
+        from yamlgraph.linter.checks_semantic import (
+            check_dynamic_map_without_max_items,
+        )
+
+        node_config = {
+            "type": "map",
+            "over": "{state.chapters}",
+            "as": "chapter",
+            "collect": "results",
+            "node": {"type": "llm", "prompt": "test"},
+        }
+        issues = check_dynamic_map_without_max_items("translate_all", node_config, {})
+        assert len(issues) == 1
+        assert issues[0].code == "W013"
+        assert "translate_all" in issues[0].message
+
+    @pytest.mark.req("REQ-YG-062")
+    def test_w013_suppressed_by_node_max_items(self):
+        """W013 should NOT fire when node has max_items set."""
+        from yamlgraph.linter.checks_semantic import (
+            check_dynamic_map_without_max_items,
+        )
+
+        node_config = {
+            "type": "map",
+            "over": "{state.chapters}",
+            "as": "chapter",
+            "collect": "results",
+            "max_items": 20,
+            "node": {"type": "llm", "prompt": "test"},
+        }
+        issues = check_dynamic_map_without_max_items("translate_all", node_config, {})
+        assert len(issues) == 0
+
+    @pytest.mark.req("REQ-YG-062")
+    def test_w013_suppressed_by_graph_max_map_items(self):
+        """W013 should NOT fire when graph config has max_map_items set."""
+        from yamlgraph.linter.checks_semantic import (
+            check_dynamic_map_without_max_items,
+        )
+
+        node_config = {
+            "type": "map",
+            "over": "{state.chapters}",
+            "as": "chapter",
+            "collect": "results",
+            "node": {"type": "llm", "prompt": "test"},
+        }
+        graph_config = {"max_map_items": 100}
+        issues = check_dynamic_map_without_max_items(
+            "translate_all", node_config, graph_config
+        )
+        assert len(issues) == 0
+
+    @pytest.mark.req("REQ-YG-062")
+    def test_w013_not_fired_on_literal_list(self):
+        """W013 should NOT fire when over: is a literal list."""
+        from yamlgraph.linter.checks_semantic import (
+            check_dynamic_map_without_max_items,
+        )
+
+        node_config = {
+            "type": "map",
+            "over": ["a", "b", "c"],
+            "as": "item",
+            "collect": "results",
+            "node": {"type": "llm", "prompt": "test"},
+        }
+        issues = check_dynamic_map_without_max_items("static_map", node_config, {})
+        assert len(issues) == 0

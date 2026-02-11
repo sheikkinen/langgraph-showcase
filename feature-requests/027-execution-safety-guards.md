@@ -2,7 +2,7 @@
 
 **Priority:** HIGH
 **Type:** Enhancement
-**Status:** P0+P1 Complete
+**Status:** P0+P1+W013 Complete (P2-8 token tracking deferred)
 **Effort:** 3–5 days
 **Requested:** 2026-02-11
 
@@ -187,7 +187,7 @@ nodes:
 
 ### P2
 - [ ] Token usage accumulated in `_token_usage` state field
-- [ ] Linter W013: warns on dynamic map `over:` without `max_items`
+- [x] Linter W013: warns on dynamic map `over:` without `max_items`
 
 ### Cross-cutting
 - [x] Schema `graph-v1.json` updated for all new config keys

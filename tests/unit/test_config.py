@@ -4,7 +4,6 @@ import pytest
 
 from yamlgraph.config import (
     DATABASE_PATH,
-    DEFAULT_MAX_TOKENS,
     DEFAULT_MODELS,
     DEFAULT_TEMPERATURE,
     MAX_TOPIC_LENGTH,
@@ -78,11 +77,6 @@ class TestLLMConfig:
     def test_default_temperature_range(self):
         """Default temperature should be in valid range."""
         assert 0.0 <= DEFAULT_TEMPERATURE <= 1.0
-
-    @pytest.mark.req("REQ-YG-043")
-    def test_default_max_tokens_positive(self):
-        """Max tokens should be positive."""
-        assert DEFAULT_MAX_TOKENS > 0
 
 
 class TestCLIConstraints:

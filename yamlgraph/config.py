@@ -34,7 +34,6 @@ DEFAULT_MAX_MAP_ITEMS = 100
 
 # LLM Configuration
 DEFAULT_TEMPERATURE = 0.7
-DEFAULT_MAX_TOKENS = 4096
 
 # Default models per provider (override with {PROVIDER}_MODEL env var)
 # API keys expected in .env:

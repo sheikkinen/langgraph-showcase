@@ -287,6 +287,46 @@ def check_unguarded_cycles(graph_path: Path) -> list[LintIssue]:
             )
 
     return issues
+
+
+def check_dynamic_map_without_max_items(
+    node_name: str, node_config: dict, graph_config: dict
+) -> list[LintIssue]:
+    """Warn when map over: is a dynamic expression without max_items.
+
+    W013 — dynamic fan-out without explicit cap.
+    A dynamic expression is any string containing '{' (state reference).
+    Suppressed when node has max_items or graph config has max_map_items.
+    """
+    issues: list[LintIssue] = []
+
+    over = node_config.get("over")
+    if not isinstance(over, str) or "{" not in over:
+        return issues
+
+    # Suppressed by node-level max_items
+    if "max_items" in node_config:
+        return issues
+
+    # Suppressed by graph-level max_map_items
+    if graph_config.get("max_map_items") is not None:
+        return issues
+
+    issues.append(
+        LintIssue(
+            severity="warning",
+            code="W013",
+            message=(
+                f"Map node '{node_name}' fans out over dynamic expression "
+                f"'{over}' without max_items"
+            ),
+            fix=f"Add 'max_items: <limit>' to node '{node_name}' or 'max_map_items' to config",
+        )
+    )
+
+    return issues
+
+
 __all__ = [
     "check_cross_references",
     "check_passthrough_nodes",
@@ -295,4 +335,5 @@ __all__ = [
     "check_error_handling",
     "check_edge_types",
     "check_unguarded_cycles",
+    "check_dynamic_map_without_max_items",
 ]

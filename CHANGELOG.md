@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.33] - 2026-02-11
+
+### Added
+- **Linter W013** (REQ-YG-062): Warns when map node `over:` is a dynamic expression (state reference) without `max_items` or `config.max_map_items`. Completes FR-027 P2-9.
+- 4 new W013 tests in `TestLinterW013DynamicMap`.
+
+### Fixed
+- **CI fix**: Replicate `max_tokens` tests now skip with `pytest.importorskip("langchain_litellm")` when the optional dependency is missing. Fixes v0.4.32 CI failure.
+- **Dead code removed**: `DEFAULT_MAX_TOKENS = 4096` constant deleted from `config.py` — was never wired (superseded by explicit `max_tokens` parameter in v0.4.31).
+
+### Stats
+- 1611 passed, 91.74% coverage, 62/62 reqs, 44 FR-027 tests.
+
 ## [0.4.32] - 2026-02-11
 
 ### Fixed

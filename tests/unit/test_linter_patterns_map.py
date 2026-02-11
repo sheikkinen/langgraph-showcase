@@ -191,6 +191,7 @@ nodes:
     type: map
     over: "{state.items}"
     as: item
+    max_items: 50
     node:
       prompt: process_item
       state_key: result
