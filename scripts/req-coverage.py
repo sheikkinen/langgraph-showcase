@@ -2,14 +2,16 @@
 """Collect @pytest.mark.req markers and report requirement coverage.
 
 Usage:
-    pytest --collect-only -q 2>/dev/null | python scripts/req-coverage.py
-    # or directly:
-    python scripts/req-coverage.py
+    python scripts/req-coverage.py                 # summary
+    python scripts/req-coverage.py --detail        # per-req test list
+    python scripts/req-coverage.py --implementation  # req → code → test links
+    python scripts/req-coverage.py --strict        # exit 1 on gaps
 """
 
 from __future__ import annotations
 
 import ast
+import sqlite3
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -145,6 +147,61 @@ def _is_req_marker(node: ast.expr) -> bool:
     )
 
 
+def _load_coverage_map(root: Path) -> dict[str, set[str]]:
+    """Load test→source file mapping from .coverage SQLite DB.
+
+    Requires a prior run of ``pytest --cov=yamlgraph --cov-context=test``.
+    Returns mapping of test node id → set of source files (relative paths).
+    """
+    db_path = root / ".coverage"
+    if not db_path.exists():
+        print(
+            "⚠️  No .coverage database found. Run first:\n"
+            "    pytest --cov=yamlgraph --cov-context=test\n"
+        )
+        return {}
+
+    conn = sqlite3.connect(str(db_path))
+    cursor = conn.cursor()
+
+    # Check that contexts were recorded
+    cursor.execute("SELECT COUNT(*) FROM context WHERE context != ''")
+    if cursor.fetchone()[0] == 0:
+        print(
+            "⚠️  .coverage DB has no test contexts. Re-run with:\n"
+            "    pytest --cov=yamlgraph --cov-context=test\n"
+        )
+        conn.close()
+        return {}
+
+    # line_bits stores (file_id, context_id, numbits) — existence = test touched file
+    cursor.execute(
+        "SELECT DISTINCT f.path, ctx.context "
+        "FROM line_bits lb "
+        "JOIN file f ON lb.file_id = f.id "
+        "JOIN context ctx ON lb.context_id = ctx.id "
+        "WHERE ctx.context != ''"
+    )
+
+    test_files: dict[str, set[str]] = defaultdict(set)
+    root_str = str(root) + "/"
+    for file_path, context in cursor.fetchall():
+        # context format: "tests/unit/test_foo.py::Class::method|run"
+        # Normalize to match AST marker keys: "test_foo::Class::method"
+        test_id = context.split("|")[0]
+        # Strip path prefix and .py extension from test file part
+        parts = test_id.split("::", 1)
+        test_stem = Path(parts[0]).stem  # "tests/unit/test_foo.py" → "test_foo"
+        test_id = f"{test_stem}::{parts[1]}" if len(parts) > 1 else test_stem
+        # Convert absolute source path to relative, filter to yamlgraph/ source only
+        rel_path = file_path.replace(root_str, "")
+        if rel_path.startswith("yamlgraph/") and "/test" not in rel_path:
+            test_files[test_id].add(rel_path)
+
+    conn.close()
+    return dict(test_files)
+
+
 def main() -> None:
     root = Path(__file__).parent.parent
     test_dirs = [root / "tests" / "unit", root / "tests" / "integration"]
@@ -202,6 +259,43 @@ def main() -> None:
                     print(f"    - {t}")
             else:
                 print(f"\n  {req}: NO TESTS")
+
+    # Implementation: req → source files (from coverage) → tests
+    if "--implementation" in sys.argv:
+        coverage_map = _load_coverage_map(root)
+        if coverage_map:
+            print("\nIMPLEMENTATION TRACEABILITY")
+            print("-" * 70)
+            for req in ALL_REQS:
+                tests = all_markers.get(req, [])
+                if not tests:
+                    print(f"\n  {req}: NO TESTS")
+                    continue
+
+                # Aggregate source files across all tests for this req
+                source_files: set[str] = set()
+                matched_tests: list[str] = []
+                unmatched_tests: list[str] = []
+                for test in tests:
+                    files = coverage_map.get(test, set())
+                    if files:
+                        source_files.update(files)
+                        matched_tests.append(test)
+                    else:
+                        unmatched_tests.append(test)
+
+                print(f"\n  {req} ({len(source_files)} files, {len(tests)} tests):")
+                if source_files:
+                    print("    Implementation:")
+                    for sf in sorted(source_files):
+                        print(f"      {sf}")
+                    print("    Tests:")
+                    for t in matched_tests:
+                        print(f"      {t}")
+                if unmatched_tests:
+                    print("    Tests (no coverage data):")
+                    for t in unmatched_tests:
+                        print(f"      {t}")
 
     # Exit code: fail if any requirement uncovered
     if uncovered and "--strict" in sys.argv:
