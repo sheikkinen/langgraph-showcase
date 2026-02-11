@@ -803,15 +803,15 @@ def test_invoke_with_retry_succeeds_after_transient_failure(mock_llm):
     ...
 ```
 
-#### `scripts/req-coverage.py`
+#### `scripts/req_coverage.py`
 
 Generates a traceability matrix from `@pytest.mark.req` markers using AST parsing.
 
 | Command | Purpose |
 |---------|---------|
-| `python scripts/req-coverage.py` | Summary: per-capability coverage |
-| `python scripts/req-coverage.py --detail` | Full mapping: every test → requirement |
-| `python scripts/req-coverage.py --strict` | CI gate: exits non-zero if any REQ uncovered |
+| `python scripts/req_coverage.py` | Summary: per-capability coverage |
+| `python scripts/req_coverage.py --detail` | Full mapping: every test → requirement |
+| `python scripts/req_coverage.py --strict` | CI gate: exits non-zero if any REQ uncovered |
 
 #### Current Coverage (v0.4.21)
 

@@ -45,12 +45,12 @@ def test_retry_exhaustion_raises():
     ...
 ```
 
-### 3. Collection script (`scripts/req-coverage.py`)
+### 3. Collection script (`scripts/req_coverage.py`)
 
 Collect markers and report which requirements have tests and which don't:
 
 ```bash
-pytest --co -q | python scripts/req-coverage.py
+pytest --co -q | python scripts/req_coverage.py
 ```
 
 Output: requirement → test count matrix, flagging any REQ with zero tests.

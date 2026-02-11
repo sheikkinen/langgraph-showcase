@@ -44,7 +44,7 @@ Four findings from Chaplain code audit. One crash bug, two silent-failure asymme
 - [x] `prompts_relative` logs warning on `graph_path=None` + `prompts_dir` set
 - [x] TDD: failing tests written first for all fixes
 - [x] All existing tests pass
-- [x] `req-coverage.py --strict` passes
+- [x] `req_coverage.py --strict` passes
 - [x] ARCHITECTURE.md updated with new requirement(s)
 
 ## Alternatives Considered

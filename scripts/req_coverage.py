@@ -2,10 +2,10 @@
 """Collect @pytest.mark.req markers and report requirement coverage.
 
 Usage:
-    python scripts/req-coverage.py                 # summary
-    python scripts/req-coverage.py --detail        # per-req test list
-    python scripts/req-coverage.py --implementation  # req → code → test links
-    python scripts/req-coverage.py --strict        # exit 1 on gaps
+    python scripts/req_coverage.py                 # summary
+    python scripts/req_coverage.py --detail        # per-req test list
+    python scripts/req_coverage.py --implementation  # req → code → test links
+    python scripts/req_coverage.py --strict        # exit 1 on gaps
 """
 
 from __future__ import annotations
@@ -147,6 +147,125 @@ def _is_req_marker(node: ast.expr) -> bool:
     )
 
 
+def _module_to_path(module: str) -> str:
+    """Convert dotted module name to filesystem path.
+
+    ``yamlgraph.utils.llm_factory`` → ``yamlgraph/utils/llm_factory.py``
+    ``yamlgraph.cli`` → ``yamlgraph/cli/__init__.py`` (if directory exists)
+    """
+    parts = module.split(".")
+    candidate = "/".join(parts) + ".py"
+    pkg_init = "/".join(parts) + "/__init__.py"
+    root = Path(__file__).parent.parent
+    if (root / candidate).exists():
+        return candidate
+    if (root / pkg_init).exists():
+        return pkg_init
+    # Default: assume .py file (even if missing — the import may be removed code)
+    return candidate
+
+
+def _collect_yamlgraph_imports(nodes: list[ast.stmt]) -> set[str]:
+    """Extract yamlgraph/ file paths from import statements in AST nodes."""
+    paths: set[str] = set()
+    for node in ast.walk(ast.Module(body=nodes, type_ignores=[])):
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module
+            and node.module.startswith("yamlgraph")
+        ):
+            paths.add(_module_to_path(node.module))
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.startswith("yamlgraph"):
+                    paths.add(_module_to_path(alias.name))
+    return paths
+
+
+def _collect_mock_patch_targets(nodes: list[ast.stmt]) -> set[str]:
+    """Extract yamlgraph/ file paths from mock.patch("yamlgraph...") calls."""
+    paths: set[str] = set()
+    for node in ast.walk(ast.Module(body=nodes, type_ignores=[])):
+        if not isinstance(node, ast.Call):
+            continue
+        # Match @patch("yamlgraph.x.y.z") or mock.patch("yamlgraph.x.y.z")
+        func = node.func
+        is_patch = (isinstance(func, ast.Attribute) and func.attr == "patch") or (
+            isinstance(func, ast.Name) and func.id == "patch"
+        )
+        if not is_patch or not node.args:
+            continue
+        arg = node.args[0]
+        if (
+            isinstance(arg, ast.Constant)
+            and isinstance(arg.value, str)
+            and arg.value.startswith("yamlgraph")
+        ):
+            # "yamlgraph.utils.llm_factory.create_llm" → "yamlgraph.utils.llm_factory"
+            dotted = arg.value.rsplit(".", 1)[0]
+            paths.add(_module_to_path(dotted))
+    return paths
+
+
+def _extract_imports_from_test(filepath: Path, test_key: str) -> set[str]:
+    """Extract yamlgraph/ source file paths from a test file using AST analysis.
+
+    Parses both module-level imports and inline imports within the specific
+    test function identified by *test_key* (``stem::Class::method`` or
+    ``stem::function``).  Also resolves ``mock.patch("yamlgraph.X.Y.func")``
+    targets.
+
+    Returns set of relative paths like ``{"yamlgraph/utils/llm_factory.py"}``.
+    """
+    try:
+        tree = ast.parse(filepath.read_text(), filename=str(filepath))
+    except SyntaxError:
+        return set()
+
+    # Parse test_key: "test_foo::ClassName::method" or "test_foo::func"
+    parts = test_key.split("::")
+    # parts[0] is stem (ignored — we already have filepath)
+    class_name = parts[1] if len(parts) == 3 else None
+    func_name = parts[-1]
+
+    # 1. Module-level imports (always included)
+    module_nodes = [n for n in tree.body if isinstance(n, ast.Import | ast.ImportFrom)]
+    paths = _collect_yamlgraph_imports(module_nodes)
+
+    # 2. Find the specific test function and extract inline imports + mock targets
+    func_body: list[ast.stmt] = []
+    for node in ast.iter_child_nodes(tree):
+        if class_name and isinstance(node, ast.ClassDef) and node.name == class_name:
+            for item in node.body:
+                if (
+                    isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
+                    and item.name == func_name
+                ):
+                    func_body = item.body + item.decorator_list  # type: ignore[operator]
+                    break
+            break
+        elif (
+            not class_name
+            and isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef)
+            and node.name == func_name
+        ):
+            func_body = node.body + node.decorator_list  # type: ignore[operator]
+            break
+
+    if func_body:
+        paths |= _collect_yamlgraph_imports(func_body)
+        paths |= _collect_mock_patch_targets(func_body)
+
+    # Also check class-level decorators for mock.patch
+    if class_name:
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, ast.ClassDef) and node.name == class_name:
+                paths |= _collect_mock_patch_targets(node.decorator_list)
+                break
+
+    return paths
+
+
 def _load_coverage_map(root: Path) -> dict[str, set[str]]:
     """Load test→source file mapping from .coverage SQLite DB.
 
@@ -260,42 +379,76 @@ def main() -> None:
             else:
                 print(f"\n  {req}: NO TESTS")
 
-    # Implementation: req → source files (from coverage) → tests
+    # Implementation: req → source files (from coverage + AST fallback) → tests
     if "--implementation" in sys.argv:
         coverage_map = _load_coverage_map(root)
-        if coverage_map:
-            print("\nIMPLEMENTATION TRACEABILITY")
-            print("-" * 70)
-            for req in ALL_REQS:
-                tests = all_markers.get(req, [])
-                if not tests:
-                    print(f"\n  {req}: NO TESTS")
-                    continue
 
-                # Aggregate source files across all tests for this req
-                source_files: set[str] = set()
-                matched_tests: list[str] = []
-                unmatched_tests: list[str] = []
-                for test in tests:
-                    files = coverage_map.get(test, set())
-                    if files:
-                        source_files.update(files)
-                        matched_tests.append(test)
-                    else:
-                        unmatched_tests.append(test)
+        # Build test_key → filepath index for AST fallback
+        test_key_to_file: dict[str, Path] = {}
+        for test_dir in test_dirs:
+            if not test_dir.exists():
+                continue
+            for filepath in sorted(test_dir.rglob("test_*.py")):
+                markers = extract_req_markers(filepath)
+                for tests in markers.values():
+                    for test_key in tests:
+                        test_key_to_file[test_key] = filepath
 
-                print(f"\n  {req} ({len(source_files)} files, {len(tests)} tests):")
-                if source_files:
-                    print("    Implementation:")
-                    for sf in sorted(source_files):
-                        print(f"      {sf}")
-                    print("    Tests:")
-                    for t in matched_tests:
-                        print(f"      {t}")
-                if unmatched_tests:
-                    print("    Tests (no coverage data):")
-                    for t in unmatched_tests:
-                        print(f"      {t}")
+        print("\nIMPLEMENTATION TRACEABILITY")
+        print("-" * 70)
+        ast_resolved_count = 0
+        still_unresolved_count = 0
+        for req in ALL_REQS:
+            tests = all_markers.get(req, [])
+            if not tests:
+                print(f"\n  {req}: NO TESTS")
+                continue
+
+            # Aggregate source files across all tests for this req
+            source_files: set[str] = set()
+            matched_tests: list[str] = []
+            ast_tests: list[str] = []
+            unmatched_tests: list[str] = []
+            for test in tests:
+                files = coverage_map.get(test, set())
+                if files:
+                    source_files.update(files)
+                    matched_tests.append(test)
+                else:
+                    # AST fallback: parse imports from test file
+                    test_file = test_key_to_file.get(test)
+                    if test_file:
+                        ast_files = _extract_imports_from_test(test_file, test)
+                        if ast_files:
+                            source_files.update(ast_files)
+                            ast_tests.append(test)
+                            ast_resolved_count += 1
+                            continue
+                    unmatched_tests.append(test)
+                    still_unresolved_count += 1
+
+            print(f"\n  {req} ({len(source_files)} files, {len(tests)} tests):")
+            if source_files:
+                print("    Implementation:")
+                for sf in sorted(source_files):
+                    print(f"      {sf}")
+            if matched_tests:
+                print("    Tests (coverage):")
+                for t in matched_tests:
+                    print(f"      {t}")
+            if ast_tests:
+                print("    Tests (AST imports):")
+                for t in ast_tests:
+                    print(f"      {t}")
+            if unmatched_tests:
+                print("    Tests (no link):")
+                for t in unmatched_tests:
+                    print(f"      {t}")
+
+        print(
+            f"\n  Summary: {ast_resolved_count} tests resolved via AST fallback, "
+            f"{still_unresolved_count} unresolvable"
+        )
 
     # Exit code: fail if any requirement uncovered
     if uncovered and "--strict" in sys.argv:

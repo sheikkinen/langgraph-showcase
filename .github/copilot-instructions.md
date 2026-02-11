@@ -27,8 +27,8 @@ Use these as smoke test for new graph development.
 
 ### Requirement Traceability (ADR-001)
 - Every test function must have `@pytest.mark.req("REQ-YG-XXX")` linking it to a requirement in `ARCHITECTURE.md`.
-- Run `python scripts/req-coverage.py` to verify all requirements are covered. Use `--detail` for per-test mapping, `--strict` to fail on gaps.
-- When adding a new capability: add requirement(s) to `ARCHITECTURE.md`, extend `ALL_REQS` range and `CAPABILITIES` dict in `scripts/req-coverage.py`, tag tests with the new req ID.
+- Run `python scripts/req_coverage.py` to verify all requirements are covered. Use `--detail` for per-test mapping, `--strict` to fail on gaps.
+- When adding a new capability: add requirement(s) to `ARCHITECTURE.md`, extend `ALL_REQS` range and `CAPABILITIES` dict in `scripts/req_coverage.py`, tag tests with the new req ID.
 
 ## Quick Reference
 
@@ -64,7 +64,7 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 
 9. **Thou shalt define and observe operational truth** — Establish measurable service objectives; instrument and trace execution via `utils/tracing` and `--share-trace`; treat performance degradation, failure rates, and evaluation drift as production defects. No incident shall be closed without cited traces in LangSmith and recorded rationale in `docs/adr/`.
 
-10. **Thou shalt preserve and improve the doctrine** — RTFM in `examples/` and `reference/`; record every change in `CHANGELOG.md`; bump `pyproject.toml`; tag every test with `@pytest.mark.req` and run `req-coverage.py --strict`; let failure refine and success be codified into doctrine.
+10. **Thou shalt preserve and improve the doctrine** — RTFM in `examples/` and `reference/`; record every change in `CHANGELOG.md`; bump `pyproject.toml`; tag every test with `@pytest.mark.req` and run `req_coverage.py --strict`; let failure refine and success be codified into doctrine.
 
 ## Sermon of the Chaplain
 

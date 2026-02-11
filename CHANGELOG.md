@@ -144,14 +144,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **4 malformed test names** in `test_simple_redis.py` — `testdeep_*` / `teststringify_*` renamed to `test_deep_*` / `test_stringify_*` (pytest convention requires `test_` prefix).
-- **req-coverage.py key collisions** — switched from `{stem}::{func}` to class-qualified `{stem}::{Class}::{func}` keys. Fixes 7 tests lost when duplicate method names appeared in different classes within the same file.
+- **req_coverage.py key collisions** — switched from `{stem}::{func}` to class-qualified `{stem}::{Class}::{func}` keys. Fixes 7 tests lost when duplicate method names appeared in different classes within the same file.
 - **16 untagged tests** — all test functions now carry `@pytest.mark.req` markers. Tagged tests: 1288 → 1315 unique (matches pytest's 1315 base test functions).
 
 ## [0.4.19] - 2026-02-10
 
 ### Added
 - **Test requirement traceability (ADR-001)** - All 1197 unit tests tagged with `@pytest.mark.req("REQ-YG-XXX")` markers, linking 1623 test-requirement pairs across 46 requirements and 12 capabilities. See `docs/adr/001-test-requirement-traceability.md`.
-- **Requirement coverage report** - `scripts/req-coverage.py` generates traceability matrix showing per-capability coverage. Supports `--detail` and `--strict` (CI gate) modes.
+- **Requirement coverage report** - `scripts/req_coverage.py` generates traceability matrix showing per-capability coverage. Supports `--detail` and `--strict` (CI gate) modes.
 - **`req` pytest marker** - Registered in `pyproject.toml` for `@pytest.mark.req(id)` usage.
 
 ## [0.4.18] - 2026-02-10

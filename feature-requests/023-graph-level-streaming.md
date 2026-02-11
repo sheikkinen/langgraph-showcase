@@ -161,7 +161,7 @@ async def run_graph_streaming(graph_path, initial_state, stream_node=None):
 - [ ] Tests: SSE format compliance (OpenAI chunk schema)
 - [ ] Requirement `REQ-YG-0XX` added to `ARCHITECTURE.md`
 - [ ] Tests tagged with `@pytest.mark.req("REQ-YG-0XX")`
-- [ ] `req-coverage.py` updated
+- [ ] `req_coverage.py` updated
 - [ ] Documentation in `reference/streaming.md` updated
 - [ ] Streaming demo updated or new demo added
 
