@@ -8,6 +8,7 @@ Implements:
 - graph codegen <path> [--output FILE] [--include-base]
 """
 
+import logging
 import sys
 from argparse import Namespace
 from pathlib import Path
@@ -21,6 +22,55 @@ from yamlgraph.cli.helpers import (
     require_graph_config,
 )
 from yamlgraph.models.state_builder import generate_typeddict_code
+
+logger = logging.getLogger(__name__)
+
+
+def _setup_timeout(timeout: int | None) -> dict | None:
+    """Set up execution timeout using signal.alarm on Unix.
+
+    Args:
+        timeout: Timeout in seconds, or None to skip.
+
+    Returns:
+        Context dict for _teardown_timeout (contains previous handler), or None.
+    """
+    if timeout is None:
+        return None
+
+    import platform
+
+    if platform.system() == "Windows":
+        logger.warning(
+            "Execution timeout is not supported on Windows — ignoring --timeout %d",
+            timeout,
+        )
+        return None
+
+    import signal
+
+    def _timeout_handler(signum, frame):
+        raise TimeoutError(f"Execution timed out after {timeout}s")
+
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(timeout)
+
+    return {"old_handler": old_handler}
+
+
+def _teardown_timeout(ctx: dict | None) -> None:
+    """Cancel timeout alarm and restore previous signal handler.
+
+    Args:
+        ctx: Context dict from _setup_timeout, or None.
+    """
+    if ctx is None:
+        return
+
+    import signal
+
+    signal.alarm(0)
+    signal.signal(signal.SIGALRM, ctx["old_handler"])
 
 
 def parse_vars(var_list: list[str] | None) -> dict[str, str]:
@@ -208,18 +258,7 @@ def cmd_graph_run(args: Namespace) -> None:
         share_flag = getattr(args, "share_trace", False)
 
         # FR-027: Set up timeout guard (signal.alarm on Unix)
-        _timeout_fired = False
-        if timeout is not None:
-            import platform
-            import signal
-
-            if platform.system() != "Windows":
-
-                def _timeout_handler(signum, frame):
-                    raise TimeoutError(f"Execution timed out after {timeout}s")
-
-                signal.signal(signal.SIGALRM, _timeout_handler)
-                signal.alarm(timeout)
+        timeout_ctx = _setup_timeout(timeout)
 
         try:
             # Initial invoke
@@ -261,13 +300,7 @@ def cmd_graph_run(args: Namespace) -> None:
             print(f"❌ {te}")
             sys.exit(1)
         finally:
-            # Cancel alarm if it was set
-            if timeout is not None:
-                import platform
-                import signal
-
-                if platform.system() != "Windows":
-                    signal.alarm(0)
+            _teardown_timeout(timeout_ctx)
 
         _display_result(result, truncate=not getattr(args, "full", False))
 

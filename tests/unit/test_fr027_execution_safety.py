@@ -740,6 +740,77 @@ class TestMaxTokensWiring:
 
         clear_cache()
 
+    @pytest.mark.req("REQ-YG-060")
+    def test_replicate_provider_receives_max_tokens(self):
+        """create_llm(provider='replicate', max_tokens=2048) must pass it through."""
+        from unittest.mock import patch
+
+        from yamlgraph.utils.llm_factory import clear_cache, create_llm
+
+        clear_cache()
+
+        with (
+            patch("langchain_litellm.ChatLiteLLM") as mock_cls,
+            patch.dict("os.environ", {"REPLICATE_API_TOKEN": "test-token"}),
+        ):
+            mock_cls.return_value = mock_cls
+            create_llm(provider="replicate", model="meta/llama-2", max_tokens=2048)
+            mock_cls.assert_called_once()
+            call_kwargs = mock_cls.call_args.kwargs
+            assert call_kwargs.get("max_tokens") == 2048
+
+        clear_cache()
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_replicate_provider_omits_max_tokens_when_none(self):
+        """create_llm(provider='replicate', max_tokens=None) should NOT pass it."""
+        from unittest.mock import patch
+
+        from yamlgraph.utils.llm_factory import clear_cache, create_llm
+
+        clear_cache()
+
+        with (
+            patch("langchain_litellm.ChatLiteLLM") as mock_cls,
+            patch.dict("os.environ", {"REPLICATE_API_TOKEN": "test-token"}),
+        ):
+            mock_cls.return_value = mock_cls
+            create_llm(provider="replicate", model="meta/llama-2", max_tokens=None)
+            mock_cls.assert_called_once()
+            call_kwargs = mock_cls.call_args.kwargs
+            assert "max_tokens" not in call_kwargs
+
+        clear_cache()
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_timeout_saves_and_restores_previous_sigalrm_handler(self):
+        """Timeout setup must save and restore the previous SIGALRM handler."""
+        import platform
+
+        if platform.system() == "Windows":
+            pytest.skip("SIGALRM not available on Windows")
+
+        import signal
+
+        from yamlgraph.cli.graph_commands import _setup_timeout, _teardown_timeout
+
+        # Set a custom handler
+        custom_handler = lambda signum, frame: None  # noqa: E731
+        signal.signal(signal.SIGALRM, custom_handler)
+
+        ctx = _setup_timeout(1)
+        # Handler should have been replaced
+        current = signal.getsignal(signal.SIGALRM)
+        assert current is not custom_handler
+
+        _teardown_timeout(ctx)
+        # Previous handler should be restored
+        restored = signal.getsignal(signal.SIGALRM)
+        assert restored is custom_handler
+
+        # Cleanup
+        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
 
 # ──────────────────────────────────────────────────────────────
 # 8. Global execution timeout (REQ-YG-061)

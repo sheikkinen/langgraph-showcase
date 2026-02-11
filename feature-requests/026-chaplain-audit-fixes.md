@@ -2,7 +2,7 @@
 
 **Priority:** HIGH
 **Type:** Bug / Enhancement
-**Status:** Proposed
+**Status:** ✅ Implemented (v0.4.28)
 **Effort:** 1 day
 **Requested:** 2026-02-10
 
@@ -38,14 +38,14 @@ Four findings from Chaplain code audit. One crash bug, two silent-failure asymme
 
 ## Acceptance Criteria
 
-- [ ] `wrap_for_reducer` handles non-dict returns without crash
-- [ ] LLM SKIP handler records `PipelineError` in `errors` list
-- [ ] Linter E011 warns on `on_error: retry/fallback` for tool/python nodes
-- [ ] `prompts_relative` logs warning on `graph_path=None` + `prompts_dir` set
-- [ ] TDD: failing tests written first for all fixes
-- [ ] All existing tests pass
-- [ ] `req-coverage.py --strict` passes
-- [ ] ARCHITECTURE.md updated with new requirement(s)
+- [x] `wrap_for_reducer` handles non-dict returns without crash
+- [x] LLM SKIP handler records `PipelineError` in `errors` list
+- [x] Linter E011 warns on `on_error: retry/fallback` for tool/python nodes
+- [x] `prompts_relative` logs warning on `graph_path=None` + `prompts_dir` set
+- [x] TDD: failing tests written first for all fixes
+- [x] All existing tests pass
+- [x] `req-coverage.py --strict` passes
+- [x] ARCHITECTURE.md updated with new requirement(s)
 
 ## Alternatives Considered
 

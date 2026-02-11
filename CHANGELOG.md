@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.32] - 2026-02-11
+
+### Fixed
+- **Replicate `max_tokens` bug**: `_create_replicate_llm()` now receives and forwards `max_tokens` via `**kwargs`. Previously silently dropped. (REQ-YG-060)
+- **Timeout signal handler save/restore**: `_setup_timeout` / `_teardown_timeout` extracted as named functions; previous `SIGALRM` handler saved and restored in `finally`. Eliminates handler leak.
+- **Dead code removed**: `_timeout_fired` variable was assigned but never read.
+- **Windows timeout warning**: Emits `logger.warning()` when `--timeout` is configured on Windows (unsupported platform) instead of silently ignoring.
+- **Deprecated `asyncio.get_event_loop()`**: Replaced with `asyncio.get_running_loop()` in `llm_factory_async.py`.
+- **FR-026 stale metadata**: Updated status from "Proposed" to "✅ Implemented (v0.4.28)", checked all acceptance criteria boxes.
+
+### Stats
+- 3 new tests, 1608 total passing, 91.71% coverage, 61/61 reqs, 40 FR-027 tests.
+
 ## [0.4.31] - 2026-02-11
 
 ### Added

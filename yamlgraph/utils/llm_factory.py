@@ -123,7 +123,7 @@ def create_llm(
                 model=selected_model, temperature=temperature, **optional_kwargs
             )
         elif selected_provider == "replicate":
-            llm = _create_replicate_llm(selected_model, temperature)
+            llm = _create_replicate_llm(selected_model, temperature, **optional_kwargs)
         elif selected_provider == "xai":
             from langchain_openai import ChatOpenAI
 
@@ -158,7 +158,9 @@ def create_llm(
         return llm
 
 
-def _create_replicate_llm(model: str, temperature: float) -> BaseChatModel:
+def _create_replicate_llm(
+    model: str, temperature: float, **kwargs: object
+) -> BaseChatModel:
     """Create a Replicate-hosted model via LangChain wrapper.
 
     Uses langchain-litellm for unified interface. Requires REPLICATE_API_TOKEN
@@ -202,6 +204,7 @@ def _create_replicate_llm(model: str, temperature: float) -> BaseChatModel:
     return ChatLiteLLM(
         model=litellm_model,
         temperature=temperature,
+        **kwargs,
     )
 
 

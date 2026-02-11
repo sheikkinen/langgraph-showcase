@@ -56,7 +56,7 @@ async def create_llm_async(
     Returns:
         Configured LLM instance
     """
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         get_executor(),
         partial(
