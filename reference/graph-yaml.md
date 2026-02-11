@@ -184,6 +184,36 @@ fields:
 
 ---
 
+### `config`
+**Type:** `object`
+**Default:** `{}`
+
+Execution safety configuration. Controls resource limits and guard rails.
+
+```yaml
+config:
+  recursion_limit: 50     # Max LangGraph super-steps (default: 50)
+  max_map_items: 100      # Default fan-out cap for map nodes (default: 100)
+  max_tokens: 4096        # Default max output tokens for LLM calls (default: provider default)
+  timeout: 120            # Global execution timeout in seconds (default: none)
+```
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `recursion_limit` | `int` | `50` | Maximum LangGraph recursion depth. Prevents infinite loops in cyclic graphs. |
+| `max_map_items` | `int` | `100` | Default fan-out cap for map nodes. Can be overridden per-node with `max_items`. |
+| `max_tokens` | `int` | provider default | Default max output tokens for LLM calls. Can be overridden per-node. |
+| `timeout` | `int` | none | Global execution timeout in seconds. Covers the entire graph run including interrupt loops. |
+
+**CLI overrides:**
+```bash
+yamlgraph graph run graph.yaml --recursion-limit 25 --timeout 60
+```
+
+CLI values override YAML `config:` values, which override built-in defaults.
+
+---
+
 ## Node Definition
 
 Each node in the `nodes` section defines a processing step.
@@ -199,6 +229,7 @@ Each node in the `nodes` section defines a processing step.
 | `requires` | `list[str]` | `[]` | Required state keys before execution |
 | `temperature` | `float` | from defaults | LLM temperature |
 | `provider` | `string` | from defaults | LLM provider |
+| `max_tokens` | `int` | from config | Maximum output tokens for this node's LLM call |
 | `skip_if_exists` | `bool` | `true` | Skip if output already in state |
 | `parse_json` | `bool` | `false` | Extract JSON from LLM response |
 | `stream` | `bool` | `false` | Enable token-by-token streaming |
@@ -307,7 +338,7 @@ nodes:
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `tools` | `list[str]` | `[]` | Tool names from graph's `tools` section |
-| `max_iterations` | `int` | `5` | Maximum tool invocations |
+| `max_iterations` | `int` | `10` | Maximum tool invocations |
 | `tool_results_key` | `string` | - | State key for tool execution logs |
 
 ### `type: tool` - Shell Tool Node
@@ -410,6 +441,7 @@ nodes:
 | `as` | `string` | Yes | Variable name injected into sub-node |
 | `node` | `object` | Yes | Sub-node definition (llm, router, or python) |
 | `collect` | `string` | Yes | State key where results are collected |
+| `max_items` | `int` | No | Maximum fan-out items (overrides `config.max_map_items`) |
 
 **How it works:**
 1. Fan-out: Each item is dispatched via `Send()` for parallel processing

@@ -29,6 +29,7 @@ def create_llm(
     provider: ProviderType | None = None,
     model: str | None = None,
     temperature: float = 0.7,
+    max_tokens: int | None = None,
 ) -> BaseChatModel:
     """Create an LLM instance with multi-provider support.
 
@@ -36,13 +37,14 @@ def create_llm(
     Provider can be specified via parameter or PROVIDER environment variable.
     Model can be specified via parameter or {PROVIDER}_MODEL environment variable.
 
-    LLM instances are cached by (provider, model, temperature) to improve performance.
+    LLM instances are cached by (provider, model, temperature, max_tokens) to improve performance.
 
     Args:
         provider: LLM provider ("anthropic", "mistral", "openai", "replicate", "xai").
                  Defaults to PROVIDER env var or "anthropic".
         model: Model name. Defaults to {PROVIDER}_MODEL env var or provider default.
         temperature: Temperature for generation (0.0-1.0).
+        max_tokens: Maximum output tokens. None means provider default.
 
     Returns:
         Configured LLM instance.
@@ -78,7 +80,7 @@ def create_llm(
     selected_model = model or DEFAULT_MODELS[selected_provider]
 
     # Create cache key
-    cache_key = (selected_provider, selected_model, temperature)
+    cache_key = (selected_provider, selected_model, temperature, max_tokens)
 
     # Thread-safe cache access
     with _cache_lock:
@@ -94,6 +96,11 @@ def create_llm(
             f"Creating LLM: {selected_provider}/{selected_model} (temp={temperature})"
         )
 
+        # Build optional kwargs (only include max_tokens if set)
+        optional_kwargs = {}
+        if max_tokens is not None:
+            optional_kwargs["max_tokens"] = max_tokens
+
         if selected_provider == "google":
             from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -101,15 +108,20 @@ def create_llm(
                 model=selected_model,
                 temperature=temperature,
                 google_api_key=os.getenv("GOOGLE_API_KEY"),
+                **optional_kwargs,
             )
         elif selected_provider == "mistral":
             from langchain_mistralai import ChatMistralAI
 
-            llm = ChatMistralAI(model=selected_model, temperature=temperature)
+            llm = ChatMistralAI(
+                model=selected_model, temperature=temperature, **optional_kwargs
+            )
         elif selected_provider == "openai":
             from langchain_openai import ChatOpenAI
 
-            llm = ChatOpenAI(model=selected_model, temperature=temperature)
+            llm = ChatOpenAI(
+                model=selected_model, temperature=temperature, **optional_kwargs
+            )
         elif selected_provider == "replicate":
             llm = _create_replicate_llm(selected_model, temperature)
         elif selected_provider == "xai":
@@ -120,6 +132,7 @@ def create_llm(
                 temperature=temperature,
                 base_url="https://api.x.ai/v1",
                 api_key=os.getenv("XAI_API_KEY"),
+                **optional_kwargs,
             )
         elif selected_provider == "lmstudio":
             from langchain_openai import ChatOpenAI
@@ -130,11 +143,14 @@ def create_llm(
                 temperature=temperature,
                 base_url=base_url,
                 api_key="not-needed",  # Local server, no API key required
+                **optional_kwargs,
             )
         else:  # anthropic (default)
             from langchain_anthropic import ChatAnthropic
 
-            llm = ChatAnthropic(model=selected_model, temperature=temperature)
+            llm = ChatAnthropic(
+                model=selected_model, temperature=temperature, **optional_kwargs
+            )
 
         # Cache the instance
         _llm_cache[cache_key] = llm

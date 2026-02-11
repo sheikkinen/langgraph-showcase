@@ -192,6 +192,11 @@ def cmd_graph_run(args: Namespace) -> None:
             recursion_limit = graph_config.recursion_limit
         config["recursion_limit"] = recursion_limit
 
+        # FR-027: Wire timeout — CLI overrides YAML config
+        timeout = getattr(args, "timeout", None)
+        if timeout is None:
+            timeout = graph_config.timeout
+
         # FR-022: Set up LangSmith tracing
         from yamlgraph.utils.tracing import (
             create_tracer,
@@ -202,41 +207,67 @@ def cmd_graph_run(args: Namespace) -> None:
         inject_tracer_config(config, tracer)
         share_flag = getattr(args, "share_trace", False)
 
-        # Initial invoke
-        if getattr(args, "use_async", False):
-            import asyncio
+        # FR-027: Set up timeout guard (signal.alarm on Unix)
+        _timeout_fired = False
+        if timeout is not None:
+            import platform
+            import signal
 
-            result = asyncio.run(
-                app.ainvoke(initial_state, config=config if config else None)
-            )
-        else:
-            result = app.invoke(initial_state, config=config if config else None)
+            if platform.system() != "Windows":
 
-        _print_trace_url(tracer, share_flag)
+                def _timeout_handler(signum, frame):
+                    raise TimeoutError(f"Execution timed out after {timeout}s")
 
-        # Interrupt loop - handle human-in-the-loop
-        while "__interrupt__" in result:
-            message = _get_interrupt_message(result)
-            print(f"\n💬 {message}")
-            user_input = input("\n> ").strip()
+                signal.signal(signal.SIGALRM, _timeout_handler)
+                signal.alarm(timeout)
 
-            if not user_input:
-                print("❌ Empty input. Exiting.")
-                sys.exit(0)
-
-            # Resume with Command(resume=...)
-            from langgraph.types import Command
-
+        try:
+            # Initial invoke
             if getattr(args, "use_async", False):
                 import asyncio
 
                 result = asyncio.run(
-                    app.ainvoke(Command(resume=user_input), config=config)
+                    app.ainvoke(initial_state, config=config if config else None)
                 )
             else:
-                result = app.invoke(Command(resume=user_input), config=config)
+                result = app.invoke(initial_state, config=config if config else None)
 
             _print_trace_url(tracer, share_flag)
+
+            # Interrupt loop - handle human-in-the-loop
+            while "__interrupt__" in result:
+                message = _get_interrupt_message(result)
+                print(f"\n💬 {message}")
+                user_input = input("\n> ").strip()
+
+                if not user_input:
+                    print("❌ Empty input. Exiting.")
+                    sys.exit(0)
+
+                # Resume with Command(resume=...)
+                from langgraph.types import Command
+
+                if getattr(args, "use_async", False):
+                    import asyncio
+
+                    result = asyncio.run(
+                        app.ainvoke(Command(resume=user_input), config=config)
+                    )
+                else:
+                    result = app.invoke(Command(resume=user_input), config=config)
+
+                _print_trace_url(tracer, share_flag)
+        except TimeoutError as te:
+            print(f"❌ {te}")
+            sys.exit(1)
+        finally:
+            # Cancel alarm if it was set
+            if timeout is not None:
+                import platform
+                import signal
+
+                if platform.system() != "Windows":
+                    signal.alarm(0)
 
         _display_result(result, truncate=not getattr(args, "full", False))
 

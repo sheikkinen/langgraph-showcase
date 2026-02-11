@@ -40,6 +40,7 @@ def execute_prompt(
     prompts_dir: "Path | None" = None,
     prompts_relative: bool = False,
     state: dict | None = None,
+    max_tokens: int | None = None,
 ) -> T | str:
     """Execute a YAML prompt with optional structured output.
 
@@ -81,6 +82,7 @@ def execute_prompt(
         prompts_dir=prompts_dir,
         prompts_relative=prompts_relative,
         state=state,
+        max_tokens=max_tokens,
     )
 
 
@@ -118,12 +120,18 @@ class PromptExecutor:
         temperature: float = DEFAULT_TEMPERATURE,
         provider: str | None = None,
         model: str | None = None,
+        max_tokens: int | None = None,
     ) -> BaseChatModel:
         """Get or create cached LLM instance.
 
         Uses llm_factory which handles caching internally.
         """
-        return create_llm(temperature=temperature, provider=provider, model=model)
+        return create_llm(
+            temperature=temperature,
+            provider=provider,
+            model=model,
+            max_tokens=max_tokens,
+        )
 
     def _invoke_with_retry(
         self, llm, messages, output_model: type[T] | None = None
@@ -180,6 +188,7 @@ class PromptExecutor:
         prompts_dir: "Path | None" = None,
         prompts_relative: bool = False,
         state: dict | None = None,
+        max_tokens: int | None = None,
     ) -> T | str:
         """Execute a prompt using cached LLM with retry logic.
 
@@ -215,7 +224,10 @@ class PromptExecutor:
         )
 
         llm = self._get_llm(
-            temperature=temperature, provider=resolved_provider, model=resolved_model
+            temperature=temperature,
+            provider=resolved_provider,
+            model=resolved_model,
+            max_tokens=max_tokens,
         )
 
         return self._invoke_with_retry(llm, messages, output_model)

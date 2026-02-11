@@ -153,6 +153,8 @@ class GraphConfig:
         graph_level_config = config.get("config", {})
         self.recursion_limit = graph_level_config.get("recursion_limit", 50)
         self.max_map_items = graph_level_config.get("max_map_items", 100)
+        self.max_tokens = graph_level_config.get("max_tokens")
+        self.timeout = graph_level_config.get("timeout")
         # Store raw config for dynamic state building
         self.raw_config = config
         # Store source path for subgraph resolution

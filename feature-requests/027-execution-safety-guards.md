@@ -2,7 +2,7 @@
 
 **Priority:** HIGH
 **Type:** Enhancement
-**Status:** P0 Complete
+**Status:** P0+P1 Complete
 **Effort:** 3–5 days
 **Requested:** 2026-02-11
 
@@ -181,9 +181,9 @@ nodes:
 - [x] All P0 items covered by tests with `@pytest.mark.req`
 
 ### P1
-- [ ] Global execution timeout via `config.timeout` and CLI `--timeout`
-- [ ] `max_tokens` wired from config to `create_llm()` calls
-- [ ] `max_iterations` default mismatch fixed (single source of truth)
+- [x] Global execution timeout via `config.timeout` and CLI `--timeout`
+- [x] `max_tokens` wired from config to `create_llm()` calls
+- [x] `max_iterations` default mismatch fixed (single source of truth)
 
 ### P2
 - [ ] Token usage accumulated in `_token_usage` state field
@@ -191,7 +191,7 @@ nodes:
 
 ### Cross-cutting
 - [x] Schema `graph-v1.json` updated for all new config keys
-- [ ] `reference/graph-yaml.md` documents all new keys
+- [x] `reference/graph-yaml.md` documents all new keys
 - [x] `ARCHITECTURE.md` requirements added (REQ-YG-055+)
 - [x] `CHANGELOG.md` updated
 - [x] Version bumped

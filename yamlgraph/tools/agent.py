@@ -152,7 +152,7 @@ def create_agent_node(
 
     Config options:
         - tools: List of tool names to make available
-        - max_iterations: Max tool-call loops (default: 5)
+        - max_iterations: Max tool-call loops (default: 10)
         - state_key: Key to store final answer (default: node_name)
         - prompt: Prompt file name (default: "agent")
         - tool_results_key: Optional key to store raw tool outputs
@@ -169,7 +169,7 @@ def create_agent_node(
         prompts_dir = Path(prompts_dir)
 
     tool_names = node_config.get("tools", [])
-    max_iterations = node_config.get("max_iterations", 5)
+    max_iterations = node_config.get("max_iterations", 10)
     state_key = node_config.get("state_key", node_name)
     prompt_name = node_config.get("prompt", "agent")
     tool_results_key = node_config.get("tool_results_key")

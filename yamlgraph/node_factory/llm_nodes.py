@@ -82,6 +82,7 @@ def create_node_function(
     temperature = node_config.get("temperature", defaults.get("temperature", 0.7))
     provider = node_config.get("provider", defaults.get("provider"))
     model = node_config.get("model", defaults.get("model"))
+    max_tokens = node_config.get("max_tokens", defaults.get("max_tokens"))
     state_key = node_config.get("state_key", node_name)
     variable_templates = node_config.get("variables", {})
     requires = node_config.get("requires", [])
@@ -143,6 +144,7 @@ def create_node_function(
                     prompts_dir=prompts_dir,
                     prompts_relative=prompts_relative,
                     state=state,
+                    max_tokens=max_tokens,
                 )
                 return result, None
             except Exception as e:

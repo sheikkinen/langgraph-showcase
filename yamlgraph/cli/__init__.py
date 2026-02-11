@@ -80,6 +80,13 @@ def create_parser() -> argparse.ArgumentParser:
         dest="recursion_limit",
         help="Override LangGraph recursion limit (default: from YAML config or 50)",
     )
+    graph_run_parser.add_argument(
+        "--timeout",
+        type=int,
+        default=None,
+        dest="timeout",
+        help="Global execution timeout in seconds (default: from YAML config or None)",
+    )
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

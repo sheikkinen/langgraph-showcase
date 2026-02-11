@@ -213,7 +213,7 @@ class TestCreateAgentNode:
 
     @pytest.mark.req("REQ-YG-018")
     def test_default_max_iterations(self):
-        """Default max_iterations is 5."""
+        """Default max_iterations is 10."""
         tools = {
             "test": ShellToolConfig(command="echo test", description="Test"),
         }

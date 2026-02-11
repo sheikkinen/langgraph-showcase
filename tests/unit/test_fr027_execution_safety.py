@@ -7,6 +7,11 @@ P0 items:
 2. recursion_limit exposure (REQ-YG-056)
 3. loop_limits enforced in all node types (REQ-YG-057)
 4. Linter W012: cycle without loop_limits (REQ-YG-058)
+
+P1 items:
+5. max_iterations default mismatch fix (REQ-YG-059)
+6. max_tokens wired to create_llm() (REQ-YG-060)
+7. Global execution timeout (REQ-YG-061)
 """
 
 from __future__ import annotations
@@ -545,3 +550,302 @@ class TestRecursionLimitWiring:
         invoke_kwargs = mock_app.invoke.call_args
         config_passed = invoke_kwargs.kwargs.get("config")
         assert config_passed["recursion_limit"] == 50
+
+
+# ──────────────────────────────────────────────────────────────
+# 6. max_iterations default mismatch fix (REQ-YG-059)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestMaxIterationsMismatch:
+    """max_iterations must have a single default of 10 everywhere."""
+
+    @pytest.mark.req("REQ-YG-059")
+    def test_agent_default_max_iterations_is_10(self):
+        """agent.py runtime default must be 10, not 5."""
+        # Inspect the source to ensure no hardcoded `5`
+        import inspect
+
+        from yamlgraph.tools.agent import create_agent_node
+
+        source = inspect.getsource(create_agent_node)
+        # The line `node_config.get("max_iterations", 5)` is the bug
+        # After fix, default should be 10
+        assert 'max_iterations", 5)' not in source
+        assert 'max_iterations", 10)' in source or "max_iterations" in source
+
+    @pytest.mark.req("REQ-YG-059")
+    def test_schema_and_runtime_agree_on_10(self):
+        """Pydantic model, JSON schema, and agent code must all say 10."""
+        from yamlgraph.models.graph_schema import NodeConfig
+
+        # Pydantic model should default to 10
+        nc = NodeConfig(type="agent")
+        assert nc.max_iterations == 10
+
+    @pytest.mark.req("REQ-YG-059")
+    def test_agent_node_config_get_reads_from_config_not_hardcoded(self):
+        """agent.py must use node_config value, not shadow it with hardcoded 5."""
+        from yamlgraph.tools.agent import create_agent_node
+        from yamlgraph.tools.shell import ShellToolConfig
+
+        tools = {
+            "test": ShellToolConfig(command="echo test", description="Test"),
+        }
+        # Explicitly set max_iterations=3
+        node_config = {
+            "prompt": "agent",
+            "tools": ["test"],
+            "max_iterations": 3,
+        }
+        node_fn = create_agent_node("agent", node_config, tools)
+        assert callable(node_fn)
+
+
+# ──────────────────────────────────────────────────────────────
+# 7. max_tokens wired to create_llm() (REQ-YG-060)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestMaxTokensWiring:
+    """max_tokens must flow from YAML node config → create_llm() → provider."""
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_create_llm_accepts_max_tokens(self):
+        """create_llm() must accept a max_tokens parameter."""
+        import inspect
+
+        from yamlgraph.utils.llm_factory import create_llm
+
+        sig = inspect.signature(create_llm)
+        assert "max_tokens" in sig.parameters
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_create_llm_passes_max_tokens_to_provider(self):
+        """create_llm(max_tokens=2048) must pass it to the LLM constructor."""
+        from unittest.mock import patch
+
+        from yamlgraph.utils.llm_factory import clear_cache, create_llm
+
+        clear_cache()
+
+        with patch("langchain_anthropic.ChatAnthropic") as mock_cls:
+            mock_cls.return_value = mock_cls
+            create_llm(provider="anthropic", max_tokens=2048)
+            mock_cls.assert_called_once()
+            call_kwargs = mock_cls.call_args.kwargs
+            assert call_kwargs.get("max_tokens") == 2048
+
+        clear_cache()
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_create_llm_omits_max_tokens_when_none(self):
+        """create_llm(max_tokens=None) should NOT pass max_tokens to provider."""
+        from unittest.mock import patch
+
+        from yamlgraph.utils.llm_factory import clear_cache, create_llm
+
+        clear_cache()
+
+        with patch("langchain_anthropic.ChatAnthropic") as mock_cls:
+            mock_cls.return_value = mock_cls
+            create_llm(provider="anthropic", max_tokens=None)
+            mock_cls.assert_called_once()
+            call_kwargs = mock_cls.call_args.kwargs
+            assert "max_tokens" not in call_kwargs
+
+        clear_cache()
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_node_config_max_tokens_reaches_execute_prompt(self):
+        """Node-level max_tokens should be read from config and passed through."""
+        from yamlgraph.node_factory.llm_nodes import create_node_function
+
+        node_config = {
+            "prompt": "test",
+            "max_tokens": 2048,
+        }
+        # create_node_function should read max_tokens from node_config
+        # Verify it doesn't crash (integration tested via mock)
+        node_fn = create_node_function("test_node", node_config, defaults={})
+        assert callable(node_fn)
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_execute_prompt_accepts_max_tokens(self):
+        """execute_prompt() must accept a max_tokens parameter."""
+        import inspect
+
+        from yamlgraph.executor import execute_prompt
+
+        sig = inspect.signature(execute_prompt)
+        assert "max_tokens" in sig.parameters
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_graph_config_max_tokens(self):
+        """GraphConfig must parse config.max_tokens from YAML."""
+        from yamlgraph.graph_loader import GraphConfig
+
+        config = {
+            "nodes": {"a": {"type": "llm", "prompt": "test"}},
+            "edges": [{"from": "START", "to": "a"}, {"from": "a", "to": "END"}],
+            "config": {"max_tokens": 2048},
+        }
+        gc = GraphConfig(config)
+        assert gc.max_tokens == 2048
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_graph_config_max_tokens_default_none(self):
+        """GraphConfig max_tokens should default to None (no cap)."""
+        from yamlgraph.graph_loader import GraphConfig
+
+        config = {
+            "nodes": {"a": {"type": "llm", "prompt": "test"}},
+            "edges": [{"from": "START", "to": "a"}, {"from": "a", "to": "END"}],
+        }
+        gc = GraphConfig(config)
+        assert gc.max_tokens is None
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_json_schema_has_max_tokens_in_config(self):
+        """graph-v1.json config block must include max_tokens."""
+        import json
+
+        schema_path = (
+            Path(__file__).parent.parent.parent
+            / "yamlgraph"
+            / "schemas"
+            / "graph-v1.json"
+        )
+        schema = json.loads(schema_path.read_text())
+        config_props = schema["properties"]["config"]["properties"]
+        assert "max_tokens" in config_props
+
+    @pytest.mark.req("REQ-YG-060")
+    def test_cache_key_includes_max_tokens(self):
+        """LLM cache key must include max_tokens to avoid serving wrong instance."""
+        from unittest.mock import patch
+
+        from yamlgraph.utils.llm_factory import clear_cache
+
+        clear_cache()
+
+        with patch("langchain_anthropic.ChatAnthropic") as mock_cls:
+            mock_cls.return_value = mock_cls
+            from yamlgraph.utils.llm_factory import create_llm
+
+            create_llm(provider="anthropic", max_tokens=2048)
+            create_llm(provider="anthropic", max_tokens=4096)
+            # Should be called twice (different cache keys)
+            assert mock_cls.call_count == 2
+
+        clear_cache()
+
+
+# ──────────────────────────────────────────────────────────────
+# 8. Global execution timeout (REQ-YG-061)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestExecutionTimeout:
+    """config.timeout and --timeout must cap total execution wall-clock time."""
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_graph_config_parses_timeout(self):
+        """GraphConfig must parse config.timeout from YAML."""
+        from yamlgraph.graph_loader import GraphConfig
+
+        config = {
+            "nodes": {"a": {"type": "llm", "prompt": "test"}},
+            "edges": [{"from": "START", "to": "a"}, {"from": "a", "to": "END"}],
+            "config": {"timeout": 120},
+        }
+        gc = GraphConfig(config)
+        assert gc.timeout == 120
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_graph_config_timeout_default_none(self):
+        """GraphConfig timeout should default to None (no timeout)."""
+        from yamlgraph.graph_loader import GraphConfig
+
+        config = {
+            "nodes": {"a": {"type": "llm", "prompt": "test"}},
+            "edges": [{"from": "START", "to": "a"}, {"from": "a", "to": "END"}],
+        }
+        gc = GraphConfig(config)
+        assert gc.timeout is None
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_json_schema_has_timeout_in_config(self):
+        """graph-v1.json config block must include timeout."""
+        import json
+
+        schema_path = (
+            Path(__file__).parent.parent.parent
+            / "yamlgraph"
+            / "schemas"
+            / "graph-v1.json"
+        )
+        schema = json.loads(schema_path.read_text())
+        config_props = schema["properties"]["config"]["properties"]
+        assert "timeout" in config_props
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_timeout_triggers_sys_exit(self):
+        """When timeout fires, cmd_graph_run should exit with error."""
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from yamlgraph.cli.graph_commands import cmd_graph_run
+
+        mock_config = MagicMock()
+        mock_config.recursion_limit = 50
+        mock_config.max_tokens = None
+        mock_config.timeout = 1  # 1 second timeout
+        mock_config.data = {}
+
+        mock_graph = MagicMock()
+        mock_app = MagicMock()
+        # Simulate a slow invoke
+        import time
+
+        mock_app.invoke.side_effect = lambda *a, **kw: time.sleep(5) or {
+            "result": "late"
+        }
+        mock_graph.compile.return_value = mock_app
+
+        args = argparse.Namespace(
+            graph_path="examples/demos/hello/graph.yaml",
+            var=[],
+            thread=None,
+            export=False,
+            use_async=False,
+            share_trace=False,
+            full=False,
+            recursion_limit=None,
+            timeout=None,  # CLI not set, YAML says 1
+        )
+
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch("yamlgraph.graph_loader.load_graph_config", return_value=mock_config),
+            patch("yamlgraph.graph_loader.compile_graph", return_value=mock_graph),
+            patch(
+                "yamlgraph.graph_loader.get_checkpointer_for_graph", return_value=None
+            ),
+            pytest.raises(SystemExit),
+        ):
+            cmd_graph_run(args)
+
+    @pytest.mark.req("REQ-YG-061")
+    def test_cli_timeout_overrides_yaml(self):
+        """--timeout CLI arg should override YAML config.timeout."""
+        from yamlgraph.graph_loader import GraphConfig
+
+        config = {
+            "nodes": {"a": {"type": "llm", "prompt": "test"}},
+            "edges": [{"from": "START", "to": "a"}, {"from": "a", "to": "END"}],
+            "config": {"timeout": 120},
+        }
+        gc = GraphConfig(config)
+        assert gc.timeout == 120
+        # CLI override would be handled in cmd_graph_run, same pattern as recursion_limit

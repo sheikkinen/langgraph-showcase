@@ -40,6 +40,7 @@ async def create_llm_async(
     provider: ProviderType | None = None,
     model: str | None = None,
     temperature: float = 0.7,
+    max_tokens: int | None = None,
 ) -> BaseChatModel:
     """Create an LLM instance asynchronously.
 
@@ -50,6 +51,7 @@ async def create_llm_async(
         provider: LLM provider ("anthropic", "mistral", "openai")
         model: Model name
         temperature: Temperature for generation
+        max_tokens: Maximum output tokens. None means provider default.
 
     Returns:
         Configured LLM instance
@@ -57,7 +59,13 @@ async def create_llm_async(
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(
         get_executor(),
-        partial(create_llm, provider=provider, model=model, temperature=temperature),
+        partial(
+            create_llm,
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        ),
     )
 
 
