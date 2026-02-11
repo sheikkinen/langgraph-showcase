@@ -73,6 +73,13 @@ def create_parser() -> argparse.ArgumentParser:
         dest="share_trace",
         help="Share LangSmith trace publicly and display the URL",
     )
+    graph_run_parser.add_argument(
+        "--recursion-limit",
+        type=int,
+        default=None,
+        dest="recursion_limit",
+        help="Override LangGraph recursion limit (default: from YAML config or 50)",
+    )
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

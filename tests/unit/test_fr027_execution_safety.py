@@ -387,3 +387,161 @@ class TestLinterW012:
 
         codes = [i.code for i in issues]
         assert "W012" not in codes
+
+
+# ──────────────────────────────────────────────────────────────
+# 5. recursion_limit wired to graph.invoke() (REQ-YG-056)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestRecursionLimitWiring:
+    """recursion_limit must flow from YAML/CLI to app.invoke(config=...)."""
+
+    @pytest.mark.req("REQ-YG-056")
+    def test_yaml_recursion_limit_reaches_invoke(self):
+        """YAML config.recursion_limit should be passed to app.invoke()."""
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from yamlgraph.cli.graph_commands import cmd_graph_run
+
+        mock_config = MagicMock()
+        mock_config.recursion_limit = 25
+        mock_config.data = {}
+
+        mock_graph = MagicMock()
+        mock_app = MagicMock()
+        mock_app.invoke.return_value = {"result": "ok"}
+        mock_graph.compile.return_value = mock_app
+
+        args = argparse.Namespace(
+            graph_path="examples/demos/hello/graph.yaml",
+            var=[],
+            thread=None,
+            export=False,
+            use_async=False,
+            share_trace=False,
+            full=False,
+            recursion_limit=None,  # Not set via CLI
+        )
+
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch(
+                "yamlgraph.graph_loader.load_graph_config",
+                return_value=mock_config,
+            ),
+            patch(
+                "yamlgraph.graph_loader.compile_graph",
+                return_value=mock_graph,
+            ),
+            patch(
+                "yamlgraph.graph_loader.get_checkpointer_for_graph",
+                return_value=None,
+            ),
+        ):
+            cmd_graph_run(args)
+
+        # Verify recursion_limit=25 was passed in config
+        invoke_kwargs = mock_app.invoke.call_args
+        config_passed = invoke_kwargs.kwargs.get("config")
+        assert config_passed["recursion_limit"] == 25
+
+    @pytest.mark.req("REQ-YG-056")
+    def test_cli_recursion_limit_overrides_yaml(self):
+        """--recursion-limit CLI arg should override YAML config."""
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from yamlgraph.cli.graph_commands import cmd_graph_run
+
+        mock_config = MagicMock()
+        mock_config.recursion_limit = 25  # YAML says 25
+        mock_config.data = {}
+
+        mock_graph = MagicMock()
+        mock_app = MagicMock()
+        mock_app.invoke.return_value = {"result": "ok"}
+        mock_graph.compile.return_value = mock_app
+
+        args = argparse.Namespace(
+            graph_path="examples/demos/hello/graph.yaml",
+            var=[],
+            thread=None,
+            export=False,
+            use_async=False,
+            share_trace=False,
+            full=False,
+            recursion_limit=10,  # CLI override
+        )
+
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch(
+                "yamlgraph.graph_loader.load_graph_config",
+                return_value=mock_config,
+            ),
+            patch(
+                "yamlgraph.graph_loader.compile_graph",
+                return_value=mock_graph,
+            ),
+            patch(
+                "yamlgraph.graph_loader.get_checkpointer_for_graph",
+                return_value=None,
+            ),
+        ):
+            cmd_graph_run(args)
+
+        # CLI value 10 should override YAML value 25
+        invoke_kwargs = mock_app.invoke.call_args
+        config_passed = invoke_kwargs.kwargs.get("config")
+        assert config_passed["recursion_limit"] == 10
+
+    @pytest.mark.req("REQ-YG-056")
+    def test_default_recursion_limit_50_reaches_invoke(self):
+        """When neither CLI nor YAML sets it, default 50 should reach invoke."""
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from yamlgraph.cli.graph_commands import cmd_graph_run
+
+        mock_config = MagicMock()
+        mock_config.recursion_limit = 50  # Default from GraphConfig
+        mock_config.data = {}
+
+        mock_graph = MagicMock()
+        mock_app = MagicMock()
+        mock_app.invoke.return_value = {"result": "ok"}
+        mock_graph.compile.return_value = mock_app
+
+        args = argparse.Namespace(
+            graph_path="examples/demos/hello/graph.yaml",
+            var=[],
+            thread=None,
+            export=False,
+            use_async=False,
+            share_trace=False,
+            full=False,
+            recursion_limit=None,
+        )
+
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch(
+                "yamlgraph.graph_loader.load_graph_config",
+                return_value=mock_config,
+            ),
+            patch(
+                "yamlgraph.graph_loader.compile_graph",
+                return_value=mock_graph,
+            ),
+            patch(
+                "yamlgraph.graph_loader.get_checkpointer_for_graph",
+                return_value=None,
+            ),
+        ):
+            cmd_graph_run(args)
+
+        invoke_kwargs = mock_app.invoke.call_args
+        config_passed = invoke_kwargs.kwargs.get("config")
+        assert config_passed["recursion_limit"] == 50

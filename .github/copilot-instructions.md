@@ -60,7 +60,7 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 
 7. **Thou shalt be faithful to TDD** — Red-Green-Refactor; run `pytest` with every change. No bug shall be fixed unless first condemned by a failing test.
 
-8. **Thou shalt kill all entropy and false idols** — Split modules before they bloat; feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify with `radon`. No shims, no adapters, no “compat” flags; archive legacy to `purgatory/` and record its lessons in `docs/adr/`.
+8. **Thou shalt kill all entropy and false idols** — Split modules before they bloat; feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify with `radon`. No shims, no adapters, no “compat” flags; cast legacy code to `purgatory/` and record its lessons in `docs/adr/`.
 
 9. **Thou shalt define and observe operational truth** — Establish measurable service objectives; instrument and trace execution via `utils/tracing` and `--share-trace`; treat performance degradation, failure rates, and evaluation drift as production defects. No incident shall be closed without cited traces in LangSmith and recorded rationale in `docs/adr/`.
 

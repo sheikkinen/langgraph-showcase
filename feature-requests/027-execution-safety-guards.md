@@ -2,7 +2,7 @@
 
 **Priority:** HIGH
 **Type:** Enhancement
-**Status:** Proposed
+**Status:** P0 Complete
 **Effort:** 3–5 days
 **Requested:** 2026-02-11
 
@@ -174,11 +174,11 @@ nodes:
 ## Acceptance Criteria
 
 ### P0
-- [ ] Map fan-out capped by `max_items` / `config.max_map_items` (default 100)
-- [ ] `recursion_limit` configurable via YAML `config:` and CLI `--recursion-limit` (default 50)
-- [ ] `check_loop_limit()` enforced in tool, python, and passthrough nodes
-- [ ] Linter W012: warns on cycles without `loop_limits`
-- [ ] All P0 items covered by tests with `@pytest.mark.req`
+- [x] Map fan-out capped by `max_items` / `config.max_map_items` (default 100)
+- [x] `recursion_limit` configurable via YAML `config:` and CLI `--recursion-limit` (default 50)
+- [x] `check_loop_limit()` enforced in tool, python, and passthrough nodes
+- [x] Linter W012: warns on cycles without `loop_limits`
+- [x] All P0 items covered by tests with `@pytest.mark.req`
 
 ### P1
 - [ ] Global execution timeout via `config.timeout` and CLI `--timeout`
@@ -190,11 +190,11 @@ nodes:
 - [ ] Linter W013: warns on dynamic map `over:` without `max_items`
 
 ### Cross-cutting
-- [ ] Schema `graph-v1.json` updated for all new config keys
+- [x] Schema `graph-v1.json` updated for all new config keys
 - [ ] `reference/graph-yaml.md` documents all new keys
-- [ ] `ARCHITECTURE.md` requirements added (REQ-YG-055+)
-- [ ] `CHANGELOG.md` updated
-- [ ] Version bumped
+- [x] `ARCHITECTURE.md` requirements added (REQ-YG-055+)
+- [x] `CHANGELOG.md` updated
+- [x] Version bumped
 
 ## Alternatives Considered
 

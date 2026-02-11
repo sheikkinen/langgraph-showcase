@@ -185,6 +185,13 @@ def cmd_graph_run(args: Namespace) -> None:
             config["configurable"] = {"thread_id": args.thread}
             initial_state["thread_id"] = args.thread
 
+        # FR-027: Wire recursion_limit into LangGraph config
+        # CLI --recursion-limit overrides YAML config.recursion_limit
+        recursion_limit = getattr(args, "recursion_limit", None)
+        if recursion_limit is None:
+            recursion_limit = graph_config.recursion_limit
+        config["recursion_limit"] = recursion_limit
+
         # FR-022: Set up LangSmith tracing
         from yamlgraph.utils.tracing import (
             create_tracer,
