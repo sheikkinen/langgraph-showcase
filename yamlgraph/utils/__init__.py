@@ -10,6 +10,10 @@ from yamlgraph.utils.json_extract import extract_json
 from yamlgraph.utils.logging import get_logger, setup_logging
 from yamlgraph.utils.prompts import load_prompt, load_prompt_path, resolve_prompt_path
 from yamlgraph.utils.template import extract_variables, validate_variables
+from yamlgraph.utils.token_tracker import (
+    TokenUsageCallbackHandler,
+    create_token_tracker,
+)
 from yamlgraph.utils.tracing import (
     create_tracer,
     get_trace_url,
@@ -43,4 +47,7 @@ __all__ = [
     "get_trace_url",
     "share_trace",
     "inject_tracer_config",
+    # Token tracking (FR-027 P2-8)
+    "TokenUsageCallbackHandler",
+    "create_token_tracker",
 ]

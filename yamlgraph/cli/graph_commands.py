@@ -257,6 +257,15 @@ def cmd_graph_run(args: Namespace) -> None:
         inject_tracer_config(config, tracer)
         share_flag = getattr(args, "share_trace", False)
 
+        # FR-027 P2-8: Set up token usage tracking
+        token_usage_flag = getattr(args, "token_usage", False)
+        tracker = None
+        if token_usage_flag:
+            from yamlgraph.utils.token_tracker import create_token_tracker
+
+            tracker = create_token_tracker()
+            config.setdefault("callbacks", []).append(tracker)
+
         # FR-027: Set up timeout guard (signal.alarm on Unix)
         timeout_ctx = _setup_timeout(timeout)
 
@@ -303,6 +312,16 @@ def cmd_graph_run(args: Namespace) -> None:
             _teardown_timeout(timeout_ctx)
 
         _display_result(result, truncate=not getattr(args, "full", False))
+
+        # FR-027 P2-8: Print token usage summary
+        if tracker is not None and tracker.total_calls > 0:
+            s = tracker.summary()
+            print(
+                f"\n\U0001f4ca Token usage: "
+                f"{s['total_input_tokens']} in / "
+                f"{s['total_output_tokens']} out "
+                f"({s['total_calls']} call{'s' if s['total_calls'] != 1 else ''})"
+            )
 
         if args.export:
             _handle_export(graph_path, result)

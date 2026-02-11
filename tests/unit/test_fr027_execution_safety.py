@@ -12,6 +12,10 @@ P1 items:
 5. max_iterations default mismatch fix (REQ-YG-059)
 6. max_tokens wired to create_llm() (REQ-YG-060)
 7. Global execution timeout (REQ-YG-061)
+
+P2 items:
+8. Token usage tracking callback (REQ-YG-064)
+9. Linter W013: dynamic map without max_items (REQ-YG-062)
 """
 
 from __future__ import annotations
@@ -1005,3 +1009,127 @@ class TestLinterW013DynamicMap:
         }
         issues = check_dynamic_map_without_max_items("static_map", node_config, {})
         assert len(issues) == 0
+
+
+# ──────────────────────────────────────────────────────────────
+# 10. Token usage tracking callback (REQ-YG-064)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestTokenUsageTracking:
+    """Token usage callback handler accumulates tokens across LLM calls."""
+
+    def _make_llm_result(self, input_tokens: int, output_tokens: int):
+        """Create a mock LLMResult with usage_metadata on the message."""
+        from unittest.mock import MagicMock
+
+        message = MagicMock()
+        message.usage_metadata = {
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": input_tokens + output_tokens,
+        }
+
+        generation = MagicMock()
+        generation.message = message
+
+        result = MagicMock()
+        result.generations = [[generation]]
+        return result
+
+    def _make_llm_result_no_usage(self):
+        """Create a mock LLMResult without usage_metadata."""
+        from unittest.mock import MagicMock
+
+        message = MagicMock()
+        message.usage_metadata = None
+
+        generation = MagicMock()
+        generation.message = message
+
+        result = MagicMock()
+        result.generations = [[generation]]
+        return result
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_handler_accumulates_tokens(self):
+        """on_llm_end with usage_metadata should accumulate token counts."""
+        from yamlgraph.utils.token_tracker import TokenUsageCallbackHandler
+
+        handler = TokenUsageCallbackHandler()
+        result = self._make_llm_result(100, 50)
+        handler.on_llm_end(result)
+
+        assert handler.total_input_tokens == 100
+        assert handler.total_output_tokens == 50
+        assert handler.total_calls == 1
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_handler_no_usage_metadata(self):
+        """on_llm_end without usage_metadata should not crash, zero tokens."""
+        from yamlgraph.utils.token_tracker import TokenUsageCallbackHandler
+
+        handler = TokenUsageCallbackHandler()
+        result = self._make_llm_result_no_usage()
+        handler.on_llm_end(result)
+
+        assert handler.total_input_tokens == 0
+        assert handler.total_output_tokens == 0
+        assert handler.total_calls == 1
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_handler_multiple_calls_accumulate(self):
+        """Multiple on_llm_end calls should accumulate totals."""
+        from yamlgraph.utils.token_tracker import TokenUsageCallbackHandler
+
+        handler = TokenUsageCallbackHandler()
+        handler.on_llm_end(self._make_llm_result(100, 50))
+        handler.on_llm_end(self._make_llm_result(200, 80))
+        handler.on_llm_end(self._make_llm_result(50, 20))
+
+        assert handler.total_input_tokens == 350
+        assert handler.total_output_tokens == 150
+        assert handler.total_calls == 3
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_handler_summary_returns_dict(self):
+        """.summary() should return a well-structured dict."""
+        from yamlgraph.utils.token_tracker import TokenUsageCallbackHandler
+
+        handler = TokenUsageCallbackHandler()
+        handler.on_llm_end(self._make_llm_result(100, 50))
+
+        summary = handler.summary()
+        assert summary == {
+            "total_input_tokens": 100,
+            "total_output_tokens": 50,
+            "total_tokens": 150,
+            "total_calls": 1,
+        }
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_handler_summary_empty(self):
+        """.summary() with no calls should return all zeros."""
+        from yamlgraph.utils.token_tracker import TokenUsageCallbackHandler
+
+        handler = TokenUsageCallbackHandler()
+
+        summary = handler.summary()
+        assert summary == {
+            "total_input_tokens": 0,
+            "total_output_tokens": 0,
+            "total_tokens": 0,
+            "total_calls": 0,
+        }
+
+    @pytest.mark.req("REQ-YG-064")
+    def test_create_token_tracker_factory(self):
+        """create_token_tracker() should return a handler instance."""
+        from yamlgraph.utils.token_tracker import (
+            TokenUsageCallbackHandler,
+            create_token_tracker,
+        )
+
+        tracker = create_token_tracker()
+        assert isinstance(tracker, TokenUsageCallbackHandler)
+        assert tracker.total_calls == 0

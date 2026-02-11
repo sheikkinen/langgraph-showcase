@@ -2,7 +2,7 @@
 
 **Priority:** HIGH
 **Type:** Enhancement
-**Status:** P0+P1+W013 Complete (P2-8 token tracking deferred)
+**Status:** Complete (all P0 + P1 + P2 items implemented)
 **Effort:** 3–5 days
 **Requested:** 2026-02-11
 
@@ -126,18 +126,18 @@ Single source of truth: read from Pydantic schema default (10), remove hardcoded
 
 #### 8. Token / cost tracking callback (Gap 7)
 
-Extract `response.usage_metadata` from LLM responses. Accumulate in state field `_token_usage: dict`. Log summary at graph completion.
+`TokenUsageCallbackHandler` — a LangChain `BaseCallbackHandler` injected via
+`config["callbacks"]` (same pattern as LangSmith tracer).  Reads
+`response.generations[*][*].message.usage_metadata` in `on_llm_end`.
+CLI flag `--token-usage` enables summary after execution.
 
-```python
-# Accumulated in state
-{
-    "_token_usage": {
-        "total_input_tokens": 12500,
-        "total_output_tokens": 3200,
-        "total_calls": 8
-    }
-}
+```bash
+yamlgraph graph run graph.yaml --var topic=AI --token-usage
+# 📊 Token usage: 1250 in / 320 out (3 calls)
 ```
+
+Implementation: `yamlgraph/utils/token_tracker.py` — follows
+`yamlgraph/utils/tracing.py` pattern exactly.
 
 #### 9. Linter E012: map node without `max_items` on dynamic expressions
 
@@ -186,7 +186,7 @@ nodes:
 - [x] `max_iterations` default mismatch fixed (single source of truth)
 
 ### P2
-- [ ] Token usage accumulated in `_token_usage` state field
+- [x] Token usage tracked via `TokenUsageCallbackHandler` callback, CLI `--token-usage`
 - [x] Linter W013: warns on dynamic map `over:` without `max_items`
 
 ### Cross-cutting

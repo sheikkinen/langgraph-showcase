@@ -87,6 +87,12 @@ def create_parser() -> argparse.ArgumentParser:
         dest="timeout",
         help="Global execution timeout in seconds (default: from YAML config or None)",
     )
+    graph_run_parser.add_argument(
+        "--token-usage",
+        action="store_true",
+        dest="token_usage",
+        help="Track and display token usage summary after execution",
+    )
 
     # graph info
     graph_info_parser = graph_subparsers.add_parser(

@@ -14,6 +14,43 @@ from pydantic import BaseModel, Field
 from yamlgraph.models import create_initial_state
 
 # =============================================================================
+# Requirement Traceability Enforcement (ADR-001)
+# =============================================================================
+# Every test must be linked to a requirement via @pytest.mark.req("REQ-YG-XXX")
+# This hook enforces Commandment #10: Preserve and improve the doctrine
+
+
+def pytest_collection_modifyitems(config, items):
+    """Enforce that every test has @pytest.mark.req decorator.
+
+    Implements ADR-001: Requirement Traceability.
+    Enforces Commandment #10: Preserve and improve the doctrine.
+
+    Raises:
+        pytest.UsageError: If any test lacks @pytest.mark.req marker.
+    """
+    missing = []
+    for item in items:
+        # Check if the test has the 'req' marker
+        if "req" not in item.keywords:
+            missing.append(item.nodeid)
+
+    if missing:
+        error_msg = (
+            f"\n{'=' * 70}\n"
+            f"REQUIREMENT TRACEABILITY VIOLATION (ADR-001)\n"
+            f"{'=' * 70}\n"
+            f"{len(missing)} test(s) missing @pytest.mark.req('REQ-YG-XXX'):\n\n"
+            + "\n".join(f"  - {nodeid}" for nodeid in missing)
+            + f"\n\n"
+            f"Every test must be linked to a requirement in ARCHITECTURE.md.\n"
+            f"See: .github/copilot-instructions.md (Commandment #10)\n"
+            f"{'=' * 70}\n"
+        )
+        raise pytest.UsageError(error_msg)
+
+
+# =============================================================================
 # Test-Only Pydantic Models (Fixtures)
 # =============================================================================
 # These replicate demo model structures but are defined here to prove

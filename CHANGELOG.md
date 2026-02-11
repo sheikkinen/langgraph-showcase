@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.34] - 2026-02-11
+
+### Added
+- **Token usage tracking** (REQ-YG-064): `TokenUsageCallbackHandler` callback accumulates `input_tokens`, `output_tokens`, and `total_calls` across all LLM invocations in a graph run. CLI `--token-usage` flag prints summary. Follows the same `config["callbacks"]` pattern as LangSmith tracer. Completes FR-027 P2-8.
+- **Requirement traceability enforcement** (REQ-YG-063): `pytest_collection_modifyitems` hook in `tests/conftest.py` now **structurally enforces** ADR-001. Every test must have `@pytest.mark.req("REQ-YG-XXX")` or collection fails with `UsageError`. Implements Commandment #10.
+- 8 new tests (6 token tracking + 2 enforcement) in `tests/unit/test_fr027_execution_safety.py` and `tests/unit/test_requirement_enforcement.py`.
+
+### Stats
+- 1619 passed, 1 skipped, 2 xfailed, 64/64 reqs, 91.66% coverage.
+
 ## [0.4.33] - 2026-02-11
 
 ### Added
