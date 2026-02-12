@@ -62,9 +62,9 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 
 8. **Thou shalt kill all entropy and false idols** — Split modules before they bloat; feed the dead to `vulture`; burn duplicates with `jscpd`; sanctify with `radon`. No shims, no adapters, no “compat” flags; cast legacy code to `purgatory/` and record its lessons in `docs/adr/`.
 
-9. **Thou shalt define and observe operational truth** — Establish measurable service objectives; instrument and trace execution via `utils/tracing` and `--share-trace`; treat performance degradation, failure rates, and evaluation drift as production defects. No incident shall be closed without cited traces in LangSmith and recorded rationale in `docs/adr/`.
+9. **Thou shalt define and observe operational truth** — Establish measurable service objectives; instrument and trace execution; treat performance degradation, failure rates, and evaluation drift as production defects. No incident shall be closed without cited traces in LangSmith and recorded rationale in `docs/adr/`.
 
-10. **Thou shalt preserve and improve the doctrine** — RTFM in `examples/` and `reference/`; record every change in `CHANGELOG.md`; bump `pyproject.toml`; tag every test with `@pytest.mark.req` and run `req_coverage.py --strict`; let failure refine and success be codified into doctrine.
+10. **Thou shalt preserve and improve the doctrine** — RTFM in `examples/` and `reference/`; record every change in `CHANGELOG.md`; bump `pyproject.toml`; tag every test with `@pytest.mark.req`; let failure refine and success be codified into doctrine.
 
 ## Sermon of the Chaplain
 
