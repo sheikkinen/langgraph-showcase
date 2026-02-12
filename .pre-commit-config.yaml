@@ -40,6 +40,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: radon-complexity
+        name: radon CC gate (block grade D)
+        entry: bash -c 'output=$(python -m radon cc yamlgraph/ -n D -s 2>&1); if [ -n "$output" ]; then echo "$output"; echo ""; echo "FAIL -- functions with cyclomatic complexity >= 21 (grade D) detected"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
       - id: forbid-terms
         name: forbid TODOs and compatibility drift
         entry: bash -c '! find yamlgraph -type f -name "*.py" ! -path "*/__pycache__/*" ! -path "*/.pytest_cache/*" ! -path "*/.mypy_cache/*" ! -path "*/.ruff_cache/*" ! -path "*/.venv/*" -print0 | xargs -0 grep -nE "TODO|FIXME|backward compati(bility)?"'
