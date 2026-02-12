@@ -11,7 +11,7 @@ run_graph_async() for non-streaming multi-turn operations.
 """
 
 import pytest
-from langgraph.types import Command, Interrupt
+from langgraph.types import Command
 
 
 @pytest.mark.asyncio

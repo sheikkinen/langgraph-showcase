@@ -24,7 +24,7 @@ from yamlgraph.utils.llm_factory_async import invoke_async
 
 if TYPE_CHECKING:
     from langgraph.graph.state import CompiledStateGraph
-    from langgraph.types import Command, Interrupt
+    from langgraph.types import Command
 
 logger = logging.getLogger(__name__)
 
