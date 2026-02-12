@@ -187,6 +187,73 @@ def _print_trace_url(tracer: object | None, share: bool = False) -> None:
             print(f"🔗 Trace: {url}")
 
 
+def _build_run_config(args: Namespace, graph_config, initial_state: dict) -> tuple:
+    """Build LangGraph run configuration from CLI args and graph config.
+
+    Assembles thread_id, recursion_limit, timeout, tracing, and token
+    tracking into a single config dict.
+
+    Returns:
+        Tuple of (initial_state, config, tracker, timeout, tracer, share_flag)
+    """
+    from yamlgraph.utils.tracing import create_tracer, inject_tracer_config
+
+    # FR-021: Merge data_files into initial state (input vars win on collision)
+    if graph_config.data:
+        initial_state = {**graph_config.data, **initial_state}
+
+    # Add thread_id if provided
+    config: dict = {}
+    if args.thread:
+        config["configurable"] = {"thread_id": args.thread}
+        initial_state["thread_id"] = args.thread
+
+    # FR-027: Wire recursion_limit — CLI overrides YAML config
+    recursion_limit = getattr(args, "recursion_limit", None)
+    if recursion_limit is None:
+        recursion_limit = graph_config.recursion_limit
+    config["recursion_limit"] = recursion_limit
+
+    # FR-027: Wire timeout — CLI overrides YAML config
+    timeout = getattr(args, "timeout", None)
+    if timeout is None:
+        timeout = graph_config.timeout
+
+    # FR-022: Set up LangSmith tracing
+    tracer = create_tracer()
+    inject_tracer_config(config, tracer)
+    share_flag = getattr(args, "share_trace", False)
+
+    # FR-027 P2-8: Set up token usage tracking
+    tracker = None
+    if getattr(args, "token_usage", False):
+        from yamlgraph.utils.token_tracker import create_token_tracker
+
+        tracker = create_token_tracker()
+        config.setdefault("callbacks", []).append(tracker)
+
+    return initial_state, config, tracker, timeout, tracer, share_flag
+
+
+def _invoke_graph(app, input_data, config: dict, use_async: bool):
+    """Invoke a compiled graph synchronously or asynchronously.
+
+    Args:
+        app: Compiled LangGraph application.
+        input_data: Initial state dict or Command for resume.
+        config: LangGraph run configuration.
+        use_async: If True, use asyncio.run(app.ainvoke(...)).
+
+    Returns:
+        Graph execution result dict.
+    """
+    if use_async:
+        import asyncio
+
+        return asyncio.run(app.ainvoke(input_data, config=config))
+    return app.invoke(input_data, config=config)
+
+
 def cmd_graph_run(args: Namespace) -> None:
     """Run any graph with provided variables.
 
@@ -224,62 +291,18 @@ def cmd_graph_run(args: Namespace) -> None:
         checkpointer = get_checkpointer_for_graph(graph_config)
         app = graph.compile(checkpointer=checkpointer)
 
-        # FR-021: Merge data_files into initial state (input vars win on collision)
-        if graph_config.data:
-            merged_state = {**graph_config.data, **initial_state}
-            initial_state = merged_state
-
-        # Add thread_id if provided
-        config = {}
-        if args.thread:
-            config["configurable"] = {"thread_id": args.thread}
-            initial_state["thread_id"] = args.thread
-
-        # FR-027: Wire recursion_limit into LangGraph config
-        # CLI --recursion-limit overrides YAML config.recursion_limit
-        recursion_limit = getattr(args, "recursion_limit", None)
-        if recursion_limit is None:
-            recursion_limit = graph_config.recursion_limit
-        config["recursion_limit"] = recursion_limit
-
-        # FR-027: Wire timeout — CLI overrides YAML config
-        timeout = getattr(args, "timeout", None)
-        if timeout is None:
-            timeout = graph_config.timeout
-
-        # FR-022: Set up LangSmith tracing
-        from yamlgraph.utils.tracing import (
-            create_tracer,
-            inject_tracer_config,
+        # Build run configuration (data merge, thread, limits, tracing, tokens)
+        initial_state, config, tracker, timeout, tracer, share_flag = _build_run_config(
+            args, graph_config, initial_state
         )
-
-        tracer = create_tracer()
-        inject_tracer_config(config, tracer)
-        share_flag = getattr(args, "share_trace", False)
-
-        # FR-027 P2-8: Set up token usage tracking
-        token_usage_flag = getattr(args, "token_usage", False)
-        tracker = None
-        if token_usage_flag:
-            from yamlgraph.utils.token_tracker import create_token_tracker
-
-            tracker = create_token_tracker()
-            config.setdefault("callbacks", []).append(tracker)
+        use_async = getattr(args, "use_async", False)
 
         # FR-027: Set up timeout guard (signal.alarm on Unix)
         timeout_ctx = _setup_timeout(timeout)
 
         try:
             # Initial invoke
-            if getattr(args, "use_async", False):
-                import asyncio
-
-                result = asyncio.run(
-                    app.ainvoke(initial_state, config=config if config else None)
-                )
-            else:
-                result = app.invoke(initial_state, config=config if config else None)
-
+            result = _invoke_graph(app, initial_state, config, use_async)
             _print_trace_url(tracer, share_flag)
 
             # Interrupt loop - handle human-in-the-loop
@@ -295,15 +318,9 @@ def cmd_graph_run(args: Namespace) -> None:
                 # Resume with Command(resume=...)
                 from langgraph.types import Command
 
-                if getattr(args, "use_async", False):
-                    import asyncio
-
-                    result = asyncio.run(
-                        app.ainvoke(Command(resume=user_input), config=config)
-                    )
-                else:
-                    result = app.invoke(Command(resume=user_input), config=config)
-
+                result = _invoke_graph(
+                    app, Command(resume=user_input), config, use_async
+                )
                 _print_trace_url(tracer, share_flag)
         except TimeoutError as te:
             print(f"❌ {te}")
