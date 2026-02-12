@@ -7,10 +7,11 @@ in a Python project using pytest markers and AST-based tooling.
 
 ```bash
 cd examples/rtm-hello
-pytest                                    # 11 tests, all GREEN
-python scripts/req_coverage.py            # 4/4 requirements covered
-python scripts/req_coverage.py --detail   # per-req test list
-python scripts/req_coverage.py --strict   # CI gate (exit 1 on gaps)
+pytest                                            # 10 tests, all GREEN
+python scripts/req_coverage.py                    # summary with capability coverage
+python scripts/req_coverage.py --detail           # per-req test list
+python scripts/req_coverage.py --implementation   # req → source files → tests
+python scripts/req_coverage.py --strict           # CI gate (exit 1 on gaps)
 ```
 
 ## Project Structure
@@ -44,10 +45,16 @@ examples/rtm-hello/
 2. **Tests** must have `@pytest.mark.req("REQ-CALC-XXX")`
 3. **Enforcement** via `tests/conftest.py` — pytest rejects unmarked tests
 4. **Coverage** via `scripts/req_coverage.py` — AST extracts markers, checks all reqs
+5. **Implementation** via `--implementation` — links req → source → tests using:
+   - `.coverage` SQLite DB (from `pytest --cov=src --cov-context=test`)
+   - AST import analysis as fallback
+   - Grouped by capability sections from RTM.md
 
-## Next Steps
+## Coverage DB (optional)
 
-See the parent [YAMLGraph](../../) project for the full-scale implementation:
-- 64 requirements across 18 capabilities
-- Coverage-DB + AST hybrid resolution
-- `.coverage` SQLite integration for runtime traceability
+For runtime traceability linking tests to source files via execution data:
+
+```bash
+pytest --cov=src --cov-context=test       # generate .coverage DB
+python scripts/req_coverage.py --implementation   # uses DB + AST fallback
+```
