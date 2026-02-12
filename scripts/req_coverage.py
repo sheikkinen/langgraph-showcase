@@ -11,6 +11,7 @@ Usage:
 from __future__ import annotations
 
 import ast
+import re
 import sqlite3
 import sys
 from collections import defaultdict
@@ -19,65 +20,134 @@ from pathlib import Path
 # All known requirements
 ALL_REQS = [f"REQ-YG-{i:03d}" for i in range(1, 65)]
 
-# Capability grouping
-CAPABILITIES = {
-    "1. Config Loading & Validation": [
-        "REQ-YG-001",
-        "REQ-YG-002",
-        "REQ-YG-003",
-        "REQ-YG-004",
-    ],
-    "2. Graph Compilation": ["REQ-YG-005", "REQ-YG-006", "REQ-YG-007", "REQ-YG-008"],
-    "3. Node Execution": ["REQ-YG-009", "REQ-YG-010", "REQ-YG-011", "REQ-YG-050"],
-    "4. Prompt Execution": [
-        "REQ-YG-012",
-        "REQ-YG-013",
-        "REQ-YG-014",
-        "REQ-YG-015",
-        "REQ-YG-016",
-    ],
-    "5. Tool & Agent Integration": [
-        "REQ-YG-017",
-        "REQ-YG-018",
-        "REQ-YG-019",
-        "REQ-YG-020",
-    ],
-    "6. Routing & Flow Control": ["REQ-YG-021", "REQ-YG-022", "REQ-YG-023"],
-    "7. State Persistence": ["REQ-YG-024", "REQ-YG-025", "REQ-YG-026"],
-    "8. Error Handling": [
-        "REQ-YG-027",
-        "REQ-YG-028",
-        "REQ-YG-029",
-        "REQ-YG-030",
-        "REQ-YG-031",
-    ],
-    "9. CLI Interface": ["REQ-YG-032", "REQ-YG-033", "REQ-YG-034", "REQ-YG-035"],
-    "10. Export & Serialization": [
-        "REQ-YG-036",
-        "REQ-YG-037",
-        "REQ-YG-038",
-        "REQ-YG-039",
-    ],
-    "11. Subgraph & Map": ["REQ-YG-040", "REQ-YG-041", "REQ-YG-042"],
-    "12. Utilities": ["REQ-YG-043", "REQ-YG-044", "REQ-YG-045", "REQ-YG-046"],
-    "13. LangSmith Tracing": ["REQ-YG-047"],
-    "14. Graph-Level Streaming": ["REQ-YG-048", "REQ-YG-049"],
-    "15. Expression Language": ["REQ-YG-051", "REQ-YG-052"],
-    "16. Linter Cross-Reference": ["REQ-YG-053", "REQ-YG-054"],
-    "17. Execution Safety Guards": [
-        "REQ-YG-055",
-        "REQ-YG-056",
-        "REQ-YG-057",
-        "REQ-YG-058",
-        "REQ-YG-059",
-        "REQ-YG-060",
-        "REQ-YG-061",
-        "REQ-YG-062",
-        "REQ-YG-064",
-    ],
-    "18. Testing & Quality": [
-        "REQ-YG-063",
-    ],
+# Capability grouping: (cap_id, name, [reqs])
+CAPABILITIES: dict[str, tuple[str, list[str]]] = {
+    "CAP-01": (
+        "Config Loading & Validation",
+        [
+            "REQ-YG-001",
+            "REQ-YG-002",
+            "REQ-YG-003",
+            "REQ-YG-004",
+        ],
+    ),
+    "CAP-02": (
+        "Graph Compilation",
+        [
+            "REQ-YG-005",
+            "REQ-YG-006",
+            "REQ-YG-007",
+            "REQ-YG-008",
+        ],
+    ),
+    "CAP-03": (
+        "Node Execution",
+        [
+            "REQ-YG-009",
+            "REQ-YG-010",
+            "REQ-YG-011",
+            "REQ-YG-050",
+        ],
+    ),
+    "CAP-04": (
+        "Prompt Execution",
+        [
+            "REQ-YG-012",
+            "REQ-YG-013",
+            "REQ-YG-014",
+            "REQ-YG-015",
+            "REQ-YG-016",
+        ],
+    ),
+    "CAP-05": (
+        "Tool & Agent Integration",
+        [
+            "REQ-YG-017",
+            "REQ-YG-018",
+            "REQ-YG-019",
+            "REQ-YG-020",
+        ],
+    ),
+    "CAP-06": (
+        "Routing & Flow Control",
+        [
+            "REQ-YG-021",
+            "REQ-YG-022",
+            "REQ-YG-023",
+        ],
+    ),
+    "CAP-07": (
+        "State Persistence",
+        [
+            "REQ-YG-024",
+            "REQ-YG-025",
+            "REQ-YG-026",
+        ],
+    ),
+    "CAP-08": (
+        "Error Handling",
+        [
+            "REQ-YG-027",
+            "REQ-YG-028",
+            "REQ-YG-029",
+            "REQ-YG-030",
+            "REQ-YG-031",
+        ],
+    ),
+    "CAP-09": (
+        "CLI Interface",
+        [
+            "REQ-YG-032",
+            "REQ-YG-033",
+            "REQ-YG-034",
+            "REQ-YG-035",
+        ],
+    ),
+    "CAP-10": (
+        "Export & Serialization",
+        [
+            "REQ-YG-036",
+            "REQ-YG-037",
+            "REQ-YG-038",
+            "REQ-YG-039",
+        ],
+    ),
+    "CAP-11": (
+        "Subgraph & Map",
+        [
+            "REQ-YG-040",
+            "REQ-YG-041",
+            "REQ-YG-042",
+        ],
+    ),
+    "CAP-12": (
+        "Utilities",
+        [
+            "REQ-YG-043",
+            "REQ-YG-044",
+            "REQ-YG-045",
+            "REQ-YG-046",
+        ],
+    ),
+    "CAP-13": ("LangSmith Tracing", ["REQ-YG-047"]),
+    "CAP-14": ("Graph-Level Streaming", ["REQ-YG-048", "REQ-YG-049"]),
+    "CAP-15": ("Expression Language", ["REQ-YG-051", "REQ-YG-052"]),
+    "CAP-16": ("Linter Cross-Reference", ["REQ-YG-053", "REQ-YG-054"]),
+    "CAP-17": (
+        "Execution Safety Guards",
+        [
+            "REQ-YG-055",
+            "REQ-YG-056",
+            "REQ-YG-057",
+            "REQ-YG-058",
+            "REQ-YG-059",
+            "REQ-YG-060",
+            "REQ-YG-061",
+            "REQ-YG-062",
+            "REQ-YG-064",
+        ],
+    ),
+    "CAP-18": ("Testing & Quality", ["REQ-YG-063"]),
 }
 
 
@@ -266,6 +336,27 @@ def _extract_imports_from_test(filepath: Path, test_key: str) -> set[str]:
     return paths
 
 
+def _load_req_descriptions(root: Path) -> dict[str, str]:
+    """Parse requirement descriptions from ARCHITECTURE.md.
+
+    Matches lines like ``| REQ-YG-001 | Load graph configurations... | modules |``
+    and returns ``{"REQ-YG-001": "Load graph configurations..."}``.
+    """
+    arch_path = root / "ARCHITECTURE.md"
+    if not arch_path.exists():
+        return {}
+    descriptions: dict[str, str] = {}
+    pattern = re.compile(r"^\|\s*(REQ-YG-\d{3})\s*\|\s*(.+?)\s*\|")
+    for line in arch_path.read_text().splitlines():
+        m = pattern.match(line)
+        if m:
+            req_id, desc = m.group(1), m.group(2).strip()
+            # First match wins (avoid duplicate REQ-YG-047 rows)
+            if req_id not in descriptions:
+                descriptions[req_id] = desc
+    return descriptions
+
+
 def _load_coverage_map(root: Path) -> dict[str, set[str]]:
     """Load test→source file mapping from .coverage SQLite DB.
 
@@ -351,12 +442,12 @@ def main() -> None:
     # Per-capability summary
     print("CAPABILITY COVERAGE")
     print("-" * 70)
-    for cap_name, reqs in CAPABILITIES.items():
+    for cap_id, (cap_name, reqs) in CAPABILITIES.items():
         cap_covered = sum(1 for r in reqs if r in all_markers)
         cap_tests = sum(len(all_markers.get(r, [])) for r in reqs)
         status = "✅" if cap_covered == len(reqs) else "⚠️ " if cap_covered > 0 else "❌"
         print(
-            f"  {status} {cap_name}: {cap_covered}/{len(reqs)} reqs, {cap_tests} tests"
+            f"  {status} {cap_id} {cap_name}: {cap_covered}/{len(reqs)} reqs, {cap_tests} tests"
         )
 
     # Uncovered requirements
@@ -382,6 +473,7 @@ def main() -> None:
     # Implementation: req → source files (from coverage + AST fallback) → tests
     if "--implementation" in sys.argv:
         coverage_map = _load_coverage_map(root)
+        req_descriptions = _load_req_descriptions(root)
 
         # Build test_key → filepath index for AST fallback
         test_key_to_file: dict[str, Path] = {}
@@ -395,55 +487,66 @@ def main() -> None:
                         test_key_to_file[test_key] = filepath
 
         print("\nIMPLEMENTATION TRACEABILITY")
-        print("-" * 70)
+        print("=" * 70)
         ast_resolved_count = 0
         still_unresolved_count = 0
-        for req in ALL_REQS:
-            tests = all_markers.get(req, [])
-            if not tests:
-                print(f"\n  {req}: NO TESTS")
-                continue
 
-            # Aggregate source files across all tests for this req
-            source_files: set[str] = set()
-            matched_tests: list[str] = []
-            ast_tests: list[str] = []
-            unmatched_tests: list[str] = []
-            for test in tests:
-                files = coverage_map.get(test, set())
-                if files:
-                    source_files.update(files)
-                    matched_tests.append(test)
-                else:
-                    # AST fallback: parse imports from test file
-                    test_file = test_key_to_file.get(test)
-                    if test_file:
-                        ast_files = _extract_imports_from_test(test_file, test)
-                        if ast_files:
-                            source_files.update(ast_files)
-                            ast_tests.append(test)
-                            ast_resolved_count += 1
-                            continue
-                    unmatched_tests.append(test)
-                    still_unresolved_count += 1
+        for cap_id, (cap_name, cap_reqs) in CAPABILITIES.items():
+            cap_tests_total = sum(len(all_markers.get(r, [])) for r in cap_reqs)
+            print(
+                f"\n── {cap_id} {cap_name} ({len(cap_reqs)} reqs, "
+                f"{cap_tests_total} tests) {'─' * 20}"
+            )
 
-            print(f"\n  {req} ({len(source_files)} files, {len(tests)} tests):")
-            if source_files:
-                print("    Implementation:")
-                for sf in sorted(source_files):
-                    print(f"      {sf}")
-            if matched_tests:
-                print("    Tests (coverage):")
-                for t in matched_tests:
-                    print(f"      {t}")
-            if ast_tests:
-                print("    Tests (AST imports):")
-                for t in ast_tests:
-                    print(f"      {t}")
-            if unmatched_tests:
-                print("    Tests (no link):")
-                for t in unmatched_tests:
-                    print(f"      {t}")
+            for req in cap_reqs:
+                desc = req_descriptions.get(req, "")
+                tests = all_markers.get(req, [])
+                if not tests:
+                    print(f"\n    {req}  {desc}")
+                    print("      NO TESTS")
+                    continue
+
+                # Aggregate source files across all tests for this req
+                source_files: set[str] = set()
+                matched_tests: list[str] = []
+                ast_tests: list[str] = []
+                unmatched_tests: list[str] = []
+                for test in tests:
+                    files = coverage_map.get(test, set())
+                    if files:
+                        source_files.update(files)
+                        matched_tests.append(test)
+                    else:
+                        # AST fallback: parse imports from test file
+                        test_file = test_key_to_file.get(test)
+                        if test_file:
+                            ast_files = _extract_imports_from_test(test_file, test)
+                            if ast_files:
+                                source_files.update(ast_files)
+                                ast_tests.append(test)
+                                ast_resolved_count += 1
+                                continue
+                        unmatched_tests.append(test)
+                        still_unresolved_count += 1
+
+                print(f"\n    {req}  {desc}")
+                print(f"      ({len(source_files)} files, {len(tests)} tests)")
+                if source_files:
+                    print("      Implementation:")
+                    for sf in sorted(source_files):
+                        print(f"        {sf}")
+                if matched_tests:
+                    print("      Tests (coverage):")
+                    for t in matched_tests:
+                        print(f"        {t}")
+                if ast_tests:
+                    print("      Tests (AST imports):")
+                    for t in ast_tests:
+                        print(f"        {t}")
+                if unmatched_tests:
+                    print("      Tests (no link):")
+                    for t in unmatched_tests:
+                        print(f"        {t}")
 
         print(
             f"\n  Summary: {ast_resolved_count} tests resolved via AST fallback, "
