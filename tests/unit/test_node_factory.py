@@ -54,7 +54,7 @@ def state_with_generated(sample_state):
 class TestResolveClass:
     """Tests for dynamic class importing."""
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_resolve_existing_class(self):
         """Import a real class from dotted path."""
         cls = resolve_class("yamlgraph.models.GenericReport")
@@ -62,7 +62,7 @@ class TestResolveClass:
         assert cls is not None
         assert hasattr(cls, "model_fields")  # Pydantic model check
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_resolve_state_class(self):
         """Dynamic state class can be built."""
         from yamlgraph.models.state_builder import build_state_class
@@ -72,13 +72,13 @@ class TestResolveClass:
         assert cls is not None
         assert hasattr(cls, "__annotations__")
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_resolve_invalid_module_raises(self):
         """Invalid module raises ImportError."""
         with pytest.raises((ImportError, ModuleNotFoundError)):
             resolve_class("nonexistent.module.Class")
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_resolve_invalid_class_raises(self):
         """Invalid class name raises AttributeError."""
         with pytest.raises(AttributeError):
@@ -93,37 +93,37 @@ class TestResolveClass:
 class TestResolveTemplate:
     """Tests for template resolution against state."""
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_simple_state_access(self, sample_state):
         """'{state.topic}' resolves to state['topic']."""
         result = resolve_template("{state.topic}", sample_state)
         assert result == "machine learning"
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_nested_state_access(self, state_with_generated):
         """'{state.generated.content}' resolves nested attrs."""
         result = resolve_template("{state.generated.content}", state_with_generated)
         assert result == "Test content about ML."
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_missing_state_returns_none(self, sample_state):
         """Missing state key returns None."""
         result = resolve_template("{state.generated.content}", sample_state)
         assert result is None
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_literal_string_unchanged(self, sample_state):
         """Non-template strings returned as-is."""
         result = resolve_template("literal value", sample_state)
         assert result == "literal value"
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_int_access(self, sample_state):
         """Integer values resolved correctly."""
         result = resolve_template("{state.word_count}", sample_state)
         assert result == 300
 
-    @pytest.mark.req("REQ-YG-009", "REQ-YG-045")
+    @pytest.mark.req("REQ-YG-045")
     def test_list_access(self, state_with_generated):
         """List values resolved correctly."""
         result = resolve_template("{state.generated.tags}", state_with_generated)

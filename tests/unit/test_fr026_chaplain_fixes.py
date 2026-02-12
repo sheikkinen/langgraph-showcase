@@ -295,7 +295,7 @@ class TestLinterE011RetryFallbackToolPython:
 class TestPromptsRelativeWarning:
     """prompts_relative=True with graph_path=None + prompts_dir should warn."""
 
-    @pytest.mark.req("REQ-YG-012")
+    @pytest.mark.req("REQ-YG-012", "REQ-YG-054")
     def test_warns_when_graph_path_none_but_prompts_dir_set(self):
         """Should log warning when prompts_relative=True, graph_path=None, prompts_dir set."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -322,7 +322,7 @@ class TestPromptsRelativeWarning:
                 f"Warning calls: {warning_calls}"
             )
 
-    @pytest.mark.req("REQ-YG-012")
+    @pytest.mark.req("REQ-YG-012", "REQ-YG-054")
     def test_no_warning_when_both_set(self):
         """No warning when both graph_path and prompts_dir are set."""
         from yamlgraph.utils.prompts import resolve_prompt_path
@@ -342,7 +342,7 @@ class TestPromptsRelativeWarning:
             )
             assert not has_prompts_relative_warning
 
-    @pytest.mark.req("REQ-YG-012")
+    @pytest.mark.req("REQ-YG-012", "REQ-YG-054")
     def test_still_raises_when_both_none(self):
         """prompts_relative=True with both graph_path and prompts_dir None still raises."""
         from yamlgraph.utils.prompts import resolve_prompt_path
