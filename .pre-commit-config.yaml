@@ -50,6 +50,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: file-size-gate
+        name: file size gate (>450 error, >400 warn)
+        entry: bash -c 'fail=0; warn=0; for f in $(find yamlgraph -type f -name "*.py" ! -path "*/__pycache__/*"); do lines=$(wc -l < "$f"); if [ "$lines" -gt 450 ]; then echo "ERROR $f -- $lines lines (max 450)"; fail=1; elif [ "$lines" -gt 400 ]; then echo "WARN  $f -- $lines lines (target <=400)"; warn=1; fi; done; if [ "$fail" -eq 1 ]; then echo ""; echo "FAIL -- code files exceeding 450 lines detected"; exit 1; fi; if [ "$warn" -eq 1 ]; then echo ""; echo "(warnings only -- hook passes)"; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
       - id: forbid-terms
         name: forbid TODOs and compatibility drift
         entry: bash -c '! find yamlgraph -type f -name "*.py" ! -path "*/__pycache__/*" ! -path "*/.pytest_cache/*" ! -path "*/.mypy_cache/*" ! -path "*/.ruff_cache/*" ! -path "*/.venv/*" -print0 | xargs -0 grep -nE "TODO|FIXME|backward compati(bility)?"'
