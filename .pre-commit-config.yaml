@@ -30,6 +30,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: req-coverage-strict
+        name: req_coverage --strict
+        entry: python scripts/req_coverage.py --strict
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
       - id: forbid-terms
         name: forbid TODOs and compatibility drift
         entry: bash -c '! find yamlgraph -type f -name "*.py" ! -path "*/__pycache__/*" ! -path "*/.pytest_cache/*" ! -path "*/.mypy_cache/*" ! -path "*/.ruff_cache/*" ! -path "*/.venv/*" -print0 | xargs -0 grep -nE "TODO|FIXME|backward compati(bility)?"'
