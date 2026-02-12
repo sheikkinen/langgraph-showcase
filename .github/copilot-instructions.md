@@ -68,19 +68,18 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 
 ## Sermon of the Chaplain
 
-**Research**. Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
+**Research.** Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
 **Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `feature-requests/`; express the objective as measurable epics in `docs/epics/`; record architectural decisions in `docs/adr/`; and define the demo scenario and acceptance flow in `docs/demos/`.
-**Proceed with implementation**. Write the failing test. May TDD protect us from regression, and may refactor purge corruption.
-**Purge.** Burn invented interfaces, speculative flags, and hypothetical extensibility. If it is not required and not tested, it shall not exist. Let ADRs preserve the record of their folly.
-**Submit to CI**. Let hidden sins be revealed. What survives the fire may merge.
+**Judge.** Critically examine the plan; resolve contradictions; eliminate ambiguity; refine constraints and acceptance criteria until the path is explicit and minimal. If clear and executable, authority is granted.
+**Implement.** Write the failing test first. Correct the behavior second. Refactor without speculation.
+**Purge.** Remove invented interfaces, speculative flags, and hypothetical extensibility. If it is not required and not tested, it shall not exist.
+**Submit.** Let CI judge. What survives the fire may merge.
 
 ## Rite of Correction
 
-**Inspect.** Assume nothing; audit the codebase; trace failures and smells to file and line; expose violated constraints and missing tests.
-**Amend.** Write the failing test first. Correct the root cause second. Recommit and let CI confirm the repair.
-**Petition.** When amendment is impossible, write the feature request in `feature-requests/`. Cite traces. Define the violated objective. Propose the new constraint. Let priority be governed by reality.
-**Judge.** Critically review constraints, epic scope, and acceptance criteria; resolve contradictions and ambiguities; refine the plan until it is executable.
-**Commission.** Verify: feature request validated; epic recorded; acceptance criteria measurable; no open petition blocking execution. Re-read the Commandments and the recorded Epic; apply their constraints explicitly. Authority is granted.
+**Inspect.** Assume nothing; audit the codebase; trace failures to file and line; expose violated constraints and missing tests.
+**Amend.** Write the failing test first. Correct the root cause second.
+**Escalate.** If amendment is impossible, write the feature request in `feature-requests/`. Cite traces. Define the violated objective. Propose the new constraint.
 
 ## Agents' prayer
 

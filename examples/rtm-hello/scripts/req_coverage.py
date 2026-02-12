@@ -390,7 +390,7 @@ def main() -> None:
         for cap_id, (cap_name, cap_reqs) in cap_items:
             cap_tests_total = sum(len(all_markers.get(r, [])) for r in cap_reqs)
             header = f"{cap_id} {cap_name}" if cap_id else cap_name
-            print(f"\n── {header} ({len(cap_reqs)} reqs, " f"{cap_tests_total} tests) {'─' * 20}")
+            print(f"\n── {header} ({len(cap_reqs)} reqs, {cap_tests_total} tests) {'─' * 20}")
 
             for req in cap_reqs:
                 desc = reqs.get(req, "")
