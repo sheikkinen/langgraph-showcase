@@ -1,0 +1,70 @@
+# Multi-Turn Streaming Demo — FR-028
+# Demonstrates:
+#   1. Multi-turn streaming with interrupt/resume
+#   2. Checkpoint persistence across turns
+#
+# Flow: START → wait_for_user → respond → wait_for_user (loop)
+# - Turn 1: immediately interrupts to get first user input
+# - Turn 2+: resume → stream response → interrupt for next input
+
+version: "1.0"
+name: multi-turn-streaming
+description: |
+  Multi-turn conversation with streaming.
+  First turn waits for user input, subsequent turns stream response
+  then wait for next input.
+
+checkpointer:
+  type: memory
+
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: openai
+  temperature: 0.7
+
+state:
+  # Input
+  user_message: str
+
+  # Conversation
+  messages: list
+  response: str
+
+  # Control
+  turn_count: int
+
+nodes:
+  # --- Interrupt: wait for user's message ---
+  wait_for_user:
+    type: interrupt
+    message: "Waiting for user input..."
+    resume_key: user_message
+
+  # --- Main: respond to user ---
+  respond:
+    type: llm
+    prompt: respond
+    variables:
+      message: "{state.user_message}"
+      history: "{state.messages}"
+    state_key: response
+
+edges:
+  # Start by waiting for first user input
+  - from: START
+    to: wait_for_user
+
+  # After getting user input, respond
+  - from: wait_for_user
+    to: respond
+
+  # After responding, wait for next input (loop)
+  - from: respond
+    to: wait_for_user
+
+# Loop guards for multi-turn cycle
+loop_limits:
+  respond: 50
+  wait_for_user: 50

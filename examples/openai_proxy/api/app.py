@@ -112,15 +112,15 @@ def create_app() -> FastAPI:
         created = int(time.time())
 
         if request.stream:
-            # Real token-by-token streaming via run_graph_streaming (FR-023)
+            # Real token-by-token streaming via run_graph_streaming_native (FR-029)
             messages_json = json.dumps([m.model_dump() for m in request.messages])
             graph_path = os.getenv("GRAPH_PATH", "examples/openai_proxy/graph.yaml")
 
             async def stream_response():
-                from yamlgraph.executor_async import run_graph_streaming
+                from yamlgraph.executor_async import run_graph_streaming_native
 
                 first = True
-                async for token in run_graph_streaming(
+                async for token in run_graph_streaming_native(
                     graph_path=graph_path,
                     initial_state={"input": messages_json},
                 ):

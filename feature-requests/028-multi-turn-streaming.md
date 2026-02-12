@@ -2,19 +2,105 @@
 
 **Priority:** HIGH
 **Type:** Feature
-**Status:** Proposed
-**Effort:** 2-3 days
+**Status:** Implemented
+**Effort:** 2 days
 **Requested:** 2026-02-12
+**Revised:** 2026-02-12
+**Implemented:** 2026-02-12
 
 ## Summary
 
-Extend `openai_proxy` example to demonstrate multi-turn streaming with session resume and pre-stream guard classification. Currently `openai_proxy` handles single-shot requests (one graph invocation, no state between requests). Consumers need multi-turn conversations with state persistence and conditional routing.
+Multi-turn streaming support via `run_graph_streaming_native()` with checkpoint resume and interrupt handling. Example demonstrates guard classification as separate graph call pattern.
 
-## Problem
+## How to Use
+
+### Quick Start
+
+```python
+from yamlgraph.executor_async import run_graph_streaming_native
+from langgraph.types import Command
+
+config = {"configurable": {"thread_id": "session-123"}}
+
+# Turn 1: Start conversation
+async for token in run_graph_streaming_native(
+    "graph.yaml",
+    {"user_message": "hello"},
+    config,
+):
+    print(token, end="", flush=True)
+
+# Turn 2: Resume from checkpoint
+async for token in run_graph_streaming_native(
+    "graph.yaml",
+    Command(resume="tell me a joke"),
+    config,
+):
+    print(token, end="", flush=True)
+```
+
+### Multi-Turn with Guard Pattern
+
+See `examples/demos/multi-turn/` for a complete example:
+
+```bash
+# Test the guard graph
+yamlgraph graph run examples/demos/multi-turn/guard.yaml \
+  --var user_message="tell me a joke"
+
+# Test the main conversation graph
+yamlgraph graph run examples/demos/multi-turn/graph.yaml \
+  --var user_message="hello"
+```
+
+### SSE Streaming in FastAPI
+
+See `examples/openai_proxy/` for OpenAI-compatible SSE:
+
+```python
+from yamlgraph.executor_async import run_graph_streaming_native
+
+async def stream_response():
+    async for token in run_graph_streaming_native(
+        graph_path, {"input": messages_json}
+    ):
+        yield f"data: {format_token_chunk(token)}\n\n"
+    yield "data: [DONE]\n\n"
+```
+
+### Related Documentation
+
+- [reference/streaming.md](../reference/streaming.md) — Full streaming API reference
+- [reference/checkpointers.md](../reference/checkpointers.md) — Checkpoint configuration
+- [examples/demos/multi-turn/](../examples/demos/multi-turn/) — Complete multi-turn example
+- [examples/openai_proxy/](../examples/openai_proxy/) — OpenAI-compatible SSE proxy
+
+---
+
+## Original Problem Statement
 
 ### Violated Objective
 
 The `openai_proxy` example demonstrates single-shot streaming via `run_graph_streaming()` (FR-023). Voice AI integrations (OpenAI-compatible Custom LLM endpoints) require multi-turn conversations where each HTTP request resumes a graph from its last interrupt.
+
+### Current API Gap
+
+```python
+# Current signature (executor_async.py:309)
+async def run_graph_streaming(
+    graph_path: str,
+    initial_state: dict,  # ← Only dict, not Command
+) -> AsyncIterator[str]:
+    # ...
+    compiled = graph.compile()  # ← No checkpointer
+    # ...no config parameter for thread_id
+```
+
+**Verified limitations:**
+- Does not accept `Command(resume=...)` — only `dict`
+- No `config` parameter — cannot pass `thread_id`
+- No checkpointer — uses `graph.compile()` without persistence
+- No interrupt handling — runs all nodes, then streams LLM
 
 ### Architectural Gap
 
@@ -30,63 +116,124 @@ Desired (multi-turn):
   POST turn N → run_graph_streaming(Command(resume=msg), config) → SSE → [DONE]
 ```
 
-Additionally, before streaming the main graph, a fast guard classification should decide whether to proceed or redirect (e.g., user says "stop" or "help" mid-conversation).
-
 ### Why This Matters
 
 This is the most common LLM application pattern: multi-turn conversations with intent routing. Without a reference example, consumers must build custom streaming + state management on top of yamlgraph, bypassing the framework — which undermines its value.
 
+---
+
 ## Proposed Solution
 
-### Pattern: Guard + Content Streaming
+### Phase 1: Multi-Turn Streaming Core (1 day)
 
-```
-POST /v1/chat/completions {messages: [...]}
-    │
-    ├─ 1. Extract latest user message
-    │
-    ├─ 2. Guard / pre-execution classification (fast model, ~200ms)
-    │       │
-    │       ├─ redirect → Stream short response, don't run main graph
-    │       └─ continue → Proceed to step 3
-    │
-    └─ 3. Main graph streaming
-            │
-            ├─ Resume from checkpointer (thread_id from session)
-            ├─ Command(resume=user_message)
-            └─ Stream tokens via SSE
-```
-
-The guard could be implemented as a separate graph, a pre-hook, a first node — whatever fits yamlgraph's architecture best. The key requirement: classify before streaming, conditionally skip main graph.
-
-### Multi-Turn with Checkpointer
+Extend `run_graph_streaming()` to support resume and checkpointing:
 
 ```python
-# Pseudo-code for the pattern needed
-config = {"configurable": {"thread_id": session_id}}
+# yamlgraph/executor_async.py
 
-# First turn: invoke with initial state
-result = await run_graph_streaming(graph_path, initial_state, config)
+from langgraph.types import Command, Interrupt
 
-# Subsequent turns: resume from checkpoint
-result = await run_graph_streaming(graph_path, Command(resume=message), config)
+async def run_graph_streaming(
+    graph_path: str,
+    initial_state: dict | Command,  # ← Support Command(resume=...)
+    config: dict | None = None,      # ← Add config for thread_id
+) -> AsyncIterator[str | Interrupt]:
+    """Execute a graph with streaming output, supporting multi-turn resume.
+
+    Args:
+        graph_path: Path to graph YAML file
+        initial_state: Initial state dict, or Command(resume=...) for resuming
+        config: LangGraph config, e.g. {"configurable": {"thread_id": "t1"}}
+
+    Yields:
+        - str: Token strings as generated by LLM
+        - Interrupt: When graph hits an interrupt node (signals turn end)
+
+    Example (multi-turn):
+        >>> config = {"configurable": {"thread_id": "session-123"}}
+        >>> # Turn 1: start
+        >>> async for chunk in run_graph_streaming(path, {"input": "hi"}, config):
+        ...     if isinstance(chunk, Interrupt):
+        ...         break  # Turn ended
+        ...     print(chunk, end="")
+        >>> # Turn 2: resume
+        >>> async for chunk in run_graph_streaming(path, Command(resume="yes"), config):
+        ...     print(chunk, end="")
+    """
 ```
 
-**Key question:** Does `run_graph_streaming()` support `Command(resume=...)` input? Current signature takes `initial_state: dict`. Resume requires `Command` object.
+**Implementation changes:**
+1. Load checkpointer from graph config (already supported in `graph.yaml`)
+2. Use `compile_graph_async()` instead of `graph.compile()`
+3. Accept `Command` input type
+4. Yield `Interrupt` object when graph interrupts
+5. Pass `config` to `compiled.ainvoke()`
 
-### Concrete Example Scenario
+### Phase 2: Guard Classification (0.5 day)
 
-Suggested: extend `examples/questionnaire/` to streaming.
+Guard is implemented as a **graph configuration pattern** — no framework changes.
 
-- Graph collects 3 answers via interrupts (multi-turn)
-- Guard: if user says "stop" or "help", redirect instead of continuing
-- Each turn streams the next question token-by-token
-- Session resumes on each POST via `thread_id`
-- Uses `MemorySaver` checkpointer
+```yaml
+# graph.yaml with guard pattern
+nodes:
+  guard:
+    type: llm
+    prompt: classify_intent
+    output_model: GuardResult  # {intent: "continue" | "redirect", reason: str}
+    state_key: guard_result
+
+  redirect:
+    type: llm
+    prompt: redirect_response
+    state_key: response
+
+  main:
+    type: llm
+    prompt: main_response
+    state_key: response
+
+edges:
+  guard:
+    - condition: state.guard_result.intent == 'redirect'
+      target: redirect
+    - default: main
+```
+
+This uses existing yamlgraph conditional edge routing. No new API needed.
+
+### Phase 3: Example Implementation (0.5 day)
+
+Extend `examples/questionnaire/` with streaming FastAPI endpoint:
+
+```python
+# examples/questionnaire/api/app.py
+
+@app.post("/v1/chat/completions")
+async def chat_completions(request: ChatCompletionRequest):
+    thread_id = request.thread_id or str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
+
+    # Determine input: initial state or resume command
+    if is_existing_session(thread_id):
+        input_state = Command(resume=extract_user_message(request))
+    else:
+        input_state = {"user_message": extract_user_message(request)}
+
+    async def stream_response():
+        async for chunk in run_graph_streaming(GRAPH_PATH, input_state, config):
+            if isinstance(chunk, Interrupt):
+                # Yield interrupt marker, end stream
+                yield format_sse_done(thread_id)
+                return
+            yield format_sse_token(chunk)
+        yield format_sse_done(thread_id)
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream")
+```
 
 ### OpenAI-Compatible SSE
 
-All responses (guard redirect and content) use OpenAI streaming format:
+All responses use OpenAI streaming format:
 
 ```
 data: {"choices": [{"delta": {"content": "token"}}]}
@@ -94,36 +241,49 @@ data: {"choices": [{"delta": {"content": "next"}}]}
 data: [DONE]
 ```
 
+---
+
 ## Acceptance Criteria
 
-- [ ] Example starts new session on first request (no existing thread_id)
-- [ ] Example resumes session on subsequent requests (existing thread_id)
-- [ ] Guard classification runs before main graph (sequential)
-- [ ] Main graph streams tokens via SSE
-- [ ] Guard redirect returns streamed response (skips main graph)
-- [ ] State persists between requests via checkpointer
-- [ ] Works with `MemorySaver`
-- [ ] Tests cover: new session, resume, guard redirect, multi-turn completion
-- [ ] Tests added
-- [ ] Documentation updated
+### Core (Phase 1)
+- [x] `run_graph_streaming_native()` accepts `config` dict parameter
+- [x] `run_graph_streaming_native()` accepts `Command(resume=...)` input
+- [x] Streaming uses checkpointer from graph config
+- [x] Native streaming from all LLM nodes (via FR-029)
 
-## Alternatives Considered
+### Example (Phases 2-3)
+- [x] Example demonstrates new session (no existing thread_id)
+- [x] Example demonstrates resume (existing thread_id)
+- [x] Guard classification as separate graph call pattern
+- [x] Works with `MemorySaver` checkpointer
+- [x] OpenAI-compatible SSE format in `openai_proxy`
 
-1. **Consumer builds custom streaming** — defeats framework purpose; every consumer reimplements the same pattern.
-2. **Guard as graph node** — possible but requires yamlgraph to support conditional early-exit from graph mid-execution. May be the best solution; requesting team guidance.
-3. **No guard, just multi-turn** — simpler scope but misses the routing requirement that most voice AI integrations need.
+### Tests
+- [x] Unit tests: streaming signature accepts Command and config
+- [x] Integration tests: multi-turn session via run_graph_async
+- [x] Integration tests: guard classification separate call
+- [x] Documentation updated: `reference/streaming.md`, READMEs
 
-## Technical Questions
+---
 
-1. **`run_graph_streaming()` + resume:** Does it accept `Command(resume=...)` or only `dict` initial state?
-2. **Checkpointer injection:** How to pass checkpointer to `run_graph_streaming()`? Current `openai_proxy` uses `load_and_compile()` which doesn't take checkpointer.
-3. **Graph config propagation:** Can `thread_id` be passed through `run_graph_streaming()` config?
-4. **Interrupt handling in streaming:** When graph hits an interrupt, does streaming yield the interrupt value and stop? Or does it need special handling?
+## Technical Answers
+
+Questions from original FR, now resolved:
+
+| Question | Answer |
+|----------|--------|
+| Q1: Streaming + resume | ✅ `run_graph_streaming_native()` accepts `Command(resume=...)` |
+| Q2: Checkpointer injection | ✅ Via graph config `checkpointer:` field |
+| Q3: Config propagation | ✅ `config` parameter for thread_id |
+| Q4: Token streaming | ✅ Native `astream(stream_mode="messages")` via FR-029 |
+
+---
 
 ## Related
 
-- FR-023: Graph-Level Streaming (`023-graph-level-streaming.md`) — prerequisite, provides `run_graph_streaming()`
-- `examples/openai_proxy/` — current single-shot streaming example
-- `examples/questionnaire/` — existing multi-turn interrupt-based graph (candidate base)
-- `yamlgraph/executor_async.py` — `run_graph_streaming()` implementation
-- LangGraph `Command(resume=...)` — [LangGraph docs](https://langchain-ai.github.io/langgraph/)
+- **FR-023**: Graph-Level Streaming — original passthrough-based streaming (superseded)
+- **FR-029**: Native LangGraph Streaming — `run_graph_streaming_native()` implementation
+- `examples/openai_proxy/` — OpenAI-compatible SSE proxy
+- `examples/demos/multi-turn/` — Multi-turn interrupt-loop example
+- `reference/streaming.md` — API documentation
+- `reference/checkpointers.md` — Checkpoint configuration

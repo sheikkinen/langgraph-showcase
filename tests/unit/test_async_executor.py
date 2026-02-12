@@ -362,3 +362,230 @@ async def test_compile_graph_async_without_checkpointer():
 
     mock_graph.compile.assert_called_once_with(checkpointer=None)
     assert result == mock_compiled
+
+
+# ==============================================================================
+# FR-028: Multi-Turn Streaming Tests
+# ==============================================================================
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-049")
+async def test_run_graph_streaming_native_accepts_config():
+    """run_graph_streaming_native accepts config dict for thread_id."""
+    # Check signature accepts config parameter
+    import inspect
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    sig = inspect.signature(run_graph_streaming_native)
+    params = list(sig.parameters.keys())
+    assert "config" in params, "run_graph_streaming_native must accept config parameter"
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-049")
+async def test_run_graph_streaming_native_accepts_command_resume():
+    """run_graph_streaming_native accepts Command(resume=...) as input."""
+    # Check signature accepts Command in initial_state type hint
+    import inspect
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    sig = inspect.signature(run_graph_streaming_native)
+    initial_state_param = sig.parameters.get("initial_state")
+    assert initial_state_param is not None
+
+    # Type hint should mention Command (dict | Command or similar)
+    annotation_str = str(initial_state_param.annotation)
+    assert "Command" in annotation_str, (
+        f"initial_state must accept Command, got {annotation_str}"
+    )
+
+
+# ==============================================================================
+# run_graph_streaming_native tests (FR-029 - REQ-YG-065)
+# ==============================================================================
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_exists():
+    """run_graph_streaming_native function should exist in executor_async."""
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    assert callable(run_graph_streaming_native)
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_signature():
+    """run_graph_streaming_native should accept graph_path, initial_state, config, node_filter."""
+    import inspect
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    sig = inspect.signature(run_graph_streaming_native)
+    params = list(sig.parameters.keys())
+
+    assert "graph_path" in params
+    assert "initial_state" in params
+    assert "config" in params
+    assert "node_filter" in params
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_yields_strings():
+    """run_graph_streaming_native should yield str tokens from LLM nodes."""
+    from unittest.mock import MagicMock
+
+    from langchain_core.messages import AIMessageChunk
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    mock_config = MagicMock()
+    mock_config.name = "test"
+    mock_config.version = "1.0"
+    mock_config.checkpointer = None
+    mock_config.nodes = {"llm": {"type": "llm"}}
+
+    # Mock astream events: (AIMessageChunk, metadata) tuples
+    async def mock_astream(*args, **kwargs):
+        yield (
+            AIMessageChunk(content="Hello"),
+            {"langgraph_node": "llm", "langgraph_step": 1},
+        )
+        yield (
+            AIMessageChunk(content=" World"),
+            {"langgraph_node": "llm", "langgraph_step": 1},
+        )
+
+    mock_app = AsyncMock()
+    mock_app.astream = mock_astream
+
+    with patch(
+        "yamlgraph.executor_async.load_and_compile_async",
+        return_value=mock_app,
+    ):
+        tokens = []
+        async for token in run_graph_streaming_native("test.yaml", {"input": "hi"}):
+            tokens.append(token)
+
+        assert tokens == ["Hello", " World"]
+        assert all(isinstance(t, str) for t in tokens)
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_node_filter():
+    """run_graph_streaming_native should filter by node_filter when provided."""
+    from langchain_core.messages import AIMessageChunk
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    async def mock_astream(*args, **kwargs):
+        yield (
+            AIMessageChunk(content="From A"),
+            {"langgraph_node": "llm_a", "langgraph_step": 1},
+        )
+        yield (
+            AIMessageChunk(content="From B"),
+            {"langgraph_node": "llm_b", "langgraph_step": 2},
+        )
+        yield (
+            AIMessageChunk(content="More A"),
+            {"langgraph_node": "llm_a", "langgraph_step": 3},
+        )
+
+    mock_app = AsyncMock()
+    mock_app.astream = mock_astream
+
+    with patch(
+        "yamlgraph.executor_async.load_and_compile_async",
+        return_value=mock_app,
+    ):
+        # Filter to only llm_a
+        tokens = []
+        async for token in run_graph_streaming_native(
+            "test.yaml", {"input": "hi"}, node_filter="llm_a"
+        ):
+            tokens.append(token)
+
+        assert tokens == ["From A", "More A"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_uses_astream_messages_mode():
+    """run_graph_streaming_native should call astream with stream_mode='messages'."""
+    from langchain_core.messages import AIMessageChunk
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    async def mock_astream(initial_state, config, stream_mode=None):
+        assert stream_mode == "messages", f"Expected stream_mode='messages', got {stream_mode}"
+        yield (AIMessageChunk(content="OK"), {"langgraph_node": "llm"})
+
+    mock_app = AsyncMock()
+    mock_app.astream = mock_astream
+
+    with patch(
+        "yamlgraph.executor_async.load_and_compile_async",
+        return_value=mock_app,
+    ):
+        tokens = [t async for t in run_graph_streaming_native("test.yaml", {})]
+        assert tokens == ["OK"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_passes_config():
+    """run_graph_streaming_native should pass config to astream."""
+    from langchain_core.messages import AIMessageChunk
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    captured_config = None
+
+    async def mock_astream(initial_state, config, stream_mode=None):
+        nonlocal captured_config
+        captured_config = config
+        yield (AIMessageChunk(content="X"), {"langgraph_node": "llm"})
+
+    mock_app = AsyncMock()
+    mock_app.astream = mock_astream
+
+    with patch(
+        "yamlgraph.executor_async.load_and_compile_async",
+        return_value=mock_app,
+    ):
+        test_config = {"configurable": {"thread_id": "session-42"}}
+        _ = [t async for t in run_graph_streaming_native("test.yaml", {}, config=test_config)]
+
+        assert captured_config == test_config
+
+
+@pytest.mark.asyncio
+@pytest.mark.req("REQ-YG-065")
+async def test_run_graph_streaming_native_skips_empty_content():
+    """run_graph_streaming_native should skip chunks with empty content."""
+    from langchain_core.messages import AIMessageChunk
+
+    from yamlgraph.executor_async import run_graph_streaming_native
+
+    async def mock_astream(*args, **kwargs):
+        yield (AIMessageChunk(content=""), {"langgraph_node": "llm"})  # Empty string
+        yield (AIMessageChunk(content="Real"), {"langgraph_node": "llm"})
+        yield (AIMessageChunk(content="   "), {"langgraph_node": "llm"})  # Whitespace (valid)
+
+    mock_app = AsyncMock()
+    mock_app.astream = mock_astream
+
+    with patch(
+        "yamlgraph.executor_async.load_and_compile_async",
+        return_value=mock_app,
+    ):
+        tokens = [t async for t in run_graph_streaming_native("test.yaml", {})]
+        # Empty string is skipped, whitespace is kept (truthy)
+        assert tokens == ["Real", "   "]

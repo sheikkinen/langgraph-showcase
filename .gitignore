@@ -63,3 +63,4 @@ vectorstore/
 # Fun projects
 examples/fun/
 .reqtracer/
+.DS_Store

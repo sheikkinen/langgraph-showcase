@@ -16,7 +16,7 @@ POST /v1/chat/completions (Bearer: WEB_API_KEY)
   → return to client
 ```
 
-Streaming requests (`"stream": true`) use `run_graph_streaming()` for real
+Streaming requests (`"stream": true`) use `run_graph_streaming_native()` for real
 token-by-token SSE output.
 
 ## Local Development

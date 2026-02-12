@@ -17,6 +17,13 @@ Open feature requests and enhancement ideas.
 | [JSON Schema Export](009-json-schema-export.md) | LOW | 1-2 days | Proposed |
 | [Runtime Prompt Interpolation](runtime-prompt-interpolation.md) | LOW | 1 day | Proposed |
 
+## Recently Implemented
+
+| Feature | Status |
+|---------|--------|
+| [Native LangGraph Streaming](029-native-langgraph-streaming.md) | Implemented (2026-02-12) |
+| [Multi-Turn Streaming](028-multi-turn-streaming.md) | Implemented (2026-02-12) |
+
 ## Deferred
 
 | Feature | Reason |

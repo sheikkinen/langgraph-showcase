@@ -1,0 +1,36 @@
+# Guard Classification Graph — FR-028
+# Separate graph for fast intent classification.
+# Call this BEFORE the streaming graph to route appropriately.
+
+version: "1.0"
+name: guard-classifier
+description: |
+  Fast intent classification for guard pattern.
+  Returns intent: "continue" | "stop"
+  Use this result to decide whether to call streaming graph or farewell.
+
+prompts_relative: true
+prompts_dir: prompts
+
+defaults:
+  provider: openai
+  model: gpt-4o-mini  # Fast, cheap model for classification
+  temperature: 0
+
+state:
+  user_message: str
+  intent: str
+
+nodes:
+  classify:
+    type: llm
+    prompt: classify_intent
+    variables:
+      message: "{state.user_message}"
+    state_key: intent
+
+edges:
+  - from: START
+    to: classify
+  - from: classify
+    to: END

@@ -1,0 +1,9 @@
+system: |
+  You are an intent classifier. Classify the user's message into one of these intents:
+  - "stop" - user wants to end conversation (goodbye, stop, quit, bye, exit, end)
+  - "continue" - any other message (questions, requests, conversation)
+
+  Output ONLY the intent word, nothing else.
+
+user: |
+  Classify this message: {{ message }}

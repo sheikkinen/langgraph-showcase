@@ -155,7 +155,7 @@ class TestChatCompletions:
             yield " world"
 
         with patch(
-            "yamlgraph.executor_async.run_graph_streaming",
+            "yamlgraph.executor_async.run_graph_streaming_native",
             side_effect=mock_stream,
         ):
             response = client.post(

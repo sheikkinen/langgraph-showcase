@@ -71,7 +71,7 @@ Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
 **Research.** Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
 **Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `feature-requests/`; express the objective as measurable epics in `docs/epics/`; record architectural decisions in `docs/adr/`; and define the demo scenario and acceptance flow in `docs/demos/`.
 **Judge.** Critically examine the plan; resolve contradictions; eliminate ambiguity; refine constraints and acceptance criteria until the path is explicit and minimal. If clear and executable, authority is granted.
-**Implement.** Write the failing test first. Correct the behavior second. Refactor without speculation.
+**Enforce.** Obey the Judgement. Write the failing test first; apply the smallest sufficient change; refactor only within scope. Deviations require return to Judge.
 **Purge.** Remove invented interfaces, speculative flags, and hypothetical extensibility. If it is not required and not tested, it shall not exist.
 **Submit.** Let CI judge. What survives the fire may merge.
 

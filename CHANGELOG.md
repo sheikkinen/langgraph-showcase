@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.35] - 2026-02-12
+
+### Added
+- **FR-028 Multi-Turn Streaming** (REQ-YG-049): `run_graph_streaming_native()` accepts `Command(resume=...)` and `config` parameter for checkpoint-based multi-turn resume.
+- **FR-029 Native LangGraph Streaming** (REQ-YG-065): New `run_graph_streaming_native()` uses LangGraph's `astream(stream_mode="messages")` to stream tokens from ALL LLM nodes (not just first found). Supports `node_filter` parameter.
+- **Multi-turn example**: New `examples/demos/multi-turn/` with interrupt-loop graph, guard classification as separate call pattern, and comprehensive README.
+- 5 new unit tests for streaming API signature (test_async_executor.py)
+- 5 new integration tests for multi-turn patterns (test_multi_turn_streaming.py)
+- 7 new unit tests for native streaming (test_async_executor.py)
+- 5 new integration tests for native streaming (test_native_streaming.py)
+
+### Removed
+- **`run_graph_streaming()`**: Deprecated legacy function removed. Use `run_graph_streaming_native()` instead. The native version streams from ALL LLM nodes using LangGraph's native streaming (was: passthrough hack for first node only).
+- **`test_graph_streaming.py`**: Legacy passthrough streaming tests removed. REQ-YG-048 coverage migrated to test_native_streaming.py.
+
+### Fixed
+- **Missing dependency**: Installed `langchain-google-genai` which was declared in pyproject.toml but not installed in dev environment, causing `test_google_provider` failure.
+
+### Stats
+- 1650 passed, 4 skipped, 2 xfailed, 65/65 reqs.
+
 ## [0.4.34] - 2026-02-11
 
 ### Added

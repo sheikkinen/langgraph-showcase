@@ -192,7 +192,7 @@ See [examples/npc/architecture.md](examples/npc/architecture.md) for full docume
 │                        executor_async.py                                 │
 │  • execute_prompt_async() - Async LLM calls                             │
 │  • execute_prompt_streaming() - Token-by-token streaming                │
-│  • run_graph_streaming() - Graph-level streaming (FR-023)               │
+│  • run_graph_streaming_native() - Graph-level streaming (FR-029)        │
 │  • load_and_compile_async() - Async graph compilation                   │
 └──────────────────────────────┬──────────────────────────────────────────┘
                                │
@@ -423,7 +423,8 @@ Stream LLM tokens through the compiled graph pipeline using LangGraph's `astream
 | Requirement | Description | Key Modules |
 |------------|-------------|-------------|
 | REQ-YG-048 | Graph-level streaming: run graph with `astream(stream_mode="messages")` yielding LLM tokens | `executor_async` |
-| REQ-YG-049 | SSE streaming endpoint: format graph-streamed tokens as OpenAI-compatible SSE chunks | `executor_async`, `node_factory/streaming` |
+| REQ-YG-049 | Streaming with multi-turn: `run_graph_streaming_native()` accepts `Command(resume=...)`, config with thread_id for checkpoint-based resume | `executor_async` |
+| REQ-YG-065 | Native LangGraph streaming: `run_graph_streaming_native()` uses `astream(stream_mode="messages")` to stream from ALL LLM nodes, with optional `node_filter` | `executor_async` |
 | REQ-YG-050 | Per-node and default-level `model` override: graph YAML `model` field flows through `execute_prompt()` to `create_llm()` | `node_factory/llm_nodes`, `executor`, `executor_async`, `executor_base` |
 | REQ-YG-051 | Expression language: value expressions (`{state.path}`, arithmetic, list/dict ops), condition expressions (comparisons, compound AND/OR), literal parsing, `resolve_node_variables` batch resolution | `utils/expressions`, `utils/conditions`, `utils/parsing` |
 | REQ-YG-052 | Expression language hardening: quote-aware compound split, right-side state reference resolution, chained arithmetic detection | `utils/conditions`, `utils/expressions` |

@@ -1,0 +1,14 @@
+system: |
+  You are a friendly assistant in a multi-turn conversation.
+  Respond helpfully and conversationally.
+  Keep responses concise (2-3 sentences).
+
+user: |
+  {% if history and history|length > 0 %}
+  Previous conversation:
+  {% for msg in history %}
+  - {{ msg }}
+  {% endfor %}
+  {% endif %}
+  
+  User: {{ message }}

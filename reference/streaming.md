@@ -173,15 +173,15 @@ python scripts/demo_streaming.py
 python scripts/demo_streaming.py --verify
 ```
 
-## Graph-Level Streaming (FR-023)
+## Graph-Level Streaming (FR-029)
 
-Stream an entire graph's LLM output token-by-token. Non-LLM nodes (python, tool)
-run first, then the LLM node streams.
+Stream an entire graph's LLM output token-by-token using native LangGraph
+streaming. Tokens are streamed from ALL LLM nodes in the graph.
 
 ```python
-from yamlgraph.executor_async import run_graph_streaming
+from yamlgraph.executor_async import run_graph_streaming_native
 
-async for token in run_graph_streaming(
+async for token in run_graph_streaming_native(
     graph_path="examples/openai_proxy/graph.yaml",
     initial_state={"input": "Hello!"},
 ):
@@ -190,22 +190,56 @@ async for token in run_graph_streaming(
 
 ### How It Works
 
-1. Loads the graph config and identifies the LLM node
-2. Replaces the LLM node with a passthrough and runs pre-processing nodes
-3. Streams the LLM node via `llm.astream()`, yielding tokens
+Uses LangGraph's `astream(stream_mode="messages")` to stream tokens as they're
+generated. This streams from all LLM nodes, not just the first one.
 
 ### Signature
 
 ```python
-async def run_graph_streaming(
+async def run_graph_streaming_native(
     graph_path: str,
-    initial_state: dict,
+    initial_state: dict | Command,
+    config: dict | None = None,
+    node_filter: str | None = None,
 ) -> AsyncIterator[str]:
+```
+
+### Node Filtering
+
+Stream from a specific node only:
+
+```python
+async for token in run_graph_streaming_native(
+    "multi_llm.yaml",
+    {"input": "hi"},
+    node_filter="respond",  # Only stream from 'respond' node
+):
+    print(token, end="")
+```
+
+### Multi-Turn with Checkpointing
+
+```python
+from langgraph.types import Command
+
+config = {"configurable": {"thread_id": "session-123"}}
+
+# Turn 1: start
+async for token in run_graph_streaming_native(
+    "graph.yaml", {"input": "hi"}, config
+):
+    print(token, end="")
+
+# Turn 2: resume from checkpoint
+async for token in run_graph_streaming_native(
+    "graph.yaml", Command(resume="yes"), config
+):
+    print(token, end="")
 ```
 
 ### OpenAI-Compatible SSE Proxy
 
-The `examples/openai_proxy/` uses `run_graph_streaming()` to serve real
+The `examples/openai_proxy/` uses `run_graph_streaming_native()` to serve real
 token-by-token SSE streams via the OpenAI `/v1/chat/completions` API:
 
 ```python
