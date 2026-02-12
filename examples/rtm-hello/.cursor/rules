@@ -1,0 +1,13 @@
+# RTM Hello — Cursor Rules
+
+A minimal calculator project demonstrating TDD with Requirement Traceability.
+
+**Read `docs/RTM-guide.md`** for the full methodology.
+
+## Key Rules
+- Every test MUST have `@pytest.mark.req("REQ-CALC-XXX")`
+- Add requirements to `docs/RTM.md` before writing tests
+- Verify: `python scripts/req_coverage.py --strict`
+
+## Tech Stack
+Python · pytest · AST-based marker extraction

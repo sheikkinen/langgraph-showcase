@@ -1,0 +1,13 @@
+[project]
+name = "rtm-hello"
+version = "0.1.0"
+description = "Minimal TDD + Requirement Traceability example"
+requires-python = ">=3.10"
+dependencies = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["req: link test to REQ-CALC-XXX requirement"]
+
+[tool.ruff]
+line-length = 99
