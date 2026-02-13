@@ -28,80 +28,78 @@ Each cell = a creative intersection to explore
 ## Quick Start
 
 ```bash
-# Generate a matrix for a domain
-yamlgraph graph run examples/demos/innovation-matrix/graph.yaml \
-  --var domain="AI-powered education"
+# Generate a matrix (markdown output)
+yamlgraph graph run examples/demos/innovation_matrix/graph.yaml \
+  --var domain="sustainable packaging"
 
 # Drill into a specific cell
-yamlgraph graph run examples/demos/innovation-matrix/drill-down.yaml \
-  --var domain="AI-powered education" \
-  --var capability="Personalized learning paths" \
-  --var constraint="Student attention spans"
+yamlgraph graph run examples/demos/innovation_matrix/drill-down.yaml \
+  --var domain="sustainable packaging" \
+  --var capability="Biodegradable materials" \
+  --var constraint="Cost parity"
+
+# Full pipeline: expand all 25 cells (~$0.80, ~70s)
+PROVIDER=anthropic yamlgraph graph run examples/demos/innovation_matrix/pipeline.yaml \
+  --var domain="sustainable packaging" --full
 ```
+
+> **Note**: The pipeline uses parallel LLM calls. Use a cloud provider (Anthropic/OpenAI) for best results.
+> Local LLMs (LM Studio) will hang on 25 parallel requests.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `graph.yaml` | Generate 5×5 matrix from domain |
+| `graph.yaml` | Generate 5×5 matrix (markdown) |
 | `drill-down.yaml` | Expand a specific cell |
-| `prompts/generate_matrix.yaml` | Matrix generation prompt |
-| `prompts/select_cells.yaml` | Cell selection prompt |
-| `prompts/expand_cell.yaml` | Cell expansion prompt |
+| `pipeline.yaml` | Full pipeline: dimensions → 25 expansions → top 5 |
+| `prompts/generate_matrix.yaml` | Matrix generation (markdown) |
+| `prompts/generate_dimensions.yaml` | Extract capabilities + constraints (structured) |
+| `prompts/expand_cell.yaml` | Cell deep expansion |
+| `prompts/synthesize.yaml` | Rank top 5 ideas |
+| `nodes/cartesian.py` | Generate 25 cap×con pairs |
 
-## Porting Plan
+## Implementation Status
 
-### Phase 1: Core Matrix Generation ✅
-- [x] `generate_matrix` prompt - Create 5×5 matrix from domain
-- [x] `graph.yaml` - Single-node matrix generation
-
-### Phase 2: Cell Selection
-- [x] `select_cells` prompt - AI picks top N cells
-- [ ] Add selection node to graph
-
-### Phase 3: Recursive Drill-Down ✅
-- [x] `expand_cell` prompt - Deep dive into intersection
-- [x] `drill-down.yaml` - Cell expansion graph
-
-### Phase 4: Full Pipeline (Future)
-- [ ] Multi-node graph: generate → select → expand (map over selected)
-- [ ] Interrupt node for manual cell selection
-- [ ] Memory/checkpointer for iterative refinement
-- [ ] Second-order effects feeding back as new dimensions
-
-### Phase 5: Advanced Features (Future)
-- [ ] Custom dimensions via `data_files`
-- [ ] Matrix visualization output
-- [ ] Export to structured JSON for further processing
+| Phase | Status | Description |
+|-------|--------|-------------|
+| **1. Matrix Generation** | ✅ | `graph.yaml` - markdown output |
+| **2. Cell Drill-Down** | ✅ | `drill-down.yaml` - single cell expansion |
+| **3. Full Pipeline** | ✅ | `pipeline.yaml` - all 25 cells in parallel |
+| **4. Web-Augmented** | ⏳ | Ground expansions with web search |
+| **5. Recursive** | ⏳ | Second-order effects → new dimensions |
+| **6. Interactive** | ⏳ | Human cell selection via interrupt |
 
 ## Usage Patterns
 
 ### Pattern 1: Quick Ideation
 Generate matrix, manually pick cells to explore:
 ```bash
-yamlgraph graph run graph.yaml --var domain="sustainable packaging"
+yamlgraph graph run examples/demos/innovation_matrix/graph.yaml \
+  --var domain="sustainable packaging"
 # Read output, pick interesting cell
-yamlgraph graph run drill-down.yaml \
+yamlgraph graph run examples/demos/innovation_matrix/drill-down.yaml \
   --var domain="sustainable packaging" \
   --var capability="Biodegradable materials" \
-  --var constraint="Cost parity with plastic"
+  --var constraint="Cost parity"
 ```
 
-### Pattern 2: AI-Assisted Exploration
-Let AI select promising cells:
+### Pattern 2: Full Exploration
+Expand all 25 cells and synthesize top ideas:
 ```bash
-yamlgraph graph run full-pipeline.yaml --var domain="remote work tools"
+PROVIDER=anthropic yamlgraph graph run examples/demos/innovation_matrix/pipeline.yaml \
+  --var domain="sustainable packaging" --full
 ```
 
 ### Pattern 3: Recursive Deepening
 Output of one matrix becomes input to next:
 ```bash
 # Level 0: Abstract domain
-yamlgraph graph run graph.yaml --var domain="future of cities"
-# Level 1: Specific intersection
-yamlgraph graph run graph.yaml --var domain="smart infrastructure × aging population"
-# Level 2: Even more specific
-yamlgraph graph run graph.yaml --var domain="accessible transit × sensor networks × budget cuts"
+yamlgraph graph run examples/demos/innovation_matrix/graph.yaml \
+  --var domain="future of cities"
+# Level 1: Specific intersection from results
+yamlgraph graph run examples/demos/innovation_matrix/graph.yaml \
+  --var domain="smart infrastructure × aging population"
 ```
 
 ## Key Insight

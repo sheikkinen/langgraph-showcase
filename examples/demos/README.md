@@ -38,6 +38,10 @@ Start here and progress in order:
 | [data-files/](data-files/) | `llm` | External data loading |
 | [run-analyzer/](run-analyzer/) | - | Analysis utilities |
 | [soul/](soul/) | `llm`, `data_files` | Agent personality pattern |
+| [innovation_matrix/](innovation_matrix/) | `map`, `python`, `llm` | 5×5 creativity matrix with parallel expansion |
+| [python-map/](python-map/) | `map`, `python` | Python sub-nodes in map |
+| [safety-guards/](safety-guards/) | `router`, `llm` | Input/output guardrails |
+| [multi-turn/](multi-turn/) | `interrupt` | Multi-turn conversation with memory |
 
 ## Running Demos
 
