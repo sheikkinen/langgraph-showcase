@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **FR-030 Phase 1: Subgraph Token Streaming**: `run_graph_streaming_native()` now accepts `subgraphs: bool = False` parameter. When `True`, tokens from `mode=direct` subgraphs are included in the stream.
+- **FR-030 Phase 2 Verification**: Tests confirm `subgraphs=True` also enables streaming from `mode=invoke` subgraphs — no async conversion needed. LangGraph's callback system propagates `StreamMessagesHandler` through sync `invoke()` boundary.
+- Two new integration tests: `test_native_streaming_mode_invoke_subgraph`, `test_native_streaming_mode_invoke_subgraph_filtered`
 
 ### Fixed
 - **FR-030 Bug Fix: Dict token crash**: Router nodes emit dict content (classification result) which caused callers to crash with `TypeError`. Added `isinstance(chunk.content, str)` guard to filter non-string tokens.

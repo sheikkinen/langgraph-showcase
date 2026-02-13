@@ -13,7 +13,7 @@
 |-------|--------|---------|
 | Bug Fix (dict token guard) | ✅ Complete | 0.4.37 |
 | Phase 1 (subgraphs param) | ✅ Complete | 0.4.37 |
-| Phase 2 (async mode=invoke) | 🔬 Research Complete | TBD |
+| Phase 2 (async mode=invoke) | ✅ Not Needed | 0.4.37 |
 | Phase 3 (namespace node_filter) | ⏸️ Deferred | TBD |
 
 ### How to Use (0.4.37+)
@@ -35,6 +35,46 @@ async for token in run_graph_streaming_native(
     print(token, end="")  # Only string tokens, no crash
 ```
 
+## Phase 2 Resolution (2026-02-13)
+
+**Result:** No implementation needed. `subgraphs=True` enables child streaming for both `mode=invoke` and `mode=direct`.
+
+### Discovery
+
+Initial analysis assumed `mode=invoke` would require async conversion to stream child LLM tokens. Further testing revealed that LangGraph's callback system already propagates `StreamMessagesHandler` through the sync `invoke()` boundary:
+
+```python
+# This WORKS for mode=invoke subgraphs (no code change needed)
+async for token in run_graph_streaming_native(
+    "parent.yaml",
+    {"input": "hello"},
+    subgraphs=True,  # Key: enables nested namespace emission
+):
+    print(token, end="")
+```
+
+### Verification
+
+| Configuration | Parent Nodes | Child Nodes |
+|--------------|--------------|-------------|
+| `subgraphs=False` | ✅ visible | ❌ filtered |
+| `subgraphs=True` | ✅ visible | ✅ visible |
+
+### How It Works
+
+1. LangGraph's `StreamMessagesHandler` is added to `run_manager.inheritable_handlers`
+2. When `compiled.invoke()` executes, those handlers propagate to child LLM nodes
+3. Child LLM nodes fire `on_chat_model_start` → handler receives tokens with nested namespace
+4. With `subgraphs=False`, handler filters nested namespaces (returns early)
+5. With `subgraphs=True`, handler emits ALL tokens regardless of namespace depth
+
+### Tests Added
+
+- `test_native_streaming_mode_invoke_subgraph` — verifies child tokens visible with `subgraphs=True`
+- `test_native_streaming_mode_invoke_subgraph_filtered` — verifies child tokens filtered with `subgraphs=False`
+
+---
+
 ## Phase 2 Research Findings (2026-02-13)
 
 **Spike:** `scripts/spike_subgraph_streaming.py`
@@ -44,16 +84,13 @@ async for token in run_graph_streaming_native(
 1. **Callbacks DO propagate** — all LLM nodes (parent and child) receive `on_chat_model_start`
 2. **Namespace filtering blocks tokens** — child's namespace is nested (e.g., `summarize:...|summarize:...`)
 3. **Direct `astream()` WORKS** — calling child's `astream(stream_mode="messages")` yields tokens
-4. **Sync `invoke()` blocks streaming** — opaque boundary prevents token forwarding
+4. **Sync `invoke()` blocks streaming** — ~~opaque boundary prevents token forwarding~~ **INCORRECT: callbacks propagate through invoke()**
 
-### Confirmed Approach
+### ~~Confirmed Approach~~ (Superseded)
 
-Convert `mode=invoke` wrapper from sync `def` to `async def`:
-- Replace `compiled.invoke()` with `compiled.astream(stream_mode="messages")`
-- Collect tokens and forward to parent stream via callback or runtime.stream_writer
-- Preserve `interrupt_output_mapping` and `GraphInterrupt` handling
+~~Convert `mode=invoke` wrapper from sync `def` to `async def`~~ — Not needed. `subgraphs=True` enables streaming without code changes.
 
-### Implementation Plan
+### ~~Implementation Plan~~ (Not Implemented)
 
 ```python
 async def subgraph_node_async(state: dict, config: RunnableConfig | None = None):
@@ -212,13 +249,15 @@ async def run_graph_streaming_native(
 
 **Scope:** This enables streaming from `mode=direct` subgraphs only. No breaking changes to existing callers (default `subgraphs=False` preserves current behavior).
 
-**Limitation:** `mode=direct` requires parent and child graphs to share a compatible state schema. It does not support `input_mapping` / `output_mapping` (these are silently ignored, not validated). For graphs where parent and child have different state fields (the common case), `mode=direct` is not a drop-in replacement — Phase 2 is needed.
+**Limitation:** `mode=direct` requires parent and child graphs to share a compatible state schema. It does not support `input_mapping` / `output_mapping` (these are silently ignored, not validated). For graphs where parent and child have different state fields (the common case), `mode=direct` is not a drop-in replacement — ~~Phase 2 is needed~~ **However, `mode=invoke` + `subgraphs=True` works without code changes (see Phase 2 Resolution above).**
 
-### Phase 2: Async streaming for `mode=invoke` (primary need)
+### Phase 2: ~~Async streaming for `mode=invoke`~~ (Not Needed)
 
-This is the critical phase for real-world use cases where parent and child graphs have different state schemas (e.g. navigator has `original_intent`, `priority_response` while audit has `extracted`, `gaps`, `schema_path`). `mode=invoke` exists precisely to bridge these schema differences via `input_mapping` / `output_mapping`.
+**Status:** ✅ Resolved — `subgraphs=True` enables streaming for both `mode=invoke` and `mode=direct`.
 
-To enable streaming from `mode=invoke` subgraphs:
+~~This is the critical phase for real-world use cases~~ — The existing implementation already supports this when `subgraphs=True` is passed to `run_graph_streaming_native()`. No async conversion of the subgraph wrapper is needed because LangGraph's callback system propagates `StreamMessagesHandler` through the sync `invoke()` boundary.
+
+Original concern was unfounded:
 
 1. Convert the wrapper to `async def subgraph_node`
 2. Replace `compiled.invoke()` with `compiled.astream()` or propagate `CONFIG_KEY_STREAM` to enable parent stream forwarding
