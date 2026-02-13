@@ -1,0 +1,31 @@
+name: innovation-matrix-drill-down
+description: Expand a specific capability × constraint intersection
+version: "1.0"
+
+prompts_relative: true
+prompts_dir: prompts
+
+state:
+  domain: str
+  capability: str
+  constraint: str
+  cell_idea: str
+  expansion: str
+
+nodes:
+  expand:
+    type: llm
+    prompt: expand_cell
+    variables:
+      domain: "{state.domain}"
+      capability: "{state.capability}"
+      constraint: "{state.constraint}"
+      cell_idea: "{state.cell_idea}"
+    state_key: expansion
+    temperature: 0.8
+
+edges:
+  - from: START
+    to: expand
+  - from: expand
+    to: END

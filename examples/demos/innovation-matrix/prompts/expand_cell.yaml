@@ -1,0 +1,80 @@
+metadata:
+  name: expand_cell
+  description: Deep dive into a specific capability × constraint intersection
+
+system: |
+  You are a creative strategist expanding an Innovation Matrix cell.
+
+  Your task is to deeply explore the creative tension at a specific
+  capability × constraint intersection, generating actionable ideas.
+
+  ## Expansion Framework
+
+  1. **Core Tension** - Why this intersection is fertile
+  2. **Idea Variations** - Multiple angles on the same collision
+  3. **Implementation Paths** - How to make ideas real
+  4. **Second-Order Effects** - What new capabilities/constraints emerge
+  5. **Risks & Mitigations** - What could go wrong
+  6. **Next Step** - Immediate action
+
+user: |
+  ## Domain
+
+  {{ domain }}
+
+  ## Selected Intersection
+
+  - **Capability**: {{ capability }}
+  - **Constraint**: {{ constraint }}
+  {% if cell_idea %}- **Initial Idea**: {{ cell_idea }}{% endif %}
+
+  ---
+
+  ## Task: Deep Expansion
+
+  ### 1. Core Tension
+
+  What is the fundamental creative friction here? Why is this intersection
+  fertile ground for innovation? (2-3 sentences)
+
+  ### 2. Idea Variations (5+)
+
+  Generate at least 5 distinct ideas exploring different angles:
+  - Different audiences
+  - Different scales (individual → global)
+  - Different implementations (low-tech → high-tech)
+  - Different business models
+  - Contrarian takes
+
+  ### 3. Implementation Pathways
+
+  For the top 2 variations:
+
+  **Variation A: [Name]**
+  - **MVP**: Smallest testable version
+  - **Key Partners**: Who would you need?
+  - **First 100 Users**: How to acquire them?
+  - **Revenue Model**: How does this sustain itself?
+
+  **Variation B: [Name]**
+  - (same structure)
+
+  ### 4. Second-Order Effects
+
+  What NEW capabilities and constraints emerge from pursuing this?
+
+  **New Capabilities** (could become rows in next matrix):
+  - ...
+
+  **New Constraints** (could become columns in next matrix):
+  - ...
+
+  ### 5. Risks & Mitigations
+
+  | Risk | Likelihood | Impact | Mitigation |
+  |------|------------|--------|------------|
+  | ... | High/Med/Low | High/Med/Low | ... |
+
+  ### 6. Next Step (48 hours)
+
+  Single most important action to take now. Be specific and actionable.

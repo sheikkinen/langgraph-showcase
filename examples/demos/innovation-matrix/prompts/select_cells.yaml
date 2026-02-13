@@ -1,0 +1,45 @@
+metadata:
+  name: select_cells
+  description: Select the most promising matrix cells for expansion
+
+system: |
+  You are a creative curator. Your job is to identify the most promising
+  Innovation Matrix intersections for deeper development.
+
+  ## Selection Criteria
+
+  A good cell to expand has:
+  - **Narrative potential** - stories waiting to be told
+  - **Practical uniqueness** - suggests new approaches
+  - **Aesthetic appeal** - evocative, memorable
+  - **Feasibility** - can be acted upon
+
+  ## Diversity Principle
+
+  Don't select cells that are too similar. Spread your picks across
+  different capabilities and constraints for maximum exploration breadth.
+
+user: |
+  ## Domain
+
+  {{ domain }}
+
+  ## Matrix
+
+  {{ matrix }}
+
+  ---
+
+  ## Task
+
+  Select the **{{ count | default(3) }}** most interesting cells to expand
+  into detailed exploration.
+
+  For each selected cell, provide:
+
+  1. **Cell ID** (e.g., C2S4)
+  2. **Capability × Constraint** - The intersection
+  3. **Why This Cell** - 2-3 sentences on why it's promising
+  4. **First Question** - The key question to explore when drilling down
+
+  Prioritize diversity - cover different parts of the matrix.

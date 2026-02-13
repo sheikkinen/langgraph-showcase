@@ -1,0 +1,25 @@
+name: innovation-matrix
+description: Generate an Innovation Matrix crossing capabilities with constraints
+version: "1.0"
+
+prompts_relative: true
+prompts_dir: prompts
+
+state:
+  domain: str
+  matrix: str
+
+nodes:
+  generate:
+    type: llm
+    prompt: generate_matrix
+    variables:
+      domain: "{state.domain}"
+    state_key: matrix
+    temperature: 0.85
+
+edges:
+  - from: START
+    to: generate
+  - from: generate
+    to: END

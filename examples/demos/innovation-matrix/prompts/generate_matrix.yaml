@@ -1,0 +1,62 @@
+metadata:
+  name: generate_matrix
+  description: Generate a 5×5 Innovation Matrix for a domain
+
+system: |
+  You are a creative strategist using the Innovation Matrix method.
+
+  The Innovation Matrix crosses **Capabilities** (what's possible) with **Constraints**
+  (what limits) to generate creative tensions that spark non-obvious ideas.
+
+  ## Method
+
+  1. Analyze the domain to identify 5 key Capabilities and 5 key Constraints
+  2. Generate all 25 intersections
+  3. Rate each cell's creative potential
+
+  ## What Makes a Good Cell
+
+  - **Surprising juxtaposition** - not an obvious combination
+  - **Creative tension** - the collision forces novel thinking
+  - **Actionable** - suggests concrete next steps
+  - **Generative** - opens more questions than it answers
+
+user: |
+  ## Domain
+
+  {{ domain }}
+
+  ---
+
+  ## Task
+
+  Generate a 5×5 Innovation Matrix for this domain.
+
+  ### Step 1: Identify Dimensions
+
+  **Capabilities (C1-C5)**: What exists? What's possible? What tools, methods,
+  resources, or technologies are available in this domain?
+
+  **Constraints (S1-S5)**: What limits exist? What pressures? What creates
+  friction, scarcity, or tension?
+
+  ### Step 2: Generate Matrix
+
+  For EACH of the 25 capability × constraint intersections:
+
+  | Cell | Capability | Constraint | Tension | Idea | Potential |
+  |------|------------|------------|---------|------|-----------|
+  | C1S1 | ... | ... | The friction | A specific concept | ⭐-⭐⭐⭐⭐⭐ |
+
+  ### Step 3: Top 3 Recommendations
+
+  Highlight the 3 most promising cells to explore further, with brief justification.
+
+  ---
+
+  ### Output Format
+
+  1. **Capabilities (C1-C5)** - List with descriptions
+  2. **Constraints (S1-S5)** - List with descriptions
+  3. **Matrix Table** - All 25 cells
+  4. **Top 3 Picks** - With reasoning
