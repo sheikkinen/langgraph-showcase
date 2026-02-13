@@ -17,6 +17,37 @@ Migration from `innovation-matrix` Python project to YAMLGraph declarative graph
 
 **Focus**: Core Innovation Matrix method only (not RPG/story use cases).
 
+## Output Format Strategy
+
+**Decision**: JSON-first with Markdown rendering.
+
+| Use Case | Format | Rationale |
+|----------|--------|-----------|
+| Human reading (CLI) | Markdown | Scannable, pretty |
+| Downstream processing | JSON | Parseable, structured |
+| Feed to next matrix | JSON | Programmatic access |
+| Report generation | Both | Markdown body + JSON metadata |
+
+**Pattern**: Include `_markdown` field in structured output for CLI display.
+
+```yaml
+# Example schema
+schema:
+  name: Matrix
+  fields:
+    capabilities: list[str]
+    constraints: list[str]
+    cells: list[{id: str, capability: str, constraint: str, idea: str, potential: int}]
+    top_picks: list[str]
+    _markdown: str  # Full formatted table for display
+```
+
+**Benefits**:
+- CLI prints `_markdown` for human viewing
+- `pipeline.yaml` iterates over `cells` array
+- `synthesize` references structured `expansions`
+- Export dumps raw JSON for external tools
+
 ## Migration Phases
 
 ### Phase 1: Core Matrix Generation ✅
@@ -89,7 +120,7 @@ domain → generate_matrix (structured output)
 - [ ] Add inline schema to `generate_matrix.yaml` for structured cell output
 - [ ] Create `pipeline.yaml` with map node over all 25 cells
 - [ ] Add `prompts/synthesize_top_ideas.yaml` for final ranking
-- [ ] Integrate web search tool (Tavily) for grounding
+- [ ] Integrate DuckDuckGo web search (already exists in `examples/shared/websearch.py`)
 
 **Files to create**:
 ```yaml
@@ -126,9 +157,22 @@ nodes:
 
 **Concept**: Ground each cell expansion in real-world examples via web search.
 
+**Available tool** (no API key required):
+```yaml
+# examples/shared/websearch.py already exists
+tools:
+  search_web:
+    type: python
+    module: examples.shared.websearch
+    function: search_web
+    description: "Search the web for information"
+
+# Requires: pip install ddgs
+```
+
 **TODO**:
 - [ ] Create `search-expand.yaml` subgraph (search → expand)
-- [ ] Use web_search tool before expansion
+- [ ] Add search_web tool to agent or use Python node
 - [ ] Pass search results as context to expand_cell prompt
 
 ### Phase 5: Recursive Matrix ⏳
