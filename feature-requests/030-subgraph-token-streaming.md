@@ -13,7 +13,7 @@
 |-------|--------|---------|
 | Bug Fix (dict token guard) | ✅ Complete | 0.4.37 |
 | Phase 1 (subgraphs param) | ✅ Complete | 0.4.37 |
-| Phase 2 (async mode=invoke) | 🔬 Research | TBD |
+| Phase 2 (async mode=invoke) | 🔬 Research Complete | TBD |
 | Phase 3 (namespace node_filter) | ⏸️ Deferred | TBD |
 
 ### How to Use (0.4.37+)
@@ -33,6 +33,46 @@ async for token in run_graph_streaming_native(
     {"message": "I love this!"},
 ):
     print(token, end="")  # Only string tokens, no crash
+```
+
+## Phase 2 Research Findings (2026-02-13)
+
+**Spike:** `scripts/spike_subgraph_streaming.py`
+
+### Validated Root Cause
+
+1. **Callbacks DO propagate** — all LLM nodes (parent and child) receive `on_chat_model_start`
+2. **Namespace filtering blocks tokens** — child's namespace is nested (e.g., `summarize:...|summarize:...`)
+3. **Direct `astream()` WORKS** — calling child's `astream(stream_mode="messages")` yields tokens
+4. **Sync `invoke()` blocks streaming** — opaque boundary prevents token forwarding
+
+### Confirmed Approach
+
+Convert `mode=invoke` wrapper from sync `def` to `async def`:
+- Replace `compiled.invoke()` with `compiled.astream(stream_mode="messages")`
+- Collect tokens and forward to parent stream via callback or runtime.stream_writer
+- Preserve `interrupt_output_mapping` and `GraphInterrupt` handling
+
+### Implementation Plan
+
+```python
+async def subgraph_node_async(state: dict, config: RunnableConfig | None = None):
+    \"\"\"Async subgraph node with streaming support.\"\"\"
+    # 1. Map input state
+    child_input = _map_input_state(state, input_mapping)
+    
+    # 2. Get parent's stream_writer from runtime
+    runtime = config.get("configurable", {}).get(CONFIG_KEY_RUNTIME)
+    
+    # 3. Stream from child, forwarding tokens
+    async for event in compiled.astream(child_input, child_config, stream_mode="messages"):
+        chunk, meta = event
+        if runtime and hasattr(runtime, "stream_writer"):
+            runtime.stream_writer(chunk)  # Forward to parent
+    
+    # 4. Get final state and map output
+    child_state = compiled.get_state(child_config)
+    return _map_output_state(child_state.values, output_mapping)
 ```
 
 ## Summary
