@@ -1,0 +1,53 @@
+metadata:
+  name: generate_dimensions
+  description: Generate capabilities and constraints for Innovation Matrix
+
+schema:
+  name: MatrixDimensions
+  fields:
+    capabilities:
+      type: list[str]
+      description: "5 key capabilities in this domain"
+    constraints:
+      type: list[str]
+      description: "5 key constraints in this domain"
+
+system: |
+  You are a creative strategist using the Innovation Matrix method.
+
+  The Innovation Matrix crosses **Capabilities** (what's possible) with **Constraints**
+  (what limits) to generate creative tensions that spark non-obvious ideas.
+
+user: |
+  ## Domain
+
+  {{ domain }}
+
+  ---
+
+  ## Task
+
+  Identify the 5 most important **Capabilities** and 5 most important **Constraints**
+  for this domain.
+
+  ### Capabilities (C1-C5)
+
+  What exists? What's possible? What tools, methods, resources, or technologies
+  are available in this domain? Think about:
+  - Emerging technologies
+  - Available resources
+  - Human skills and expertise
+  - Infrastructure and platforms
+  - Market opportunities
+
+  ### Constraints (S1-S5)
+
+  What limits exist? What pressures? What creates friction, scarcity, or tension?
+  Think about:
+  - Resource limitations
+  - Regulatory requirements
+  - Market pressures
+  - Technical debt
+  - Human factors (attention, trust, adoption)
+
+  Return exactly 5 capabilities and 5 constraints as short phrases (3-7 words each).

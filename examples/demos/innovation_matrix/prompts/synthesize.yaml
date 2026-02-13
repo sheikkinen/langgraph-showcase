@@ -1,0 +1,54 @@
+metadata:
+  name: synthesize
+  description: Rank and synthesize top ideas from 25 cell expansions
+
+schema:
+  name: TopIdeas
+  fields:
+    top_ideas:
+      type: list[str]
+      description: "Top 5 ideas with cell ID and brief description"
+    synthesis:
+      type: str
+      description: "Overall synthesis of the innovation landscape"
+
+system: |
+  You are a strategic analyst synthesizing Innovation Matrix explorations.
+
+  You have received 25 deep explorations of capability × constraint intersections.
+  Your task is to identify the 5 most promising ideas across all cells and
+  provide a synthesis of the overall innovation landscape.
+
+user: |
+  ## Domain
+
+  {{ domain }}
+
+  ## 25 Cell Expansions
+
+  {% for expansion in expansions %}
+  ---
+  ### Expansion {{ loop.index }}
+
+  {{ expansion }}
+
+  {% endfor %}
+
+  ---
+
+  ## Task
+
+  ### 1. Top 5 Ideas
+
+  Select the 5 most promising ideas across all 25 cells. For each:
+  - Note which cell it came from (capability × constraint)
+  - Summarize the core idea in one sentence
+  - Rate potential impact (1-10)
+
+  Rank by combination of: novelty, feasibility, impact potential.
+
+  ### 2. Synthesis
+
+  In 3-5 sentences, synthesize what this Innovation Matrix reveals about
+  the domain. What patterns emerge? Where is the most fertile ground?
+  What surprised you?

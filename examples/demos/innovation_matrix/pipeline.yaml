@@ -1,0 +1,58 @@
+name: innovation-matrix-pipeline
+version: "1.0"
+description: "Full Innovation Matrix: generate → expand all 25 cells → synthesize"
+prompts_relative: true
+prompts_dir: prompts
+
+tools:
+  cartesian_product:
+    type: python
+    module: examples.demos.innovation_matrix.nodes.cartesian
+    function: cartesian_product
+    description: "Generate 25 capability × constraint pairs"
+
+nodes:
+  generate_dimensions:
+    prompt: generate_dimensions
+    state_key: dimensions
+    variables:
+      domain: "{state.domain}"
+
+  cartesian:
+    type: python
+    tool: cartesian_product
+    state_key: pairs
+
+  expand_all:
+    type: map
+    over: "{state.pairs}"
+    as: pair
+    max_items: 25
+    node:
+      prompt: expand_cell
+      state_key: expansion
+      variables:
+        domain: "{state.domain}"
+        capability: "{state.pair.capability}"
+        constraint: "{state.pair.constraint}"
+        cell_idea: ""
+    collect: expansions
+
+  synthesize:
+    prompt: synthesize
+    state_key: top_ideas
+    variables:
+      domain: "{state.domain}"
+      expansions: "{state.expansions}"
+
+edges:
+  - from: START
+    to: generate_dimensions
+  - from: generate_dimensions
+    to: cartesian
+  - from: cartesian
+    to: expand_all
+  - from: expand_all
+    to: synthesize
+  - from: synthesize
+    to: END

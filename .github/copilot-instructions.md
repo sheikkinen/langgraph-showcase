@@ -24,6 +24,7 @@ Use these as smoke test for new graph development.
 - Code quality tools: `ruff`, `vulture`, `radon`, `pylint --disable=all --enable=duplicate-code .`, `jscpd .`
 - No heredoc for Python scripts
 - Run shell scripts with redirect to log file. Analyze logs separately.
+- Convert paths with hyphens to snake_case.
 
 ### Requirement Traceability (ADR-001)
 - Every test function must have `@pytest.mark.req("REQ-YG-XXX")` linking it to a requirement in `ARCHITECTURE.md`.
@@ -38,11 +39,6 @@ See these canonical sources for patterns:
 - **Dev Commands**: `CLAUDE.md` (testing, linting, running examples)
 - **Prompts**: `reference/prompt-yaml.md` (Jinja2, schemas)
 - **Graphs**: `reference/graph-yaml.md` (node config, edges, routing)
-
-## The Judgement of the Chaplain
-
-Hear the judgement of the Code Chaplain, guardian of the sacred doctrines:
-`copilot -p "$(cat prompts/chaplain-audit.md)" --allow-all --model gpt-5.2-codex --silent`
 
 ## The 10 Commandments
 
