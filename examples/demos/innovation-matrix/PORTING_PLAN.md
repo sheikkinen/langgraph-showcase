@@ -48,27 +48,88 @@ yamlgraph graph run drill-down.yaml \
   --var constraint="Patient privacy"
 ```
 
-### Phase 3: AI Cell Selection ⏳
-
-**Status**: Prompt ready, graph not integrated
-
-**Files**:
-- `prompts/select_cells.yaml` ✅
-
-**TODO**:
-- [ ] Create `select.yaml` graph
-- [ ] Create `full-pipeline.yaml` that chains: generate → select → expand
-
-### Phase 4: Interactive Selection ⏳
+### Phase 3: Full Pipeline with Map ⏳
 
 **Status**: Not started
 
-**Approach**: Use YAMLGraph interrupt nodes for human-in-the-loop cell selection.
+**Key Insight**: The "human block" between matrix generation and cell expansion was a
+**porting artifact**, not a design choice. YAMLGraph makes map parallelism trivial.
+
+**Architecture**:
+```
+domain → generate_matrix (structured output)
+           ↓
+       25 cells
+           ↓
+  ┌─────────────────────────────────────┐
+  │    MAP over cells (parallel)        │
+  │                                     │
+  │    cell → web_search(cell.idea)     │  ← ground in reality
+  │           ↓                         │
+  │         expand_cell(cell + context) │  ← enriched expansion
+  │                                     │
+  └─────────────────────────────────────┘
+           ↓
+       25 expansions
+           ↓
+       synthesize_top_ideas (rank & filter)
+           ↓
+       Top 5 actionable ideas with evidence
+```
+
+**Cost Analysis** (~$0.80 total):
+| Step | Calls | Est. Cost |
+|------|-------|-----------|
+| Generate matrix | 1 | ~$0.03 |
+| Web search | 25 | ~$0 (free tier) |
+| Expand cells | 25 | ~$0.75 |
+| Synthesize | 1 | ~$0.03 |
 
 **TODO**:
-- [ ] Create `interactive.yaml` with interrupt after matrix display
-- [ ] User selects cells manually
-- [ ] Continue to expansion
+- [ ] Add inline schema to `generate_matrix.yaml` for structured cell output
+- [ ] Create `pipeline.yaml` with map node over all 25 cells
+- [ ] Add `prompts/synthesize_top_ideas.yaml` for final ranking
+- [ ] Integrate web search tool (Tavily) for grounding
+
+**Files to create**:
+```yaml
+# pipeline.yaml
+nodes:
+  generate:
+    type: llm
+    prompt: generate_matrix_structured
+    state_key: matrix
+
+  expand_all:
+    type: map
+    over: "{state.matrix.cells}"
+    as: cell
+    collect: expansions
+    node:
+      type: llm
+      prompt: expand_cell
+      variables:
+        domain: "{state.domain}"
+        capability: "{cell.capability}"
+        constraint: "{cell.constraint}"
+        cell_idea: "{cell.idea}"
+
+  synthesize:
+    type: llm
+    prompt: synthesize_top_ideas
+    state_key: top_ideas
+```
+
+### Phase 4: Web-Augmented Expansion ⏳
+
+**Status**: Not started
+
+**Concept**: Ground each cell expansion in real-world examples via web search.
+
+**TODO**:
+- [ ] Create `search-expand.yaml` subgraph (search → expand)
+- [ ] Use web_search tool before expansion
+- [ ] Pass search results as context to expand_cell prompt
 
 ### Phase 5: Recursive Matrix ⏳
 
@@ -81,16 +142,16 @@ yamlgraph graph run drill-down.yaml \
 - [ ] Loop graph that feeds outputs back as inputs
 - [ ] Depth limit to prevent infinite recursion
 
-### Phase 6: Memory/Persistence ⏳
+### Phase 6: Optional Human Curation ⏳
 
 **Status**: Not started
 
-**Concept**: Store matrix exploration history for iterative refinement.
+**Concept**: For budget-constrained or iterative refinement scenarios.
 
 **TODO**:
-- [ ] Add checkpointer configuration
-- [ ] Resume partial explorations
-- [ ] Export exploration tree
+- [ ] Create `interactive.yaml` with interrupt after matrix display
+- [ ] User selects subset of cells (default: all)
+- [ ] Add checkpointer for resuming partial explorations
 
 ## Key Differences from Original
 
@@ -121,7 +182,10 @@ These are domain-specific applications built on top of the Innovation Matrix met
 
 ## Success Criteria
 
-- [ ] Can generate matrix for any domain
-- [ ] Can drill into any cell
-- [ ] Can chain multiple exploration levels
-- [ ] ~100 lines YAML vs ~1000 lines Python for equivalent capability
+- [x] Can generate matrix for any domain (`graph.yaml`)
+- [x] Can drill into any cell (`drill-down.yaml`)
+- [ ] Can expand all 25 cells in parallel (`pipeline.yaml`)
+- [ ] Can augment with web search for grounding
+- [ ] Can synthesize top ideas from all expansions
+- [ ] Full exploration for ~$0.80 vs manual curation
+- [ ] ~150 lines YAML vs ~1000 lines Python for equivalent capability
