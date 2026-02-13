@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.38] - 2026-02-13
+
+### Added
+- `last_value` reducer tests in `test_state_builder.py` (4 tests, REQ-YG-024)
+
+### Fixed
+- **Map fan-in safety**: `last_value` reducer on BASE_FIELDS (`current_step`, `error`, `_loop_counts`, etc.) prevents `INVALID_CONCURRENT_GRAPH_UPDATE` when parallel map branches write to shared tracking fields.
+
 ## [0.4.37] - 2026-02-13
 
 ### Added

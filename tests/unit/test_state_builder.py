@@ -8,7 +8,33 @@ from typing import Annotated, get_args, get_origin
 
 import pytest
 
-from yamlgraph.models.state_builder import sorted_add
+from yamlgraph.models.state_builder import last_value, sorted_add
+
+
+class TestLastValue:
+    """Test the last_value reducer for concurrent fan-in safety."""
+
+    @pytest.mark.req("REQ-YG-024")
+    def test_returns_new_value(self):
+        """Should return the new value, ignoring existing."""
+        assert last_value("old", "new") == "new"
+
+    @pytest.mark.req("REQ-YG-024")
+    def test_works_with_none_existing(self):
+        """Should handle None as existing value."""
+        assert last_value(None, "value") == "value"
+
+    @pytest.mark.req("REQ-YG-024")
+    def test_works_with_none_new(self):
+        """Should return None when new is None."""
+        assert last_value("old", None) is None
+
+    @pytest.mark.req("REQ-YG-024")
+    def test_works_with_different_types(self):
+        """Should work with any type combination."""
+        assert last_value(123, "string") == "string"
+        assert last_value([1, 2], {"key": "value"}) == {"key": "value"}
+        assert last_value("str", 42) == 42
 
 
 class TestSortedAdd:
