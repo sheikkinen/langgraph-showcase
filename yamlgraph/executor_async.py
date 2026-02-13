@@ -292,6 +292,7 @@ async def run_graph_streaming_native(
     initial_state: dict | Command,
     config: dict | None = None,
     node_filter: str | None = None,
+    subgraphs: bool = False,
 ) -> AsyncIterator[str]:
     """Execute graph with native LangGraph token streaming.
 
@@ -304,6 +305,8 @@ async def run_graph_streaming_native(
         initial_state: Initial state dict, or Command(resume=...) for resuming
         config: LangGraph config, e.g. {"configurable": {"thread_id": "t1"}}
         node_filter: If set, only yield tokens from this node name
+        subgraphs: If True, also stream tokens from subgraph nodes (mode=direct).
+            When enabled, events include namespace prefix for subgraph tokens.
 
     Yields:
         str: Token strings from LLM nodes
@@ -311,6 +314,13 @@ async def run_graph_streaming_native(
     Note:
         Does not yield Interrupt objects. After iteration completes, check
         for pending interrupts via `app.aget_state(config).next`.
+
+        Router nodes emit dict content (classification result), which is
+        automatically filtered out — only string tokens are yielded.
+
+        Subgraph streaming (subgraphs=True) works with mode=direct subgraphs.
+        For mode=invoke subgraphs, tokens are not visible because the child
+        graph runs inside an opaque synchronous wrapper (see FR-030 Phase 2).
 
     Example:
         >>> async for token in run_graph_streaming_native(
@@ -327,21 +337,42 @@ async def run_graph_streaming_native(
         ...     node_filter="respond",
         ... ):
         ...     print(token, end="")
+
+    Example (stream from subgraphs):
+        >>> async for token in run_graph_streaming_native(
+        ...     "parent.yaml",
+        ...     {"input": "hi"},
+        ...     subgraphs=True,
+        ... ):
+        ...     print(token, end="")
     """
     app = await load_and_compile_async(graph_path)
     config = config or {}
 
-    async for event in app.astream(initial_state, config, stream_mode="messages"):
-        # Event structure: (AIMessageChunk, metadata_dict)
-        chunk, metadata = event
+    async for event in app.astream(
+        initial_state, config, stream_mode="messages", subgraphs=subgraphs
+    ):
+        # Event structure depends on subgraphs flag:
+        # - subgraphs=False: (AIMessageChunk, metadata_dict)
+        # - subgraphs=True: (namespace_tuple, (AIMessageChunk, metadata_dict))
+        if subgraphs:
+            _namespace, payload = event
+            chunk, metadata = payload
+        else:
+            chunk, metadata = event
 
         # Filter by node name if specified
         node_name = metadata.get("langgraph_node")
         if node_filter and node_name != node_filter:
             continue
 
-        # Yield token content (skip empty chunks)
-        if hasattr(chunk, "content") and chunk.content:
+        # Yield token content (skip empty chunks and non-string content)
+        # Router nodes emit dict content which must be filtered out
+        if (
+            hasattr(chunk, "content")
+            and chunk.content
+            and isinstance(chunk.content, str)
+        ):
             yield chunk.content
 
 

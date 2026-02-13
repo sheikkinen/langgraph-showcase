@@ -523,7 +523,7 @@ async def test_run_graph_streaming_native_uses_astream_messages_mode():
 
     from yamlgraph.executor_async import run_graph_streaming_native
 
-    async def mock_astream(initial_state, config, stream_mode=None):
+    async def mock_astream(initial_state, config, stream_mode=None, subgraphs=False):
         assert stream_mode == "messages", f"Expected stream_mode='messages', got {stream_mode}"
         yield (AIMessageChunk(content="OK"), {"langgraph_node": "llm"})
 
@@ -548,7 +548,7 @@ async def test_run_graph_streaming_native_passes_config():
 
     captured_config = None
 
-    async def mock_astream(initial_state, config, stream_mode=None):
+    async def mock_astream(initial_state, config, stream_mode=None, subgraphs=False):
         nonlocal captured_config
         captured_config = config
         yield (AIMessageChunk(content="X"), {"langgraph_node": "llm"})

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.37] - 2026-02-13
+
+### Added
+- **FR-030 Phase 1: Subgraph Token Streaming**: `run_graph_streaming_native()` now accepts `subgraphs: bool = False` parameter. When `True`, tokens from `mode=direct` subgraphs are included in the stream.
+
+### Fixed
+- **FR-030 Bug Fix: Dict token crash**: Router nodes emit dict content (classification result) which caused callers to crash with `TypeError`. Added `isinstance(chunk.content, str)` guard to filter non-string tokens.
+
+## [0.4.36] - 2026-02-13
+
+### Fixed
+- Removed unused `Interrupt` imports that caused ruff F401 lint failure in CI.
+
 ## [0.4.35] - 2026-02-12
 
 ### Added
