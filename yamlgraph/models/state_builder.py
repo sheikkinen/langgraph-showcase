@@ -11,6 +11,23 @@ from typing import Annotated, Any, TypedDict
 logger = logging.getLogger(__name__)
 
 
+def last_value(_existing: Any, new: Any) -> Any:
+    """Reducer that keeps the last written value (last-write-wins).
+
+    Safe for concurrent fan-in: when multiple parallel nodes write to
+    the same key, LangGraph calls the reducer instead of raising
+    INVALID_CONCURRENT_GRAPH_UPDATE.
+
+    Args:
+        _existing: Previous value (ignored)
+        new: New value to store
+
+    Returns:
+        The new value
+    """
+    return new
+
+
 def sorted_add(existing: list, new: list) -> list:
     """Reducer that adds items and sorts by _map_index if present.
 
@@ -39,22 +56,22 @@ def sorted_add(existing: list, new: list) -> list:
 
 # Infrastructure fields present in all graphs
 BASE_FIELDS: dict[str, type] = {
-    # Core tracking
+    # Core tracking (last_value reducer: safe for parallel fan-in)
     "thread_id": str,
-    "current_step": str,
+    "current_step": Annotated[str, last_value],
     # Error handling (two patterns by design):
     # - "error" (singular): Current/last error, simple overwrite semantics
     # - "errors" (plural): Accumulated PipelineError list via add reducer
     # Note: Tool results use nested {"error": ...} which is a different pattern
-    "error": Any,
+    "error": Annotated[Any, last_value],
     "errors": Annotated[list, add],
     # Messages with reducer (accumulates)
     "messages": Annotated[list, add],
-    # Loop tracking
-    "_loop_counts": dict,
-    "_loop_limit_reached": bool,
-    "_agent_iterations": int,
-    "_agent_limit_reached": bool,
+    # Loop tracking (last_value: safe for parallel fan-in)
+    "_loop_counts": Annotated[dict, last_value],
+    "_loop_limit_reached": Annotated[bool, last_value],
+    "_agent_iterations": Annotated[int, last_value],
+    "_agent_limit_reached": Annotated[bool, last_value],
     # Timestamps
     "started_at": Any,
     "completed_at": Any,
