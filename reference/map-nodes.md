@@ -418,6 +418,62 @@ For 5 map items with ~3s LLM calls each:
 
 ---
 
+## Local LLM Limitations
+
+Map nodes use LangGraph's `Send()` API which parallelizes **all items simultaneously**. This causes issues with:
+
+### Local LLM Servers (LM Studio, Ollama)
+
+Local LLM servers typically handle **one request at a time**. A map node with 25 items sends 25 parallel requests, causing hangs or timeouts.
+
+**Workaround**: Use a cloud provider for map-heavy graphs:
+
+```bash
+# Instead of local LLM
+PROVIDER=anthropic yamlgraph graph run pipeline.yaml
+```
+
+### Rate-Limited APIs
+
+Burst of many parallel requests may hit rate limits. Use the `retry` configuration (FR-031):
+
+```yaml
+# When FR-031 is implemented:
+nodes:
+  expand_cell:
+    type: llm
+    retry:
+      max_attempts: 5
+      backoff_factor: 2.0
+      jitter: true  # Prevents retry storms
+```
+
+### Design Decision
+
+Concurrency control was considered (FR-030) but rejected:
+- LangGraph's `Send()` doesn't support native concurrency limits
+- Adding it would require 200+ lines of async complexity
+- Workaround is simpler: use cloud provider or sequential graph pattern
+
+**Alternative**: For sequential processing, use a loop pattern instead of map:
+
+```yaml
+nodes:
+  process_one:
+    type: llm
+    prompt: process_item
+    state_key: current_result
+
+edges:
+  - from: process_one
+    to: accumulate
+  - from: accumulate
+    to: process_one
+    condition: "len(state.processed) < len(state.items)"
+```
+
+---
+
 ## Troubleshooting
 
 ### "List is empty"

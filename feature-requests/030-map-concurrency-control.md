@@ -1,5 +1,11 @@
 # FR-030: Map Node Concurrency Control
 
+**Status**: Won't Fix
+**Closed**: 2026-02-14
+**Reason**: Wrong layer - concurrency control belongs in LLM provider (RetryPolicy), not orchestration. See FR-031.
+
+---
+
 ## Problem
 
 Map nodes use LangGraph's `Send()` API which parallelizes all items simultaneously. This causes problems with:
@@ -62,4 +68,44 @@ LangGraph's `Send()` doesn't natively support concurrency limits, so this would 
 
 ## Priority
 
-Medium - Workaround exists (use cloud provider), but limits local development.
+~~Medium - Workaround exists (use cloud provider), but limits local development.~~
+
+**Closed**: See workarounds below.
+
+---
+
+## Judgment (2026-02-14)
+
+**REJECT** - Violates Commandment #1: "The cheapest code is unwritten code."
+
+### Why Not Implement
+
+1. **Wrong layer**: Concurrency control belongs in the LLM provider, not orchestration
+2. **FR-031 covers rate limits**: RetryPolicy with exponential backoff handles API rate limits
+3. **Complexity vs. benefit**: Would require 200+ lines for a niche use case with 1-line workaround
+
+### Workarounds (Document Instead of Code)
+
+**For local LLMs (LM Studio, Ollama):**
+```bash
+# Use cloud provider for map nodes
+PROVIDER=anthropic yamlgraph graph run pipeline.yaml
+```
+
+**For rate-limited APIs:**
+Use FR-031 (RetryPolicy) when implemented:
+```yaml
+nodes:
+  expand_cell:
+    type: llm
+    retry:
+      max_attempts: 5
+      backoff_factor: 2.0
+      jitter: true
+```
+
+### Action Taken
+
+- [x] Closed FR-030 as Won't Fix
+- [x] Added "Local LLM Limitations" section to `reference/map-nodes.md`
+- [x] FR-031 (RetryPolicy) already P0
