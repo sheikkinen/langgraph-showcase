@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Generator - Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+        .node-router { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .node-llm { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+        .node-interrupt { background: linear-gradient(135deg, #fbbf24, #d97706); }
+        .node-python { background: linear-gradient(135deg, #10b981, #059669); }
+        .node-subgraph { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .node-tool { background: linear-gradient(135deg, #10b981, #059669); }
+        .node-agent { background: linear-gradient(135deg, #3b82f6, #1e3a8a); }
+        .node-passthrough { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+        .node-map { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .mermaid-container { background: #1e293b; border-radius: 1rem; padding: 2rem; }
+        .mermaid { display: flex; justify-content: center; }
+    </style>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { curve: 'basis', padding: 20 }
+        });
+    </script>
+</head>
+<body style="background: #0f172a; color: #f1f5f9;">
+
+    <!-- Hero -->
+    <section class="gradient-bg min-h-[60vh] flex items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-64 h-64 bg-blue-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        <div class="text-center z-10 px-6 py-20">
+
+            <div class="text-sm uppercase tracking-widest text-blue-400 mb-4">AI storytelling with quality gates</div>
+
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Novel Generator</span>
+            </h1>
+            <p class="text-xl max-w-2xl mx-auto mb-8" style="color: #94a3b8;">
+                An AI-powered short story generator that transforms a simple premise into polished prose through a three-phase pipeline. The system iteratively refines story synopses using quality-driven feedback loops, generates story beats in parallel, and applies intelligent review gates to ensure output quality. By orchestrating multiple LLM calls with conditional routing and loop limits, this YAML-based workflow demonstrates how complex AI processes can be elegantly expressed in just 80 lines of configuration, replacing thousands of lines of imperative code.
+            </p>
+
+
+            <div class="mt-12 grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+
+                <div class="backdrop-blur rounded-xl p-6 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="text-3xl mb-3">🔄</div>
+                    <h3 class="font-semibold text-lg mb-2">Iterative Refinement Loop</h3>
+                    <p class="text-sm" style="color: #94a3b8;">Synopses evolve through quality-based feedback cycles with grade-based routing (A-F). Safety loop limits prevent infinite iteration while ensuring synopsis excellence before prose generation begins.</p>
+                </div>
+
+                <div class="backdrop-blur rounded-xl p-6 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="text-3xl mb-3">⚡</div>
+                    <h3 class="font-semibold text-lg mb-2">Parallel Prose Generation</h3>
+                    <p class="text-sm" style="color: #94a3b8;">Story beats are processed simultaneously via map node fan-out, generating prose for each beat in parallel. Automatic fan-in collects all sections into a cohesive narrative.</p>
+                </div>
+
+                <div class="backdrop-blur rounded-xl p-6 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="text-3xl mb-3">✅</div>
+                    <h3 class="font-semibold text-lg mb-2">Quality Gate Review</h3>
+                    <p class="text-sm" style="color: #94a3b8;">Final review stage validates assembled prose and conditionally routes to revision or completion. Iterative refinement ensures only polished stories reach the end state.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Diagram -->
+
+    <section class="py-16 px-6" style="background: #0f172a;">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-8">Architecture</h2>
+            <div class="mermaid-container">
+                <pre class="mermaid">flowchart TD
+    START([🚀 START])
+
+    %% Phase 1: Ideation - Synopsis Evolution
+    generate_synopsis[&#34;📝 Generate Synopsis&#34;]
+    analyze_synopsis[&#34;🔍 Analyze Synopsis&#34;]
+    evolve_synopsis[&#34;✏️ Evolve Synopsis&#34;]
+
+    %% Phase 2: Generation - Parallel Prose
+    construct_timeline[&#34;📅 Construct Timeline&#34;]
+    generate_prose[&#34;🎨 Generate Prose&lt;br/&gt;per Beat&#34;]
+
+    %% Phase 3: Assembly - Review Gate
+    review_draft[&#34;👁️ Review Draft&#34;]
+    revise_draft[&#34;🔧 Revise Draft&#34;]
+
+    END([✅ END])
+
+    %% Edges - Phase 1
+    START --&gt; generate_synopsis
+    generate_synopsis --&gt; analyze_synopsis
+
+    %% Conditional routing from analyze_synopsis
+    analyze_synopsis --&gt;|grade &gt; &#39;B&#39;| evolve_synopsis
+    analyze_synopsis --&gt;|grade ≤ &#39;B&#39;| construct_timeline
+    evolve_synopsis --&gt; analyze_synopsis
+
+    %% Edges - Phase 2
+    construct_timeline --&gt; generate_prose
+    generate_prose --&gt; review_draft
+
+    %% Edges - Phase 3
+    review_draft --&gt;|passed == true| END
+    review_draft --&gt;|passed == false| revise_draft
+    revise_draft --&gt; review_draft
+
+    %% Styling
+    classDef llm fill:#8b5cf6,stroke:#6d28d9,color:#fff,font-weight:bold
+    classDef router fill:#db2777,stroke:#be185d,color:#fff,font-weight:bold
+    classDef startEnd fill:#10b981,stroke:#059669,color:#fff,font-weight:bold
+
+    class generate_synopsis,analyze_synopsis,evolve_synopsis,construct_timeline,generate_prose,review_draft,revise_draft llm
+    class START,END startEnd</pre>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Nodes -->
+
+    <section class="py-16 px-6" style="background: #1e293b;">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-8">Pipeline Nodes</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">generate_synopsis</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Creates initial story synopsis from premise and genre</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">analyze_synopsis</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Evaluates synopsis quality with grade-based feedback (A-F)</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">evolve_synopsis</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Refines synopsis based on quality critique and feedback</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">construct_timeline</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Builds structured story beats from finalized synopsis</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-Map">
+                            ⚡
+                        </div>
+                        <div>
+                            <h4 class="font-bold">generate_prose</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">Map</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Generates prose for each story beat in parallel (max 20 items)</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">review_draft</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Reviews assembled prose for quality and passes/fails the draft</p>
+                </div>
+
+                <div class="rounded-xl p-5 border" style="background: rgba(30, 41, 59, 0.5); border-color: #334155;">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl node-LLM">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold">revise_draft</h4>
+                            <span class="text-xs px-2 py-0.5 rounded" style="background: #0f172a;">LLM</span>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: #94a3b8;">Revises problematic prose sections based on review feedback</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="py-6 px-6 border-t text-center text-sm" style="background: #0f172a; border-color: #334155; color: #94a3b8;">
+        Generated with yamlgraph beautify
+    </footer>
+
+</body>
+</html>

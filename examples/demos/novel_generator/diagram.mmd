@@ -1,0 +1,51 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#8b5cf6', 'primaryTextColor': '#fff', 'primaryBorderColor': '#6d28d9', 'lineColor': '#94a3b8', 'secondaryColor': '#10b981', 'tertiaryColor': '#1e293b'}}}%%
+flowchart TD
+    START([🚀 START])
+
+    %% Phase 1: Ideation - Synopsis Evolution
+    subgraph phase1["📝 PHASE 1: IDEATION"]
+        generate_synopsis["📝 Generate Synopsis"]
+        analyze_synopsis["🔍 Analyze Synopsis"]
+        evolve_synopsis["✏️ Evolve Synopsis"]
+    end
+
+    %% Phase 2: Generation - Parallel Prose
+    subgraph phase2["⚡ PHASE 2: GENERATION"]
+        construct_timeline["📅 Construct Timeline"]
+        generate_prose["🎨 Generate Prose<br/>per Beat (parallel)"]
+    end
+
+    %% Phase 3: Assembly - Review Gate
+    subgraph phase3["✅ PHASE 3: REVIEW"]
+        review_draft["👁️ Review Draft"]
+        revise_draft["🔧 Revise Draft"]
+    end
+
+    END([✅ END])
+
+    %% Edges - Phase 1
+    START --> generate_synopsis
+    generate_synopsis --> analyze_synopsis
+    analyze_synopsis -->|"grade > B"| evolve_synopsis
+    analyze_synopsis -->|"grade ≤ B ✓"| construct_timeline
+    evolve_synopsis --> analyze_synopsis
+
+    %% Edges - Phase 2
+    construct_timeline --> generate_prose
+    generate_prose --> review_draft
+
+    %% Edges - Phase 3
+    review_draft -->|"passed ✓"| END
+    review_draft -->|"needs work"| revise_draft
+    revise_draft --> review_draft
+
+    %% Styling
+    classDef llm fill:#8b5cf6,stroke:#6d28d9,color:#fff,font-weight:bold
+    classDef map fill:#f97316,stroke:#ea580c,color:#fff,font-weight:bold
+    classDef startEnd fill:#10b981,stroke:#059669,color:#fff,font-weight:bold
+    classDef phaseBox fill:#1e293b,stroke:#334155,color:#94a3b8
+
+    class generate_synopsis,analyze_synopsis,evolve_synopsis,construct_timeline,review_draft,revise_draft llm
+    class generate_prose map
+    class START,END startEnd
+    class phase1,phase2,phase3 phaseBox
