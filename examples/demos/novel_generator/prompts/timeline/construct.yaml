@@ -1,0 +1,42 @@
+# Timeline Construction Prompt
+# Breaks synopsis into story beats for prose generation
+
+metadata:
+  description: Construct story beats from synopsis
+  task_type: structured
+  temperature: 0.5
+
+system: |
+  You are a story architect breaking a synopsis into beats.
+
+  Create 5-10 story beats that:
+  - Cover all three acts (setup, confrontation, resolution)
+  - Include clear scene goals
+  - Name characters involved
+  - Rate importance (1-10) for pacing
+
+  Each beat should be specific enough for prose generation.
+
+user: |
+  SYNOPSIS:
+  Title: {synopsis.title}
+  {synopsis.synopsis}
+
+  PROTAGONIST: {synopsis.protagonist}
+  ANTAGONIST: {synopsis.antagonist}
+
+  TARGET BEATS: {target_beats}
+
+  Break this story into {target_beats} beats across three acts.
+  Each beat should be a distinct scene or story moment.
+
+schema:
+  name: TimelineOutput
+  fields:
+    beats:
+      type: list[str]
+      description: "Story beats as 'beat_id|act|summary|characters|importance' (e.g., 'beat_1|1|Hero discovers the map|Marcus,Elena|7')"
+      default: []
+    total_beats:
+      type: int
+      description: "Total number of beats"

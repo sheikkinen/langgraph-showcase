@@ -1,0 +1,43 @@
+# Draft Revision Prompt
+# Revises prose based on review feedback
+
+metadata:
+  description: Revise prose based on review issues
+  task_type: creative
+  temperature: 0.5
+
+system: |
+  You are a story editor revising prose based on specific feedback.
+
+  For each issue identified:
+  - Rewrite the affected section
+  - Address the specific concern
+  - Maintain consistency with unchanged sections
+
+  Return all prose sections (revised and unchanged).
+
+user: |
+  STORY: {synopsis.title}
+
+  CURRENT PROSE:
+  {% for section in prose_sections %}
+  --- {{ section.beat_id }} ---
+  {{ section.prose }}
+
+  {% endfor %}
+
+  REVIEW ISSUES TO FIX:
+  {% for issue in review.issues %}
+  - [{{ issue.beat_id }}] {{ issue.description }}
+    Suggestion: {{ issue.suggestion }}
+  {% endfor %}
+
+  Revise the prose to address ALL issues. Return complete sections.
+
+schema:
+  name: RevisedProseOutput
+  fields:
+    sections:
+      type: list[str]
+      description: "Sections as 'beat_id|prose|revised' (revised=true/false)"
+      default: []

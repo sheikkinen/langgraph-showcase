@@ -1,0 +1,58 @@
+# Synopsis Evolution Prompt
+# Improves synopsis based on analysis feedback
+
+metadata:
+  description: Evolve synopsis based on critique
+  task_type: creative
+  temperature: 0.6
+
+system: |
+  You are a story editor improving a synopsis based on specific feedback.
+
+  Address ALL suggestions while:
+  - Preserving what works (the strengths)
+  - Fixing identified weaknesses
+  - Maintaining the core premise and tone
+  - Improving dramatic structure
+
+user: |
+  ORIGINAL SYNOPSIS:
+  {synopsis}
+
+  ANALYSIS GRADE: {analysis.grade}
+
+  WEAKNESSES TO FIX:
+  {% for weakness in analysis.weaknesses %}
+  - {{ weakness }}
+  {% endfor %}
+
+  SUGGESTIONS TO IMPLEMENT:
+  {% for suggestion in analysis.suggestions %}
+  - {{ suggestion }}
+  {% endfor %}
+
+  Rewrite the synopsis addressing ALL feedback.
+  Return a complete, improved synopsis.
+
+schema:
+  name: SynopsisOutput
+  fields:
+    title:
+      type: str
+      description: Story title (may be updated)
+    logline:
+      type: str
+      description: One-sentence hook
+    synopsis:
+      type: str
+      description: Full synopsis prose (2-3 paragraphs)
+    protagonist:
+      type: str
+      description: Main character name
+    antagonist:
+      type: str
+      description: Opposing force or character
+    threads:
+      type: list[str]
+      description: "Plot threads as 'name: description (main|subplot)'"
+      default: []

@@ -1,0 +1,143 @@
+# Novel Generator - YAMLGraph Marketing Showcase
+# ================================================
+# From 4000 lines of Python to ~80 lines of YAML
+#
+# Three-phase pipeline demonstrating:
+# 1. Evolution loop (synopsis quality iteration)
+# 2. Map node (parallel prose generation)
+# 3. Review gate (quality-based routing)
+
+name: novel_generator
+description: "AI-powered short story generator with quality-driven iteration"
+
+# Prompts are relative to this file
+prompts_relative: true
+prompts_dir: prompts
+
+# Input variables (passed via --var)
+state:
+  premise: str          # Story premise
+  genre: str            # Genre (e.g., "dark fantasy")
+  target_beats: int     # Number of story beats (default: 5)
+
+# -----------------------------------------------------------------------------
+# PHASE 1: IDEATION - Synopsis Evolution Loop
+# -----------------------------------------------------------------------------
+# Generate → Analyze → (quality < B?) → Evolve → Analyze... → Timeline
+#
+# Demonstrates: conditional routing, quality gates, iterative refinement
+
+nodes:
+  # Generate initial synopsis from premise
+  generate_synopsis:
+    type: llm
+    prompt: synopsis/generate
+    state_key: synopsis
+
+  # Analyze synopsis quality (returns grade A-F)
+  analyze_synopsis:
+    type: llm
+    prompt: synopsis/analyze
+    state_key: analysis
+
+  # Evolve synopsis based on critique
+  evolve_synopsis:
+    type: llm
+    prompt: synopsis/evolve
+    state_key: synopsis
+
+# -----------------------------------------------------------------------------
+# PHASE 2: GENERATION - Parallel Prose via Map Node
+# -----------------------------------------------------------------------------
+# Timeline → Map(beats) → [Prose per beat in parallel] → Review
+#
+# Demonstrates: map node fan-out, parallel LLM calls, automatic fan-in
+
+  # Construct story beats from synopsis
+  construct_timeline:
+    type: llm
+    prompt: timeline/construct
+    state_key: timeline
+
+  # Generate prose for each beat (parallel)
+  generate_prose:
+    type: map
+    over: "{state.timeline.beats}"
+    as: beat
+    max_items: 20  # Safety limit
+    node:
+      prompt: prose/generate_beat
+      state_key: prose
+      variables:
+        beat: "{state.beat}"
+        genre: "{state.genre}"
+        synopsis: "{state.synopsis}"
+    collect: prose_sections
+
+# -----------------------------------------------------------------------------
+# PHASE 3: ASSEMBLY - Review Gate
+# -----------------------------------------------------------------------------
+# Review → (passed?) → END or → Revise → Review...
+#
+# Demonstrates: quality gate, conditional loop
+
+  # Review assembled prose for quality
+  review_draft:
+    type: llm
+    prompt: review/review
+    state_key: review
+
+  # Revise problematic sections
+  revise_draft:
+    type: llm
+    prompt: review/revise
+    state_key: revised_sections
+
+# -----------------------------------------------------------------------------
+# EDGES - Pipeline Flow
+# -----------------------------------------------------------------------------
+
+edges:
+  # Phase 1: Synopsis evolution
+  - from: START
+    to: generate_synopsis
+  - from: generate_synopsis
+    to: analyze_synopsis
+
+  # Conditional: evolve if grade > B (C, D, F), else proceed (A, B)
+  - from: analyze_synopsis
+    to: evolve_synopsis
+    condition: "analysis.grade > 'B'"
+  - from: analyze_synopsis
+    to: construct_timeline
+    condition: "analysis.grade <= 'B'"
+
+  - from: evolve_synopsis
+    to: analyze_synopsis
+
+  # Phase 2: Timeline → Prose
+  - from: construct_timeline
+    to: generate_prose
+  - from: generate_prose
+    to: review_draft
+
+  # Phase 3: Review gate
+  - from: review_draft
+    to: END
+    condition: "review.passed == true"
+  - from: review_draft
+    to: revise_draft
+    condition: "review.passed == false"
+
+  - from: revise_draft
+    to: review_draft
+
+# -----------------------------------------------------------------------------
+# SAFETY - Loop limits prevent infinite iteration
+# -----------------------------------------------------------------------------
+
+loop_limits:
+  analyze_synopsis: 5    # Max 5 analysis cycles
+  evolve_synopsis: 3     # Max 3 synopsis evolutions
+  review_draft: 3        # Max 3 review cycles
+  revise_draft: 2        # Max 2 revision attempts

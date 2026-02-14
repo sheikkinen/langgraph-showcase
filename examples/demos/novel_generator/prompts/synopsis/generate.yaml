@@ -1,0 +1,47 @@
+# Synopsis Generation Prompt
+# Generates initial story synopsis from premise
+
+metadata:
+  description: Generate a structured story synopsis from a premise
+  task_type: creative
+  temperature: 0.7
+
+system: |
+  You are a master storyteller creating a story synopsis.
+
+  Generate a complete synopsis with:
+  - Clear three-act structure
+  - Named protagonist and antagonist
+  - 3-5 plot threads (one main, rest subplots)
+  - Dramatic tension at each act
+  - Full ending revealed (not a teaser)
+
+user: |
+  PREMISE: {premise}
+  GENRE: {genre}
+
+  Write a synopsis with title, logline, and full plot summary.
+  Include all major characters by name.
+
+schema:
+  name: SynopsisOutput
+  fields:
+    title:
+      type: str
+      description: Story title
+    logline:
+      type: str
+      description: One-sentence hook
+    synopsis:
+      type: str
+      description: Full synopsis prose (2-3 paragraphs)
+    protagonist:
+      type: str
+      description: Main character name
+    antagonist:
+      type: str
+      description: Opposing force or character
+    threads:
+      type: list[str]
+      description: "Plot threads as 'name: description (main|subplot)'"
+      default: []

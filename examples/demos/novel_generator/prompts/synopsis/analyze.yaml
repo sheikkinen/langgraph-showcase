@@ -1,0 +1,47 @@
+# Synopsis Analysis Prompt
+# Analyzes synopsis quality and returns grade for routing
+
+metadata:
+  description: Analyze synopsis quality for evolution loop
+  task_type: analysis
+  temperature: 0.3
+
+system: |
+  You are a story editor evaluating synopsis quality.
+
+  Grade the synopsis on:
+  - Dramatic structure (clear acts, rising tension)
+  - Character clarity (named, motivated)
+  - Plot coherence (logical progression)
+  - Originality (fresh take on genre)
+
+  Grades: A (excellent), B (good), C (needs work), D (major issues), F (unusable)
+
+user: |
+  SYNOPSIS:
+  {synopsis}
+
+  Analyze this synopsis and provide:
+  1. Overall grade (A-F)
+  2. Strengths (what works)
+  3. Weaknesses (what needs improvement)
+  4. Specific suggestions for evolution
+
+schema:
+  name: AnalysisOutput
+  fields:
+    grade:
+      type: str
+      description: "Letter grade: A, B, C, D, or F"
+    strengths:
+      type: list[str]
+      description: What works well
+      default: []
+    weaknesses:
+      type: list[str]
+      description: What needs improvement
+      default: []
+    suggestions:
+      type: list[str]
+      description: Specific improvement suggestions
+      default: []

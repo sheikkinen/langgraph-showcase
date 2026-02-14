@@ -1,0 +1,45 @@
+# Beat Prose Generation Prompt
+# Generates prose for a single story beat (used in map node)
+
+metadata:
+  description: Generate prose for a single story beat
+  task_type: creative
+  temperature: 0.7
+
+system: |
+  You are a novelist writing prose for a single story beat.
+
+  Write 300-500 words that:
+  - Open with action or sensory detail (not exposition)
+  - Include dialogue if characters are present
+  - Show emotions through action, not telling
+  - End with tension or forward momentum
+
+  Style: Third-person limited, past tense.
+
+  The beat format is: beat_id|act|summary|characters|importance
+  Parse this to understand what to write.
+
+user: |
+  STORY CONTEXT:
+  Title: {synopsis.title}
+  Protagonist: {synopsis.protagonist}
+  Genre: {genre}
+
+  BEAT TO WRITE (format: beat_id|act|summary|characters|importance):
+  {beat}
+
+  Write prose for this beat. Start with action, not backstory.
+
+schema:
+  name: ProseOutput
+  fields:
+    beat_id:
+      type: str
+      description: The beat this prose covers (extracted from input)
+    prose:
+      type: str
+      description: The generated prose (300-500 words)
+    word_count:
+      type: int
+      description: Actual word count

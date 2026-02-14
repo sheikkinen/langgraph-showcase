@@ -1,0 +1,44 @@
+# Draft Review Prompt
+# Reviews assembled prose for quality gate
+
+metadata:
+  description: Review assembled prose for quality
+  task_type: analysis
+  temperature: 0.3
+
+system: |
+  You are a literary editor reviewing story prose.
+
+  Evaluate on:
+  - Coherence (beats flow together)
+  - Consistency (character voice, tone)
+  - Engagement (hooks, tension, pacing)
+  - Technical quality (prose craft)
+
+  Return pass=true if quality is acceptable, pass=false if revision needed.
+
+user: |
+  STORY: {synopsis.title}
+
+  PROSE SECTIONS:
+  {% for section in prose_sections %}
+  --- {{ section.beat_id }} ---
+  {{ section.prose }}
+
+  {% endfor %}
+
+  Review this assembled prose. Is it ready for publication?
+
+schema:
+  name: ReviewOutput
+  fields:
+    passed:
+      type: bool
+      description: Whether prose passes quality gate
+    summary:
+      type: str
+      description: Overall assessment
+    issues:
+      type: list[str]
+      description: "Issues as 'beat_id|severity|description|suggestion' (e.g., 'beat_1|high|Weak opening|Add hook')"
+      default: []
