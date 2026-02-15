@@ -13,7 +13,7 @@ user: |
 
   Generate:
   - title (2-4 words)
-  - tagline (3-6 words) 
+  - tagline (3-6 words)
   - summary (1 paragraph)
   - 3 features with emoji + title + description (e.g., 🔄 Feature Title)
   - nodes with emoji + type + description (e.g., 🧠 for llm, ⏸️ for interrupt, 🐍 for python)

@@ -46,6 +46,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for version history.
 | [Checkpointers](checkpointers.md) | State persistence (Memory, SQLite, Redis) |
 | [LangSmith Tools & Tracing](langsmith-tools.md) | Trace URLs, public sharing, and observability tools |
 | [Prompt Deployment](prompt-deployment.md) | Patterns for updating prompts without rebuild |
+| [MCP Server](mcp-server.md) | Expose graphs as Copilot/MCP tools |
 
 ### Examples & Guides
 

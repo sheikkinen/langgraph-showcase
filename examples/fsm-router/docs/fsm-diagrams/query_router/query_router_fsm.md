@@ -1,6 +1,6 @@
 # State Machine
 
-**Description:** 
+**Description:**
 
 **Generated from:** `router.yaml`
 **Machine Name:** `query_router`

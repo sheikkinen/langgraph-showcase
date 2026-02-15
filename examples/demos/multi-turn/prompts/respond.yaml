@@ -10,5 +10,5 @@ user: |
   - {{ msg }}
   {% endfor %}
   {% endif %}
-  
+
   User: {{ message }}

@@ -19,13 +19,13 @@ system: |
 
 user: |
   Please refine this essay based on the feedback:
-  
+
   ORIGINAL DRAFT:
   ---
   {content}
   ---
-  
+
   FEEDBACK:
   {feedback}
-  
+
   Provide an improved version that addresses the feedback.

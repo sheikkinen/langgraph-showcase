@@ -350,7 +350,7 @@ TEST 4: Multiple LLM nodes
   llm_1: '1'
   llm_1: '\n2\n3'
   llm_2: 'A'
-  llm_2: ',' 
+  llm_2: ','
   llm_2: ' B, C'
 Tokens by node: {'llm_1': 2, 'llm_2': 3}
 ```
@@ -379,10 +379,10 @@ async def run_graph_streaming_native(
     node_filter: str | None = None,
 ) -> AsyncIterator[str]:
     """Native LangGraph token streaming.
-    
+
     Yields:
         str: Token strings from all LLM nodes (or filtered node)
-    
+
     Note:
         Does not yield Interrupt. After iteration, check graph state
         for pending interrupts via `app.aget_state(config).next`.

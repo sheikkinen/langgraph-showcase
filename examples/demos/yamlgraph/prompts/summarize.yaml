@@ -4,17 +4,17 @@ system: |
 
 user: |
   Summarize this pipeline result:
-  
+
   Original Topic: {topic}
-  
+
   Generated Content:
   {generated_content}
-  
+
   Analysis Results:
   - Summary: {analysis_summary}
   - Key Points: {key_points}
   - Sentiment: {sentiment}
-  
+
   Create a final summary that:
   1. Highlights the most important findings
   2. Notes any interesting patterns

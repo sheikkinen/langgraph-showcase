@@ -1,9 +1,9 @@
 # Feature Request: Questionnaire Generation Pipeline
 
-**Priority:** MEDIUM  
-**Type:** Feature  
-**Status:** Proposed  
-**Effort:** 4–7 days  
+**Priority:** MEDIUM
+**Type:** Feature
+**Status:** Proposed
+**Effort:** 4–7 days
 **Requested:** 2026-01-30
 
 ## Summary

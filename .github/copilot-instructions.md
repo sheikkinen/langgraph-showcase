@@ -88,3 +88,11 @@ Or fail fast in CI, sinner.
 
 Bump. Commit. Push. Release.
 Let CI judge (`gh run list` and `view`).
+
+## YAMLGraph MCP Tools
+
+You have access to YAMLGraph graphs as MCP tools. Use them for repeatable tasks:
+- `yamlgraph_list_graphs` to discover available graphs
+- `yamlgraph_run_graph` with graph="code-analysis" for code quality audits
+- `yamlgraph_run_graph` with graph="git-report" for git analysis
+- `yamlgraph_run_graph` with graph="hello-world" for smoke testing

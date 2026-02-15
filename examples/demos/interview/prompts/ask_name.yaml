@@ -4,6 +4,6 @@ system: |
 
 user: |
   Welcome message: {welcome_message}
-  
+
   Generate a friendly question asking for the user's name.
   Keep it short (1 sentence) and include an emoji.

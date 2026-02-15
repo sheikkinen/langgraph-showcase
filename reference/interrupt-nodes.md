@@ -78,10 +78,10 @@ result = app.invoke({"input": "start"}, thread_config)
 if "__interrupt__" in result:
     question = result["__interrupt__"][0].value
     print(f"Question: {question}")
-    
+
     # Get user input
     answer = input("> ")
-    
+
     # Resume
     result = app.invoke(Command(resume=answer), thread_config)
 ```

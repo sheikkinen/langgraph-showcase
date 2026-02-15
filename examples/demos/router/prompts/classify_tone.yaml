@@ -20,7 +20,7 @@ schema:
 
 system: |
   You are a tone classifier. Analyze the user's message and classify its emotional tone.
-  
+
   Respond with exactly one of these tones:
   - positive: Happy, grateful, excited, satisfied
   - negative: Frustrated, angry, disappointed, upset
@@ -28,7 +28,7 @@ system: |
 
 user: |
   Classify the tone of this message:
-  
+
   "{message}"
-  
+
   Provide your classification with reasoning.

@@ -25,5 +25,5 @@ system: |
 
 user: |
   Create a structured report from this git analysis:
-  
+
   {analysis}

@@ -139,6 +139,7 @@ YAML file → load_graph_config() → GraphConfig (Pydantic)
 - `node_factory/` modules: Creates node functions by type (llm, router, map, agent, etc.)
 - `models/state_builder.py`: Generates dynamic TypedDict from graph YAML
 - `executor.py`: Unified `execute_prompt()` interface for all LLM calls
+- `mcp_server.py`: MCP server exposing graphs as Copilot tools (CAP-19)
 
 ### Node Execution Flow
 
@@ -258,7 +259,7 @@ For YAML-defined nodes, error handling is automatic via `on_error: skip|retry|fa
 
 See [ARCHITECTURE.md](ARCHITECTURE.md#extension-points) for detailed guides on:
 - Adding a new node type
-- Adding a new LLM provider  
+- Adding a new LLM provider
 - Adding a new tool type
 
 ## Code Quality Standards

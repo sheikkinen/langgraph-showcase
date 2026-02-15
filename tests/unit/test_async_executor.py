@@ -398,9 +398,9 @@ async def test_run_graph_streaming_native_accepts_command_resume():
 
     # Type hint should mention Command (dict | Command or similar)
     annotation_str = str(initial_state_param.annotation)
-    assert "Command" in annotation_str, (
-        f"initial_state must accept Command, got {annotation_str}"
-    )
+    assert (
+        "Command" in annotation_str
+    ), f"initial_state must accept Command, got {annotation_str}"
 
 
 # ==============================================================================
@@ -524,7 +524,9 @@ async def test_run_graph_streaming_native_uses_astream_messages_mode():
     from yamlgraph.executor_async import run_graph_streaming_native
 
     async def mock_astream(initial_state, config, stream_mode=None, subgraphs=False):
-        assert stream_mode == "messages", f"Expected stream_mode='messages', got {stream_mode}"
+        assert (
+            stream_mode == "messages"
+        ), f"Expected stream_mode='messages', got {stream_mode}"
         yield (AIMessageChunk(content="OK"), {"langgraph_node": "llm"})
 
     mock_app = AsyncMock()
@@ -561,7 +563,12 @@ async def test_run_graph_streaming_native_passes_config():
         return_value=mock_app,
     ):
         test_config = {"configurable": {"thread_id": "session-42"}}
-        _ = [t async for t in run_graph_streaming_native("test.yaml", {}, config=test_config)]
+        _ = [
+            t
+            async for t in run_graph_streaming_native(
+                "test.yaml", {}, config=test_config
+            )
+        ]
 
         assert captured_config == test_config
 
@@ -577,7 +584,10 @@ async def test_run_graph_streaming_native_skips_empty_content():
     async def mock_astream(*args, **kwargs):
         yield (AIMessageChunk(content=""), {"langgraph_node": "llm"})  # Empty string
         yield (AIMessageChunk(content="Real"), {"langgraph_node": "llm"})
-        yield (AIMessageChunk(content="   "), {"langgraph_node": "llm"})  # Whitespace (valid)
+        yield (
+            AIMessageChunk(content="   "),
+            {"langgraph_node": "llm"},
+        )  # Whitespace (valid)
 
     mock_app = AsyncMock()
     mock_app.astream = mock_astream

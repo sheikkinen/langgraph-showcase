@@ -1,6 +1,6 @@
 # Feature Request: Runtime State Interpolation in Prompt Paths
 
-**Priority:** LOW (can work around with current architecture)  
+**Priority:** LOW (can work around with current architecture)
 **Use Case:** Reusable subgraphs with questionnaire-specific prompts
 
 ## Problem

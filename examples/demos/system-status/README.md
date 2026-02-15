@@ -6,7 +6,7 @@ Demonstrates `type: tool` nodes for deterministic shell command execution.
 
 1. **Gathers system metrics** using 6 parallel tool nodes:
    - `df -h` - Disk usage
-   - `memory_pressure` - Memory statistics  
+   - `memory_pressure` - Memory statistics
    - `sysctl -n vm.loadavg` - Load average
    - `uptime` - System uptime
    - `ps aux -r | head -15` - Top CPU processes

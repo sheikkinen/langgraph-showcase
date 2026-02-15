@@ -8,5 +8,5 @@ system: |
 
 user: |
   Customer message: "{message}"
-  
+
   Respond with empathy to this frustrated customer.

@@ -1,9 +1,9 @@
 # Example Request: SOUP Doc Compiler for SaMD/MDSW
 
-**Priority:** MEDIUM  
-**Type:** Example + Potential Product  
-**Status:** Proposed  
-**Effort:** 3–4 days  
+**Priority:** MEDIUM
+**Type:** Example + Potential Product
+**Status:** Proposed
+**Effort:** 3–4 days
 **Requested:** 2026-01-30
 
 ## Summary

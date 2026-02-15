@@ -8,5 +8,5 @@ system: |
 
 user: |
   Customer message: "{message}"
-  
+
   Provide a helpful, informative response.

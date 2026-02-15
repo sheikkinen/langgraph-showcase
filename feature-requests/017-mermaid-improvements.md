@@ -1,9 +1,9 @@
 # Feature Request: Enhanced Mermaid Diagram Generation
 
-**Priority:** MEDIUM  
-**Type:** Enhancement  
-**Status:** Proposed  
-**Effort:** 2-3 days  
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Status:** Proposed
+**Effort:** 2-3 days
 **Requested:** 2026-01-29
 
 ## Summary
@@ -28,7 +28,7 @@ flowchart TD
     classify{"classify"}
     ask_probe["ask_probe"]
     calculate_score["calculate_score"]
-    
+
     __start__ --> classify
     classify -->|elderlycare| ask_probe
     ask_probe --> calculate_score
@@ -65,7 +65,7 @@ flowchart TD
     classify{{"🔀 classify"}}
     ask_probe[/"⏸️ ask_probe"/]
     calculate_score["🐍 calculate_score"]
-    
+
     style classify fill:#db2777,stroke:#ec4899
     style ask_probe fill:#d97706,stroke:#f59e0b
     style calculate_score fill:#059669,stroke:#10b981
@@ -96,13 +96,13 @@ flowchart TB
     subgraph NAV[" 🧭 Navigator "]
         classify{{"🔀 classify"}}
     end
-    
+
     classify -->|elderlycare| run_interrai
     classify -->|depression| run_phq9
-    
+
     run_interrai["📦 interRAI-CA"]
     run_phq9["📦 PHQ-9"]
-    
+
     style NAV fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px
 ```
 
@@ -160,20 +160,20 @@ flowchart LR
     subgraph INIT[" 🚀 INIT "]
         ask_opening[/"⏸️ ask_opening"/]
     end
-    
+
     subgraph PROBE[" 🔄 PROBING "]
         ask_probe[/"⏸️ ask_probe"/]
         ask_probe -->|has_gaps| ask_probe
     end
-    
+
     subgraph RECAP[" ✅ RECAP "]
         ask_recap[/"⏸️ ask_recap"/]
     end
-    
+
     subgraph FINAL[" 🏁 SCORE "]
         calculate_score["🐍 calculate_score"]
     end
-    
+
     style INIT fill:#1e293b,stroke:#334155
     style PROBE fill:#1e3a5f,stroke:#3b82f6
     style RECAP fill:#3b1f4a,stroke:#8b5cf6

@@ -1,9 +1,9 @@
 # Feature Request: Handle JSON integer key coercion in schema
 
-**Priority:** MEDIUM  
-**Type:** Enhancement  
-**Status:** Proposed  
-**Effort:** 1 day  
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Status:** Proposed
+**Effort:** 1 day
 **Requested:** 2026-01-27
 
 ## Summary

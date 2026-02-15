@@ -1,17 +1,17 @@
 # Feature Request: Graph Session Manager
 
-**ID:** 005  
-**Priority:** P3 - Medium  
-**Status:** ⏸️ Deferred (Optional)  
-**Effort:** 3 days  
-**Requested:** 2026-01-19  
+**ID:** 005
+**Priority:** P3 - Medium
+**Status:** ⏸️ Deferred (Optional)
+**Effort:** 3 days
+**Requested:** 2026-01-19
 **Updated:** 2026-01-20 (v0.2.0 analysis)
 
 ## v0.2.0 Status Update
 
 With YamlGraph v0.2.0, all foundational features are implemented:
 - ✅ Interrupt nodes (001)
-- ✅ Redis checkpointer (002)  
+- ✅ Redis checkpointer (002)
 - ✅ Async executor (003)
 - ✅ Streaming support (004)
 
@@ -28,12 +28,12 @@ _app = await load_and_compile_async("graphs/interview.yaml")
 
 async def process_message(thread_id: str, message: str, is_resume: bool):
     config = {"configurable": {"thread_id": thread_id}}
-    
+
     if is_resume:
         result = await run_graph_async(_app, Command(resume=message), config)
     else:
         result = await run_graph_async(_app, {"user_message": message}, config)
-    
+
     if "__interrupt__" in result:
         return {"status": "waiting", "question": result["__interrupt__"][0].value}
     return {"status": "complete", "response": result.get("response")}
@@ -129,12 +129,12 @@ from typing import Any
 
 class GraphSession:
     """Stateful graph execution session.
-    
+
     Wraps a compiled graph with checkpointing and interrupt/resume.
     This is a generic session - applications can subclass for
     domain-specific behavior.
     """
-    
+
     def __init__(
         self,
         thread_id: str,
@@ -147,18 +147,18 @@ class GraphSession:
         self.checkpointer = checkpointer
         self.output_key = output_key
         self._last_state: dict = {}
-    
+
     async def invoke(self, input_state: dict) -> InvokeResult:
         """Invoke graph with input, handling interrupts.
-        
+
         Args:
             input_state: Input to merge into graph state
-            
+
         Returns:
             InvokeResult with status, state, and optional output
         """
         from yamlgraph.executor_async import run_until_interrupt_async
-        
+
         result = await run_until_interrupt_async(
             graph=self.graph,
             initial_state=input_state,
@@ -167,24 +167,24 @@ class GraphSession:
                 "checkpointer": self.checkpointer,
             },
         )
-        
+
         self._last_state = result["state"]
-        
+
         output = None
         if self.output_key and self.output_key in self._last_state:
             output = self._last_state[self.output_key]
-        
+
         return InvokeResult(
             status=result["status"],
             state=self._last_state,
             output=output,
             resume_key=result.get("resume_key"),
         )
-    
+
     async def get_state(self) -> dict:
         """Get current session state."""
         return self._last_state.copy()
-    
+
     @property
     def is_complete(self) -> bool:
         """Check if graph execution is complete."""
@@ -197,11 +197,11 @@ from typing import Optional
 
 class GraphSessionManager:
     """Manage multiple graph sessions with checkpointing.
-    
+
     Generic session manager - applications can subclass for
     domain-specific session handling.
     """
-    
+
     def __init__(
         self,
         graph_path: str,
@@ -212,7 +212,7 @@ class GraphSessionManager:
         self.checkpointer = get_checkpointer(checkpointer_config)
         self.output_key = output_key
         self._sessions: dict[str, GraphSession] = {}
-    
+
     async def get_or_create(
         self,
         thread_id: str,
@@ -221,14 +221,14 @@ class GraphSessionManager:
         """Get existing session or create new one."""
         if thread_id in self._sessions:
             return self._sessions[thread_id]
-        
+
         session = GraphSession(
             thread_id=thread_id,
             graph=self.graph,
             checkpointer=self.checkpointer,
             output_key=self.output_key,
         )
-        
+
         # Restore state from checkpointer if exists
         saved = await self.checkpointer.aget(
             {"configurable": {"thread_id": thread_id}}
@@ -237,14 +237,14 @@ class GraphSessionManager:
             session._last_state = saved.get("channel_values", {})
         elif initial_state:
             session._last_state = initial_state
-        
+
         self._sessions[thread_id] = session
         return session
-    
+
     async def get(self, thread_id: str) -> Optional[GraphSession]:
         """Get session if exists."""
         return self._sessions.get(thread_id) or await self._restore(thread_id)
-    
+
     async def delete(self, thread_id: str) -> bool:
         """Delete session and its checkpoint."""
         self._sessions.pop(thread_id, None)
@@ -252,7 +252,7 @@ class GraphSessionManager:
             {"configurable": {"thread_id": thread_id}}
         )
         return True
-    
+
     async def cleanup(self) -> None:
         """Cleanup resources on shutdown."""
         self._sessions.clear()
@@ -279,11 +279,11 @@ class QuestionnaireResult(InvokeResult):
 
 class QuestionnaireSession(GraphSession):
     """Questionnaire-specific session wrapper."""
-    
+
     async def send_message(self, message: str) -> QuestionnaireResult:
         """Send user message, get questionnaire response."""
         result = await self.invoke({"user_message": message})
-        
+
         return QuestionnaireResult(
             status=result.status,
             state=result.state,

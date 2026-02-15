@@ -253,7 +253,7 @@ Key flow anchors in code:
 
 ## Capabilities & Requirements Traceability
 
-YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capability maps to specific modules.
+YAMLGraph implements **19 capabilities** covering **68 requirements**. Each capability maps to specific modules.
 
 ### Capability Summary
 
@@ -276,6 +276,8 @@ YAMLGraph implements **12 capabilities** covering **46 requirements**. Each capa
 | 15 | Expression Language | `utils/expressions`, `utils/conditions`, `utils/parsing` | REQ-YG-051, REQ-YG-052 |
 | 16 | Linter Cross-Reference & Semantic Checks | `linter/checks`, `linter/graph_linter` | REQ-YG-053, REQ-YG-054 |
 | 17 | Execution Safety Guards | `map_compiler`, `error_handlers`, `graph_loader`, `cli/graph_commands`, `linter/checks_semantic` | REQ-YG-055 – REQ-YG-058 |
+| 18 | Testing & Quality | `tests/conftest`, `tests/unit/test_requirement_enforcement` | REQ-YG-063 |
+| 19 | MCP Server Interface | `mcp_server` | REQ-YG-066 – REQ-YG-068 |
 
 ### 1. Configuration Loading & Validation
 
@@ -447,6 +449,24 @@ Defense-in-depth guards against infinite loops, unbounded map fan-out, and runaw
 | REQ-YG-062 | Linter W013: warn when map node `over:` is a dynamic expression without `max_items` or `config.max_map_items` | `linter/checks_semantic`, `linter/patterns/map` |
 | REQ-YG-063 | **Requirement traceability enforcement**: `pytest_collection_modifyitems` hook structurally enforces ADR-001 — all tests must have `@pytest.mark.req` | `tests/conftest`, `tests/unit/test_requirement_enforcement` |
 | REQ-YG-064 | Token usage tracking via `TokenUsageCallbackHandler` callback injected at graph-level; accumulates `input_tokens`, `output_tokens`, `total_calls` across all LLM invocations; CLI `--token-usage` flag prints summary | `utils/token_tracker`, `cli/graph_commands`, `cli/__init__` |
+
+### 18. Testing & Quality
+
+Requirement traceability enforcement and testing infrastructure.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-063 | **Requirement traceability enforcement**: `pytest_collection_modifyitems` hook structurally enforces ADR-001 — all tests must have `@pytest.mark.req` | `tests/conftest`, `tests/unit/test_requirement_enforcement` |
+
+### 19. MCP Server Interface
+
+Expose YAMLGraph graphs as MCP (Model Context Protocol) tools for Copilot and other AI assistants.
+
+| Requirement | Description | Key Modules |
+|------------|-------------|-------------|
+| REQ-YG-066 | MCP server with stdio transport: expose `yamlgraph_list_graphs` and `yamlgraph_run_graph` tools via MCP protocol | `mcp_server` |
+| REQ-YG-067 | Graph discovery: scan configured directories for `graph.yaml`, parse headers for name/description/required vars | `mcp_server` |
+| REQ-YG-068 | Graph invocation via MCP: compile and invoke any discovered graph with vars, return structured result JSON | `mcp_server` |
 
 ---
 

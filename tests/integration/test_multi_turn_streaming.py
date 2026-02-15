@@ -57,7 +57,9 @@ async def test_guard_classification_separate_call():
     # Test "continue" intent
     result = await compiled.ainvoke({"user_message": "tell me a joke"})
     intent = result.get("intent", "").lower().strip()
-    assert "continue" in intent, f"Normal message should classify as continue, got: {intent}"
+    assert (
+        "continue" in intent
+    ), f"Normal message should classify as continue, got: {intent}"
 
 
 @pytest.mark.asyncio

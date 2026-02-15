@@ -8,5 +8,5 @@ system: |
 
 user: |
   Customer message: "{message}"
-  
+
   Respond warmly to this happy customer.

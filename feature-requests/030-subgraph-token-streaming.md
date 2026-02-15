@@ -1,10 +1,10 @@
 # Feature Request: Subgraph Token Streaming
 
-**Component:** yamlgraph  
-**Version:** 0.4.36  
-**LangGraph:** 1.0.6  
-**Date:** 2026-02-13  
-**Priority:** High  
+**Component:** yamlgraph
+**Version:** 0.4.36
+**LangGraph:** 1.0.6
+**Date:** 2026-02-13
+**Priority:** High
 **Status:** Phase 1 Complete (0.4.37)
 
 ## Implementation Status
@@ -97,16 +97,16 @@ async def subgraph_node_async(state: dict, config: RunnableConfig | None = None)
     \"\"\"Async subgraph node with streaming support.\"\"\"
     # 1. Map input state
     child_input = _map_input_state(state, input_mapping)
-    
+
     # 2. Get parent's stream_writer from runtime
     runtime = config.get("configurable", {}).get(CONFIG_KEY_RUNTIME)
-    
+
     # 3. Stream from child, forwarding tokens
     async for event in compiled.astream(child_input, child_config, stream_mode="messages"):
         chunk, meta = event
         if runtime and hasattr(runtime, "stream_writer"):
             runtime.stream_writer(chunk)  # Forward to parent
-    
+
     # 4. Get final state and map output
     child_state = compiled.get_state(child_config)
     return _map_output_state(child_state.values, output_mapping)

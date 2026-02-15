@@ -1,9 +1,9 @@
 # Feature Request: JSON Schema Export for IDE Support
 
-**Priority:** LOW  
-**Type:** Feature  
-**Status:** Proposed  
-**Effort:** 2 days  
+**Priority:** LOW
+**Type:** Feature
+**Status:** Proposed
+**Effort:** 2 days
 **Requested:** 2026-01-28
 
 ## Summary
@@ -131,13 +131,13 @@ Use Pydantic's JSON Schema export:
 def cmd_schema_export(args: Namespace) -> None:
     """Export graph schema as JSON Schema."""
     from yamlgraph.models.graph_schema import GraphConfig
-    
+
     schema = GraphConfig.model_json_schema()
-    
+
     # Add $schema and $id
     schema["$schema"] = "http://json-schema.org/draft-07/schema#"
     schema["$id"] = "https://yamlgraph.dev/schemas/graph-v1.json"
-    
+
     if args.output:
         Path(args.output).write_text(json.dumps(schema, indent=2))
         print(f"✅ Schema exported to {args.output}")

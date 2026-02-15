@@ -8,6 +8,7 @@ Research questions:
 3. How are interrupts surfaced?
 4. Does it work with yamlgraph-compiled graphs?
 """
+
 import asyncio
 import os
 from operator import add
@@ -51,7 +52,10 @@ async def llm_node_stream(state: State) -> dict:
     async for chunk in llm.astream(state["messages"]):
         chunks.append(chunk)
     response = chunks[-1] if chunks else None
-    return {"messages": [response] if response else [], "count": state.get("count", 0) + 1}
+    return {
+        "messages": [response] if response else [],
+        "count": state.get("count", 0) + 1,
+    }
 
 
 def preprocess(state: State) -> dict:
@@ -92,8 +96,12 @@ async def test_ainvoke_streaming():
         if isinstance(event, tuple) and len(event) == 2:
             chunk, metadata = event
             chunk_type = type(chunk).__name__
-            content = getattr(chunk, 'content', None)
-            node = metadata.get('langgraph_node', 'unknown') if isinstance(metadata, dict) else 'N/A'
+            content = getattr(chunk, "content", None)
+            node = (
+                metadata.get("langgraph_node", "unknown")
+                if isinstance(metadata, dict)
+                else "N/A"
+            )
 
             if content:
                 token_count += 1
@@ -128,9 +136,9 @@ async def test_event_structure():
             print(f"  Tuple length: {len(event)}")
             for i, item in enumerate(event):
                 print(f"  [{i}] {type(item).__name__}")
-                if hasattr(item, '__dict__'):
+                if hasattr(item, "__dict__"):
                     for k, v in item.__dict__.items():
-                        if not k.startswith('_'):
+                        if not k.startswith("_"):
                             print(f"      .{k} = {repr(v)[:60]}")
                 elif isinstance(item, dict):
                     for k, v in item.items():
@@ -168,13 +176,15 @@ async def test_interrupt_handling():
         event_type = type(event).__name__
         if isinstance(event, tuple) and len(event) == 2:
             chunk, metadata = event
-            content = getattr(chunk, 'content', None)
+            content = getattr(chunk, "content", None)
             if content:
                 print(f"  Token: {content!r}")
 
     # Check final state for interrupt
     final_state = await graph.aget_state(config)
-    print(f"\nFinal state has __interrupt__: {'__interrupt__' in (final_state.values or {})}")
+    print(
+        f"\nFinal state has __interrupt__: {'__interrupt__' in (final_state.values or {})}"
+    )
     print(f"Next nodes: {final_state.next}")
 
     if final_state.next:
@@ -221,8 +231,12 @@ async def test_multi_llm():
     ):
         if isinstance(event, tuple) and len(event) == 2:
             chunk, metadata = event
-            node = metadata.get('langgraph_node', 'unknown') if isinstance(metadata, dict) else 'unknown'
-            content = getattr(chunk, 'content', None)
+            node = (
+                metadata.get("langgraph_node", "unknown")
+                if isinstance(metadata, dict)
+                else "unknown"
+            )
+            content = getattr(chunk, "content", None)
             if content and node in node_tokens:
                 node_tokens[node] += 1
                 print(f"  {node}: {content!r}")
@@ -255,6 +269,7 @@ async def main():
     except Exception as e:
         print(f"\nERROR: {type(e).__name__}: {e}")
         import traceback
+
         traceback.print_exc()
 
 
@@ -279,8 +294,12 @@ async def test_yamlgraph_compiled():
     ):
         if isinstance(event, tuple) and len(event) == 2:
             chunk, metadata = event
-            content = getattr(chunk, 'content', None)
-            node = metadata.get('langgraph_node', 'unknown') if isinstance(metadata, dict) else 'unknown'
+            content = getattr(chunk, "content", None)
+            node = (
+                metadata.get("langgraph_node", "unknown")
+                if isinstance(metadata, dict)
+                else "unknown"
+            )
             if content:
                 token_count += 1
                 print(f"  Token {token_count} from '{node}': {content!r}")

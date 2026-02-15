@@ -4,10 +4,10 @@ system: |
 
 user: |
   Create a warm, personalized greeting for {user_name} who wants to learn about {user_topic}.
-  
+
   Include:
   1. A friendly greeting using their name
   2. Show excitement about their interest in {user_topic}
   3. Suggest 2-3 beginner-friendly resources or first steps to learn about {user_topic}
-  
+
   Keep it concise (3-4 sentences) and encouraging!

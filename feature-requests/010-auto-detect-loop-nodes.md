@@ -1,9 +1,9 @@
 # Feature Request: Auto-detect Loop Nodes for skip_if_exists
 
-**Priority:** HIGH  
-**Type:** DX Improvement  
-**Status:** Proposed  
-**Effort:** 1 day  
+**Priority:** HIGH
+**Type:** DX Improvement
+**Status:** Proposed
+**Effort:** 1 day
 **Requested:** 2026-01-28
 
 ## Summary
@@ -45,15 +45,15 @@ def detect_loop_nodes(edges: list[dict]) -> set[str]:
 
 def load_graph_config(path: str) -> dict:
     config = yaml.safe_load(...)
-    
+
     # Auto-detect loop nodes
     loop_nodes = detect_loop_nodes(config["edges"])
-    
+
     for node_name in loop_nodes:
         if "skip_if_exists" not in config["nodes"][node_name]:
             config["nodes"][node_name]["skip_if_exists"] = False
             logger.debug(f"Auto-disabled skip_if_exists for loop node: {node_name}")
-    
+
     return config
 ```
 
@@ -117,7 +117,7 @@ Use depth-first search to find back edges (Tarjan's or simple DFS):
 def detect_loop_nodes(edges: list[dict]) -> set[str]:
     """Detect nodes that participate in cycles."""
     from collections import defaultdict
-    
+
     # Build adjacency list
     graph = defaultdict(set)
     all_nodes = set()
@@ -130,29 +130,29 @@ def detect_loop_nodes(edges: list[dict]) -> set[str]:
             graph[from_node].add(to_node)
             all_nodes.add(from_node)
             all_nodes.add(to_node)
-    
+
     # Find nodes in cycles using DFS with coloring
     loop_nodes = set()
     WHITE, GRAY, BLACK = 0, 1, 2
     color = {node: WHITE for node in all_nodes}
-    
+
     def dfs(node: str, path: set[str]) -> None:
         color[node] = GRAY
         path.add(node)
-        
+
         for neighbor in graph[node]:
             if color[neighbor] == GRAY:
                 # Back edge found - all nodes in current path are in a cycle
                 loop_nodes.update(path)
             elif color[neighbor] == WHITE:
                 dfs(neighbor, path.copy())
-        
+
         color[node] = BLACK
-    
+
     for node in all_nodes:
         if color[node] == WHITE:
             dfs(node, set())
-    
+
     return loop_nodes
 ```
 

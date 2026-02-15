@@ -1,9 +1,9 @@
 # Feature Request: URL-based Graph and Prompt Paths
 
-**Priority:** MEDIUM  
-**Type:** Feature  
-**Status:** Proposed  
-**Effort:** 2 days  
+**Priority:** MEDIUM
+**Type:** Feature
+**Status:** Proposed
+**Effort:** 2 days
 **Requested:** 2026-01-29
 
 ## Summary
@@ -26,7 +26,7 @@ nodes:
   ask_probe:
     type: interrupt
     prompt: https://raw.githubusercontent.com/company/prompts/main/probe.yaml
-  
+
   run_subgraph:
     type: subgraph
     graph: https://raw.githubusercontent.com/company/graphs/main/sub.yaml
@@ -37,7 +37,7 @@ nodes:
 ```python
 class URLLoader:
     """Fetch URLs with TTL-based file caching."""
-    
+
     def __init__(
         self,
         cache_ttl: int = 300,  # 5 minutes
@@ -45,7 +45,7 @@ class URLLoader:
         timeout: int = 10,  # seconds
         max_size: int = 1_000_000,  # 1MB
     ): ...
-    
+
     def load(self, url: str) -> str:
         """Load content from URL, use cache if fresh."""
         ...

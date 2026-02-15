@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "yamlgraph": {
+      "command": ".venv/bin/python3",
+      "args": ["yamlgraph/mcp_server.py"],
+      "env": {}
+    }
+  }
+}

@@ -1,9 +1,9 @@
 # Feature Request: [Title]
 
-**Priority:** LOW | MEDIUM | HIGH  
-**Type:** Feature | Bug | Enhancement  
-**Status:** Proposed  
-**Effort:** X days  
+**Priority:** LOW | MEDIUM | HIGH
+**Type:** Feature | Bug | Enhancement
+**Status:** Proposed
+**Effort:** X days
 **Requested:** YYYY-MM-DD
 
 ## Summary

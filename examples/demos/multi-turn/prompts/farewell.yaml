@@ -4,5 +4,5 @@ system: |
 
 user: |
   The user said: {{ message }}
-  
+
   Say goodbye warmly.

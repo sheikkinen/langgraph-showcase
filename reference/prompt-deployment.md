@@ -38,7 +38,7 @@ spec:
         name: my-prompts
 ```
 
-**Pros:** Simple, native to orchestrators, no code changes  
+**Pros:** Simple, native to orchestrators, no code changes
 **Cons:** Requires deployment config change for updates
 
 ---
@@ -67,7 +67,7 @@ defaults:
   prompts_dir: /app/prompts/  # Mounted from ConfigMap
 ```
 
-**Pros:** GitOps-friendly, versioned in cluster  
+**Pros:** GitOps-friendly, versioned in cluster
 **Cons:** Pod restart needed (unless using subPath + inotify)
 
 ---
@@ -86,7 +86,7 @@ spec:
         - name: prompts
           mountPath: /app/prompts
           readOnly: true
-    
+
     - name: git-sync
       image: registry.k8s.io/git-sync/git-sync:v4.2.1
       args:
@@ -97,13 +97,13 @@ spec:
       volumeMounts:
         - name: prompts
           mountPath: /git
-  
+
   volumes:
     - name: prompts
       emptyDir: {}
 ```
 
-**Pros:** Automatic updates, Git history preserved  
+**Pros:** Automatic updates, Git history preserved
 **Cons:** Additional container, slight complexity
 
 ---
@@ -121,7 +121,7 @@ def sync_prompts_from_s3():
     s3 = boto3.client('s3')
     bucket = os.getenv('PROMPTS_BUCKET', 'my-prompts')
     prefix = os.getenv('PROMPTS_PREFIX', 'v1/')
-    
+
     paginator = s3.get_paginator('list_objects_v2')
     for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
         for obj in page.get('Contents', []):
@@ -135,7 +135,7 @@ sync_prompts_from_s3()
 graph = load_and_compile("graph.yaml")
 ```
 
-**Pros:** Central storage, versioning via S3  
+**Pros:** Central storage, versioning via S3
 **Cons:** Startup latency, requires cloud SDK
 
 ---
@@ -165,7 +165,7 @@ prompts/
     └── greeting.yaml
 ```
 
-**Pros:** Simple, no external deps  
+**Pros:** Simple, no external deps
 **Cons:** All versions bundled in image
 
 ---
@@ -185,15 +185,15 @@ PROMPTS_DIR = Path("/app/prompts")
 async def update_prompt(name: str, content: dict):
     prompt_path = PROMPTS_DIR / f"{name}.yaml"
     prompt_path.write_text(yaml.dump(content))
-    
+
     # Reload graph
     global graph
     graph = await load_and_compile_async("graph.yaml")
-    
+
     return {"status": "updated", "prompt": name}
 ```
 
-**Pros:** Immediate updates, no restart  
+**Pros:** Immediate updates, no restart
 **Cons:** Requires persistent volume, security considerations
 
 ---

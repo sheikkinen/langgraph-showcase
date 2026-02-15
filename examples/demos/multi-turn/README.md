@@ -133,4 +133,3 @@ checkpointer:
 - `prompts/respond.yaml` — Main conversation prompt
 - `prompts/classify_intent.yaml` — Guard classification prompt
 - `prompts/farewell.yaml` — Goodbye response (for guard redirect)
-

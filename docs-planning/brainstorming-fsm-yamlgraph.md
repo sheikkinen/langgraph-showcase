@@ -1,7 +1,7 @@
 # Brainstorming: FSM + YAMLGraph Integration
 
-**Date:** 2026-02-04  
-**Status:** Exploration  
+**Date:** 2026-02-04
+**Status:** Exploration
 **Related:** [statemachine-engine](https://github.com/sheikkinen/statemachine-engine)
 
 ## Executive Summary
@@ -58,7 +58,7 @@ def notify_controller(state):
     import socket, json
     sock_path = "/tmp/statemachine-control-controller.sock"
     payload = {"type": "analysis_complete", "payload": state["result"]}
-    
+
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
     sock.sendto(json.dumps(payload).encode(), sock_path)
     return {"notified": True}
@@ -193,14 +193,14 @@ from statemachine_engine.actions.base import BaseAction
 class YamlGraphAction(BaseAction):
     async def execute(self, context):
         from yamlgraph import load_graph, execute_graph
-        
+
         graph_path = self.params.get('graph')
         variables = self.params.get('variables', {})
         output_key = self.params.get('output_key', 'yamlgraph_result')
-        
+
         graph = load_graph(graph_path)
         result = await execute_graph(graph, variables)
-        
+
         context[output_key] = result
         return self.params.get('success', 'completed')
 ```
@@ -215,21 +215,21 @@ from statemachine_engine.actions.base import BaseAction
 
 class AnalyzeAction(BaseAction):
     """Custom action that runs a YAMLGraph pipeline."""
-    
+
     async def execute(self, context):
         # Import YAMLGraph at runtime
         from yamlgraph import load_graph
         from yamlgraph.executor import execute_graph
-        
+
         # Run the pipeline with context data
         graph = load_graph("graphs/analysis.yaml")
         result = await execute_graph(graph, {
             "input": context.get("job_data", {})
         })
-        
+
         # Store result in FSM context for downstream actions
         context["analysis_result"] = result
-        
+
         # Return event to trigger FSM transition
         return "analysis_complete"
 ```
@@ -280,10 +280,10 @@ def send_fsm_event(state):
         "type": state["event_type"],
         "payload": state.get("payload", {})
     }
-    
+
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
     sock.sendto(json.dumps(payload).encode(), sock_path)
-    
+
     return {"fsm_notified": True}
 ```
 
@@ -422,7 +422,7 @@ YAMLGraph: PHI detection, anonymization, clinical summarization
 ```
 FSM: Coordinates multiple YAMLGraph workers
      States: planning → researching → synthesizing → reviewing → complete
-     
+
 YAMLGraph graphs:
   - research-planner.yaml (decompose query into sub-questions)
   - web-researcher.yaml (search and summarize)
@@ -449,7 +449,7 @@ YAMLGraph graphs:
 ```
 FSM: Order state machine with retry logic
      States: received → fraud_check → inventory_check → fulfilling → shipped → delivered
-     
+
 YAMLGraph:
   - fraud-detector.yaml (LLM-based anomaly detection)
   - customer-communication.yaml (personalized updates)

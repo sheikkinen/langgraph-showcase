@@ -16,11 +16,11 @@ from yamlgraph.executor_async import (
 async def main():
     # Single prompt
     result = await execute_prompt_async("greet", {"name": "World"})
-    
+
     # Streaming
     async for token in execute_prompt_streaming("greet", {"name": "World"}):
         print(token, end="", flush=True)
-    
+
     # Full graph
     app = await load_and_compile_async("graphs/my-graph.yaml")
     result = await run_graph_async(app, {"input": "hello"}, config)
@@ -125,10 +125,10 @@ async def startup():
 async def chat(thread_id: str, message: str):
     config = {"configurable": {"thread_id": thread_id}}
     result = await run_graph_async(graph_app, {"input": message}, config)
-    
+
     if "__interrupt__" in result:
         return {"status": "waiting", "question": result["__interrupt__"][0].value}
-    
+
     return {"status": "complete", "response": result.get("response")}
 
 @app.post("/chat/{thread_id}/resume")

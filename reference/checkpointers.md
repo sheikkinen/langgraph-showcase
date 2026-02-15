@@ -148,9 +148,9 @@ async def main():
         "type": "redis",
         "url": "redis://localhost:6379"
     })
-    
+
     # ... use checkpointer ...
-    
+
     # Cleanup on shutdown
     await shutdown_checkpointers()
 ```

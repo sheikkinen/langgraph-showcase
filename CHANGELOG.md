@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.39] - 2026-02-15
+
+### Added
+- **CAP-19: MCP Server Interface** (REQ-YG-066, REQ-YG-067, REQ-YG-068)
+  - `yamlgraph/mcp_server.py`: Expose graphs as MCP tools via stdio transport
+  - `yamlgraph_list_graphs`: Discover available graphs with descriptions and required vars
+  - `yamlgraph_run_graph`: Invoke any graph by name with variables, returns structured JSON
+  - Graph discovery scans `examples/demos/*/graph.yaml` and `examples/*/graph.yaml`
+  - `.mcp.json` workspace config for VS Code MCP integration
+  - `reference/mcp-server.md` documentation
+  - 8 unit tests covering discovery, schema, invocation, error handling, timeout
+- `mcp` optional dependency group in `pyproject.toml`
+
 ## [0.4.38] - 2026-02-13
 
 ### Added
