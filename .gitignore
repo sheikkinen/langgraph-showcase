@@ -12,6 +12,7 @@ ENV/
 # IDE
 .idea/
 .vscode/
+!.vscode/mcp.json
 *.swp
 
 # Planning files

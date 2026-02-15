@@ -12,8 +12,22 @@ pip install -e ".[mcp]"
 
 ### 2. Configure VS Code
 
-The workspace `.mcp.json` is pre-configured:
+Two config files are provided — VS Code uses `.vscode/mcp.json` (native), Claude Code uses `.mcp.json`:
 
+**`.vscode/mcp.json`** (VS Code Copilot — canonical):
+```json
+{
+  "servers": {
+    "yamlgraph": {
+      "command": ".venv/bin/python3",
+      "args": ["yamlgraph/mcp_server.py"],
+      "cwd": "/path/to/yamlgraph"
+    }
+  }
+}
+```
+
+**`.mcp.json`** (Claude Code / Claude Desktop):
 ```json
 {
   "mcpServers": {
@@ -26,7 +40,7 @@ The workspace `.mcp.json` is pre-configured:
 }
 ```
 
-VS Code discovers this automatically. The server starts on demand via stdio transport.
+Both are pre-configured in the repository. The server starts on demand via stdio transport.
 
 ## Tools
 

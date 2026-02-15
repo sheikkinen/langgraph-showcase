@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `yamlgraph_list_graphs`: Discover available graphs with descriptions and required vars
   - `yamlgraph_run_graph`: Invoke any graph by name with variables, returns structured JSON
   - Graph discovery scans `examples/demos/*/graph.yaml` and `examples/*/graph.yaml`
-  - `.mcp.json` workspace config for VS Code MCP integration
+  - `.mcp.json` and `.vscode/mcp.json` workspace configs for MCP integration
   - `reference/mcp-server.md` documentation
   - 8 unit tests covering discovery, schema, invocation, error handling, timeout
 - `mcp` optional dependency group in `pyproject.toml`
