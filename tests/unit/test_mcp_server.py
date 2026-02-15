@@ -65,11 +65,49 @@ def test_discover_graphs_finds_yaml(tmp_path: Path):
 
 
 @pytest.mark.req("REQ-YG-067")
+def test_discover_graphs_non_standard_filename(tmp_path: Path):
+    """Discover graph YAML files with non-standard names like pipeline.yaml."""
+    from yamlgraph.mcp_server import discover_graphs
+
+    graph_dir = tmp_path / "demo"
+    graph_dir.mkdir()
+    (graph_dir / "pipeline.yaml").write_text(
+        "version: '1.0'\nname: my-pipeline\n"
+        "description: A pipeline graph\n"
+        "state:\n  domain: str\n"
+        "nodes:\n  n1:\n    type: llm\n    prompt: p\n    state_key: out\n"
+        "edges:\n  - from: START\n    to: n1\n  - from: n1\n    to: END\n"
+    )
+    # Also create a prompt YAML (no nodes key) — must be excluded
+    prompts_dir = graph_dir / "prompts"
+    prompts_dir.mkdir()
+
+    graphs = discover_graphs([str(tmp_path / "demo/*.yaml")])
+    assert len(graphs) == 1
+    assert graphs[0]["name"] == "my-pipeline"
+
+
+@pytest.mark.req("REQ-YG-067")
+def test_discover_graphs_skips_prompt_yaml(tmp_path: Path):
+    """Prompt YAML files (no nodes key) are excluded from discovery."""
+    from yamlgraph.mcp_server import discover_graphs
+
+    graph_dir = tmp_path / "demo"
+    graph_dir.mkdir()
+    (graph_dir / "prompt.yaml").write_text(
+        "metadata:\n  name: greet\n" "system: You are helpful.\n" "user: Hello {name}\n"
+    )
+
+    graphs = discover_graphs([str(tmp_path / "demo/*.yaml")])
+    assert graphs == []
+
+
+@pytest.mark.req("REQ-YG-067")
 def test_discover_graphs_empty_dir(tmp_path: Path):
     """Empty or missing dir returns empty list."""
     from yamlgraph.mcp_server import discover_graphs
 
-    graphs = discover_graphs([str(tmp_path / "nonexistent/*/graph.yaml")])
+    graphs = discover_graphs([str(tmp_path / "nonexistent/*/*.yaml")])
     assert graphs == []
 
 

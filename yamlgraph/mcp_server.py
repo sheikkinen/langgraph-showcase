@@ -47,8 +47,8 @@ INVOKE_TIMEOUT = 120
 
 # Default graph scan patterns (relative to project root)
 DEFAULT_GRAPH_PATTERNS = [
-    "examples/demos/*/graph.yaml",
-    "examples/*/graph.yaml",
+    "examples/demos/*/*.yaml",
+    "examples/*/*.yaml",
 ]
 
 # Thread pool for blocking graph invocations
@@ -61,10 +61,14 @@ _executor = ThreadPoolExecutor(max_workers=1)
 
 
 def discover_graphs(patterns: list[str]) -> list[dict[str, Any]]:
-    """Scan directories for graph.yaml files and parse headers.
+    """Scan directories for graph YAML files and parse headers.
+
+    A YAML file is considered a graph if it contains a ``nodes`` key.
+    This allows discovery of non-standard filenames (e.g. ``pipeline.yaml``,
+    ``drill-down.yaml``) while excluding prompt templates.
 
     Args:
-        patterns: Glob patterns to scan for graph.yaml files.
+        patterns: Glob patterns to scan for YAML files.
 
     Returns:
         List of dicts with keys: name, description, path, required_vars.
@@ -83,6 +87,10 @@ def discover_graphs(patterns: list[str]) -> list[dict[str, Any]]:
                 with open(path_str) as f:
                     config = yaml.safe_load(f)
                 if not isinstance(config, dict):
+                    continue
+
+                # Only include files that look like graphs (have nodes)
+                if "nodes" not in config:
                     continue
 
                 name = config.get("name", Path(path_str).parent.name)
