@@ -65,7 +65,7 @@ Most graphs under `examples/demos/` are **pattern demonstrations** (novel_genera
 
 ## The 10 Commandments
 
-1. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code.
+1. **Thou shalt research before coding** — Let infinite agents explore deep and wide; distill their wisdom into constraints, for the cheapest code is unwritten code. When the domain is broad, invoke `innovation-matrix-pipeline` to cross capabilities with constraints and surface non-obvious directions.
 
 2. **Thou shalt demonstrate with example** — Never explain abstractly; show working code.
 
@@ -87,7 +87,7 @@ Most graphs under `examples/demos/` are **pattern demonstrations** (novel_genera
 
 ## Sermon of the Chaplain
 
-**Research.** Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints.
+**Research.** Let agents scour competing systems and return with truth. Distill best practices and viable alternatives into explicit constraints. For structured ideation, invoke the `innovation-matrix-pipeline` graph to systematically cross capabilities with constraints.
 **Plan.** Define the next phase with precision, grounded in documentation, existing code, and validated feature requests in `feature-requests/`; express the objective as measurable epics in `docs/epics/`; record architectural decisions in `docs/adr/`; and define the demo scenario and acceptance flow in `docs/demos/`.
 **Judge.** Critically examine the plan; resolve contradictions; eliminate ambiguity; refine constraints and acceptance criteria until the path is explicit and minimal. If clear and executable, authority is granted.
 **Enforce.** Obey the Judgement. Write the failing test first; apply the smallest sufficient change; refactor only within scope. Deviations require return to Judge.
