@@ -6,7 +6,7 @@ Check functions:
 - check_cross_references (E006, E008)
 - check_passthrough_nodes (E601)
 - check_tool_call_nodes (E701, E702)
-- check_expression_syntax (W801, W007)
+- check_expression_syntax (W801, W007, W014)
 - check_error_handling (E010, E011)
 - check_edge_types (E802)
 """
@@ -17,6 +17,7 @@ import re
 from pathlib import Path
 
 from yamlgraph.linter.checks import BUILTIN_STATE_FIELDS, LintIssue, load_graph
+from yamlgraph.models.state_builder import COMMON_INPUT_FIELDS
 
 # Sentinel node names that are always valid edge endpoints
 _SENTINEL_NODES = {"START", "END"}
@@ -135,11 +136,31 @@ def check_tool_call_nodes(graph_path: Path) -> list[LintIssue]:
     return issues
 
 
+def _build_known_state_fields(graph: dict) -> set[str]:
+    """Build the complete set of known state field names from a parsed graph.
+
+    Sources: state: section, node state_key values, BUILTIN_STATE_FIELDS,
+    COMMON_INPUT_FIELDS, data_files keys, map collect keys.
+    """
+    fields: set[str] = set(graph.get("state", {}).keys())
+    fields.update(BUILTIN_STATE_FIELDS)
+    fields.update(COMMON_INPUT_FIELDS.keys())
+    for key in graph.get("data_files", {}):
+        fields.add(key)
+    for node_config in graph.get("nodes", {}).values():
+        if "state_key" in node_config:
+            fields.add(node_config["state_key"])
+        if collect := node_config.get("collect"):
+            fields.add(collect)
+    return fields
+
+
 def check_expression_syntax(graph_path: Path) -> list[LintIssue]:
     """Check condition and variable expression syntax.
 
     W801 — condition uses {braces} or state. prefix (should be bare names)
     W007 — variable expression uses {name} without state. prefix
+    W014 — {state.X} references field not in known state
     """
     issues: list[LintIssue] = []
     graph = load_graph(graph_path)
@@ -159,36 +180,59 @@ def check_expression_syntax(graph_path: Path) -> list[LintIssue]:
                 )
             )
 
-    # W007: variable expressions in node.variables / node.output should use {state.xxx}
-    state_fields = set(graph.get("state", {}).keys())
-    state_fields.update(BUILTIN_STATE_FIELDS)
+    # Build known state fields (shared by W007 and W014)
+    known_fields = _build_known_state_fields(graph)
 
     for node_name, node_config in graph.get("nodes", {}).items():
-        # Check variables and output mappings
-        for section in ("variables", "output"):
+        # Collect all string values from expression-bearing sections
+        expr_values: list[tuple[str, str]] = []  # (section_label, value)
+        for section in ("variables", "output", "args", "input_mapping"):
             mapping = node_config.get(section) or {}
             if not isinstance(mapping, dict):
                 continue
             for _key, value in mapping.items():
-                if not isinstance(value, str):
-                    continue
-                # Find {xxx} patterns that are NOT {state.xxx} and NOT {{escaped}}
-                protected = value.replace("{{", "\x00").replace("}}", "\x01")
-                bare_refs = re.findall(r"\{(\w+)\}", protected)
-                for ref in bare_refs:
-                    if ref in state_fields:
-                        issues.append(
-                            LintIssue(
-                                severity="warning",
-                                code="W007",
-                                message=(
-                                    f"Variable '{{{{ {ref} }}}}' in node '{node_name}' "
-                                    f"appears to reference state field '{ref}' "
-                                    f"without 'state.' prefix"
-                                ),
-                                fix=f"Use '{{{{state.{ref}}}}}' instead of '{{{{{ref}}}}}'",
-                            )
+                if isinstance(value, str):
+                    expr_values.append((section, value))
+        # Also check 'over' (single string value, e.g. map nodes)
+        over = node_config.get("over")
+        if isinstance(over, str):
+            expr_values.append(("over", over))
+
+        for _section, value in expr_values:
+            protected = value.replace("{{", "\x00").replace("}}", "\x01")
+
+            # W007: bare {name} that matches a known state field
+            bare_refs = re.findall(r"\{(\w+)\}", protected)
+            for ref in bare_refs:
+                if ref in known_fields:
+                    issues.append(
+                        LintIssue(
+                            severity="warning",
+                            code="W007",
+                            message=(
+                                f"Variable '{{{{ {ref} }}}}' in node '{node_name}' "
+                                f"appears to reference state field '{ref}' "
+                                f"without 'state.' prefix"
+                            ),
+                            fix=f"Use '{{{{state.{ref}}}}}' instead of '{{{{{ref}}}}}'",
                         )
+                    )
+
+            # W014: {state.X} where X is not in known fields
+            state_refs = re.findall(r"\{state\.(\w+)", protected)
+            for ref in state_refs:
+                if ref not in known_fields:
+                    issues.append(
+                        LintIssue(
+                            severity="warning",
+                            code="W014",
+                            message=(
+                                f"'{{{{state.{ref}}}}}' in node '{node_name}' "
+                                f"references undeclared state field '{ref}'"
+                            ),
+                            fix=f"Add '{ref}: str' to the state section or check for typos",
+                        )
+                    )
 
     return issues
 

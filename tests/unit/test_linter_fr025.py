@@ -173,6 +173,24 @@ class TestCheckExpressionSyntax:
         codes = issue_codes(issues)
         assert "W007" in codes
 
+    # --- W014: {state.X} references undeclared field ---
+
+    @pytest.mark.req("REQ-YG-069")
+    def test_state_ref_undeclared_pass(self):
+        """All {state.X} refs resolve to known fields — no W014."""
+        issues = check_expression_syntax(FIXTURES / "state_ref_undeclared_pass.yaml")
+        codes = issue_codes(issues)
+        assert "W014" not in codes
+
+    @pytest.mark.req("REQ-YG-069")
+    def test_state_ref_undeclared_fail(self):
+        """{state.unknown_field} not in known state — W014 raised."""
+        issues = check_expression_syntax(FIXTURES / "state_ref_undeclared_fail.yaml")
+        codes = issue_codes(issues)
+        assert "W014" in codes
+        w014 = [i for i in issues if i.code == "W014"]
+        assert any("unknown_field" in i.message for i in w014)
+
 
 # ===========================================================================
 # Phase 4 — Error handling & edge type checks (E010, E802)
@@ -279,8 +297,8 @@ class TestLintGraphIntegration:
         """All _pass fixtures produce no errors from new checks."""
         pass_fixtures = sorted(FIXTURES.glob("*_pass.yaml"))
         assert (
-            len(pass_fixtures) == 10
-        ), f"Expected 10 pass fixtures, got {len(pass_fixtures)}"
+            len(pass_fixtures) == 11
+        ), f"Expected 11 pass fixtures, got {len(pass_fixtures)}"
         new_codes = {
             "E006",
             "E008",
@@ -289,6 +307,7 @@ class TestLintGraphIntegration:
             "E702",
             "W801",
             "W007",
+            "W014",
             "E010",
             "E011",
             "E802",

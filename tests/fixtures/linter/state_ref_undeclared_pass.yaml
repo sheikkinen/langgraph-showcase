@@ -1,0 +1,20 @@
+# W014 pass: all {state.X} references resolve to known state fields
+prompts_relative: true
+prompts_dir: prompts
+state:
+  name: str
+  response: str
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    state_key: response
+    variables:
+      name: "{state.name}"
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END

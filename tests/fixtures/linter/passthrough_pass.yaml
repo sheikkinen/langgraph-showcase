@@ -1,6 +1,7 @@
 # E601 pass: passthrough node has output field
 state:
   total: int
+  count: int
 
 nodes:
   transform:

@@ -1,0 +1,21 @@
+# W014 fail: {state.unknown_field} not declared anywhere in graph
+prompts_relative: true
+prompts_dir: prompts
+state:
+  name: str
+  response: str
+
+nodes:
+  greet:
+    type: llm
+    prompt: greet
+    state_key: response
+    variables:
+      name: "{state.name}"
+      mood: "{state.unknown_field}"
+
+edges:
+  - from: START
+    to: greet
+  - from: greet
+    to: END
