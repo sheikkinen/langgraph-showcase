@@ -91,8 +91,22 @@ Let CI judge (`gh run list` and `view`).
 
 ## YAMLGraph MCP Tools
 
-You have access to YAMLGraph graphs as MCP tools. Use them for repeatable tasks:
-- `yamlgraph_list_graphs` to discover available graphs
-- `yamlgraph_run_graph` with graph="code-analysis" for code quality audits
-- `yamlgraph_run_graph` with graph="git-report" for git analysis
-- `yamlgraph_run_graph` with graph="hello-world" for smoke testing
+YAMLGraph graphs are available as MCP tools. **Prefer these over ad-hoc terminal commands** for tasks they cover — one tool call replaces multiple manual steps.
+
+### When to use
+
+| User says | Use this | Example vars |
+|-----------|----------|-------------|
+| "check code quality", "audit", "analyze" | `yamlgraph_run_graph` graph=`code-analysis` | `path=yamlgraph/`, `package=yamlgraph` |
+| "what changed", "git history", "summarize commits" | `yamlgraph_run_graph` graph=`git-report` | `input=last 10 commits` |
+| "propose improvements", "brainstorm features" | `yamlgraph_run_graph` graph=`feature-brainstorm` | `focus=tools subsystem` |
+| "smoke test", "verify framework works" | `yamlgraph_run_graph` graph=`hello-world` | `name=World`, `style=enthusiastic` |
+
+### Discovery
+
+- `yamlgraph_list_graphs` — list all available graphs with required vars
+- `yamlgraph_run_graph` — run any graph by name
+
+### What NOT to call as dev tools
+
+Most graphs under `examples/demos/` are **pattern demonstrations** (novel_generator, storyboard, booking-assistant, etc.). Only call them if the user explicitly asks to run a demo.
